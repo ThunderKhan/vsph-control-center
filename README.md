@@ -45,7 +45,7 @@ See **[docs/DASHBOARD_DESIGN.md](docs/DASHBOARD_DESIGN.md)** for navigation, res
 - **Mandatory second password verification** inside each app. Creates a separate app-scoped session tied to a specific customer and the current portal session.
 - Platform Super Admin console for organizations, application catalog, subscriptions, access grants, users and per-app role assignments.
 - Simple tenant-scoped CRM Contacts and Music Requests modules to demonstrate isolated data.
-- Five demo users and multiple organizations including two distinct CRM customers.
+- Optional isolated-demo seed fixtures, never installed by normal startup or feature migrations.
 - Backend makes **all** Supabase database calls; browser never receives the secret key.
 - RLS enabled; anon and authenticated direct access to app tables is revoked. The server uses a privileged key and **must** enforce tenant scoping on every query. See Security and limitations below.
 
@@ -91,7 +91,7 @@ npm run check
 npm run dev
 ```
 
-6. Open **http://localhost:3000** and sign into the portal with `owner@vsph.test` and your `DEMO_PASSWORD`.
+6. Open **http://localhost:3000** and sign in with your existing approved Supabase account. Legacy demo credentials work only if fixtures were explicitly seeded in an isolated demo project; normal startup creates no users.
 
 The login is served at `/` or `/login` using the shared `views/auth.html` template. Portal routes are `/dashboard` (Overview), `/applications` (Applications directory), and `/admin` (VSPH platform super admins only). CRM and Music use `/apps/:code/login` and `/apps/:code/home`. Legacy `.html` bookmarks redirect to these clean routes, with authentication enforced on the destinations.
 
