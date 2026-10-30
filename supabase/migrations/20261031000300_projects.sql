@@ -116,10 +116,16 @@ begin
    'tasks',coalesce((select jsonb_agg(x order by x.due_on nulls last) from public.project_tasks x where x.project_id=p.id and (v_role<>'client' or x.shared)),'[]'),
    'comments',coalesce((select jsonb_agg(x) from (select c.* from public.project_comments c where c.project_id=p.id and (v_role<>'client' or (c.shared and (c.task_id is null or exists(select 1 from public.project_tasks t where t.id=c.task_id and t.shared)))) order by c.created_at desc limit 200) x),'[]'),
    'deliverables',coalesce((select jsonb_agg(x) from (select d.* from public.project_deliverables d where d.project_id=p.id and (v_role<>'client' or (d.shared and (d.task_id is null or exists(select 1 from public.project_tasks t where t.id=d.task_id and t.shared)))) order by d.created_at desc limit 200) x),'[]'),
-   'activity',coalesce((select jsonb_agg(x) from (select a.* from public.project_activity a where a.project_id=p.id and (v_role<>'client' or a.shared) order by a.id desc limit 200) x),'[]'));
+   'activity',coalesce((select jsonb_agg(x) from (select a.* from public.project_activity a where a.project_id=p.id and (v_role<>'client' or (a.shared and case
+    when a.action like 'task.%' then exists(select 1 from public.project_tasks t where t.id=a.entity_id and t.shared)
+    when a.action like 'milestone.%' then exists(select 1 from public.project_milestones m where m.id=a.entity_id and m.shared)
+    when a.action='deliverable.create' then exists(select 1 from public.project_deliverables d where d.id=a.entity_id and d.shared and (d.task_id is null or exists(select 1 from public.project_tasks t where t.id=d.task_id and t.shared)))
+    when a.action='comment.create' then exists(select 1 from public.project_comments c where c.id=a.entity_id and c.shared and (c.task_id is null or exists(select 1 from public.project_tasks t where t.id=c.task_id and t.shared)))
+    else false end)) order by a.id desc limit 200) x),'[]'));
  end if;
  if v_role not in ('manager','contributor') then raise exception 'Read only' using errcode='42501';end if;
  if p.version is distinct from (p_data->>'version')::integer then raise exception 'Stale project version' using errcode='40001';end if;
+ if p.status='completed' and p_action<>'update' then raise exception 'Reopen completed project before changing work' using errcode='22023';end if;
  if p.status='archived' and not (v_admin and p_action='update' and p_data->>'status'='planned') then raise exception 'Archived project is read only' using errcode='22023';end if;
  if p_action not in ('task.update','comment.create') and v_role<>'manager' then raise exception 'Manager required' using errcode='42501';end if;
  entity:=coalesce(nullif(p_data->>'id','')::uuid,gen_random_uuid());v_title:=left(coalesce(p_data->>'title',p_data->>'name',p_action),200);
@@ -139,6 +145,7 @@ begin
   entity:=p.id;
  elsif p_action='member.save' then
   person:=(p_data->>'userId')::uuid;
+  if not exists(select 1 from public.project_memberships where project_id=p.id and user_id=person) and (select count(*) from public.project_memberships where project_id=p.id)>=200 then raise exception 'Membership limit reached' using errcode='22023';end if;
   if person=p.owner_id and (p_data->>'role' is distinct from 'manager' or p_data->>'status' is distinct from 'active') then raise exception 'Transfer ownership before revocation' using errcode='22023';end if;
   if not exists(select 1 from public.profiles where id=person and status='active') then raise exception 'Member unavailable' using errcode='22023';end if;
   if p_data->>'role'='client' and not exists(select 1 from public.organization_memberships where user_id=person and organization_id=p.customer_organization_id and status='active') then raise exception 'Customer membership required' using errcode='22023';end if;
@@ -153,7 +160,7 @@ begin
    if not found then raise exception 'Milestone unavailable' using errcode='P0002';end if;
    new_status:=coalesce(p_data->>'status',milestone.status);
    if new_status<>milestone.status and not ((milestone.status='planned' and new_status in ('active','cancelled')) or (milestone.status='active' and new_status in ('planned','done','cancelled')) or (milestone.status='done' and new_status='active') or (milestone.status='cancelled' and new_status='planned')) then raise exception 'Invalid milestone transition' using errcode='22023';end if;
-   if coalesce(p_data->>'status',milestone.status)='done' and (exists(select 1 from public.project_tasks where milestone_id=entity and status not in ('done','cancelled')) or exists(select 1 from public.project_milestones where id=milestone.depends_on and status<>'done')) then raise exception 'Milestone work or dependency incomplete' using errcode='22023';end if;
+   if coalesce(p_data->>'status',milestone.status)='done' and (exists(select 1 from public.project_tasks where milestone_id=entity and status not in ('done','cancelled')) or exists(select 1 from public.project_milestones where id=case when p_data?'dependsOn' then nullif(p_data->>'dependsOn','')::uuid else milestone.depends_on end and status<>'done')) then raise exception 'Milestone work or dependency incomplete' using errcode='22023';end if;
    update public.project_milestones set title=coalesce(p_data->>'title',title),status=coalesce(p_data->>'status',status),due_on=case when p_data?'dueOn' then nullif(p_data->>'dueOn','')::date else due_on end,shared=coalesce((p_data->>'shared')::boolean,shared),depends_on=case when p_data?'dependsOn' then nullif(p_data->>'dependsOn','')::uuid else depends_on end where id=entity;
    if exists(with recursive deps(id) as(select depends_on from public.project_milestones where id=entity union select m.depends_on from public.project_milestones m join deps d on m.id=d.id) select 1 from deps where id=entity) then raise exception 'Cyclic dependency' using errcode='22023';end if;
   end if;
