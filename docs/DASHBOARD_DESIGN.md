@@ -1,50 +1,51 @@
-# Workspace dashboard design
+# VSPH Control Center — Workspace navigation and dashboard
 
-This redesign is intentionally **not** a copy of the 21st.dev tech-stack demo. It adapts its bento composition and cursor-following spotlight treatment to VSPH's actual portal workflow.
+## User-facing screens
 
-## Source of truth
+The portal provides **two separate routes and views** with a shared responsive shell. The underlying HTML remains `public/dashboard.html`, while Express handles routing and the controller selects the relevant view based on `window.location.pathname`.
 
-- `DESIGN.md`: VSPH palette, typography, component rules, and accessibility.
-- `public/dashboard.html`: accessible dashboard markup.
-- `public/dashboard.css`: responsive dashboard-specific styles; intentionally separate from admin and shared login CSS.
-- `public/dashboard.js`: loads permissions and counts from existing Express/Supabase endpoints.
-- `tests/dashboard.test.js`: regression checks for navigation, real data, and permission-filtered cards.
+| Screen | Clean URL | Purpose | Live sources |
+| --- | --- | --- | --- |
+| Overview | `/dashboard` | Access summary, tenant roles, workspaces, quick launch, login guidance | `GET /api/auth/me`, `/api/apps`, `/api/workspaces`, `/api/apps/:code/contexts` |
+| Applications | `/applications` | Searchable directory of currently authorized products | `GET /api/apps` |
+| Platform administration | `/admin` | VSPH super admins: manage customers, products, people, subscriptions, grants, roles and audit events | `/api/admin-management/*` |
+| CRM / Music second login | `/apps/:code/login` | Separate application verification and organization selection | Existing app context and auth APIs |
+| CRM / Music workspace | `/apps/:code/home` | Tenant-scoped product features | Existing app-specific APIs |
 
-## What is real versus presentational
+The same route's page content is **not** repeated under Overview and Applications. Overview renders an authorization summary using current customer contexts and individual roles; Applications renders searchable product cards.
 
-| UI element | Backend source |
-| --- | --- |
-| Account name / platform role | `GET /api/auth/me` |
-| Available product count and cards | `GET /api/apps` |
-| Organization count | `GET /api/workspaces` |
-| Product open action | Protected `/apps/:code/login` route |
-| Sign out | `POST /api/auth/logout` |
+## Design
 
-There are **no simulated latency charts, fake status gauges, deployment terminals, or synthetic activity events**. The dashboard only presents what the current API supports.
+- Uses the company's root `DESIGN.md`: VSPH navy `#00255A`, action blue `#0069C8`, Inter, and restrained neutral cards.
+- Carries over the bento layout and subtle spotlight behavior from the supplied inspiration, without fake telemetry.
+- Keeps buttons centered and removes decorative arrows.
+- On phones, the sidebar becomes an accessible drawer with an overlay and Escape handling.
+- Respects `prefers-reduced-motion` and visible keyboard focus.
+- Uses `textContent` for all variable API-provided labels; app links are constructed from validated product codes, not arbitrary URLs.
 
-## Responsiveness and accessibility
+## Administration versus application Super Admin
 
-- Desktop: VSPH navy sidebar, feature panel with subtle pointer spotlight, two metric cards, and a responsive application grid.
-- Tablet/mobile (up to 950px): sidebar becomes a dismissible drawer with a backdrop, Escape handling, and keyboard focus wrap. The content becomes a single column on phones.
-- All action labels are centered. Decorative launch arrows were removed.
-- Keyboard focus is visible; status labels include text, not color only.
-- Motion is optional via `prefers-reduced-motion`.
-- Elements are created with `textContent`, not untrusted HTML. Product links are constructed as same-origin `/apps/:code/login` URLs after validating the product code.
+Platform administration is for **VSPH-level operators** who onboard customer organizations and configure what products, people and permissions they can access. An application-level Super Admin is a role scoped to one product and one customer organization. These roles are deliberately not interchangeable.
 
-## Security
+The admin page contains an explanation, guided onboarding sequence, and the existing management forms. All actions still require platform Super Admin authorization on the backend.
 
-This is a dashboard redesign, not a permissions change. **Express enforces portal authentication and tenant/product entitlements**. `/api/apps` already returns the applications a signed-in user may access, and app login requires its own second authentication step. The frontend does not create new entitlements or expose privileged Supabase credentials.
+## Clean routes, with compatibility
 
-## Test
+The frontend uses `/dashboard`, `/applications`, `/admin`, `/login`, and `/apps/:code/home`. Old links to `/dashboard.html`, `/applications.html`, `/admin.html`, and `/login.html` redirect to their clean paths. Redirects alone are not authorization: Express guards the protected destinations.
+
+## Testing
 
 ```powershell
+git fetch origin
+git switch feat/dashboard-bento-redesign
+git pull --ff-only
 npm test
 npm run check
 npm run dev
 ```
 
-Open `http://localhost:3000/dashboard.html` after signing in. Review the layout at desktop, 768px, 390px, and 320px widths. Verify CRM-only users cannot see Music and cannot bypass Music through a direct URL. Finally check super-admin navigation to `/admin.html`.
+Test `http://localhost:3000/dashboard`, `http://localhost:3000/applications`, and—while logged in as VSPH platform Super Admin—`http://localhost:3000/admin`.
 
-## Deliberate scope
+Verify mobile widths 320px, 390px and 768px, CRM-only permissions, app-specific second logins, and legacy URL redirects.
 
-The **portal workspace dashboard** was redesigned. The Platform Admin CRUD screens, product-specific CRM/Music workspaces, and backend/database were left unchanged to avoid breaking management workflows. They can be redesigned as separate, smaller PRs using the same VSPH rules.
+**Scope:** The overview and directory are separated; the platform admin page has clearer purpose and VSPH branding, but its existing management CRUD operations and internal CRM/Music workspaces remain otherwise unchanged.
