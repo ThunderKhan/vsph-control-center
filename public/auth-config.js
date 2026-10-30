@@ -3,6 +3,7 @@
 // For a product or customer-specific look, override only the needed values below.
 window.VSPH_AUTH_CONFIG = Object.freeze({
   base: {
+    layout: 'split', // 'split' (VSPH default) or 'focused' (centered login)
     heroKicker: 'ENTERPRISE SOFTWARE',
     heroLineOne: 'Building',
     heroLineTwo: "What's Next",
