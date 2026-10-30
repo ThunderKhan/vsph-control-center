@@ -116,6 +116,14 @@ body.auth-page{
 }
 .auth-footer{color:#B9CCE2;font-size:11px;line-height:1.5;flex-shrink:0}
 
+/* Optional product/organization layout variant: no copied template required. */
+body.auth-page[data-auth-layout="focused"] .auth-main{
+  grid-template-columns:minmax(0,460px);
+  justify-content:center;
+}
+body.auth-page[data-auth-layout="focused"] .auth-intro{display:none}
+body.auth-page[data-auth-layout="focused"] .auth-card{max-width:460px}
+
 /* The application form adds only one organization selector. It is not a
    different design: it has the same card, button, hero, typography and canvas. */
 .app-auth .form-description{margin-bottom:16px}
