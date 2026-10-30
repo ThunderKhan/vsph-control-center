@@ -32,3 +32,18 @@ module.exports=async function(pool,appId){
  await cmd('revoke',invitation);await assert.rejects(cmd('inspect',invitation,{tokenHash},null),{code:'42501'});
  await assert.rejects(cmd('retry',invitation),{code:'42501'});
 };
+
+module.exports.disableRegression=async(pool,appId)=>{
+ const crypto=require('node:crypto');const actor='44444444-4444-4444-8444-444444444444';
+ const cmd=async(action,id,data={},who=actor)=>(await pool.query('select provisioning_command($1,$2,$3,$4) data',[who,action,id,data])).rows[0].data;
+ await cmd('begin',crypto.randomUUID(),{organizationName:'Explicit disable fixture',slug:'explicit-disable-fixture',adminName:'Pending user',adminEmail:'pending-disabled@example.test',products:[{applicationId:appId,planCode:'standard',status:'active',endsAt:null}]});
+ const lease=crypto.randomUUID(),work=await cmd('claim',lease,{},null),uid=work.invitation.auth_user_id;
+ await pool.query('insert into auth.users(id) values($1)',[uid]);const tokenHash='a'.repeat(64),aid=crypto.randomUUID();
+ await cmd('bind',work.outbox.id,{lease,userId:uid,tokenHash,encryptedDelivery:'ciphertext'},null);await cmd('sent',work.outbox.id,{lease},null);
+ await cmd('reserve_accept',work.invitation.id,{tokenHash,acceptanceId:aid},null);
+ await pool.query("select set_profile_status($1,$2,'disabled')",[actor,uid]);
+ await assert.rejects(cmd('finish_accept',work.invitation.id,{acceptanceId:aid},null),{code:'40001'});
+ const row=(await pool.query('select state,token_hash from membership_invitations where id=$1',[work.invitation.id])).rows[0];assert.equal(row.state,'revoked');assert.equal(row.token_hash,null);
+ assert.equal((await pool.query('select status from profiles where id=$1',[uid])).rows[0].status,'disabled');
+ assert.equal((await pool.query('select state from invitation_outbox where id=$1',[work.outbox.id])).rows[0].state,'revoked');
+};
