@@ -16,20 +16,31 @@ function appDenied(req,res,message,code) {
  if(isPageNavigation(req))return res.redirect(302,'/apps/'+encodeURIComponent(code.toLowerCase())+'/login');
  return res.status(401).json({message});
 }
+// One source of truth for validating the portal cookie. Protected routes
+// reject invalid sessions; public sign-in routes simply treat them as guests.
+async function resolvePortalSession(req) {
+  const raw=req.cookies?.['vsph.portal.sid'];
+  if(!raw)return 'Please log in.';
+  const session=check(await db().from('portal_sessions').select('token_hash,user_id,expires_at').eq('token_hash',hashToken(raw)).maybeSingle());
+  if(!session||!isFuture(session.expires_at))return 'Portal session expired. Please log in.';
+  const user=check(await db().from('profiles').select('id,full_name,email,status,platform_role').eq('id',session.user_id).maybeSingle());
+  if(!user||user.status!=='active')return 'Account is disabled or unavailable.';
+  req.portalSession=session;req.user=user;
+  return null;
+}
 async function portalSession(req,res,next){
   try{
-    const raw=req.cookies?.['vsph.portal.sid'];
-    if(!raw) return portalDenied(req,res,'Please log in.');
-    const session=check(await db().from('portal_sessions').select('token_hash,user_id,expires_at').eq('token_hash',hashToken(raw)).maybeSingle());
-    if(!session||!isFuture(session.expires_at))return portalDenied(req,res,'Portal session expired. Please log in.');
-    const user=check(await db().from('profiles').select('id,full_name,email,status,platform_role').eq('id',session.user_id).maybeSingle());
-    if(!user||user.status!=='active')return portalDenied(req,res,'Account is disabled or unavailable.');
-    req.portalSession=session; req.user=user; next();
+    const denial=await resolvePortalSession(req);
+    if(denial)return portalDenied(req,res,denial);
+    next();
   }catch(err){next(err)}
 }
-async function optionalPortal(req,res,next) {
-  if(!req.cookies?.['vsph.portal.sid'])return next();
-  return portalSession(req,res,next);
+async function optionalPortal(req,res,next){
+  try{
+    // A stale/disabled session must not redirect /login back into itself.
+    await resolvePortalSession(req);
+    next();
+  }catch(err){next(err)}
 }
 function requireAdmin(req,res,next){if(req.user?.platform_role!=='super_admin')return res.status(403).json({message:'Platform Super Admin required.'});next()}
 async function getApp(code){return check(await db().from('applications').select('id,code,name,login_path,status').eq('code',String(code||'').toUpperCase()).maybeSingle())}
