@@ -143,6 +143,8 @@
   } else {
     // The server has already checked the portal cookie before rendering.
     appearance();
+    // Product-specific second-stage login does not advertise account onboarding.
+    byId('inviteEntry').hidden = false;
   }
 
   form.addEventListener('submit', async event => {
