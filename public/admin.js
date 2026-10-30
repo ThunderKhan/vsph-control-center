@@ -13,7 +13,7 @@ async function api(url, options = {}) {
     headers: { "Content-Type": "application/json", ...(options.headers || {}) }
   });
   const data = await response.json().catch(() => ({}));
-  if (response.status === 401) { window.location.href = "/login.html"; throw new Error("Please log in again."); }
+  if (response.status === 401) { window.location.href = "/login"; throw new Error("Please log in again."); }
   if (response.status === 403) { window.location.href = "/dashboard.html"; throw new Error("Super Admin access is required."); }
   if (!response.ok) throw new Error(data.message || "Request failed.");
   return data;
@@ -258,13 +258,13 @@ document.getElementById("accessForm").addEventListener("submit", async e => {
 });
 document.getElementById("logoutButton").addEventListener("click", async () => {
   try { await fetch("/api/auth/logout", { method: "POST" }); }
-  finally { window.location.href = "/login.html"; }
+  finally { window.location.href = "/login"; }
 });
 
 (async function init() {
   try {
     const response = await fetch("/api/auth/me");
-    if (!response.ok) { window.location.href = "/login.html"; return; }
+    if (!response.ok) { window.location.href = "/login"; return; }
     const { user } = await response.json();
     if (user.platformRole !== "super_admin") { window.location.href = "/dashboard.html"; return; }
     await loadLookups();
