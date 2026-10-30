@@ -57,6 +57,8 @@ npm run dev
 
 6. Open **http://localhost:3000** and sign into the portal with `owner@vsph.test` and your `DEMO_PASSWORD`.
 
+The login view is served at **`/`** (default) or **`/login`**. The previous `/login.html` address redirects to `/login` for compatibility. The underlying login template remains `public/login.html`; the clean route is handled by Express, not by changing frameworks.
+
 **Demo accounts** (all use `DEMO_PASSWORD` at first creation):
 
 | Email | Portal products | Organization |
@@ -78,6 +80,21 @@ Seed is idempotent for the expected demo rows. Existing users keep their previou
 5. Open a second browser profile for `beta@vsph.test`: its CRM sample contact will differ. API queries always filter by selected `organization_id`.
 6. `owner@vsph.test` sees the Platform Admin panel; create a customer, assign applications and per-app user roles.
 
+### Direct application URL and authentication behavior
+
+**Direct URL entry never grants access.** The portal session is checked on every request for a product login page, app workspace and protected API. App workspaces and tenant records also require a valid, product-scoped session and the user's current customer entitlement.
+
+| Browser action | Expected result |
+| --- | --- |
+| Open `/apps/music/login` without a portal session | Redirect to `/login` |
+| Open `/apps/music/home` without a portal session | Redirect to `/login` |
+| Open `/apps/music/home` with a portal session but without the Music session | Redirect to `/apps/music/login` for the second login |
+| Open Music with both valid sessions and current permissions | Enter the authorized customer workspace |
+| Try `/api/apps/MUSIC/records` without required sessions | HTTP 401 JSON response |
+| Enter `/login` with a valid portal session | Redirect to the dashboard |
+
+Visiting `/login` **does not sign a user out**. Existing browser cookies can stay valid for up to four hours; use **Log out** or a fresh private browsing window for a genuinely anonymous test. Protected pages and session-dependent API responses set `Cache-Control: no-store` to reduce stale-content exposure. Product URL routing is not a security boundary; backend authorization is.
+
 ### Health and tests
 
 ```powershell
@@ -98,7 +115,11 @@ routes/auth.js            Portal and second-stage app login/logout
 routes/apps.js            Allowed products + tenant-scoped CRM/Music records
 routes/admin-management.js  Platform admin CRUD and app role assignments
 routes/workspaces.js      Workspace count
-public/                   Your colleague's original dashboard with integration updates
+views/auth.html            One shared HTML login template for portal and applications
+public/auth-page.js        Shared login controller (portal + app session workflows)
+public/auth-config.js      Product/customer branding override registry (presentation only)
+public/auth.css            Shared login design with responsive layout
+public/                   Dashboard/admin pages and shared browser assets
 supabase/schema.sql       Managed Postgres tables, constraints, RLS, product seed
 tests/                    Unit tests for access policies and token properties
 seed.js                   Create demo identities, tenants, product access
@@ -114,3 +135,9 @@ seed.js                   Create demo identities, tenants, product access
 - No live Supabase keys are bundled; a real connection and database integration testing must be completed in **your own** Supabase project.
 - Currently runs as a local Node/Express server. Supabase hosts the database/authentication, **not** this Express frontend/backend. For internet hosting, deploy Node separately (e.g. Render, Railway, Fly.io, Vercel with configuration).
 - The old MySQL `.env` (possibly containing credentials), `node_modules` and the obsolete SQL script were **excluded** from the output.
+
+## VSPH design guidelines
+
+`DESIGN.md` at the repository root is the reference for VSPH colors, typography, spacing, accessibility, copy, and logo usage. The **portal, CRM and Music login routes now render the same `views/auth.html` template**, styled by `public/auth.css` and `public/auth-background.js` and controlled by `public/auth-page.js`. The obsolete separate HTML/JS login implementations were removed. For future product or organization-specific appearance, use `public/auth-config.js`; see **[docs/AUTH_THEMING.md](docs/AUTH_THEMING.md)** for examples and the secure structural-override extension point. Other dashboard styling remains in `public/style.css`.
+
+The animated dot grid is a lightweight Canvas adaptation of the supplied Three.js design. It requires no extra dependencies, pauses while the page is hidden, and respects reduced-motion preferences. Existing password authentication and app-scoped sessions are unchanged.
