@@ -11,9 +11,9 @@ process.env.MUSIC_SSO_CLIENT_SECRET=secret;
 process.env.NODE_ENV='test';
 
 const data={
-  sessions:[{token_hash:'portal-hash',user_id:'user-one',expires_at:new Date(Date.now()+600_000).toISOString()}],
-  users:[{id:'user-one',full_name:'Venue Admin',email:'admin@example.test',platform_role:'user',status:'active'}],
-  orgs:[{id:'tenant-allowed',name:'Venue A',role:'manager'}],
+  sessions:[{token_hash:crypto.createHash('sha256').update('portal-session').digest('hex'),user_id:'11111111-1111-4111-8111-111111111111',expires_at:new Date(Date.now()+600_000).toISOString()}],
+  users:[{id:'11111111-1111-4111-8111-111111111111',full_name:'Venue Admin',email:'admin@example.test',platform_role:'user',status:'active'}],
+  orgs:[{id:'22222222-2222-4222-8222-222222222222',name:'Venue A',role:'manager'}],
   codes:new Map(),
   active:true
 };
@@ -70,7 +70,7 @@ async function withServer(fn){
   try{await once(server,'listening');await fn('http://127.0.0.1:'+server.address().port)}
   finally{await new Promise((resolve,reject)=>server.close(error=>error?reject(error):resolve()))}
 }
-async function authorize(origin,org='tenant-allowed',challenge=validChallenge) {
+async function authorize(origin,org='22222222-2222-4222-8222-222222222222',challenge=validChallenge) {
   const url=new URL('/api/sso/authorize',origin);
   for(const [key,value] of Object.entries({
     client_id:'music-vercel',app:'MUSIC',organization_id:org,
@@ -99,17 +99,17 @@ test('one-use code exchanges authenticated user, selected tenant and live role',
     assert.ok(!data.codes.has(code),'raw code must never be stored');
     const stored=data.codes.get(crypto.createHash('sha256').update(code).digest('hex'));
     assert.ok(stored);
-    assert.equal(stored.organization_id,'tenant-allowed');
+    assert.equal(stored.organization_id,'22222222-2222-4222-8222-222222222222');
     const ok=await redeem(origin,code);
     assert.equal(ok.status,200);
     const payload=await ok.json();
     assert.equal(payload.application.code,'MUSIC');
-    assert.equal(payload.organization.id,'tenant-allowed');
+    assert.equal(payload.organization.id,'22222222-2222-4222-8222-222222222222');
   });
 });
 test('cross-tenant authorization is rejected even with an active portal session',async()=>{
   await withServer(async origin=>{
-    const response=await authorize(origin,'tenant-other');
+    const response=await authorize(origin,'33333333-3333-4333-8333-333333333333');
     assert.equal(response.status,403);
   });
 });
@@ -121,10 +121,35 @@ test('incorrect Music client secret cannot redeem a valid code',async()=>{
     const response=await redeem(origin,code);
     assert.equal(response.status,200);
     const identity=await response.json();
-    assert.equal(identity.organization.id,'tenant-allowed');
+    assert.equal(identity.organization.id,'22222222-2222-4222-8222-222222222222');
     assert.equal(identity.role,'manager');
-    assert.equal(identity.user.id,'user-one');
+    assert.equal(identity.user.id,'11111111-1111-4111-8111-111111111111');
     assert.equal((await redeem(origin,code)).status,401,'replay must fail');
+  });
+});
+test('Music introspection enforces original portal session, tenant and current role',async()=>{
+  await withServer(async origin=>{
+    data.active=true;
+    const callback=new URL((await authorize(origin)).headers.get('location'));
+    const response=await redeem(origin,callback.searchParams.get('code'));
+    assert.equal(response.status,200);
+    const identity=await response.json();
+    assert.match(identity.portal_session_ref,/^[0-9a-f]{64}$/);
+    const introspect=async()=>fetch(origin+'/api/sso/introspect',{
+      method:'POST',headers:{'Content-Type':'application/json','x-vsph-client-secret':secret},
+      body:JSON.stringify({client_id:'music-vercel',user_id:identity.user.id,
+        organization_id:identity.organization.id,portal_session_ref:identity.portal_session_ref})
+    });
+    const valid=await introspect();
+    assert.equal(valid.status,200);
+    assert.equal((await valid.json()).role,'manager');
+    const previous=data.sessions;
+    data.sessions=[];
+    try{assert.equal((await introspect()).status,403)}
+    finally{data.sessions=previous}
+    data.active=false;
+    try{assert.equal((await introspect()).status,403)}
+    finally{data.active=true}
   });
 });
 test('wrong PKCE verifier burns the code and a revoked tenant fails redemption',async()=>{
