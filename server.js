@@ -11,6 +11,16 @@ const authViews = Object.freeze({
 });
 app.use(express.json({limit:'100kb'}));app.use(express.urlencoded({extended:false}));app.use(cookieParser());
 app.use(validateOrigin);
+// Authenticated HTML and session-dependent API responses must not be stored by
+// browser/proxy caches; navigating Back after logout should trigger a fresh check.
+app.use((req,res,next)=>{
+ const url=String(req.originalUrl||'').split('?')[0];
+ if(url.startsWith('/api/auth/') || url.startsWith('/api/apps/') ||
+    url.startsWith('/apps/') || url==='/dashboard.html' || url==='/admin.html') {
+   res.set('Cache-Control','no-store');
+ }
+ next();
+});
 app.use('/api/auth',require('./routes/auth'));
 app.use('/api/apps',require('./routes/apps'));
 app.use('/api/workspaces',require('./routes/workspaces'));
