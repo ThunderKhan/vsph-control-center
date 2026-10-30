@@ -53,13 +53,16 @@ router.post('/users',retiredProvisioning);
 router.patch('/users/:id/status',asyncRoute(async(req,res)=>{
  const status=String(req.body.status||'');if(!reqUuid(req.params.id)||!['active','disabled'].includes(status))return res.status(400).json({message:'Invalid user or status.'});
  if(req.params.id===req.user.id&&status==='disabled')return res.status(400).json({message:'You cannot disable yourself.'});
- const target=check(await db().from('profiles').select('id,platform_role').eq('id',req.params.id).maybeSingle());
- if(!target)return res.status(404).json({message:'User not found.'});
- if(target.platform_role==='super_admin')return res.status(409).json({message:'Platform administrator lifecycle changes require a governed security workflow.'});
- // Predicate also protects against an out-of-band role change between read and write.
- const user=check(await db().from('profiles').update({status}).eq('id',req.params.id).eq('platform_role','user').select('id').maybeSingle());
- if(!user)return res.status(404).json({message:'User not found.'});
- await audit(req,'user.status_changed','user',user.id,{status});res.json({message:'User updated.'});
+ const result=await db().rpc('set_profile_status',{p_actor:req.user.id,p_target:req.params.id,p_status:status});
+ if(result.error){
+  const code=result.error.code;
+  if(code==='P0002')return res.status(404).json({message:'User not found.'});
+  if(code==='VS001')return res.status(409).json({message:'Platform administrator lifecycle changes require a governed security workflow.'});
+  if(code==='42501')return res.status(403).json({message:'Platform administrator access is no longer active.'});
+  if(code==='22023')return res.status(400).json({message:'Account status change is not permitted.'});
+  throw result.error;
+ }
+ res.json({message:'User updated. Existing sessions were revoked when disabling the account.'});
 }));
 router.get('/applications',asyncRoute(async(req,res)=>res.json({applications:(await query('applications')).sort((a,b)=>a.name.localeCompare(b.name))})));
 router.post('/applications',asyncRoute(async(req,res)=>{
