@@ -1,30 +1,42 @@
-# Enterprise execution progress
+# Enterprise execution progress — 31 October 2026
 
-Specification: user-supplied VSPH Enterprise Execution Plan, read in full. Audit date: 31 October 2026. This tracker reports gates, not intended features.
+Source specification: attached VSPH Enterprise Execution Plan, read entirely. Current verified code main: `b1c298e942838ee4a0ff6178607f128fa467a5a4`. No customer deployment or hosted database mutation performed. This is a partial execution handoff, not an enterprise-readiness claim.
 
-| Milestone | Status      | Evidence / next dependency                                                                                                     |
-| --------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| M0        | Partial     | Baseline/domain/permission/risk docs and isolated CI infrastructure prepared; staging credentials and governance access absent |
-| M1        | Not started | Prioritize legacy provisioning, HTTP controls, scoped context reads; full role regression required                             |
-| M2        | Not started | Reconcile hosted migration history, durable invitation/provisioning state, atomic audit                                        |
-| M3        | Not started | M1/M2; real Auth invite/SMTP, MFA and lifecycle                                                                                |
-| M4        | Not started | M2/M3; dependable customer operations and self-service                                                                         |
-| M5        | Not started | M1/M2; product registry/adapter authorization                                                                                  |
-| M6        | BLOCKED     | Music receiver PR #1 open; target Vercel project absent from connected team; no staged secrets/DB proof                        |
-| M7        | Not started | M1/M2 first; distinct project assignments and private portfolio                                                                |
-| M8        | Not started | M7 and verified read-only provider bindings                                                                                    |
-| M9        | Not started | M2 outbox/audit, M7/M8 source metrics                                                                                          |
-| M10       | Not started | Functional workflows plus authenticated browser/axe coverage                                                                   |
-| M11       | Not started | Isolated DB/browser foundation is partial prerequisite, not restore/load/incident evidence                                     |
-| M12       | Not started | All release gates and full staging UAT outstanding                                                                             |
+| Milestone | Status                   | Delivered evidence / remaining gate                                                                                                                                                                                                                                               |
+| --------- | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| M0        | Partial                  | PRs #8/#9: baseline/domain/permissions/risks, four CI quality jobs, isolated native PostgreSQL and Chromium smoke. Hosted staging/history, main protection and authenticated UAT remain blocked                                                                                   |
+| M1        | Partial                  | PRs #10–#13: HTTP controls, retired password/elevation paths, explicit product authority, scoped contexts, DB-backed HTTP negatives, atomic status/revocation/audit. Invite-purpose lifecycle, distributed limits, session inventory/MFA and remaining mutation audit gaps remain |
+| M2        | Partial foundation only  | PR #13: one forward versioned transactional identity RPC, populated repeat-install and audit-failure tests. No durable onboarding saga/idempotency/outbox or migration-history reconciliation                                                                                     |
+| M3        | Not implemented          | Auth/SMTP staging unavailable; durable invitation/recovery/MFA and full account governance not built                                                                                                                                                                              |
+| M4        | Not implemented          | Existing wizard retained; dependable lifecycle, customer details/self-service/history/notifications not delivered                                                                                                                                                                 |
+| M5        | Not implemented          | Existing application registry retained; full product adapters/configuration/health pending                                                                                                                                                                                        |
+| M6        | BLOCKED                  | Music PR #1 remains open; target project/domain Git source not established in connected Vercel team; no verified persistent Music backend/staged SSO                                                                                                                              |
+| M7        | Not implemented          | No project/milestone/task/deliverable entities or screens; /projects returns 404                                                                                                                                                                                                  |
+| M8        | Not implemented          | No application-level GitHub/Vercel delivery integration; connected engineering tools are not a product feature                                                                                                                                                                    |
+| M9        | Not implemented          | Atomic identity events are a narrow prerequisite; notification outbox, reporting/global search/export pending                                                                                                                                                                     |
+| M10       | Partial small correction | Mobile login word separation fixed with rendered browser assertion and screenshots; comprehensive authenticated WCAG/zoom/table/drawer QA not done                                                                                                                                |
+| M11       | Partial prerequisites    | CSP, request IDs/safe central errors, dependency scans and CI exist. No staging restore, incident exercise, distributed load/alerts/performance budget evidence                                                                                                                   |
+| M12       | Not complete             | Implementation report, PowerShell guide and manual QA checklist provided; full staging UAT and controlled release not achieved                                                                                                                                                    |
 
-Dependency order: M0 → M1 → M2 → M3/M5/M7; M3 → M4; M5 + verified Music ownership → M6; M7 → M8; M2/M4/M7/M8 → M9; M10 accompanies real workflows; M11 gates production and M12 is final UAT. External blockers never justify relaxing authorization.
+## Verified PRs and merges
 
-No production mutation, seed, email, credential change or deployment performed. No fully enterprise-ready claim. PR/CI/merge evidence is appended after verified remote actions. Resume with M0 CI completion, then smallest M1 fixes.
+| PR                                                                | Scope                                                   | Squash merge SHA                           | CI                                                                   |
+| ----------------------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------ | -------------------------------------------------------------------- |
+| [#8](https://github.com/ThunderKhan/vsph-control-center/pull/8)   | Baseline and architectural boundaries                   | `5f06fbb429e722a20402a71f685bcf2b9e380f64` | 77 tests + syntax                                                    |
+| [#9](https://github.com/ThunderKhan/vsph-control-center/pull/9)   | Quality, native DB and browser infrastructure           | `c63cb4cc02205f55b36542a0b07f124b33282ea2` | All four jobs passed; 7 DB / 4 browser                               |
+| [#10](https://github.com/ThunderKhan/vsph-control-center/pull/10) | HTTP boundaries and attempt controls                    | `f3c74e766a341434eb73fa581318319633e6642a` | All four jobs passed                                                 |
+| [#11](https://github.com/ThunderKhan/vsph-control-center/pull/11) | Retired passwords/elevation, admin lifecycle guard      | `2e45b0d6b88f45403b27413ea93002280f4e4540` | All four jobs passed                                                 |
+| [#12](https://github.com/ThunderKhan/vsph-control-center/pull/12) | Explicit product authority and DB-backed HTTP isolation | `76876be9929af04d00db3ba93c12b52936712431` | All four jobs passed; 8 DB / 4 browser                               |
+| [#13](https://github.com/ThunderKhan/vsph-control-center/pull/13) | Atomic status, session/code revocation and audit        | `b1c298e942838ee4a0ff6178607f128fa467a5a4` | Fresh head eec0e1b passed all four jobs; 89 Node / 10 DB / 4 browser |
 
-## Verified delivery
+The first #13 CI attempt stalled on an Actions npm-cache restore and timed out before tests. Removed cache restoration without weakening jobs; only the new passing head was merged. No required human review or failing head was bypassed. Branch protection administration remains unavailable (403); initially main was unprotected with no rulesets.
 
-- PR #8: baseline documentation; CI 77/77 tests + syntax passed; squash merge `5f06fbb429e722a20402a71f685bcf2b9e380f64` verified on main.
-- PR #9: validation infrastructure; run [41110893511](https://github.com/ThunderKhan/vsph-control-center/actions/runs/41110893511) passed Node quality, production audit, native PostgreSQL isolation (7 tests), Chromium desktop/mobile smoke (4 tests). Squash merge `c63cb4cc02205f55b36542a0b07f124b33282ea2` verified on main. These tests use synthetic data; no Supabase Auth/SMTP staging proof.
-- M0 remains partial: safe isolated PostgreSQL CI exists, but hosted migration reconciliation/staging, protected-branch governance and authenticated UAT are blocked by access. Independent M1 HTTP security work proceeds with these gaps recorded.
-- M1 HTTP increment: explicit proxy trust, CSP/security headers, safe parser/errors, bounded single-process attempt throttles; 82 Node tests pass locally. Full identity/tenant/security milestone is incomplete. See operations/HTTP_SECURITY.md.
+## Resume precisely
+
+1. Review docs/roadmap/IMPLEMENTATION_REPORT.md, current main, open PRs and CI; do not assume this snapshot remains latest.
+2. Obtain approved isolated staging Supabase/Auth/SMTP access, inspect hosted schema/migration history and rehearse the atomic identity function before backend rollout. Do not run bootstrap on customer data.
+3. Finish M1: invitation-purpose acceptance/replay/concurrency and scoped role mutations, distributed brute-force controls, session lifecycle inventory and remaining atomic audited mutations. Then implement M2 durable invitation/provisioning/outbox with real service tests.
+4. Continue M3/M4 identity/customer verticals; M5/M7 follow explicit permission/domain foundations. M6 requires the actual Music Vercel owner/team and persistent backend; do not enable SSO from a public demo link.
+5. M10/M11 independent validation/operations work can continue, but production remains NO-GO until all material gates and M12 staged UAT pass.
+
+No background continuation is claimed. Outstanding work is substantial and explicitly recorded.
