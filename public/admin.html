@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administration | VSPH Control Center</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    body{margin:0;background:#f5f7fb;color:#172033;font-family:Arial,sans-serif}
+    .admin-shell{max-width:1400px;margin:auto;padding:32px}
+    .admin-head{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    .admin-head p,.hint{color:#64748b;line-height:1.55}
+    .admin-head h1{margin-bottom:8px}
+    .admin-nav{display:flex;gap:8px;flex-wrap:wrap;margin:24px 0}
+    .tab{border:1px solid #d5dbea;background:#fff;color:#344054;padding:11px 15px;border-radius:10px;cursor:pointer;font-weight:600;box-shadow:0 1px 2px #1720330a}
+    .tab.active{background:#4338ca;color:white;border-color:#4338ca}
+    .panel{background:#fff;border:1px solid #dfe5ef;border-radius:16px;padding:24px;margin-bottom:18px;box-shadow:0 4px 16px #17203308}
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+    .stat{padding:17px;border:1px solid #e1e6ef;background:#fbfcfe;border-radius:12px}.stat strong{display:block;font-size:25px;margin-top:7px}
+    .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;align-items:end}
+    label,legend{display:block;font-size:13px;font-weight:700;margin-bottom:7px;color:#344054}
+    input,select{width:100%;box-sizing:border-box;padding:12px 13px;border:1px solid #b9c5d6;border-radius:9px;background:#f8fafc;color:#172033;font:inherit;min-height:44px}
+    input::placeholder{color:#98a2b3}
+    input:focus,select:focus{outline:none;border-color:#6951df;background:#fff;box-shadow:0 0 0 3px #6951df1c}
+    fieldset{margin-top:4px}
+    fieldset label{display:flex;align-items:center;gap:8px;padding:11px 13px;border:1px solid #d7deea;border-radius:9px;background:#f8fafc;font-weight:500;cursor:pointer}
+    fieldset label:hover{border-color:#a99bea;background:#faf9ff}
+    fieldset input{width:auto;min-height:0;accent-color:#4338ca}
+    button.primary{background:#4338ca;color:white;border:0;border-radius:9px;padding:12px 16px;font-weight:700;cursor:pointer;min-height:44px}
+    button.primary:hover{background:#3528a9}
+    button.small{border:1px solid #b9c5d6;border-radius:8px;background:#fff;color:#344054;padding:8px 11px;cursor:pointer}
+    button.small:hover{border-color:#6951df;color:#4338ca}
+    .table-wrap{overflow:auto;margin-top:15px}table{width:100%;border-collapse:collapse;min-width:700px}
+    th,td{text-align:left;padding:11px;border-bottom:1px solid #edf0f5;font-size:14px;vertical-align:top}
+    th{background:#f8fafc;color:#475569}td code{font-size:12px}.status{font-weight:700}
+    .message{min-height:22px;color:#334155}.error{color:#b91c1c}.section[hidden]{display:none}
+    @media(max-width:600px){.admin-shell{padding:16px}.panel{padding:17px}.form-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="admin-shell">
+    <header class="admin-head">
+      <div><p>VSPH CONTROL CENTER / ADMIN</p><h1>Platform Administration</h1><p>Manage demo organizations, users, subscriptions, application access, and audit history.</p></div>
+      <div><a href="/dashboard.html">← Dashboard</a> &nbsp; <button id="logoutButton" class="small">Log out</button></div>
+    </header>
+    <p id="globalMessage" class="message" role="status"></p>
+    <nav class="admin-nav" aria-label="Administration sections">
+      <button class="tab active" data-tab="overview">Overview</button>
+      <button class="tab" data-tab="organizations">Organizations</button>
+      <button class="tab" data-tab="applications">Applications</button>
+      <button class="tab" data-tab="users">Users</button>
+      <button class="tab" data-tab="subscriptions">Subscriptions</button>
+      <button class="tab" data-tab="access">App Access</button>
+      <button class="tab" data-tab="roles">App Roles</button>
+      <button class="tab" data-tab="audit">Audit Logs</button>
+    </nav>
+
+    <section class="section" id="section-overview">
+      <div class="stats">
+        <div class="stat">Organizations<strong id="statOrganizations">—</strong></div>
+        <div class="stat">Users<strong id="statUsers">—</strong></div>
+        <div class="stat">Applications<strong id="statApplications">—</strong></div>
+        <div class="stat">Active / Trial subscriptions<strong id="statSubscriptions">—</strong></div>
+        <div class="stat">Enabled app grants<strong id="statAccess">—</strong></div>
+      </div>
+      <div class="panel" style="margin-top:18px"><h2>Prototype status</h2><p class="hint">Managed PostgreSQL + Supabase Auth. User memberships, subscriptions, access grants, and app-specific roles are checked independently. No direct browser database access.</p></div>
+    </section>
+
+    <section class="section" id="section-organizations" hidden>
+      <div class="panel"><h2>Create client</h2>
+        <form id="clientForm">
+          <div class="form-grid">
+            <div><label for="clientOrgName">Organization name</label><input id="clientOrgName" required maxlength="150" placeholder="ABC Events"></div>
+            <div><label for="clientSlug">Organization slug</label><input id="clientSlug" required maxlength="160" pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="abc-events"></div>
+            <div><label for="clientAdminName">Administrator full name</label><input id="clientAdminName" required maxlength="150"></div>
+            <div><label for="clientAdminEmail">Administrator email</label><input id="clientAdminEmail" type="email" required maxlength="190"></div>
+            <div><label for="clientPassword">Temporary password</label><input id="clientPassword" type="password" required minlength="10" autocomplete="new-password"></div>
+            <div><label for="clientPlan">Subscription plan (optional)</label><input id="clientPlan" value="prototype" maxlength="60"></div>
+            <div><label for="clientEnd">Subscription end date (optional)</label><input id="clientEnd" type="datetime-local"></div>
+          </div>
+          <fieldset style="border:0;padding:16px 0 4px"><legend><strong>Application access</strong></legend><div id="clientApplications" class="form-grid"></div></fieldset>
+          <button class="primary">Create client</button>
+        </form><p class="hint">Creates the organization, administrator, membership, subscriptions, and role assignments. Auth provisioning and database writes are coordinated by the server.</p>
+      </div>
+      <div class="panel"><h2>Organizations</h2><div id="organizationsTable" class="table-wrap">Loading…</div></div>
+    </section>
+
+    <section class="section" id="section-applications" hidden>
+      <div class="panel"><h2>Add application</h2>
+        <form id="applicationForm" class="form-grid">
+          <div><label for="appCode">Unique code</label><input id="appCode" required maxlength="40" pattern="[A-Za-z][A-Za-z0-9_]{1,39}" placeholder="CRM"></div>
+          <div><label for="appName">Display name</label><input id="appName" required maxlength="150" placeholder="Customer Relationship Management"></div>
+          <div><label for="appPath">Login path</label><input id="appPath" required pattern="/apps/[a-z0-9-]+/login" placeholder="/apps/crm/login"></div>
+          <div><label for="appStatus">Status</label><select id="appStatus"><option value="active">active</option><option value="maintenance">maintenance</option><option value="retired">retired</option></select></div>
+          <div><button class="primary">Add application</button></div>
+        </form>
+      </div>
+      <div class="panel"><h2>Application catalog</h2><div id="applicationsTable" class="table-wrap">Loading…</div></div>
+    </section>
+
+    <section class="section" id="section-users" hidden>
+      <div class="panel"><h2>Create user</h2>
+        <form id="userForm" class="form-grid">
+          <div><label for="userName">Full name</label><input id="userName" required maxlength="150"></div>
+          <div><label for="userEmail">Email</label><input id="userEmail" type="email" required maxlength="190"></div>
+          <div><label for="userPassword">Temporary password</label><input id="userPassword" type="password" required minlength="10" autocomplete="new-password"></div>
+          <div><label for="userRole">Platform role</label><select id="userRole"><option value="user">Client user</option><option value="super_admin">Super Admin</option></select></div>
+          <div><button class="primary">Create user</button></div>
+        </form><p class="hint">Use a unique temporary password of at least 10 characters. This prototype does not yet include password reset.</p>
+      </div>
+      <div class="panel"><h2>Users</h2><div id="usersTable" class="table-wrap">Loading…</div></div>
+    </section>
+
+    <section class="section" id="section-subscriptions" hidden>
+      <div class="panel"><h2>Create or update subscription</h2>
+        <form id="subscriptionForm" class="form-grid">
+          <div><label for="subOrg">Organization</label><select id="subOrg" required></select></div>
+          <div><label for="subApp">Application</label><select id="subApp" required></select></div>
+          <div><label for="subPlan">Plan code</label><input id="subPlan" value="prototype" maxlength="60" required></div>
+          <div><label for="subStatus">Status</label><select id="subStatus"><option>trial</option><option selected>active</option><option>past_due</option><option>cancelled</option><option>expired</option></select></div>
+          <div><label for="subEnd">End date (optional)</label><input id="subEnd" type="datetime-local"></div>
+          <div><button class="primary">Save subscription</button></div>
+        </form><p class="hint">One subscription per organization and application. Saving again updates the existing record.</p>
+      </div>
+      <div class="panel"><h2>Subscriptions</h2><div id="subscriptionsTable" class="table-wrap">Loading…</div></div>
+    </section>
+
+    <section class="section" id="section-access" hidden>
+      <div class="panel"><h2>Grant or change application access</h2>
+        <form id="accessForm" class="form-grid">
+          <div><label for="accessOrg">Organization</label><select id="accessOrg" required></select></div>
+          <div><label for="accessApp">Application</label><select id="accessApp" required></select></div>
+          <div><label for="accessStatus">Access status</label><select id="accessStatus"><option value="enabled">enabled</option><option value="suspended">suspended</option><option value="revoked">revoked</option></select></div>
+          <div><button class="primary">Save app access</button></div>
+        </form><p class="hint">For a client to open an app, it needs enabled access and an active/trial subscription.</p>
+      </div>
+      <div class="panel"><h2>Application access grants</h2><div id="accessTable" class="table-wrap">Loading…</div></div>
+    </section>
+
+    <section class="section" id="section-roles" hidden>
+      <div class="panel"><h2>Assign an individual application role</h2><p class="hint">A subscription grants access to an organization, but each individual also needs a role. You can assign distinct roles for CRM and Music.</p>
+        <form id="roleForm" class="form-grid">
+          <div><label for="roleEmail">Existing user email</label><input id="roleEmail" type="email" placeholder="employee@example.com" required></div>
+          <div><label for="roleOrg">Organization</label><select id="roleOrg" required></select></div>
+          <div><label for="roleApp">Application</label><select id="roleApp" required></select></div>
+          <div><label for="roleValue">Role</label><select id="roleValue"><option value="super_admin">App Super Admin</option><option value="admin">Admin</option><option value="manager">Manager</option><option value="user">User</option><option value="viewer">Viewer</option></select></div>
+          <div><button class="primary">Assign role</button></div>
+        </form>
+      </div><div class="panel"><h2>Application role assignments</h2><div id="rolesTable" class="table-wrap">Loading…</div></div>
+    </section>
+
+    <section class="section" id="section-audit" hidden>
+      <div class="panel"><h2>Recent audit events</h2><p class="hint">Shows the latest 200 recorded events. New admin changes are recorded automatically.</p><div id="auditTable" class="table-wrap">Loading…</div></div>
+    </section>
+  </main>
+  <script src="/admin.js"></script>
+</body>
+</html>

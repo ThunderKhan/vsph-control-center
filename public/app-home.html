@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Application Workspace | VSPH</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    body{background:#f5f7fb;color:#172033;margin:0;font-family:Arial,sans-serif}
+    .workspace{max-width:1000px;margin:0 auto;padding:28px}
+    .workspace-header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+    .workspace-panel{margin-top:28px;padding:28px;border-radius:18px;background:white;border:1px solid #e5eaf2}
+    .workspace-panel h2{margin-top:0}.muted{color:#64748b;line-height:1.6}
+    .action{display:inline-block;background:#4338ca;color:white;padding:11px 16px;border-radius:9px;text-decoration:none;border:0;cursor:pointer;font-weight:600}
+    .secondary{background:#e8eafc;color:#3730a3}
+    .record-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:end}.record-form input{padding:11px;border:1px solid #dbe2ee;border-radius:8px}.record-form label{font-size:12px}.records-table{border-collapse:collapse;width:100%;margin-top:16px}.records-table td,.records-table th{text-align:left;border-bottom:1px solid #edf1f6;padding:12px;font-size:13px}
+  </style>
+</head>
+<body>
+  <main class="workspace">
+    <header class="workspace-header">
+      <div>
+        <p>VSPH APPLICATION WORKSPACE</p>
+        <h1 id="appTitle">Application</h1>
+        <p class="muted">A secure, customer-scoped workspace prototype.</p>
+      </div>
+      <button id="logoutButton" class="action">Log out</button>
+    </header>
+    <section class="workspace-panel">
+      <h2>Welcome, <span id="userName">User</span></h2>
+      <p class="muted" id="workspaceDescription">Checking application authorization…</p>
+      <p><strong>Customer:</strong> <span id="tenantName">—</span> &nbsp; <strong>Role:</strong> <span id="appRole">—</span></p>
+      <a class="action secondary" href="/dashboard.html">Back to Control Center</a>
+    </section>
+    <section class="workspace-panel"><h2 id="recordsHeading">Records</h2><p class="muted">Each organization has independent data. Test this with the different demo accounts.</p><form id="recordForm" class="record-form"></form><p id="recordMessage" role="status" class="muted"></p><div style="overflow:auto"><table class="records-table"><thead><tr id="tableHead"></tr></thead><tbody id="recordRows"></tbody></table></div></section>
+  </main>
+  <script src="/app-home.js"></script>
+</body>
+</html>

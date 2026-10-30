@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Application Login | VSPH</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    body{min-height:100vh;display:grid;place-items:center;background:#f4f6fb;padding:24px}
+    .app-login{width:min(440px,100%);background:#fff;border:1px solid #e6eaf1;border-radius:22px;padding:32px;box-shadow:0 18px 50px #17255412}
+    .app-login h1{margin:0 0 8px;font-size:26px}.app-login p{color:#64748b;line-height:1.5}
+    .app-login label{display:block;font-weight:600;margin:18px 0 7px}
+    .app-login input{box-sizing:border-box;width:100%;padding:13px 14px;border:1px solid #cbd5e1;border-radius:10px;font:inherit}
+    .app-login button{width:100%;margin-top:22px;padding:13px;border:0;border-radius:10px;background:#4338ca;color:white;font:inherit;font-weight:700;cursor:pointer}
+    #loginError{color:#b91c1c;min-height:22px;font-size:14px}.back{display:inline-block;margin-top:16px;color:#4338ca}
+  </style>
+</head>
+<body>
+  <main class="app-login">
+    <p>VSPH CONTROL CENTER</p>
+    <h1 id="appTitle">Application Login</h1>
+    <p>Re-enter your password to create a separate application session.</p>
+    <form id="appLoginForm">
+      <label for="email">Email address</label>
+      <input id="email" name="email" type="email" autocomplete="username" required>
+      <label for="organizationId">Customer organization</label>
+      <select id="organizationId" name="organizationId" required style="box-sizing:border-box;width:100%;padding:13px 14px;border:1px solid #cbd5e1;border-radius:10px;font:inherit"></select>
+      <label for="password">Password (second verification)</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+      <p id="loginError" role="alert"></p>
+      <button type="submit">Enter application</button>
+    </form>
+    <a class="back" href="/dashboard.html">← Back to Control Center</a>
+  </main>
+  <script src="/app-login.js"></script>
+</body>
+</html>

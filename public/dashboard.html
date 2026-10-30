@@ -1,0 +1,109 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VSPH Control Center</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="dashboard-body">
+  <aside class="sidebar">
+    <a class="brand" href="/dashboard.html">
+      <span class="brand-mark">V</span>
+      <span>VSPH<span class="brand-light">Control</span></span>
+    </a>
+
+    <div class="side-label">WORKSPACE</div>
+    <a class="nav-link active" href="/dashboard.html">▦ &nbsp; Overview</a>
+    <a class="nav-link" href="#applications">▣ &nbsp; Applications</a>
+
+    <div class="side-label">MANAGEMENT</div>
+    <a class="nav-link" id="adminNav" href="/admin.html" hidden>⚙ &nbsp; Platform Admin</a>
+    <a class="nav-link" href="#organizations">◫ &nbsp; Organizations</a>
+    <a class="nav-link" href="#users">♙ &nbsp; Users & Roles</a>
+    <a class="nav-link" href="#subscriptions">◇ &nbsp; Subscriptions</a>
+    <a class="nav-link" href="#activity">◷ &nbsp; Activity Logs</a>
+
+    <div class="sidebar-bottom">
+      <div class="profile-avatar" id="avatar">V</div>
+      <div class="profile-info">
+        <strong id="sideName">Loading...</strong>
+        <span id="sideRole">Account</span>
+      </div>
+      <button class="logout-icon" id="logoutButton" title="Log out">↗</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <div class="breadcrumb">Workspace / <strong>Overview</strong></div>
+        <h1>Good to see you, <span id="greetingName">Admin</span> 👋</h1>
+        <p class="muted">Manage your applications and workspace from one place.</p>
+      </div>
+      <div class="topbar-right">
+        <span class="online-dot"></span>
+        <span class="online-text">System online</span>
+        <div class="top-avatar" id="topAvatar">A</div>
+      </div>
+    </header>
+
+    <section class="welcome-banner">
+      <div class="banner-content">
+        <span class="eyebrow">VSPH PLATFORM</span>
+        <h2>Everything you need.<br>One control center.</h2>
+        <p>Access your business applications securely from a single workspace.</p>
+        <a href="#applications" class="banner-button">Explore applications →</a>
+      </div>
+      <div class="banner-art" aria-hidden="true">
+        <div class="art-orbit orbit-one"></div>
+        <div class="art-orbit orbit-two"></div>
+        <div class="art-center">V</div>
+        <div class="art-tile tile-one">♫</div>
+        <div class="art-tile tile-two">▤</div>
+        <div class="art-tile tile-three">▣</div>
+      </div>
+    </section>
+
+    <section class="stats-grid">
+      <article class="stat-card">
+        <div class="stat-icon purple">▦</div>
+        <div><span class="stat-label">Available apps</span><strong id="appCount">—</strong><small>Active applications</small></div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-icon blue">◫</div>
+        <div><span class="stat-label">Workspace</span><strong id="workspaceCount">—</strong><small>Organizations assigned</small></div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-icon green">✓</div>
+        <div><span class="stat-label">Account status</span><strong class="status-value">Active</strong><small>You're signed in</small></div>
+      </article>
+    </section>
+
+    <section id="applications" class="applications-section">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow dark-eyebrow">YOUR WORKSPACE</span>
+          <h2>Applications</h2>
+          <p class="muted">Choose an application to continue your work.</p>
+        </div>
+        <input id="appSearch" class="search-input" type="search" placeholder="⌕  Search applications...">
+      </div>
+
+      <div id="appGrid" class="app-grid">
+        <div class="loading-card">Loading your applications...</div>
+      </div>
+      <p id="emptyMessage" class="empty-message" hidden>No applications match your search.</p>
+      <p id="errorMessage" class="error-message" role="status"></p>
+    </section>
+
+    <footer class="dashboard-footer">
+      <span>© 2026 VSPH Platform</span>
+      <span>Secure workspace · Supabase prototype</span>
+    </footer>
+  </main>
+
+  <script src="/dashboard.js"></script>
+</body>
+</html>
