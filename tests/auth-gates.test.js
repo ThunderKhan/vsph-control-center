@@ -20,10 +20,12 @@ function withSecurity(rows = {}) {
       const records = rows[table];
       if (records == null) return [];
       return (Array.isArray(records) ? records : [records])
-        .filter(record => filters.every(([column, value]) => record[column] === value));
+        .filter(record => filters.every(([column, value]) => Array.isArray(value) ? value.includes(record[column]) : record[column] === value));
     };
     return {
       select() { return this; },
+      limit() { return this; },
+      in(column, value) { filters.push([column, value]); return this; },
       eq(column, value) { filters.push([column, value]); return this; },
       maybeSingle() { return Promise.resolve({data: result()[0] ?? null, error: null}); },
       then(fulfill, reject) {
@@ -63,6 +65,8 @@ const rows = (expired=false) => ({
   profiles: {id:'user-a',full_name:'User A',email:'a@example.test',status:'active',platform_role:'super_admin'},
   app_sessions: {token_hash:hashToken('app-token'),user_id:'user-a',portal_token_hash:hashToken('portal-token'),application_id:'app-music',organization_id:'tenant-a',expires_at:future()},
   applications: {id:'app-music',code:'MUSIC',name:'Music',status:'active'},
+  organization_memberships: [{organization_id:'tenant-a',user_id:'user-a',status:'active'}],
+  user_app_roles: [{organization_id:'tenant-a',application_id:'app-music',user_id:'user-a',role_code:'staff'}],
   organizations: [{id:'tenant-a',name:'Venue A',status:'active'}],
   subscriptions: [{organization_id:'tenant-a',application_id:'app-music',status:'active',ends_at:null}],
   organization_app_access: [{organization_id:'tenant-a',application_id:'app-music',status:'enabled'}]
@@ -198,3 +202,4 @@ test('expired, unknown and disabled cookies are treated as guests on the login r
     assert.equal(res.location,null);
   }
 });
+

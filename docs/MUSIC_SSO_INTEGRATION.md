@@ -78,7 +78,7 @@ Clean up expired codes periodically (`DELETE FROM public.sso_launch_codes WHERE 
 ## Trust and role boundaries
 
 - The selected `organization_id` is **not** authorization. The portal checks it against `getContexts` on both code creation and redemption; revoked subscription or removed role fails redemption.
-- Portal platform `super_admin` can have `platform_super_admin` as product context; the Music app must explicitly decide what that grants. **Never silently map platform admin to every Music function.**
+- Platform `super_admin` does not imply a product context. Every user, including platform administrators, requires explicit active tenant membership and a Music role. The portal no longer synthesizes `platform_super_admin` product authority. The receiver must still reject unknown/unmapped roles.
 - The initial `app_roles` list has `super_admin`, `admin`, `manager`, `user`, `viewer`; it requires the **separate PR #6 role migration** before accepting `staff` or `musician`. Music staff/performer authorization must be modeled separately before its demo authentication can be removed. Never infer a musician's identity from a username in the demo dataset.
 - **Guest QR/table routes remain public** subject to appropriate abuse controls and tenant/location validation; SSO is for employees and performers.
 - Login state is not transferred with a browser localStorage object, profile JSON URL parameter, cross-domain cookie, or reusable bearer token.
@@ -96,3 +96,4 @@ npm run dev
 Test cases: anonymous launch denied; CRM falls back to its existing local login; Music falls back while unconfigured; authorized organization only; cross-tenant selection denied; inactive application/subscription denied; tampered state/PKCE rejected at Music; expired/replayed code rejected; invalid client secret denied; revoked membership/role/session rejected at redemption; guest endpoints remain independently accessible.
 
 **Rollout sequence:** deploy portal migration + portal code with Music env unset → implement and test Music backend receiver + Music protected sessions → configure trusted Music URLs/secret in both services → integration test → enable external Music launch. Do not delete the current product login or rely on the Music demo for production access in PR #5.
+

@@ -45,19 +45,30 @@ async function optionalPortal(req,res,next){
 function requireAdmin(req,res,next){if(req.user?.platform_role!=='super_admin')return res.status(403).json({message:'Platform Super Admin required.'});next()}
 async function getApp(code){return check(await db().from('applications').select('id,code,name,login_path,status').eq('code',String(code||'').toUpperCase()).maybeSingle())}
 async function getContexts(user,app){
- if(!app||app.status!=='active')return [];
- const [subscriptions,grants,organizations]=await Promise.all([
-  db().from('subscriptions').select('organization_id,application_id,status,ends_at').eq('application_id',app.id),
-  db().from('organization_app_access').select('organization_id,application_id,status').eq('application_id',app.id),
-  db().from('organizations').select('id,name,slug,status')
+ if(!user||user.status!=='active'||!app||app.status!=='active')return [];
+ // Platform administration does not imply a customer product identity.
+ // Read candidate memberships/roles first; never fetch every tenant then filter.
+ const [membershipResult,roleResult]=await Promise.all([
+  db().from('organization_memberships').select('organization_id,user_id,status').eq('user_id',user.id).eq('status','active').limit(501),
+  db().from('user_app_roles').select('organization_id,application_id,user_id,role_code').eq('user_id',user.id).eq('application_id',app.id).limit(501)
  ]);
- const subs=check(subscriptions),access=check(grants),orgs=check(organizations);
- let roles=[],memberships=[];
- if(user.platform_role!=='super_admin'){
-  roles=check(await db().from('user_app_roles').select('organization_id,application_id,user_id,role_code').eq('user_id',user.id).eq('application_id',app.id));
-  memberships=check(await db().from('organization_memberships').select('organization_id,user_id,status').eq('user_id',user.id));
+ const memberships=check(membershipResult),roles=check(roleResult);
+ if(memberships.length>500||roles.length>500)throw new Error('Workspace count exceeds supported context limit.');
+ const memberIds=new Set(memberships.map(m=>m.organization_id));
+ const ids=[...new Set(roles.filter(r=>memberIds.has(r.organization_id)).map(r=>r.organization_id))];
+ if(!ids.length)return [];
+ const contexts=[];
+ // Bound PostgREST URL sizes as well as returned row counts.
+ for(let offset=0;offset<ids.length;offset+=50){
+  const batch=ids.slice(offset,offset+50);
+  const [subscriptions,grants,organizations]=await Promise.all([
+   db().from('subscriptions').select('organization_id,application_id,status,starts_at,ends_at').eq('application_id',app.id).in('organization_id',batch),
+   db().from('organization_app_access').select('organization_id,application_id,status').eq('application_id',app.id).in('organization_id',batch),
+   db().from('organizations').select('id,name,slug,status').in('id',batch).eq('status','active')
+  ]);
+  contexts.push(...permittedContexts({user,app,organizations:check(organizations),subscriptions:check(subscriptions),grants:check(grants),memberships,roles}));
  }
- return permittedContexts({user,app,organizations:orgs,subscriptions:subs,grants:access,memberships,roles});
+ return contexts;
 }
 async function requireApp(req,res,next){
  try{
@@ -83,3 +94,4 @@ function validateOrigin(req,res,next){
  next();
 }
 module.exports={newToken,hashToken,cookieOptions,appCookie,portalSession,optionalPortal,requireAdmin,getApp,getContexts,requireApp,validateOrigin,SESSION_HOURS};
+

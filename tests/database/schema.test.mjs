@@ -61,3 +61,59 @@ test('portal logout cascades application session deletion',async()=>{
  await pool.query("delete from portal_sessions where token_hash='test-portal'");
  assert.equal((await pool.query("select * from app_sessions where token_hash='test-app'")).rowCount,0);
 });
+
+test('real database-backed Express tenant and session authorization matrix',async()=>{
+ const {createRequire}=await import('node:module');const require=createRequire(import.meta.url);
+ const {hashToken,appCookie}=require('../../tokens');
+ const {once}=await import('node:events');
+ const otherOrg='33333333-3333-4333-8333-333333333333';
+ await pool.query("insert into organizations(id,name,slug) values ($1,'Other Synthetic','other-synthetic')",[otherOrg]);
+ for(const tenant of [org,otherOrg]){
+  await pool.query("insert into subscriptions(organization_id,application_id,status) values ($1,$2,'active')",[tenant,app]);
+  await pool.query('insert into organization_app_access(organization_id,application_id) values ($1,$2)',[tenant,app]);
+  await pool.query("insert into music_requests(organization_id,song_title) values ($1,$2)",[tenant,tenant===org?'Own tenant song':'Foreign tenant secret']);
+ }
+ await pool.query('insert into organization_memberships(organization_id,user_id) values ($1,$2)',[org,user]);
+ await pool.query("insert into user_app_roles(organization_id,user_id,application_id,role_code) values ($1,$2,$3,'staff')",[org,user,app]);
+ await pool.query("insert into portal_sessions(token_hash,user_id,expires_at) values ($1,$2,now()+interval '1 hour')",[hashToken('http-portal'),user]);
+ await pool.query("insert into app_sessions(token_hash,portal_token_hash,user_id,organization_id,application_id,expires_at) values ($1,$2,$3,$4,$5,now()+interval '1 hour')",[hashToken('http-app'),hashToken('http-portal'),user,org,app]);
+ const application=require('./http-fixture.js')(pool);const server=application.listen(0,'127.0.0.1');await once(server,'listening');
+ const base='http://127.0.0.1:'+server.address().port;
+ const headers={Cookie:'vsph.portal.sid=http-portal; '+appCookie('MUSIC')+'=http-app'};
+ const get=path=>fetch(base+path,{headers,redirect:'manual'});
+ try{
+  assert.equal((await fetch(base+'/api/apps/MUSIC/records')).status,401);
+  let r=await get('/api/apps/MUSIC/records?organizationId='+otherOrg);assert.equal(r.status,200);
+  assert.deepEqual((await r.json()).records.map(x=>x.song_title),['Own tenant song']);
+  r=await get('/api/apps/MUSIC/contexts');assert.deepEqual((await r.json()).organizations.map(x=>x.id),[org]);
+  // A platform admin sees registry/admin controls but cannot become arbitrary customer staff.
+  await pool.query("update profiles set platform_role='super_admin' where id=$1",[user]);
+  r=await get('/api/apps/MUSIC/contexts');assert.deepEqual((await r.json()).organizations.map(x=>[x.id,x.role]),[[org,'staff']]);
+  await pool.query('delete from user_app_roles where user_id=$1',[user]);
+  assert.equal((await get('/api/apps/MUSIC/records')).status,403);
+  await pool.query("insert into user_app_roles(organization_id,user_id,application_id,role_code) values ($1,$2,$3,'musician')",[org,user,app]);
+  await pool.query("update profiles set platform_role='user' where id=$1",[user]);
+  // Product-specific role denies writes while maintaining authorized reads.
+  for(const role of ['viewer','musician']){
+   await pool.query('update user_app_roles set role_code=$1 where user_id=$2',[role,user]);
+   assert.equal((await get('/api/apps/MUSIC/records')).status,200);
+   const write=await fetch(base+'/api/apps/MUSIC/records',{method:'POST',headers:{...headers,'Origin':process.env.PUBLIC_ORIGIN||'http://localhost:3000','Content-Type':'application/json'},body:JSON.stringify({song_title:'Must not be inserted',organization_id:otherOrg})});
+   assert.equal(write.status,403);
+  }
+  assert.equal((await pool.query("select * from music_requests where song_title='Must not be inserted'")).rowCount,0);
+
+  for(const status of ['invited','suspended']){
+   await pool.query('update organization_memberships set status=$1 where user_id=$2',[status,user]);
+   assert.equal((await get('/api/apps/MUSIC/records')).status,403,status);
+  }
+  await pool.query("update organization_memberships set status='active' where user_id=$1",[user]);
+  await pool.query("update subscriptions set ends_at=now()-interval '1 second' where organization_id=$1",[org]);
+  assert.equal((await get('/api/apps/MUSIC/records')).status,403);
+  await pool.query('update subscriptions set ends_at=null where organization_id=$1',[org]);
+  await pool.query("update profiles set status='disabled' where id=$1",[user]);
+  assert.equal((await get('/api/apps/MUSIC/records')).status,401);
+  await pool.query("update profiles set status='active' where id=$1",[user]);
+  await pool.query('delete from portal_sessions where user_id=$1',[user]);
+  assert.equal((await get('/api/apps/MUSIC/records')).status,401);
+ }finally{await new Promise(resolve=>server.close(resolve))}
+});
