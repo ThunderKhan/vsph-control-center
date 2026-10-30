@@ -80,6 +80,21 @@ Seed is idempotent for the expected demo rows. Existing users keep their previou
 5. Open a second browser profile for `beta@vsph.test`: its CRM sample contact will differ. API queries always filter by selected `organization_id`.
 6. `owner@vsph.test` sees the Platform Admin panel; create a customer, assign applications and per-app user roles.
 
+### Direct application URL and authentication behavior
+
+**Direct URL entry never grants access.** The portal session is checked on every request for a product login page, app workspace and protected API. App workspaces and tenant records also require a valid, product-scoped session and the user's current customer entitlement.
+
+| Browser action | Expected result |
+| --- | --- |
+| Open `/apps/music/login` without a portal session | Redirect to `/login` |
+| Open `/apps/music/home` without a portal session | Redirect to `/login` |
+| Open `/apps/music/home` with a portal session but without the Music session | Redirect to `/apps/music/login` for the second login |
+| Open Music with both valid sessions and current permissions | Enter the authorized customer workspace |
+| Try `/api/apps/MUSIC/records` without required sessions | HTTP 401 JSON response |
+| Enter `/login` with a valid portal session | Redirect to the dashboard |
+
+Visiting `/login` **does not sign a user out**. Existing browser cookies can stay valid for up to four hours; use **Log out** or a fresh private browsing window for a genuinely anonymous test. Protected pages and session-dependent API responses set `Cache-Control: no-store` to reduce stale-content exposure. Product URL routing is not a security boundary; backend authorization is.
+
 ### Health and tests
 
 ```powershell
