@@ -11,6 +11,11 @@ test('main workspace exposes platform-only customer onboarding navigation',()=>{
  const server=read('server.js'),admin=read('public/admin.html');
  assert.match(dashboard,/id="topbarOnboard"[^>]+href="\/admin\/onboarding" hidden/);
  assert.match(dashboard,/id="adminNavContainer" hidden>[\s\S]*?href="\/admin\/onboarding"/);
+ assert.doesNotMatch(dashboard,/MANAGEMENT|Customers, products and permissions|sidebar-onboarding/);
+ const adminLinks=[...dashboard.matchAll(/<a class="sidebar-link"[^>]*href="\/(?:admin|admin\/onboarding)"/g)];
+ assert.equal(adminLinks.length,2,'Platform administration and New customer must use the same sidebar-link class');
+ const css=read('public/dashboard.css');
+ assert.doesNotMatch(css,/\.sidebar-onboarding|\.nav-help|\.nav-label-secondary/);
  assert.match(script,/byId\('topbarOnboard'\)\.hidden = !isPlatformAdmin/);
  assert.match(script,/const isPlatformAdmin = user\.platformRole === 'super_admin'/);
  assert.match(server,/app\.get\(\['\/admin\/onboarding','\/admin\/onboarding\/'\],portalSession,requireAdmin/);
