@@ -27,8 +27,10 @@ app.get('/apps/:app/home',portalSession,requireApp,(req,res)=>res.sendFile(path.
 app.get('/dashboard.html',portalSession,(req,res)=>res.sendFile(path.join(__dirname,'public','dashboard.html')));
 app.get('/admin.html',portalSession,requireAdmin,(req,res)=>res.sendFile(path.join(__dirname,'public','admin.html')));
 app.use((req,res,next)=>['/app-home.html','/app-login.html'].includes(req.path)?res.status(404).send('Not found.'):next());
+// Friendly routes keep file extensions out of public URLs without changing the HTML/Express stack.
+app.get(['/', '/login'],(req,res)=>res.sendFile(path.join(__dirname,'public','login.html')));
+app.get('/login.html',(req,res)=>res.redirect(302,'/login'));
 app.use(express.static(path.join(__dirname,'public'),{index:false}));
-app.get('/',(req,res)=>res.redirect(302,'/login.html'));
 app.use((err,req,res,next)=>{console.error('Request error:',err.message);if(res.headersSent)return next(err);
  res.status(500).json({message:'Server error. Check configuration and server logs.'});});
 const port=Number(process.env.PORT||3000);
