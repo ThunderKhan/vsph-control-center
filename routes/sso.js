@@ -83,6 +83,8 @@ async function exchange(req,res,next){
     const org=context?.organizations.find(o=>o.id===launch.organization_id);
     if(!org || context.app.id!==launch.application_id)return res.status(403).json({message:'Music entitlement revoked.'});
     return res.json({
+      // Confidential server-only reference. Never put it in a browser token.
+      portal_session_ref:launch.portal_token_hash,
       user:{id:user.id,email:user.email,name:user.full_name},
       application:{code:ALLOWED_CODE,id:context.app.id},
       organization:{id:org.id,name:org.name},
@@ -98,10 +100,15 @@ async function introspect(req,res,next){
     const cfg=musicConfig();
     if(!cfg || !verifySecret(req.get('x-vsph-client-secret'),cfg.secret))
       return res.status(401).json({active:false});
-    const {client_id,user_id,organization_id}=req.body||{};
+    const {client_id,user_id,organization_id,portal_session_ref}=req.body||{};
     const isUuid=value=>typeof value==='string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
-    if(client_id!==CLIENT_ID || !isUuid(user_id) || !isUuid(organization_id))
+    if(client_id!==CLIENT_ID || !isUuid(user_id) || !isUuid(organization_id) ||
+       typeof portal_session_ref!=='string' || !/^[0-9a-f]{64}$/.test(portal_session_ref))
       return res.status(400).json({active:false});
+    const session=check(await db().from('portal_sessions').select('token_hash,user_id,expires_at')
+      .eq('token_hash',portal_session_ref).eq('user_id',user_id).maybeSingle());
+    if(!session || new Date(session.expires_at).getTime()<=Date.now())
+      return res.status(403).json({active:false});
     const user=check(await db().from('profiles').select('id,status,platform_role').eq('id',user_id).maybeSingle());
     if(!user || user.status!=='active')return res.status(403).json({active:false});
     const context=await appContexts(user);
