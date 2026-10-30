@@ -10,7 +10,7 @@ function harness(pathname) {
   class Element {
     constructor(id = '') {
       this.id = id;
-      this.hidden = ['organizationField', 'backLink', 'authError'].includes(id);
+      this.hidden = ['organizationField', 'backLink', 'authError', 'inviteEntry'].includes(id);
       this.disabled = false;
       this.required = false;
       this.readOnly = false;
@@ -40,7 +40,7 @@ function harness(pathname) {
   const elements = {};
   for (const id of [
     'authForm', 'email', 'password', 'organizationField', 'organizationId',
-    'authSubmit', 'authError', 'backLink', 'heroKicker', 'heroLineOne',
+    'authSubmit', 'authError', 'backLink', 'inviteEntry', 'heroKicker', 'heroLineOne',
     'heroLineTwo', 'heroDescription', 'cardKicker', 'authHeading', 'formDescription'
   ]) elements[id] = new Element(id);
   elements['.submit-label'] = new Element();
@@ -86,6 +86,7 @@ function harness(pathname) {
 test('portal login uses shared form, password-eye and portal endpoint', async () => {
   const h = harness('/login');
   assert.equal(h.elements.organizationField.hidden, true);
+  assert.equal(h.elements.inviteEntry.hidden, false);
   assert.equal(h.elements.authSubmit.disabled, false);
   assert.equal(h.elements.heroLineOne.textContent, 'Building');
   h.elements.email.value = 'owner@vsph.test';
@@ -131,6 +132,11 @@ test('Music app uses the same component and selected app code', async () => {
   await h.elements.authForm.fire('submit', { preventDefault() {} });
   const request = h.calls.find(call => call.url === '/api/auth/app-login');
   assert.equal(JSON.parse(request.options.body).app, 'MUSIC');
+});
+
+test('product-specific login does not promote portal invitation acceptance', async () => {
+  const h = harness('/apps/crm/login');
+  assert.equal(h.elements.inviteEntry.hidden, true);
 });
 
 test('portal form does not issue a late session probe or redirect after rendering', async () => {
