@@ -36,7 +36,7 @@ apps: {
 }
 ```
 
-Unspecified values inherit the VSPH defaults. Supported text keys: `heroKicker`, `heroLineOne`, `heroLineTwo`, `heroDescription`, `cardKicker`, `formHeading`, `formDescription`. Color keys: `background`, `action`, `highlight`.
+Unspecified values inherit the VSPH defaults. Set `layout: 'focused'` for a compact, centered login instead of the default `layout: 'split'`. Both use the same HTML and controller. Supported text keys: `heroKicker`, `heroLineOne`, `heroLineTwo`, `heroDescription`, `cardKicker`, `formHeading`, `formDescription`. Color keys: `background`, `action`, `highlight`.
 
 ## Customizing for one customer
 
