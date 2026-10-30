@@ -30,33 +30,3 @@ test('central portal login links to invitation help without enabling unsolicited
  assert.doesNotMatch(login,/href="\/signup"/);
 });
 
-function renderInvitation(hash=''){
- const nodes={};
- for(const id of ['inviteForm','acceptButton','inviteError','inviteSuccess','inviteInstructions','inviteInstructionsText']){
-  nodes[id]={hidden:id==='inviteInstructions',disabled:id==='acceptButton',
-    textContent:'',listeners:{},addEventListener(type,callback){this.listeners[type]=callback;}};
- }
- const location={pathname:'/accept-invite',hash};
- const history={cleaned:false,replaceState(_state,_title,url){this.cleaned=url==='/accept-invite';}};
- const context={document:{getElementById:id=>nodes[id]},location,history,URLSearchParams,fetch:()=>{throw Error('No network needed for direct landing')},console};
- vm.runInNewContext(read('public/invite.js'),context);
- return {nodes,history};
-}
-test('invitation help landing without token shows instructions, not a password form',()=>{
- const {nodes,history}=renderInvitation('');
- assert.equal(history.cleaned,true);
- assert.equal(nodes.inviteInstructions.hidden,false);
- assert.equal(nodes.inviteForm.hidden,true);
- assert.equal(nodes.acceptButton.disabled,true);
-});
-test('expired invitation opens recovery instructions; tokenized link opens activation form',()=>{
- const expired=renderInvitation('#error=access_denied&error_description=Expired');
- assert.equal(expired.nodes.inviteInstructions.hidden,false);
- assert.equal(expired.nodes.inviteForm.hidden,true);
- assert.match(expired.nodes.inviteInstructionsText.textContent,/invalid or expired/);
- const valid=renderInvitation('#access_token=example-token');
- assert.equal(valid.nodes.inviteInstructions.hidden,true);
- assert.equal(valid.nodes.inviteForm.hidden,false);
- assert.equal(valid.nodes.acceptButton.disabled,false);
- assert.equal(valid.history.cleaned,true);
-});

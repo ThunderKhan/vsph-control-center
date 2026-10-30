@@ -1,37 +1,14 @@
-(()=>{
-'use strict';
-const by=id=>document.getElementById(id);
-const form=by('inviteForm'),button=by('acceptButton'),error=by('inviteError'),success=by('inviteSuccess');
-const fragment=new URLSearchParams(location.hash.slice(1));
-let token=fragment.get('access_token');
-const errorDesc=fragment.get('error_description')||fragment.get('error');
+(()=>{'use strict';
+const by=id=>document.getElementById(id),form=by('inviteForm'),error=by('inviteError'),success=by('inviteSuccess'),button=by('acceptButton');
+const f=new URLSearchParams(location.hash.slice(1));
+let token=f.get('invitation_token');const invitationId=f.get('invitation_id');
 history.replaceState(null,'',location.pathname);
-function report(message){error.textContent=message;error.hidden=!message}
-if(errorDesc || !token){
-  // Direct visits from the login page are instructions-only. There is no
-  // way to activate a tenant without the token supplied in the email.
-  form.hidden=true;
-  by('inviteInstructions').hidden=false;
-  if(errorDesc)by('inviteInstructionsText').textContent=
-    'Your invitation link is invalid or expired. Contact your VSPH administrator for a new invitation email.';
-}else button.disabled=false;
-form.addEventListener('submit',async event=>{
- event.preventDefault();
- if(!token)return;
- const pass=by('password').value,confirm=by('confirmPassword').value;
- if(pass.length<12||pass.length>128)return report('Choose a password between 12 and 128 characters.');
- if(pass!==confirm)return report('The passwords do not match.');
- button.disabled=true;report('');
- try{
-  const response=await fetch('/api/invitations/accept',{
-    method:'POST',credentials:'same-origin',cache:'no-store',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({accessToken:token,password:pass})
-  });
-  const result=await response.json().catch(()=>({}));
-  if(!response.ok)throw Error(result.message||'Invitation could not be accepted.');
-  token=null;form.hidden=true;success.hidden=false;
-  by('password').value='';by('confirmPassword').value='';
- }catch(err){report(err.message||'Could not accept invitation.');button.disabled=false}
-});
-})();
+function report(m){error.textContent=m;error.hidden=!m;}
+let newIdentity=true;
+async function call(path,data){const r=await fetch('/api/invitations/'+path,{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({invitationId,token,...data})});const body=await r.json();if(!r.ok)throw Error(body.message||'Invitation unavailable.');return body;}
+if(!token||!invitationId){form.hidden=true;by('inviteInstructions').hidden=false;by('inviteInstructionsText').textContent='Request a current invitation from your administrator. Legacy account-wide invitation links are not accepted.';}
+else call('inspect').then(info=>{newIdentity=info.newIdentity;button.disabled=false;if(!newIdentity){by('password').required=false;by('confirmPassword').required=false;by('password').closest('label')?.remove();by('password').hidden=true;by('confirmPassword').hidden=true;report('Existing account: sign into the portal in another tab, then accept here. Your password will not be changed.');}}).catch(e=>report(e.message));
+form.addEventListener('submit',async e=>{e.preventDefault();if(!token)return;
+ const password=by('password').value;if(newIdentity&&(password.length<12||password!==by('confirmPassword').value))return report('Use matching passwords of at least 12 characters.');
+ button.disabled=true;try{await call('accept',newIdentity?{password}:{});token=null;form.hidden=true;success.hidden=false;by('password').value='';by('confirmPassword').value='';}catch(e){report(e.message);button.disabled=false;}
+});})();

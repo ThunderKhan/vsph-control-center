@@ -54,83 +54,17 @@ function onboardingDeps(){
   return {db,check};
 }
 
-// This endpoint is mounted behind portalSession + requireAdmin in server.js.
-// No client-supplied user role, tenant id, or grant status is accepted.
-router.post('/',async(req,res,next)=>{
-  let data;
-  try{data=validateOnboarding(req.body)}catch(err){return errorResponse(res,400,err.message)}
-  const {organizationName,slug,adminName,adminEmail,products}=data;
-  let orgId=null,invitedUserId=null,hasInvited=false;
-  let completed=false;
-  try{
-    const client=db();
-    const apps=check(await client.from('applications').select('id,code,name,status').in('id',products.map(p=>p.applicationId)).eq('status','active'));
-    if(apps.length!==products.length)return errorResponse(res,400,'One or more selected products are unavailable.');
-    const existing=check(await client.from('profiles').select('id').eq('email',adminEmail).maybeSingle());
-    if(existing)return errorResponse(res,409,'This email already belongs to a VSPH account. Use the existing user access controls.');
-    const duplicate=check(await client.from('organizations').select('id').eq('slug',slug).maybeSingle());
-    if(duplicate)return errorResponse(res,409,'That organization slug is already taken.');
-    const redirectTo=publicInviteUrl();
-    const org=check(await client.from('organizations').insert({name:organizationName,slug}).select('id').single());
-    orgId=org.id;
-    const invited=await client.auth.admin.inviteUserByEmail(adminEmail,{
-      data:{full_name:adminName},redirectTo
-    });
-    if(invited.error)throw invited.error;
-    if(!invited.data?.user?.id)throw new Error('Invitation service did not return an identity.');
-    invitedUserId=invited.data.user.id;hasInvited=true;
-
-    check(await client.from('profiles').insert({
-      id:invitedUserId,full_name:adminName,email:adminEmail,status:'active',platform_role:'user'
-    }));
-    check(await client.from('organization_memberships').insert({
-      organization_id:orgId,user_id:invitedUserId,role:'owner',status:'invited'
-    }));
-    check(await client.from('subscriptions').insert(products.map(p=>({
-      organization_id:orgId,application_id:p.applicationId,plan_code:p.planCode,
-      status:p.status,ends_at:p.endsAt
-    }))));
-    check(await client.from('organization_app_access').insert(products.map(p=>({
-      organization_id:orgId,application_id:p.applicationId,status:'enabled'
-    }))));
-    check(await client.from('user_app_roles').insert(products.map(p=>({
-      organization_id:orgId,application_id:p.applicationId,user_id:invitedUserId,role_code:'super_admin'
-    }))));
-    completed=true;
-    // Audit after successful provisioning. A temporary logging failure must
-    // not destroy an already sent invitation and a correctly provisioned tenant.
-    try{check(await client.from('audit_logs').insert({
-      actor_user_id:req.user.id,organization_id:orgId,action:'customer.onboarded',
-      target_type:'organization',target_id:orgId,
-      details:{slug,email:adminEmail,productCodes:apps.map(app=>app.code),inviteStatus:'sent'}
-    }))}catch(err){console.error('Onboarding audit write failed',err)}
-    return res.status(201).json({
-      id:orgId,organizationName,adminEmail,invitationStatus:'sent',
-      products:products.map(p=>({applicationId:p.applicationId,planCode:p.planCode,status:p.status,endsAt:p.endsAt})),
-      message:'Customer created. Supabase has accepted the administrator invitation.'
-    });
-  }catch(err){
-    // Supabase Auth invitations and REST writes cannot share a transaction.
-    // Clean up the new tenant and invited user only, never an existing account.
-    const client=db();
-    let cleanupFailed=false;
-    if(orgId){
-      try{const x=await client.from('organizations').delete().eq('id',orgId);if(x.error)throw x.error}
-      catch(e){cleanupFailed=true;console.error('Onboarding tenant cleanup failed',e)}
-    }
-    if(invitedUserId){
-      try{const x=await client.from('profiles').delete().eq('id',invitedUserId);if(x.error)throw x.error}
-      catch(e){cleanupFailed=true;console.error('Onboarding profile cleanup failed',e)}
-      try{const x=await client.auth.admin.deleteUser(invitedUserId);if(x.error)throw x.error}
-      catch(e){cleanupFailed=true;console.error('Onboarding auth cleanup failed',e)}
-    }
-    if(cleanupFailed)return errorResponse(res,500,'Onboarding could not complete and requires administrator cleanup. Check server logs before retrying.');
-    if(isConflict(err))return errorResponse(res,409,'An organization or administrator with these details already exists.');
-    if(hasInvited)return errorResponse(res,500,'Provisioning failed after the invitation was requested. The invitation may be invalidated; check email and retry.');
-    if(err?.message==='Invitation service did not return an identity.')
-      return errorResponse(res,502,err.message);
-    return next(err);
-  }
-});
-
+const {rpcRoute}=require('../services/rpc');
+router.get('/',rpcRoute(async(req)=>check(await db().rpc('provisioning_command',{p_actor:req.user.id,p_action:'list'}))));
+router.post('/',rpcRoute(async(req,res)=>{
+ let payload;try{payload=validateOnboarding(req.body)}catch(e){e.validation=true;throw e;}
+ const key=req.get('Idempotency-Key');
+ if(!validId(key))return res.status(400).json({message:'A UUID Idempotency-Key is required.'});
+ const job=check(await db().rpc('provisioning_command',{p_actor:req.user.id,p_action:'begin',p_id:key,p_data:payload}));
+ res.status(202);return {...job,id:job.organization_id,organizationName:payload.organizationName,products:payload.products,message:'Customer setup queued. Delivery status is available in provisioning recovery.'};
+}));
+for(const action of ['retry','revoke','recover'])router.post('/:id/'+action,rpcRoute(async(req,res)=>{
+ if(!validId(req.params.id))return res.status(400).json({message:'Invalid invitation ID.'});
+ return check(await db().rpc('provisioning_command',{p_actor:req.user.id,p_action:action,p_id:req.params.id,p_data:{reconciled:req.body?.reconciled===true}}));
+}));
 module.exports={router,validateOnboarding,publicInviteUrl};
