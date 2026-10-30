@@ -33,3 +33,22 @@ test('brand specification is kept at project root', () => {
   assert.match(design, /#0069C8/);
   assert.match(design, /Building\s+What's Next/);
 });
+
+test('login uses extension-free routes while keeping HTML as the underlying view', () => {
+  const server = fs.readFileSync(path.join(root, 'server.js'), 'utf8');
+  assert.match(server, /app\.get\(\['\/', '\/login'\]/);
+  assert.match(server, /app\.get\('\/login\.html',\(req,res\)=>res\.redirect\(302,'\/login'\)\)/);
+  assert.ok(server.indexOf("app.get('/login.html'") < server.indexOf("app.use(express.static("));
+  assert.match(page('login.html'), /id="loginForm"/);
+  for (const name of ['dashboard.js', 'admin.js', 'app-login.js', 'index.html', 'login.html']) {
+    assert.doesNotMatch(page(name), /["']\/login\.html["']/);
+  }
+});
+
+test('login pages omit redundant corner and footer slogans', () => {
+  for (const name of ['login.html', 'app-login.html']) {
+    const html = page(name);
+    assert.doesNotMatch(html, /SECURE WORKSPACE|People \| Products \| Possibilities/);
+    assert.doesNotMatch(html, /header-caption/);
+  }
+});
