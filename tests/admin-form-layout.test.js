@@ -43,9 +43,11 @@ test('other admin forms also have a separate, centered save action row',()=>{
 });
 
 test('changes preserve existing form IDs and admin controller integration',()=>{
-  for (const id of ['clientForm','applicationForm','userForm','subscriptionForm','accessForm','roleForm'])
+  for (const id of ['applicationForm','userForm','subscriptionForm','accessForm','roleForm'])
     assert.match(html,new RegExp('<form id="' + id + '"'));
   assert.match(html,/<script src="\/admin\.js"><\/script>/);
   assert.match(html,/id="section-subscriptions"/);
   assert.match(html,/id="subscriptionsTable"/);
+  assert.match(html,/href="\/admin\/onboarding"/);
+  assert.doesNotMatch(html,/id="clientPassword"/);
 });

@@ -40,7 +40,6 @@ button,a {-webkit-tap-highlight-color: transparent}
 .wordmark {font-size:25px;font-weight:700;letter-spacing:.025em;line-height:1.2;color:white;text-decoration:none}
 .sidebar-product-label {margin-top:9px;font-size:10px;letter-spacing:.17em;font-weight:600;color:#AFC8E5}
 .nav-label {margin:0 12px 14px;font-size:10px;letter-spacing:.15em;color:#9CB8D6;font-weight:600}
-.nav-label-secondary {margin-top:34px}
 .sidebar-navigation {display:flex;flex-direction:column}
 .sidebar-link {
   display:flex;align-items:center;gap:13px;padding:13px 14px;min-height:48px;
@@ -276,7 +275,6 @@ button,a {-webkit-tap-highlight-color: transparent}
 
 
 /* Overview-only access summary and two-stage security explanation. */
-.nav-help{font-size:11px;line-height:1.5;color:#ADC6DF;margin:-7px 12px 12px;max-width:200px}
 .access-overview{margin:0 0 20px}
 .secondary-link{
   display:inline-flex;align-items:center;justify-content:center;text-align:center;min-height:44px;
@@ -339,3 +337,97 @@ html[data-workspace-view="applications"] [data-view="overview"]{display:none!imp
 /* External Music demo is intentionally NOT the authenticated application launch. */
 .app-preview{display:flex;align-items:center;justify-content:center;text-align:center;min-height:44px;margin-top:8px;padding:10px 12px;border:1px solid #B8CDDF;border-radius:7px;background:#fff;color:#00255A;font-size:12px;font-weight:600;text-decoration:none}
 .app-preview:hover{background:#F1F8FD;border-color:#0069C8}
+
+
+/* Obvious, permission-gated customer onboarding entry points. */
+.topbar-actions{display:flex;align-items:center;justify-content:flex-end;gap:18px;min-width:0}
+.topbar-onboard,.primary-link{
+  display:inline-flex;align-items:center;justify-content:center;text-align:center;
+  min-height:42px;padding:10px 17px;border-radius:7px;background:var(--action);
+  border:1px solid var(--action);color:white;text-decoration:none;font-size:12px;
+  font-weight:700;white-space:nowrap;transition:background .15s;
+}
+.topbar-onboard:hover,.primary-link:hover{background:#0054A4;border-color:#0054A4}
+.admin-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:18px}
+@media(max-width:680px){
+  .topbar-actions{gap:9px}
+  .topbar-onboard{min-height:38px;padding:8px 11px;font-size:11px}
+  .topbar-account{max-width:120px}
+}
+@media(max-width:390px){.topbar-actions .topbar-account{display:none}}
+
+
+/* Desktop icon-rail mode: animate the GRID track, never move content with a
+   negative margin or transform. The second track reflows naturally. */
+.workspace-shell{transition:grid-template-columns .26s cubic-bezier(.2,.8,.2,1)}
+.sidebar-heading{position:relative}
+.sidebar-collapse-toggle{
+  position:absolute;right:0;top:0;display:grid;place-items:center;
+  width:38px;height:38px;border:1px solid rgba(185,215,241,.24);
+  border-radius:9px;background:transparent;color:#C8E2F7;cursor:pointer;
+  transition:background .15s,border-color .15s;
+}
+.sidebar-collapse-toggle:hover{background:#164679;border-color:#5B89B8}
+.sidebar-collapse-toggle .icon{width:18px;height:18px}
+.sidebar-collapse-toggle .expand-symbol{display:none}
+.wordmark-compact{display:none}
+.sidebar-logout>.icon{width:17px;height:17px}
+
+@media (min-width:951px){
+  :root[data-sidebar-state="collapsed"] .workspace-shell{
+    grid-template-columns:72px minmax(0,1fr);
+  }
+  :root[data-sidebar-state="collapsed"] .workspace-sidebar{
+    padding-inline:8px;
+  }
+  :root[data-sidebar-state="collapsed"] .sidebar-heading{
+    padding:4px 0 0;align-items:center;margin-bottom:32px;
+  }
+  :root[data-sidebar-state="collapsed"] .wordmark{
+    display:grid;place-items:center;width:48px;height:44px;padding:0;
+    font-size:23px;line-height:1;
+  }
+  :root[data-sidebar-state="collapsed"] .wordmark-full{display:none}
+  :root[data-sidebar-state="collapsed"] .wordmark-compact{display:inline}
+  :root[data-sidebar-state="collapsed"] .sidebar-product-label,
+  :root[data-sidebar-state="collapsed"] .nav-label,
+  :root[data-sidebar-state="collapsed"] .sidebar-link>span,
+  :root[data-sidebar-state="collapsed"] .account-details,
+  :root[data-sidebar-state="collapsed"] .sidebar-logout>span{
+    display:none;
+  }
+  :root[data-sidebar-state="collapsed"] .sidebar-collapse-toggle{
+    position:static;width:44px;height:44px;margin-top:11px;
+  }
+  :root[data-sidebar-state="collapsed"] .collapse-symbol{display:none}
+  :root[data-sidebar-state="collapsed"] .expand-symbol{display:block}
+  :root[data-sidebar-state="collapsed"] .sidebar-navigation{
+    align-items:center;gap:4px;
+  }
+  :root[data-sidebar-state="collapsed"] .sidebar-admin-section{width:100%}
+  :root[data-sidebar-state="collapsed"] .sidebar-link{
+    justify-content:center;width:48px;min-height:48px;
+    padding:0;margin:0 auto;gap:0;
+  }
+  :root[data-sidebar-state="collapsed"] .sidebar-link .icon{
+    width:21px;height:21px;
+  }
+  :root[data-sidebar-state="collapsed"] .account-identity{
+    justify-content:center;padding:14px 0;
+  }
+  :root[data-sidebar-state="collapsed"] .sidebar-logout{
+    width:48px;min-height:48px;padding:0;margin-inline:auto;
+  }
+  :root[data-sidebar-state="collapsed"] .sidebar-footer{padding-top:16px}
+}
+
+/* Narrow layouts retain the existing full-width off-canvas navigation.
+   Desktop collapse state can be persisted without affecting the mobile drawer. */
+@media(max-width:950px){
+  /* Keep the existing close button positioned against the mobile drawer. */
+  .sidebar-heading{position:static}
+  .sidebar-collapse-toggle{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .workspace-shell,.sidebar-collapse-toggle{transition:none!important}
+}

@@ -24,6 +24,8 @@ test('Overview and Applications use distinct protected routes and separate views
   assert.match(html, /href="\/dashboard"/);
   assert.match(html, /href="\/applications"/);
   assert.match(html, /href="\/admin"/);
+  assert.match(html, /id="topbarOnboard" class="topbar-onboard" href="\/admin\/onboarding" hidden/);
+  assert.match(html, /class="sidebar-link" href="\/admin\/onboarding"/);
   assert.match(js, /location.pathname/);
   assert.match(js, /renderAccessOverview/);
   assert.match(js, /\/contexts/);
@@ -45,11 +47,11 @@ test('dashboard design is responsive and does not fabricate analytics', () => {
   assert.doesNotThrow(()=>new Function(js));
 });
 
-function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=false,contexts={}}={}){
+function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=false,contexts={},collapsed=false,blockedStorage=false}={}){
   class Element{
     constructor(id=''){
       this.id=id; this.children=[]; this.attributes={}; this.value=''; this.textContent='';
-      this.hidden=['emptyMessage','errorMessage','adminNavContainer','adminOverviewPanel','navBackdrop'].includes(id);
+      this.hidden=['emptyMessage','errorMessage','adminNavContainer','adminOverviewPanel','topbarOnboard','navBackdrop'].includes(id);
       this.disabled=false; this.events={}; this.style={setProperty(){}};
       this.classList={add(){},remove(){},toggle(){},contains(){return false}};
     }
@@ -64,7 +66,7 @@ function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=fal
     querySelectorAll(){return[];}
     focus(){}
   }
-  const ids=['appGrid','appSearch','errorMessage','emptyMessage','logoutButton','avatar','sideName','sideRole','topAccount','welcomeMessage','adminNavContainer','adminOverviewPanel','appCount','featureAppCount','workspaceCount','navBackdrop','openMenu','closeMenu','workspaceSidebar','spotlightPanel','accessGrid','libraryCount'];
+  const ids=['appGrid','appSearch','errorMessage','emptyMessage','logoutButton','avatar','sideName','sideRole','topAccount','welcomeMessage','adminNavContainer','adminOverviewPanel','topbarOnboard','appCount','featureAppCount','workspaceCount','navBackdrop','openMenu','closeMenu','sidebarToggle','workspaceSidebar','spotlightPanel','accessGrid','libraryCount'];
   const nodes=new Map(ids.map(id=>[id,new Element(id)]));
   const visibleViews=[];
   for(const name of ['overview','applications']){
@@ -89,7 +91,8 @@ function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=fal
   };
   const location={pathname,hash:'',replaced:null,replace(url){this.replaced=url;}};
   const document={
-    title:'',body:{classList:{add(){},remove(){},contains(){return false}}},
+    title:'',documentElement:{dataset:{sidebarState:collapsed?'collapsed':'expanded'}},
+    body:{classList:{add(){},remove(){},contains(){return false}}},
     activeElement:null,
     getElementById:id=>nodes.get(id),
     querySelectorAll:selector=>selector==='[data-view]'?visibleViews:selector==='.sidebar-link'?links:[],
@@ -97,9 +100,14 @@ function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=fal
     createElementNS:(ns,tag)=>new Element(tag),
     addEventListener(){}
   };
-  const window={innerWidth:1280,location,matchMedia:()=>({matches:true}),addEventListener(){}};
+  const stored=new Map();
+  const localStorage={
+    setItem(key,value){if(blockedStorage)throw Error('Storage blocked');stored.set(key,value);},
+    getItem(key){if(blockedStorage)throw Error('Storage blocked');return stored.get(key)||null;}
+  };
+  const window={innerWidth:1280,location,localStorage,matchMedia:()=>({matches:true}),addEventListener(){}};
   vm.runInNewContext(read('public/dashboard.js'),{document,window,fetch,console});
-  return{nodes,calls,location,visibleViews,links,document};
+  return{nodes,calls,location,visibleViews,links,document,stored,window};
 }
 async function settle(){await new Promise(resolve=>setImmediate(resolve));}
 
@@ -116,6 +124,7 @@ test('Overview uses real product roles and customer contexts rather than repeati
   assert.equal(fixture.nodes.get('workspaceCount').textContent,'3');
   assert.equal(fixture.nodes.get('adminNavContainer').hidden,false);
   assert.equal(fixture.nodes.get('adminOverviewPanel').hidden,false);
+  assert.equal(fixture.nodes.get('topbarOnboard').hidden,false);
   assert.equal(fixture.nodes.get('accessGrid').children.length,2);
   assert.equal(fixture.nodes.get('appGrid').children.length,0);
   assert.ok(fixture.calls.some(x=>x.url==='/api/apps/CRM/contexts'));
@@ -141,6 +150,7 @@ test('Applications is a separate searchable directory with only server-authorize
   await settle();
   assert.equal(fixture.document.title,'Applications | VSPH Control Center');
   assert.equal(fixture.nodes.get('adminNavContainer').hidden,true);
+  assert.equal(fixture.nodes.get('topbarOnboard').hidden,true);
   assert.equal(fixture.nodes.get('appGrid').children.length,2);
   assert.equal(fixture.nodes.get('accessGrid').children.length,0);
   assert.equal(fixture.nodes.get('libraryCount').textContent,'2 products');
@@ -160,4 +170,53 @@ test('unauthenticated direct dashboard access navigates to portal login without 
   await settle();
   assert.equal(fixture.location.replaced,'/login');
   assert.ok(!fixture.calls.some(call=>call.url==='/api/apps'));
+});
+
+
+test('desktop toggle collapses to icon rail and expands with accessible state',async()=>{
+  const fixture=mount({user:{name:'Admin Example',platformRole:'super_admin'}});
+  await settle();
+  const toggle=fixture.nodes.get('sidebarToggle');
+  const root=fixture.document.documentElement;
+  assert.equal(root.dataset.sidebarState,'expanded');
+  assert.equal(toggle.attributes['aria-expanded'],'true');
+  assert.equal(toggle.attributes['aria-label'],'Collapse sidebar');
+
+  toggle.events.click();
+  assert.equal(root.dataset.sidebarState,'collapsed');
+  assert.equal(toggle.attributes['aria-expanded'],'false');
+  assert.equal(toggle.attributes['aria-label'],'Expand sidebar');
+  assert.equal(toggle.attributes.title,'Expand sidebar');
+  assert.equal(fixture.stored.get('vsph.sidebar.collapsed'),'true');
+  assert.equal(fixture.nodes.get('adminNavContainer').hidden,false);
+
+  toggle.events.click();
+  assert.equal(root.dataset.sidebarState,'expanded');
+  assert.equal(toggle.attributes['aria-expanded'],'true');
+  assert.equal(fixture.stored.get('vsph.sidebar.collapsed'),'false');
+});
+
+test('saved compact state is respected in Applications without losing permissions or navigation',async()=>{
+  const fixture=mount({
+    pathname:'/applications',collapsed:true,
+    user:{name:'Regular Member',platformRole:'user'},
+    apps:[{code:'CRM',name:'CRM',status:'active'}]
+  });
+  await settle();
+  const toggle=fixture.nodes.get('sidebarToggle');
+  assert.equal(fixture.document.documentElement.dataset.sidebarState,'collapsed');
+  assert.equal(toggle.attributes['aria-label'],'Expand sidebar');
+  assert.equal(fixture.nodes.get('adminNavContainer').hidden,true);
+  assert.equal(fixture.nodes.get('topbarOnboard').hidden,true);
+  assert.equal(fixture.nodes.get('appGrid').children.length,1);
+  assert.equal(fixture.nodes.get('appGrid').children[0].children.at(-1).href,'/apps/crm/launch');
+});
+
+test('storage failures never break sidebar control or dashboard rendering',async()=>{
+  const fixture=mount({blockedStorage:true});
+  await settle();
+  const toggle=fixture.nodes.get('sidebarToggle');
+  assert.doesNotThrow(()=>toggle.events.click());
+  assert.equal(fixture.document.documentElement.dataset.sidebarState,'collapsed');
+  assert.equal(fixture.nodes.get('appCount').textContent,'0');
 });

@@ -181,6 +181,31 @@
     byId('closeMenu').focus();
   }
 
+  // Compact desktop navigation is independent of the mobile off-canvas menu.
+  // The early head script restores the preference before the layout is painted.
+  function setupDesktopSidebar() {
+    const button = byId('sidebarToggle');
+    const root = document.documentElement;
+    const storageKey = 'vsph.sidebar.collapsed';
+
+    function setCollapsed(collapsed, save) {
+      root.dataset.sidebarState = collapsed ? 'collapsed' : 'expanded';
+      const label = collapsed ? 'Expand sidebar' : 'Collapse sidebar';
+      button.setAttribute('aria-expanded', String(!collapsed));
+      button.setAttribute('aria-label', label);
+      button.setAttribute('title', label);
+      if (save) {
+        try { window.localStorage.setItem(storageKey, String(collapsed)); }
+        catch { /* Private browsing or blocked storage must not break navigation. */ }
+      }
+    }
+
+    setCollapsed(root.dataset.sidebarState === 'collapsed', false);
+    button.addEventListener('click', () => {
+      setCollapsed(root.dataset.sidebarState !== 'collapsed', true);
+    });
+  }
+
   function setupMobileNavigation() {
     byId('openMenu').addEventListener('click', openNavigation);
     byId('closeMenu').addEventListener('click', () => closeNavigation(true));
@@ -243,8 +268,10 @@
       byId('avatar').textContent = firstName.charAt(0).toUpperCase() || 'V';
       byId('topAccount').textContent = name;
       byId('welcomeMessage').textContent = 'Welcome back, ' + firstName + '. Your applications are ready when you are.';
-      byId('adminNavContainer').hidden = user.platformRole !== 'super_admin';
-      byId('adminOverviewPanel').hidden = user.platformRole !== 'super_admin';
+      const isPlatformAdmin = user.platformRole === 'super_admin';
+      byId('adminNavContainer').hidden = !isPlatformAdmin;
+      byId('adminOverviewPanel').hidden = !isPlatformAdmin;
+      byId('topbarOnboard').hidden = !isPlatformAdmin;
 
       const result = await responseJson('/api/apps');
       if (!result) return;
@@ -301,6 +328,7 @@
   for (const section of document.querySelectorAll('[data-view]')) {
     section.hidden = section.getAttribute('data-view') !== (isApplicationsView ? 'applications' : 'overview');
   }
+  setupDesktopSidebar();
   setupMobileNavigation();
   setupLogout();
   addSpotlight(byId('spotlightPanel'));

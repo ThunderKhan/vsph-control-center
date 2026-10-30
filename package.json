@@ -9,7 +9,7 @@
     "dev": "nodemon server.js",
     "seed": "node seed.js",
     "test": "node --test tests/*.test.js",
-    "check": "node --check server.js && node --check routes/auth.js && node --check routes/admin-management.js && node --check routes/apps.js && node --check routes/sso.js && node --check integration/sso-config.js && node --check public/launch.js"
+    "check": "node --check server.js && node --check routes/auth.js && node --check routes/admin-management.js && node --check routes/apps.js && node --check routes/sso.js && node --check integration/sso-config.js && node --check public/launch.js && node --check routes/onboarding.js && node --check routes/invitations.js && node --check public/onboarding.js && node --check public/invite.js"
   },
   "engines": {
     "node": ">=20"

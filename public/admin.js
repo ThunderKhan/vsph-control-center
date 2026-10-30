@@ -140,9 +140,6 @@ async function loadLookups() {
     ["subOrg", "accessOrg", "roleOrg"].forEach(id => document.getElementById(id).innerHTML = orgOpts);
     ["subApp", "accessApp", "roleApp"].forEach(id => document.getElementById(id).innerHTML = appOpts);
     syncMusicRoleOptions();
-    document.getElementById("clientApplications").innerHTML = lookups.applications.map(app =>
-      `<label><input type="checkbox" name="clientApplication" value="${esc(app.id)}"> ${esc(app.name)} (${esc(app.code)})</label>`
-    ).join("");
   } catch (e) { say(e.message, true); }
 }
 async function loadSubscriptions() {
@@ -182,35 +179,6 @@ async function loadAudit() {
   } catch (e) { say(e.message, true); }
 }
 
-document.getElementById("clientOrgName").addEventListener("input", e => {
-  const slug = document.getElementById("clientSlug");
-  if (!slug.dataset.edited) {
-    slug.value = e.target.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-  }
-});
-document.getElementById("clientSlug").addEventListener("input", e => { e.target.dataset.edited = "true"; });
-document.getElementById("clientForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  try {
-    const endValue = document.getElementById("clientEnd").value;
-    const applicationIds = [...document.querySelectorAll("[name=clientApplication]:checked")].map(input => input.value);
-    await api("/api/admin-management/clients", {
-      method: "POST", body: JSON.stringify({
-        organizationName: document.getElementById("clientOrgName").value,
-        slug: document.getElementById("clientSlug").value,
-        adminName: document.getElementById("clientAdminName").value,
-        adminEmail: document.getElementById("clientAdminEmail").value,
-        temporaryPassword: document.getElementById("clientPassword").value,
-        applicationIds,
-        planCode: document.getElementById("clientPlan").value,
-        endsAt: endValue ? new Date(endValue).toISOString() : null
-      })
-    });
-    e.target.reset(); document.getElementById("clientPlan").value = "prototype";
-    document.getElementById("clientSlug").dataset.edited = "";
-    say("Client created with application access."); await loadLookups(); loadOrganizations(); loadOverview();
-  } catch (err) { say(err.message, true); }
-});
 document.getElementById("applicationForm").addEventListener("submit", async e => {
   e.preventDefault();
   try {
