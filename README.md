@@ -4,7 +4,7 @@ VSPH's multi-tenant product portal (Express + vanilla HTML/JS/CSS), integrated w
 
 ## Workspace dashboard
 
-The portal dashboard has a responsive VSPH bento layout based on the actual authorized applications and organizations. It incorporates a restrained hover spotlight concept from a 21st.dev reference, but no fabricated metrics or unrelated technical demos. The new UI lives in `public/dashboard.html`, `public/dashboard.css`, and `public/dashboard.js`. The administrator management pages and all Supabase APIs remain unchanged.
+The portal dashboard has a responsive VSPH bento layout based on the actual authorized applications and organizations. It incorporates a restrained hover spotlight concept from a 21st.dev reference, but no fabricated metrics or unrelated technical demos. The new UI lives in `public/dashboard`, `public/dashboard.css`, and `public/dashboard.js`. The administrator management pages and all Supabase APIs remain unchanged.
 
 See **[docs/DASHBOARD_DESIGN.md](docs/DASHBOARD_DESIGN.md)** for layout, accessibility, data-source mapping, tests, and scope.
 
