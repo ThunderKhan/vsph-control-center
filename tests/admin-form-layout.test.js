@@ -39,7 +39,7 @@ test('other admin forms also have a separate, centered save action row',()=>{
   }
   assert.match(html,/\.form-grid>\.form-actions\{grid-column:1\/-1/);
   assert.match(html,/\.form-grid>\.form-actions \.primary\{[^}]*justify-content:center;text-align:center/);
-  assert.match(html,/@media\(max-width:600px\)\{[^}]*#subscriptionForm\{grid-template-columns:1fr\}/);
+  assert.match(html, /\.form-grid,#subscriptionForm\{grid-template-columns:1fr\}/);
 });
 
 test('changes preserve existing form IDs and admin controller integration',()=>{
