@@ -37,7 +37,7 @@ if (form) {
       showError('Cannot connect to VSPH. Check your connection and try again.');
     } finally {
       button.disabled = false;
-      label.textContent = 'Sign in to workspace';
+      label.textContent = 'Sign in';
     }
   });
 }
