@@ -16,7 +16,7 @@ app.use(validateOrigin);
 app.use((req,res,next)=>{
  const url=String(req.originalUrl||'').split('?')[0];
  if(url.startsWith('/api/auth/') || url==='/api/apps' || url.startsWith('/api/apps/') ||
-    url.startsWith('/apps/') || url==='/dashboard.html' || url==='/admin.html') {
+    url.startsWith('/apps/') || ['/dashboard','/applications','/admin','/dashboard.html','/applications.html','/admin.html'].includes(url)) {
    res.set('Cache-Control','no-store');
  }
  next();
@@ -40,8 +40,16 @@ app.get('/apps/:app/login',portalSession,async(req,res,next)=>{
 });
 app.get('/apps/:app/home',portalSession,requireApp,(req,res)=>res.sendFile(path.join(__dirname,'public','app-home.html')));
 // Login, dashboard, and admin pages are served explicitly; protected pages cannot be bypassed by static hosting.
-app.get('/dashboard.html',portalSession,(req,res)=>res.sendFile(path.join(__dirname,'public','dashboard.html')));
-app.get('/admin.html',portalSession,requireAdmin,(req,res)=>res.sendFile(path.join(__dirname,'public','admin.html')));
+// Clean, independently navigable routes. Overview and Applications share
+// layout assets but render distinct views based on the URL.
+app.get(['/dashboard','/dashboard/'],portalSession,(req,res)=>res.sendFile(path.join(__dirname,'public','dashboard.html')));
+app.get(['/applications','/applications/'],portalSession,(req,res)=>res.sendFile(path.join(__dirname,'public','dashboard.html')));
+app.get(['/admin','/admin/'],portalSession,requireAdmin,(req,res)=>res.sendFile(path.join(__dirname,'public','admin.html')));
+// Legacy bookmarks redirect, with all authorization performed by the destination.
+app.get('/dashboard.html',(req,res)=>res.redirect(302,'/dashboard'));
+app.get('/applications.html',(req,res)=>res.redirect(302,'/applications'));
+app.get('/admin.html',(req,res)=>res.redirect(302,'/admin'));
+app.get('/index.html',(req,res)=>res.redirect(302,'/login'));
 app.use((req,res,next)=>['/app-home.html','/app-login.html'].includes(req.path)?res.status(404).send('Not found.'):next());
 // Friendly routes keep file extensions out of public URLs without changing the HTML/Express stack.
 app.get(['/', '/login'],(req,res)=>res.sendFile(sharedAuthView));
