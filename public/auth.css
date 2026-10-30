@@ -35,9 +35,11 @@ body.auth-page{margin:0;min-width:320px;min-height:100vh;min-height:100dvh;backg
 .auth-form input[readonly]{background:#F5F7FA;color:#4B6079;cursor:default}
 .auth-form select:disabled{opacity:.7;cursor:wait}
 .password-field{position:relative}
-.password-field input{padding-right:76px}
-.reveal{position:absolute;right:4px;top:0;height:48px;min-width:60px;padding:0 12px;display:grid;place-items:center;border:0;background:transparent;border-radius:6px;color:var(--blue);font-size:12px;font-weight:600;cursor:pointer}
+.password-field input{padding-right:60px}
+.reveal{position:absolute;right:3px;top:2px;width:44px;height:44px;padding:0;display:grid;place-items:center;border:0;background:transparent;border-radius:6px;color:var(--blue);cursor:pointer}
 .reveal:hover{background:#F1F6FB}
+.reveal svg{display:block;width:20px;height:20px;pointer-events:none}
+.reveal svg[hidden]{display:none}
 .auth-submit{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;min-height:48px;margin-top:20px;padding:12px 16px;background:var(--blue);border:1px solid var(--blue);border-radius:7px;color:white;cursor:pointer;font-size:14px;font-weight:600;transition:background .15s,transform .15s}
 .auth-submit:hover:not(:disabled){background:#0054A4}
 .auth-submit:active:not(:disabled){transform:translateY(1px)}
