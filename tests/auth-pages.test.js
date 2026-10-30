@@ -73,3 +73,14 @@ test('portal layout uses viewport sizing on desktop with a short-screen fallback
   assert.match(css, /max-width: 900px/);
   assert.match(css, /\.portal-auth \.auth-intro h1 \{/);
 });
+
+test('portal form uses a plain, centered sign-in action', () => {
+  const html = page('login.html');
+  const css = page('auth.css');
+  const js = page('app.js');
+  assert.match(html, /<div class="card-kicker">VSPH CONTROL CENTER<\/div>/);
+  assert.doesNotMatch(html, /class="card-arrow"/);
+  assert.match(html, /<button id="loginButton" class="auth-submit" type="submit"><span class="submit-label">Sign in<\/span><\/button>/);
+  assert.match(css, /\.portal-auth \.auth-submit\{justify-content:center;text-align:center\}/);
+  assert.match(js, /label\.textContent = 'Sign in';/);
+});
