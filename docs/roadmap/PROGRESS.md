@@ -27,6 +27,8 @@ Continued from verified main `2131e3710a7cd52c4de4b3e5ebe26bad9f93c1dc`; no base
 | [#17](https://github.com/ThunderKhan/vsph-control-center/pull/17) | Disable revokes enrollment; consistent lock order       | `41c7a0ee9c82a80e41f78a47f4705a1d743062c3` | Revised head 2f644d0 passed; actual concurrent acceptance/disable native regression                                                                            |
 | [#18](https://github.com/ThunderKhan/vsph-control-center/pull/18) | Projects REST/UI and authenticated acceptance           | `af2abd0829b7754b8819d83b1c53325b7a7369a6` | [CI 41123852934](https://github.com/ThunderKhan/vsph-control-center/actions/runs/41123852934): 14 native DB cases, six Chromium cases, quality and audit green |
 
+Final acceptance PR [#19](https://github.com/ThunderKhan/vsph-control-center/pull/19) adds password-provider failure/legacy-purpose guards, authenticated wizard/recovery coverage and ordinary-user helper verification; its own final merge SHA is in GitHub metadata. Feature implementation SHAs above remain the audited cutoff.
+
 Review findings were corrected: enrollment cannot undo explicit disable; lock order serializes disable/acceptance/delivery; shared history cannot leak evidence linked to private tasks; proposed milestone dependencies are validated before completion. No required human review was bypassed. Main metadata remained unprotected/no rulesets; administration permission remains a separate operator gate.
 
 Phase 1 delivery history (#8–#14) remains in GitHub and the prior report version. Phase 2 did not rerun or claim completion of unavailable hosted audits.
