@@ -15,7 +15,7 @@ app.use(validateOrigin);
 // browser/proxy caches; navigating Back after logout should trigger a fresh check.
 app.use((req,res,next)=>{
  const url=String(req.originalUrl||'').split('?')[0];
- if(url.startsWith('/api/auth/') || url.startsWith('/api/apps/') ||
+ if(url.startsWith('/api/auth/') || url==='/api/apps' || url.startsWith('/api/apps/') ||
     url.startsWith('/apps/') || url==='/dashboard.html' || url==='/admin.html') {
    res.set('Cache-Control','no-store');
  }
