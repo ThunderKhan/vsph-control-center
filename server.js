@@ -2,6 +2,8 @@ require('dotenv').config();
 const express=require('express');const path=require('node:path');const cookieParser=require('cookie-parser');
 const {db,configured}=require('./db');
 const {portalSession,optionalPortal,requireAdmin,requireApp,validateOrigin,getApp,getContexts}=require('./security');
+const musicSso=require('./routes/sso');
+const {musicConfig}=require('./integration/sso-config');
 const app=express();app.disable('x-powered-by');app.set('trust proxy',1);
 // All applications use this login view by default. Explicit, reviewed overrides
 // can be placed here later for a customer's structural requirements.
@@ -10,12 +12,16 @@ const authViews = Object.freeze({
   // CRM: path.join(__dirname,'views','crm-special-login.html')
 });
 app.use(express.json({limit:'100kb'}));app.use(express.urlencoded({extended:false}));app.use(cookieParser());
+// The Music server exchanges a one-time code without a browser Origin header.
+// This exception requires its own confidential client authentication.
+app.post('/api/sso/exchange',musicSso.exchange);
+app.post('/api/sso/introspect',musicSso.introspect);
 app.use(validateOrigin);
 // Authenticated HTML and session-dependent API responses must not be stored by
 // browser/proxy caches; navigating Back after logout should trigger a fresh check.
 app.use((req,res,next)=>{
  const url=(String(req.originalUrl||'').split('?')[0].replace(/\/+$/, '') || '/');
- if(url.startsWith('/api/auth/') || url==='/api/apps' || url.startsWith('/api/apps/') ||
+ if(url.startsWith('/api/sso/') || url.startsWith('/api/auth/') || url==='/api/apps' || url.startsWith('/api/apps/') ||
     url.startsWith('/apps/') || ['/', '/login', '/login.html', '/index.html',
     '/dashboard','/applications','/admin','/dashboard.html','/applications.html','/admin.html'].includes(url)) {
    res.set('Cache-Control','no-store');
@@ -24,12 +30,26 @@ app.use((req,res,next)=>{
 });
 app.use('/api/auth',require('./routes/auth'));
 app.use('/api/apps',require('./routes/apps'));
+app.use('/api/sso',musicSso.router);
 app.use('/api/workspaces',require('./routes/workspaces'));
 app.use('/api/admin-management',portalSession,requireAdmin,require('./routes/admin-management'));
 app.get('/api/health',async(req,res)=>{
  if(!configured())return res.status(503).json({status:'not_configured',database:false});
  try{const{error}=await db().from('applications').select('id').limit(1);if(error)throw error;
  res.json({status:'ok',database:true});}catch(e){res.status(503).json({status:'database_unavailable',database:false})}
+});
+app.get('/apps/:app/launch',portalSession,async(req,res,next)=>{
+  try{
+    const application=await getApp(req.params.app);
+    if(!application || application.status!=='active')return res.status(404).send('Application unavailable.');
+    const contexts=await getContexts(req.user,application);
+    if(!contexts.length)return res.status(403).send('No access to this application.');
+    // Preserve existing second-stage sign-in unless a trusted Music receiver
+    // is configured. No redirect to arbitrary database-supplied login_path.
+    if(application.code!=='MUSIC' || !musicConfig())
+      return res.redirect(302,'/apps/'+application.code.toLowerCase()+'/login');
+    res.sendFile(path.join(__dirname,'views','sso-launch.html'));
+  }catch(err){next(err)}
 });
 app.get('/apps/:app/login',portalSession,async(req,res,next)=>{
  try{const application=await getApp(req.params.app);

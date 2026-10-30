@@ -2,6 +2,14 @@
 
 VSPH's multi-tenant product portal (Express + vanilla HTML/JS/CSS), integrated with **Supabase Auth** and **hosted PostgreSQL**. The portal workspace dashboard and login were redesigned with the company design system while retaining the existing backend permissions. The old MySQL integration was replaced.
 
+## Music external app launch and central SSO foundation (PR #5)
+
+The portal now has an **allowlisted external launch gateway** (`/apps/MUSIC/launch`) with an organization picker and a back-channel, 60-second, single-use authorization-code exchange. Selected tenant and application role are verified from the current Supabase data **at issue and redemption time**. The Music backend can introspect current tenant permissions and the original live portal session when enforcing its own session.
+
+**Disabled by default:** Without all three `MUSIC_SSO_*` server environment variables, Music still uses the existing local second-login demo and CRM remains unchanged. This is intentional: the separately hosted Music React/Vite prototype still uses browser-side demo authentication and must gain a trusted Vercel receiver, proper server-side sessions, staff/musician roles, and backend API permissions before production activation.
+
+Apply the reviewed `supabase/migrations/20261030_music_sso_launch_codes.sql` migration before enabling. The setup instructions, receiver protocol, role boundaries, test plan and limitations are in **[docs/MUSIC_SSO_INTEGRATION.md](docs/MUSIC_SSO_INTEGRATION.md)**. The SSO flow is a purpose-built initial handshake and should not be marketed as a complete OAuth/OIDC identity provider.
+
 ## Workspace dashboard
 
 The portal offers two **distinct** views in a shared responsive VSPH layout. **Overview** (`/dashboard`) summarizes access by product, customer organization and role using the existing authorization APIs. **Applications** (`/applications`) provides a dedicated searchable directory of authorized products. No simulated metrics are displayed.

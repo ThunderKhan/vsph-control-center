@@ -70,7 +70,7 @@
 
     // Never trust a product's database-provided URL as an arbitrary destination.
     // Construct a same-origin application route from a validated product code.
-    link.href = '/apps/' + code.toLowerCase() + '/login';
+    link.href = '/apps/' + code.toLowerCase() + '/launch';
     link.setAttribute('aria-label', 'Open ' + (app.name || code));
     card.append(top, category, heading, description, link);
     addSpotlight(card);
@@ -118,7 +118,7 @@
 
     if (!failed && contexts.length) {
       const open = element('a', 'access-open', 'Open');
-      open.href = '/apps/' + code.toLowerCase() + '/login';
+      open.href = '/apps/' + code.toLowerCase() + '/launch';
       open.setAttribute('aria-label', 'Open ' + (app.name || code));
       item.append(identity, detail, open);
     } else {

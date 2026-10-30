@@ -14,14 +14,23 @@ function withSecurity(rows = {}) {
     if (result.error) throw result.error;
     return result.data;
   };
-  const makeQuery = table => ({
-    select() { return this; },
-    eq() { return this; },
-    maybeSingle() { return Promise.resolve({data: rows[table] ?? null, error: null}); },
-    then(fulfill, reject) {
-      return Promise.resolve({data: rows[table] ?? [], error: null}).then(fulfill, reject);
-    }
-  });
+  const makeQuery = table => {
+    const filters = [];
+    const result = () => {
+      const records = rows[table];
+      if (records == null) return [];
+      return (Array.isArray(records) ? records : [records])
+        .filter(record => filters.every(([column, value]) => record[column] === value));
+    };
+    return {
+      select() { return this; },
+      eq(column, value) { filters.push([column, value]); return this; },
+      maybeSingle() { return Promise.resolve({data: result()[0] ?? null, error: null}); },
+      then(fulfill, reject) {
+        return Promise.resolve({data: result(), error: null}).then(fulfill, reject);
+      }
+    };
+  };
   require.cache[dbPath] = {
     id: dbPath, filename: dbPath, loaded: true,
     exports: {db: () => ({from: makeQuery}), check}
