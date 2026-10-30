@@ -114,3 +114,9 @@ seed.js                   Create demo identities, tenants, product access
 - No live Supabase keys are bundled; a real connection and database integration testing must be completed in **your own** Supabase project.
 - Currently runs as a local Node/Express server. Supabase hosts the database/authentication, **not** this Express frontend/backend. For internet hosting, deploy Node separately (e.g. Render, Railway, Fly.io, Vercel with configuration).
 - The old MySQL `.env` (possibly containing credentials), `node_modules` and the obsolete SQL script were **excluded** from the output.
+
+## VSPH design guidelines
+
+`DESIGN.md` at the repository root is the reference for VSPH colors, typography, spacing, accessibility, copy, and logo usage. The portal and product login views use `public/auth.css` and `public/auth-background.js`; other dashboard styling remains in `public/style.css`.
+
+The animated dot grid is a lightweight Canvas adaptation of the supplied Three.js design. It requires no extra dependencies, pauses while the page is hidden, and respects reduced-motion preferences. Existing password authentication and app-scoped sessions are unchanged.
