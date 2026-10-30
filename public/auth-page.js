@@ -127,6 +127,19 @@
     }
   }
 
+  async function redirectExistingPortalSession() {
+    // The login page is public; opening it does not sign an existing user out.
+    // Avoid showing a misleading sign-in form when an active portal cookie exists.
+    try {
+      const response = await fetch('/api/auth/me', {
+        credentials: 'same-origin', cache: 'no-store'
+      });
+      if (response.ok) window.location.replace('/dashboard.html');
+    } catch {
+      // Offline/network errors must not prevent someone from attempting login.
+    }
+  }
+
   if (isApplicationLogin) {
     document.body.classList.add('app-auth');
     email.readOnly = true;
@@ -142,6 +155,7 @@
     loadApplicationContext();
   } else {
     appearance();
+    redirectExistingPortalSession();
   }
 
   form.addEventListener('submit', async event => {
