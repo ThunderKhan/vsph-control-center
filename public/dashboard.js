@@ -34,7 +34,7 @@ async function loadDashboard() {
     const meResponse = await fetch("/api/auth/me");
 
     if (!meResponse.ok) {
-      window.location.href = "/login.html";
+      window.location.href = "/login";
       return;
     }
 
@@ -140,7 +140,7 @@ searchInput.addEventListener("input", renderApps);
 
 document.getElementById("logoutButton").addEventListener("click", async () => {
   await fetch("/api/auth/logout", { method: "POST" });
-  window.location.href = "/login.html";
+  window.location.href = "/login";
 });
 
 loadDashboard();
