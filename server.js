@@ -15,6 +15,7 @@ app.use(express.json({limit:'100kb'}));app.use(express.urlencoded({extended:fals
 // The Music server exchanges a one-time code without a browser Origin header.
 // This exception requires its own confidential client authentication.
 app.post('/api/sso/exchange',musicSso.exchange);
+app.post('/api/sso/introspect',musicSso.introspect);
 app.use(validateOrigin);
 // Authenticated HTML and session-dependent API responses must not be stored by
 // browser/proxy caches; navigating Back after logout should trigger a fresh check.
