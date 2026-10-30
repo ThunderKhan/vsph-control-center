@@ -73,6 +73,16 @@
     link.href = '/apps/' + code.toLowerCase() + '/launch';
     link.setAttribute('aria-label', 'Open ' + (app.name || code));
     card.append(top, category, heading, description, link);
+    if (code === 'MUSIC') {
+      // The supplied Vercel address is a PUBLIC DEMO, not an authenticated SSO endpoint.
+      // Keep this deliberately separate from the tenant-checked launch flow.
+      const preview = element('a', 'app-preview', 'View deployed Music demo');
+      preview.href = 'https://vsph-music-system.vercel.app/';
+      preview.target = '_blank';
+      preview.rel = 'noopener noreferrer';
+      preview.setAttribute('aria-label', 'View public Music demo in a new tab (not VSPH sign-in)');
+      card.append(preview);
+    }
     addSpotlight(card);
     return card;
   }
