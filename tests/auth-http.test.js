@@ -14,7 +14,7 @@ test('direct URL visits cannot bypass VSPH portal login', async () => {
     for (const path of [
       '/apps/music/login', '/apps/music/home',
       '/apps/crm/login', '/apps/crm/home',
-      '/dashboard.html', '/admin.html'
+      '/dashboard', '/admin'
     ]) {
       const response = await fetch(origin + path, {redirect: 'manual'});
       assert.equal(response.status, 302, path);
