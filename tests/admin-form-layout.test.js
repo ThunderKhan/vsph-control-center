@@ -33,7 +33,7 @@ test('all subscription labels and fields stay in the same consistent grid row',(
 });
 
 test('other admin forms also have a separate, centered save action row',()=>{
-  for (const id of ['applicationForm','userForm','accessForm','roleForm']) {
+  for (const id of ['applicationForm','accessForm','roleForm']) {
     const form=formMarkup(id);
     assert.match(form,/class="form-actions"><button class="primary" type="submit">/);
   }
@@ -43,11 +43,17 @@ test('other admin forms also have a separate, centered save action row',()=>{
 });
 
 test('changes preserve existing form IDs and admin controller integration',()=>{
-  for (const id of ['applicationForm','userForm','subscriptionForm','accessForm','roleForm'])
+  for (const id of ['applicationForm','subscriptionForm','accessForm','roleForm'])
     assert.match(html,new RegExp('<form id="' + id + '"'));
   assert.match(html,/<script src="\/admin\.js"><\/script>/);
   assert.match(html,/id="section-subscriptions"/);
   assert.match(html,/id="subscriptionsTable"/);
   assert.match(html,/href="\/admin\/onboarding"/);
   assert.doesNotMatch(html,/id="clientPassword"/);
+});
+
+
+test('admin UI does not collect passwords or offer platform elevation',()=>{
+ assert.doesNotMatch(html,/userPassword|userRole|id="userForm"/);
+ assert.match(html,/recipient chooses their own password/);
 });

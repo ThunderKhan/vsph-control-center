@@ -193,20 +193,6 @@ document.getElementById("applicationForm").addEventListener("submit", async e =>
     e.target.reset(); say("Application added."); loadApplications(); loadLookups(); loadOverview();
   } catch (err) { say(err.message, true); }
 });
-document.getElementById("userForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  try {
-    await api("/api/admin-management/users", {
-      method: "POST", body: JSON.stringify({
-        fullName: document.getElementById("userName").value,
-        email: document.getElementById("userEmail").value,
-        password: document.getElementById("userPassword").value,
-        platformRole: document.getElementById("userRole").value
-      })
-    });
-    e.target.reset(); say("User created."); loadUsers(); loadOverview();
-  } catch (err) { say(err.message, true); }
-});
 document.getElementById("subscriptionForm").addEventListener("submit", async e => {
   e.preventDefault();
   const endValue = document.getElementById("subEnd").value;
@@ -264,3 +250,4 @@ document.getElementById('roleForm').addEventListener('submit',async e=>{
   say('Application role assigned.');loadRoles();
  }catch(err){say(err.message,true)}
 });
+
