@@ -2,6 +2,12 @@
 
 An integration of the supplied VSPH dashboard (Express + vanilla HTML/JS/CSS) with **Supabase Auth** and **hosted PostgreSQL**, keeping the original interface. The old MySQL code was replaced, not carried forward.
 
+## Workspace dashboard
+
+The portal dashboard has a responsive VSPH bento layout based on the actual authorized applications and organizations. It incorporates a restrained hover spotlight concept from a 21st.dev reference, but no fabricated metrics or unrelated technical demos. The new UI lives in `public/dashboard.html`, `public/dashboard.css`, and `public/dashboard.js`. The administrator management pages and all Supabase APIs remain unchanged.
+
+See **[docs/DASHBOARD_DESIGN.md](docs/DASHBOARD_DESIGN.md)** for layout, accessibility, data-source mapping, tests, and scope.
+
 ## Features
 
 - Portal login using Supabase Auth and a hashed, HTTP-only portal session cookie.
