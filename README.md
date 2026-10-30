@@ -100,7 +100,11 @@ routes/auth.js            Portal and second-stage app login/logout
 routes/apps.js            Allowed products + tenant-scoped CRM/Music records
 routes/admin-management.js  Platform admin CRUD and app role assignments
 routes/workspaces.js      Workspace count
-public/                   Your colleague's original dashboard with integration updates
+views/auth.html            One shared HTML login template for portal and applications
+public/auth-page.js        Shared login controller (portal + app session workflows)
+public/auth-config.js      Product/customer branding override registry (presentation only)
+public/auth.css            Shared login design with responsive layout
+public/                   Dashboard/admin pages and shared browser assets
 supabase/schema.sql       Managed Postgres tables, constraints, RLS, product seed
 tests/                    Unit tests for access policies and token properties
 seed.js                   Create demo identities, tenants, product access
@@ -119,6 +123,6 @@ seed.js                   Create demo identities, tenants, product access
 
 ## VSPH design guidelines
 
-`DESIGN.md` at the repository root is the reference for VSPH colors, typography, spacing, accessibility, copy, and logo usage. The portal and product login views use `public/auth.css` and `public/auth-background.js`; other dashboard styling remains in `public/style.css`.
+`DESIGN.md` at the repository root is the reference for VSPH colors, typography, spacing, accessibility, copy, and logo usage. The **portal, CRM and Music login routes now render the same `views/auth.html` template**, styled by `public/auth.css` and `public/auth-background.js` and controlled by `public/auth-page.js`. The obsolete separate HTML/JS login implementations were removed. For future product or organization-specific appearance, use `public/auth-config.js`; see **[docs/AUTH_THEMING.md](docs/AUTH_THEMING.md)** for examples and the secure structural-override extension point. Other dashboard styling remains in `public/style.css`.
 
 The animated dot grid is a lightweight Canvas adaptation of the supplied Three.js design. It requires no extra dependencies, pauses while the page is hidden, and respects reduced-motion preferences. Existing password authentication and app-scoped sessions are unchanged.
