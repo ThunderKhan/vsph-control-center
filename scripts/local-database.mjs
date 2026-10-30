@@ -12,8 +12,9 @@ const port=probe.address().port;await new Promise(resolve=>probe.close(resolve))
 const postgres=new EmbeddedPostgres({databaseDir:join(directory,'data'),port,user:'postgres',password:'isolated-test-only',persistent:false,onLog:()=>{}});
 try{
  await postgres.initialise();await postgres.start();await postgres.createDatabase('vsph_test');
- const child=spawn(process.execPath,['--test','tests/database/schema.test.mjs'],{stdio:'inherit',env:{...process.env,
-  TEST_DATABASE_URL:`postgresql://postgres:isolated-test-only@127.0.0.1:${port}/vsph_test`}});
+ const e2e=process.argv.includes('--e2e');
+ const child=spawn(process.execPath,e2e?['node_modules/@playwright/test/cli.js','test']:['--test','tests/database/schema.test.mjs'],{stdio:'inherit',env:{...process.env,
+  TEST_DATABASE_URL:`postgresql://postgres:isolated-test-only@127.0.0.1:${port}/vsph_test`,...(e2e?{PROJECT_E2E_DATABASE:'true'}:{})}});
  const code=await new Promise((resolve,reject)=>{child.on('error',reject);child.on('exit',resolve)});
  process.exitCode=code??1;
 }finally{await postgres.stop();await rm(directory,{recursive:true,force:true});}
