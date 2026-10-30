@@ -16,7 +16,7 @@ test.before(async()=>{
  create schema auth; create table auth.users(id uuid primary key);`);
  await pool.query(await readFile('supabase/schema.sql','utf8'));
  // Historical order is explicit: filenames originally share a date prefix.
- for(const file of ['20261030_music_sso_launch_codes.sql','20261030_music_staff_musician_roles.sql','20261031000100_atomic_profile_status.sql','20261031000200_durable_provisioning.sql'])
+ for(const file of ['20261030_music_sso_launch_codes.sql','20261030_music_staff_musician_roles.sql','20261031000100_atomic_profile_status.sql','20261031000200_durable_provisioning.sql','20261031000300_projects.sql'])
   await pool.query(await readFile('supabase/migrations/'+file,'utf8'));
  await pool.query('insert into auth.users values ($1)',[user]);
  await pool.query("insert into profiles(id,full_name,email) values ($1,'Synthetic User','fixture@example.test')",[user]);
@@ -157,3 +157,5 @@ test('durable provisioning, leases, retries, invitation purpose and membership-i
  const {createRequire}=await import('node:module');const require=createRequire(import.meta.url);
  await require('./provisioning-cases.js')(pool,app);
 });
+
+test('project ownership, tasks, team, optimistic concurrency, private client scope and history',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./project-cases.js')(pool);});
