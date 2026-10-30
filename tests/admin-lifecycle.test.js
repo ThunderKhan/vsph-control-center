@@ -9,7 +9,10 @@ const calls=[];
 const dbPath=require.resolve('../db'),previous=require.cache[dbPath];
 require.cache[dbPath]={id:dbPath,filename:dbPath,loaded:true,exports:{
  check:({data,error})=>{if(error)throw error;return data},
- db:()=>({from(table){calls.push(table);return {select(){return this},eq(){return this},maybeSingle(){return Promise.resolve({data:{id:other,platform_role:'super_admin'},error:null})}}}})
+ db:()=>({
+  from(){throw Error('Retired endpoints must not read or write profiles')},
+  rpc(name,input){calls.push({name,input});return Promise.resolve({data:null,error:{code:'VS001'}})}
+ })
 }};
 delete require.cache[require.resolve('../routes/admin-management')];
 const router=require('../routes/admin-management');
@@ -40,5 +43,5 @@ test('self-disable and another platform admin lifecycle change are denied before
    const r=await fetch(base+'/api/admin-management/users/'+id+'/status',{method:'PATCH',headers:{'Content-Type':'application/json'},body:'{"status":"disabled"}'});
    assert.equal(r.status,status);
   }
- });assert.deepEqual(calls,['profiles']);
+ });assert.deepEqual(calls,[{name:'set_profile_status',input:{p_actor:self,p_target:other,p_status:'disabled'}}]);
 });

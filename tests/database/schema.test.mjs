@@ -16,7 +16,7 @@ test.before(async()=>{
  create schema auth; create table auth.users(id uuid primary key);`);
  await pool.query(await readFile('supabase/schema.sql','utf8'));
  // Historical order is explicit: filenames originally share a date prefix.
- for(const file of ['20261030_music_sso_launch_codes.sql','20261030_music_staff_musician_roles.sql'])
+ for(const file of ['20261030_music_sso_launch_codes.sql','20261030_music_staff_musician_roles.sql','20261031000100_atomic_profile_status.sql'])
   await pool.query(await readFile('supabase/migrations/'+file,'utf8'));
  await pool.query('insert into auth.users values ($1)',[user]);
  await pool.query("insert into profiles(id,full_name,email) values ($1,'Synthetic User','fixture@example.test')",[user]);
@@ -34,6 +34,7 @@ test('browser roles cannot read tenant data or execute privileged RPC',async()=>
   await c.query('set role '+role);
   await assert.rejects(c.query('select * from public.organizations'),{code:'42501'});
   await assert.rejects(c.query("select * from consume_sso_launch_code('x')"),{code:'42501'});
+  await assert.rejects(c.query("select set_profile_status($1,$1,'disabled')",[user]),{code:'42501'});
  }finally{await c.query('reset role');c.release()}
  }
 });
@@ -116,4 +117,38 @@ test('real database-backed Express tenant and session authorization matrix',asyn
   await pool.query('delete from portal_sessions where user_id=$1',[user]);
   assert.equal((await get('/api/apps/MUSIC/records')).status,401);
  }finally{await new Promise(resolve=>server.close(resolve))}
+});
+
+test('atomic account disable revokes sessions/codes, audits once and cannot revive on enable',async()=>{
+ const actor='44444444-4444-4444-8444-444444444444';
+ await pool.query('insert into auth.users values ($1)',[actor]);
+ await pool.query("insert into profiles(id,full_name,email,platform_role) values ($1,'Synthetic Admin','admin-fixture@example.test','super_admin')",[actor]);
+ await pool.query("insert into portal_sessions(token_hash,user_id,expires_at) values ('lifecycle-portal',$1,now()+interval '1 hour')",[user]);
+ await pool.query("insert into app_sessions(token_hash,portal_token_hash,user_id,organization_id,application_id,expires_at) values ('lifecycle-app','lifecycle-portal',$1,$2,$3,now()+interval '1 hour')",[user,org,app]);
+ await pool.query(`insert into sso_launch_codes(code_hash,client_id,application_id,user_id,portal_token_hash,organization_id,code_challenge,expires_at)
+ values ($1,'music-vercel',$2,$3,'lifecycle-portal',$4,$5,now()+interval '1 minute')`,['d'.repeat(64),app,user,org,'e'.repeat(43)]);
+ const countBefore=Number((await pool.query("select count(*) from audit_logs where action='user.status_changed'")).rows[0].count);
+ const changes=await Promise.all([1,2].map(()=>pool.query("select set_profile_status($1,$2,'disabled')",[actor,user])));
+ assert.equal(changes.length,2);
+ assert.equal((await pool.query('select status from profiles where id=$1',[user])).rows[0].status,'disabled');
+ for(const table of ['portal_sessions','app_sessions','sso_launch_codes'])assert.equal((await pool.query('select * from '+table+' where user_id=$1',[user])).rowCount,0);
+ assert.equal(Number((await pool.query("select count(*) from audit_logs where action='user.status_changed'")).rows[0].count),countBefore+1);
+ await pool.query("select set_profile_status($1,$2,'active')",[actor,user]);
+ assert.equal((await pool.query('select * from portal_sessions where user_id=$1',[user])).rowCount,0);
+ await assert.rejects(pool.query("select set_profile_status($1,$2,'disabled')",[actor,actor]),{code:'22023'});
+ await assert.rejects(pool.query("select set_profile_status($1,$2,'disabled')",[user,actor]),{code:'42501'});
+ // Installing the forward function again must preserve populated rows.
+ await pool.query(await readFile('supabase/migrations/20261031000100_atomic_profile_status.sql','utf8'));
+ assert.equal((await pool.query('select status from profiles where id=$1',[user])).rows[0].status,'active');
+});
+test('audit failure rolls back account status and revocation together',async()=>{
+ const actor='44444444-4444-4444-8444-444444444444';
+ await pool.query("insert into portal_sessions(token_hash,user_id,expires_at) values ('rollback-portal',$1,now()+interval '1 hour')",[user]);
+ await pool.query(`create function public.fixture_reject_audit() returns trigger language plpgsql as $$begin raise exception 'Synthetic audit outage'; end$$;
+ create trigger fixture_reject_audit before insert on public.audit_logs for each row execute function public.fixture_reject_audit();`);
+ try{
+  await assert.rejects(pool.query("select set_profile_status($1,$2,'disabled')",[actor,user]),{code:'P0001'});
+  assert.equal((await pool.query('select status from profiles where id=$1',[user])).rows[0].status,'active');
+  assert.equal((await pool.query("select * from portal_sessions where token_hash='rollback-portal'")).rowCount,1);
+ }finally{await pool.query('drop trigger fixture_reject_audit on public.audit_logs; drop function public.fixture_reject_audit()')}
 });
