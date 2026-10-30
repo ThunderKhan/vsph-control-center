@@ -116,7 +116,7 @@ button,a {-webkit-tap-highlight-color: transparent}
 .spotlight-surface:hover::before,.spotlight-surface:focus-within::before {opacity:1}
 .spotlight-surface:hover::after,.spotlight-surface:focus-within::after {opacity:.55}
 .feature-content {position:relative;max-width:430px;z-index:1}
-.feature-kicker {font-size:11px;font-weight:700;letter-spacing:.15em;display:flex;align-items:center;gap:10px;color:#D7E8F8;margin:0 0:24px}
+.feature-kicker {font-size:11px;font-weight:700;letter-spacing:.15em;display:flex;align-items:center;gap:10px;color:#D7E8F8;margin:0 0 24px}
 .signal-dot {width:7px;height:7px;background:var(--sky);border-radius:50%}
 .feature-content h2 {font-size:clamp(27px,2.8vw,37px);letter-spacing:-.04em;line-height:1.16;font-weight:600;margin:0 0 16px;color:#fff}
 .feature-content p:not(.feature-kicker) {max-width:385px;line-height:1.7;font-size:13px;color:#D0E0F0;margin:0 0 25px}
