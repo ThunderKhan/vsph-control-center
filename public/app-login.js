@@ -22,7 +22,7 @@ async function initialize() {
   button.disabled = true;
   try {
     const response = await fetch(`/api/apps/${encodeURIComponent(code)}/contexts`,{credentials:'same-origin'});
-    if (response.status === 401) { location.replace('/login.html'); return; }
+    if (response.status === 401) { location.replace('/login'); return; }
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || 'Application is unavailable.');
     if (!data.organizations?.length) throw new Error('Your account is not assigned to this product.');
