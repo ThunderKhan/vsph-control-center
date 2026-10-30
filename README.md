@@ -57,6 +57,8 @@ npm run dev
 
 6. Open **http://localhost:3000** and sign into the portal with `owner@vsph.test` and your `DEMO_PASSWORD`.
 
+The login view is served at **`/`** (default) or **`/login`**. The previous `/login.html` address redirects to `/login` for compatibility. The underlying login template remains `public/login.html`; the clean route is handled by Express, not by changing frameworks.
+
 **Demo accounts** (all use `DEMO_PASSWORD` at first creation):
 
 | Email | Portal products | Organization |
