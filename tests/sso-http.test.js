@@ -49,7 +49,7 @@ require.cache[securityModule]={id:securityModule,filename:securityModule,loaded:
   getContexts:async()=>data.active?data.orgs:[]
 }};
 delete require.cache[require.resolve('../routes/sso')];
-const {router,exchange}=require('../routes/sso');
+const {router,exchange,introspect}=require('../routes/sso');
 if(previousSecurity)require.cache[securityModule]=previousSecurity;
 else delete require.cache[securityModule];
 if(previousDb)require.cache[dbModule]=previousDb;
@@ -58,6 +58,7 @@ else delete require.cache[dbModule];
 const app=express();
 app.use(express.json());
 app.post('/api/sso/exchange',exchange);
+app.post('/api/sso/introspect',introspect);
 app.use('/api/sso',router);
 app.use((err,req,res,next)=>{res.status(500).json({message:String(err.message)})});
 
