@@ -273,3 +273,56 @@ button,a {-webkit-tap-highlight-color: transparent}
   html {scroll-behavior:auto}
   *,*::before,*::after {animation-duration:.01ms!important;transition-duration:.01ms!important}
 }
+
+
+/* Overview-only access summary and two-stage security explanation. */
+.nav-help{font-size:11px;line-height:1.5;color:#ADC6DF;margin:-7px 12px 12px;max-width:200px}
+.access-overview{margin:0 0 20px}
+.secondary-link{
+  display:inline-flex;align-items:center;justify-content:center;text-align:center;min-height:44px;
+  padding:10px 18px;border:1px solid #B8CDDF;border-radius:7px;background:#fff;
+  color:var(--navy);text-decoration:none;font-size:12px;font-weight:600;white-space:nowrap
+}
+.secondary-link:hover{border-color:var(--action);background:#F2F8FD}
+.access-grid{border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
+.access-row{
+  display:grid;grid-template-columns:minmax(170px,1.05fr) minmax(200px,1.3fr) 92px;
+  align-items:center;gap:20px;padding:21px 24px;border-top:1px solid var(--line)
+}
+.access-row:first-child{border-top:0}
+.access-row-product,.access-row-details{display:flex;flex-direction:column;gap:7px;min-width:0}
+.access-row-product strong{font-size:14px;font-weight:600;color:var(--navy);overflow-wrap:anywhere}
+.access-row-caption,.access-org-label{font-size:12px;line-height:1.55;color:var(--muted)}
+.access-role-label{text-transform:capitalize;font-size:12px;font-weight:600;color:#325778}
+.access-open{
+  display:flex;align-items:center;justify-content:center;min-height:44px;
+  padding:10px;border:1px solid var(--action);border-radius:7px;
+  background:#fff;color:var(--action);font-size:12px;font-weight:600;text-decoration:none
+}
+.access-open:hover{background:#F1F8FE}
+.access-empty{padding:30px;margin:0;color:var(--muted);font-size:13px}
+.overview-details{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:20px 0 0}
+.overview-help,.overview-manage{
+  background:#fff;border:1px solid var(--line);border-radius:12px;padding:27px 30px;
+}
+.overview-help h2,.overview-manage h2{font-size:21px;line-height:1.35;letter-spacing:-.025em;color:var(--navy);margin:0 0 15px}
+.access-steps{list-style:none;padding:0;margin:0}
+.access-steps li{display:flex;align-items:flex-start;gap:15px;padding:10px 0}
+.access-steps li>span{font-size:12px;font-weight:700;color:#5180AA;letter-spacing:.05em;margin-top:2px}
+.access-steps strong{font-size:13px;color:var(--navy);font-weight:600}
+.access-steps p,.overview-manage p:not(.section-kicker){color:var(--muted);line-height:1.65;font-size:12px;margin:6px 0 0}
+.overview-manage p:not(.section-kicker){margin-bottom:22px}
+.directory-toolbar{
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
+  gap:12px;margin:0 0 16px;color:#62768C;font-size:12px
+}
+#libraryCount{color:var(--navy);font-weight:600}
+[data-view][hidden]{display:none!important}
+@media(max-width:950px){.overview-details{grid-template-columns:1fr 1fr}}
+@media(max-width:680px){
+  .access-overview .apps-section-header{flex-direction:column;align-items:stretch}
+  .access-row{grid-template-columns:1fr;gap:12px;padding:20px}
+  .access-open{width:100%}
+  .overview-details{grid-template-columns:1fr;gap:14px}
+  .overview-help,.overview-manage{padding:24px 22px}
+}
