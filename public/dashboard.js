@@ -18,6 +18,8 @@
 
   const byId = id => document.getElementById(id);
   const grid = byId('appGrid');
+  const accessGrid = byId('accessGrid');
+  const isApplicationsView = /^\/applications\/?$/.test(window.location.pathname);
   const search = byId('appSearch');
   const error = byId('errorMessage');
   const empty = byId('emptyMessage');
@@ -76,7 +78,7 @@
   }
 
   function renderApps() {
-    if (!loaded) return;
+    if (!loaded || !isApplicationsView) return;
     const term = search.value.trim().toLocaleLowerCase();
     const matches = authorizedApps.filter(app =>
       (String(app.name || '') + ' ' + String(app.code || '')).toLocaleLowerCase().includes(term)
@@ -84,12 +86,61 @@
 
     grid.replaceChildren();
     grid.setAttribute('aria-busy', 'false');
+    byId('libraryCount').textContent = matches.length + (matches.length === 1 ? ' product' : ' products');
     empty.hidden = matches.length > 0;
     empty.textContent = authorizedApps.length === 0
       ? 'No applications have been assigned to your account yet.'
       : 'No applications match your search.';
 
     for (const app of matches) grid.append(appCard(app));
+  }
+
+  function accessRow(app, contexts, failed = false) {
+    const code = String(app.code).toUpperCase();
+    const item = element('article', 'access-row');
+    const identity = element('div', 'access-row-product');
+    const name = element('strong', '', app.name || code);
+    const status = element('span', 'access-row-caption',
+      failed ? 'Unable to retrieve product access' :
+      (contexts.length === 1 ? '1 customer workspace' : contexts.length + ' customer workspaces'));
+    identity.append(name, status);
+
+    const detail = element('div', 'access-row-details');
+    if (!failed && contexts.length) {
+      const roles = [...new Set(contexts.map(org => String(org.role || 'user').replaceAll('_',' ')))];
+      detail.append(element('strong', 'access-role-label', roles.join(', ')));
+      const names = contexts.slice(0, 3).map(org => String(org.name || 'Customer')).join(' · ');
+      detail.append(element('span', 'access-org-label', names + (contexts.length > 3 ? ' · +' + (contexts.length - 3) + ' more' : '')));
+    } else {
+      detail.append(element('span', 'access-org-label',
+        failed ? 'Product access details are temporarily unavailable.' : 'No active customer assignments'));
+    }
+
+    const open = element('a', 'access-open', 'Open');
+    open.href = '/apps/' + code.toLowerCase() + '/login';
+    open.setAttribute('aria-label', 'Open ' + (app.name || code));
+    item.append(identity, detail, open);
+    return item;
+  }
+
+  async function renderAccessOverview() {
+    const tasks = authorizedApps.map(async app => {
+      try {
+        const result = await responseJson('/api/apps/' + encodeURIComponent(app.code) + '/contexts');
+        if (!result) return {app, contexts:[], failed:true};
+        return {app, contexts:Array.isArray(result.organizations) ? result.organizations : [], failed:false};
+      } catch {
+        return {app, contexts:[], failed:true};
+      }
+    });
+    const results = await Promise.all(tasks);
+    accessGrid.replaceChildren();
+    accessGrid.setAttribute('aria-busy', 'false');
+    if (!results.length) {
+      accessGrid.append(element('p','access-empty','No products are currently assigned to your account.'));
+      return;
+    }
+    for (const item of results) accessGrid.append(accessRow(item.app,item.contexts,item.failed));
   }
 
   function addSpotlight(surface) {
@@ -142,17 +193,13 @@
       if (window.innerWidth > 950) closeNavigation();
     });
 
-    const updateNavigation = () => {
-      const apps = window.location.hash === '#applications';
-      for (const link of document.querySelectorAll('.sidebar-link[href^="#"]')) {
-        const active = (link.getAttribute('href') === '#applications') === apps;
-        link.classList.toggle('is-active', active);
-        if (active) link.setAttribute('aria-current', 'page');
-        else link.removeAttribute('aria-current');
-      }
-    };
-    window.addEventListener('hashchange', updateNavigation);
-    updateNavigation();
+    for (const link of document.querySelectorAll('.sidebar-link')) {
+      const href = link.getAttribute('href');
+      const active = href === (isApplicationsView ? '/applications' : '/dashboard');
+      link.classList.toggle('is-active', active);
+      if (active) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
+    }
   }
 
   async function responseJson(url) {
@@ -183,6 +230,7 @@
       byId('topAccount').textContent = name;
       byId('welcomeMessage').textContent = 'Welcome back, ' + firstName + '. Your applications are ready when you are.';
       byId('adminNavContainer').hidden = user.platformRole !== 'super_admin';
+      byId('adminOverviewPanel').hidden = user.platformRole !== 'super_admin';
 
       const result = await responseJson('/api/apps');
       if (!result) return;
@@ -200,10 +248,16 @@
       }
 
       loaded = true;
-      renderApps();
+      if (isApplicationsView) renderApps();
+      else await renderAccessOverview();
     } catch (failure) {
-      grid.replaceChildren();
-      grid.setAttribute('aria-busy', 'false');
+      if (isApplicationsView) {
+        grid.replaceChildren();
+        grid.setAttribute('aria-busy', 'false');
+      } else {
+        accessGrid.replaceChildren();
+        accessGrid.setAttribute('aria-busy', 'false');
+      }
       loaded = true;
       empty.hidden = true;
       showError(failure.message || 'The workspace could not be loaded.');
@@ -228,6 +282,11 @@
     });
   }
 
+  // A shared page shell, two different route-specific views.
+  document.title = (isApplicationsView ? 'Applications' : 'Overview') + ' | VSPH Control Center';
+  for (const section of document.querySelectorAll('[data-view]')) {
+    section.hidden = section.getAttribute('data-view') !== (isApplicationsView ? 'applications' : 'overview');
+  }
   setupMobileNavigation();
   setupLogout();
   addSpotlight(byId('spotlightPanel'));
