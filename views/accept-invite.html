@@ -7,6 +7,12 @@
 <main class="invite-layout"><section class="invite-card">
 <p class="kicker">YOUR VSPH WORKSPACE</p><h1>Accept your invitation<span>.</span></h1>
 <p class="lead">Create a password to activate your customer administrator account and access the products assigned to your organization.</p>
+<section id="inviteInstructions" class="invite-instructions" hidden aria-labelledby="inviteInstructionsTitle">
+  <h2 id="inviteInstructionsTitle">Check your invitation email</h2>
+  <p id="inviteInstructionsText">Your administrator will send a unique VSPH invitation link. Open that link from your email to verify your account and create a password.</p>
+  <p>The link contains a private, time-limited activation token. Opening this page directly cannot activate your account.</p>
+  <a href="/login" class="invite-return">Back to sign in</a>
+</section>
 <form id="inviteForm">
 <label for="password">New password</label><input id="password" type="password" autocomplete="new-password" required minlength="12" maxlength="128" placeholder="At least 12 characters">
 <label for="confirmPassword">Confirm password</label><input id="confirmPassword" type="password" autocomplete="new-password" required minlength="12" maxlength="128" placeholder="Repeat your password">
