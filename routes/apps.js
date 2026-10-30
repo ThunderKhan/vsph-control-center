@@ -1,6 +1,7 @@
 const express=require('express');
 const {db,check}=require('../db');
 const {portalSession,getApp,getContexts,requireApp}=require('../security');
+const {canCreateRecord}=require('../access-policy');
 const router=express.Router();
 router.use(portalSession);
 router.get('/',async(req,res,next)=>{
@@ -18,7 +19,7 @@ router.get('/:app/contexts',async(req,res,next)=>{
   res.json({application:app,organizations:await getContexts(req.user,app),email:req.user.email});
  }catch(err){next(err)}
 });
-router.get('/:app/context',requireApp,(req,res)=>res.json({application:req.appContext.app,organization:req.appContext.organization,role:req.appContext.role,user:{name:req.user.full_name,email:req.user.email}}));
+router.get('/:app/context',requireApp,(req,res)=>res.json({application:req.appContext.app,organization:req.appContext.organization,role:req.appContext.role,capabilities:{createRecords:canCreateRecord(req.appContext.app.code,req.appContext.role)},user:{name:req.user.full_name,email:req.user.email}}));
 router.get('/:app/records',requireApp,async(req,res,next)=>{
  try{
   const{app,organization}=req.appContext;
@@ -31,7 +32,7 @@ router.get('/:app/records',requireApp,async(req,res,next)=>{
 router.post('/:app/records',requireApp,async(req,res,next)=>{
  try{
   const{app,organization,role}=req.appContext;
-  if(role==='viewer')return res.status(403).json({message:'Viewer role cannot create records.'});
+  if(!canCreateRecord(app.code,role))return res.status(403).json({message:'This product role cannot create records.'});
   let payload,table;
   if(app.code==='CRM'){
     const name=String(req.body.name||'').trim().slice(0,150),email=String(req.body.email||'').trim().slice(0,190),company=String(req.body.company||'').trim().slice(0,150);
@@ -47,3 +48,4 @@ router.post('/:app/records',requireApp,async(req,res,next)=>{
  }catch(err){next(err)}
 });
 module.exports=router;
+

@@ -28,7 +28,7 @@ A candidate receiver implementation has been prepared in the accessible `Thunder
 
 The portal offers two **distinct** views in a shared responsive VSPH layout. **Overview** (`/dashboard`) summarizes access by product, customer organization and role using the existing authorization APIs. **Applications** (`/applications`) provides a dedicated searchable directory of authorized products. No simulated metrics are displayed.
 
-Both views share `public/dashboard.html`, `public/dashboard.css`, and `public/dashboard.js`, with separate Express routes. **Platform Administration** (`/admin`) now explains the VSPH super-admin workflow; existing management forms and backend permissions are unchanged.
+Both views share `public/dashboard.html`, `public/dashboard.css`, and `public/dashboard.js`, with separate Express routes. **Platform Administration** (`/admin`) now explains the VSPH super-admin workflow; central administration remains separate from product permissions. Platform administrators need explicit tenant membership and product roles to operate customer products.
 
 See **[docs/DASHBOARD_DESIGN.md](docs/DASHBOARD_DESIGN.md)** for navigation, responsive layout, security, and the design rationale.
 
@@ -93,7 +93,7 @@ The login is served at `/` or `/login` using the shared `views/auth.html` templa
 
 | Email | Portal products | Organization |
 | --- | --- | --- |
-| `owner@vsph.test` | CRM + Music, Platform Super Admin | VSPH Internal (can select other customer workspaces) |
+| `owner@vsph.test` | CRM + Music, Platform Super Admin | VSPH Internal (only explicitly assigned product workspaces) |
 | `crm@vsph.test` | CRM only | Alpha CRM Ltd |
 | `beta@vsph.test` | CRM only | Beta CRM Ltd |
 | `music@vsph.test` | Music only | Music Venue Ltd |
@@ -112,7 +112,7 @@ Seed is idempotent for the expected demo rows. Existing users keep their previou
 
 ### Platform administration versus product administration
 
-`/admin` is intended for **VSPH platform super admins** who create customer organizations, manage products and subscriptions, provision users, assign roles, and review audit events. It is **not** the Super Admin screen inside an individual CRM or Music customer workspace. Customer/product permissions remain enforced by the existing backend.
+`/admin` is intended for **VSPH platform super admins** who create customer organizations, manage products and subscriptions, provision users, assign roles, and review audit events. It is **not** the Super Admin screen inside an individual CRM or Music customer workspace. Platform status alone does not grant product access. Customer/product permissions require an explicit active tenant membership and product role, effective subscription and enabled grant. See [product authorization](docs/operations/PRODUCT_AUTHORIZATION.md).
 
 ### Returning visitors with an active session
 
@@ -183,3 +183,4 @@ seed.js                   Create demo identities, tenants, product access
 `DESIGN.md` at the repository root is the reference for VSPH colors, typography, spacing, accessibility, copy, and logo usage. The **portal, CRM and Music login routes now render the same `views/auth.html` template**, styled by `public/auth.css` and `public/auth-background.js` and controlled by `public/auth-page.js`. The obsolete separate HTML/JS login implementations were removed. For future product or organization-specific appearance, use `public/auth-config.js`; see **[docs/AUTH_THEMING.md](docs/AUTH_THEMING.md)** for examples and the secure structural-override extension point. Other dashboard styling remains in `public/style.css`.
 
 The animated dot grid is a lightweight Canvas adaptation of the supplied Three.js design. It requires no extra dependencies, pauses while the page is hidden, and respects reduced-motion preferences. Existing password authentication and app-scoped sessions are unchanged.
+
