@@ -109,7 +109,13 @@ router.get('/roles',asyncRoute(async(req,res)=>{
 }));
 router.put('/roles',asyncRoute(async(req,res)=>{
  const organization_id=String(req.body.organizationId||''),application_id=String(req.body.applicationId||''),email=String(req.body.email||'').trim().toLowerCase(),role_code=String(req.body.role||'');
- if(!reqUuid(organization_id)||!reqUuid(application_id)||!emailPattern.test(email)||!['super_admin','admin','manager','user','viewer'].includes(role_code))return res.status(400).json({message:'Invalid role assignment.'});
+ if(!reqUuid(organization_id)||!reqUuid(application_id)||!emailPattern.test(email)||
+    !['super_admin','admin','manager','user','viewer','staff','musician'].includes(role_code))
+    return res.status(400).json({message:'Invalid role assignment.'});
+ const selectedApp=check(await db().from('applications').select('code').eq('id',application_id).maybeSingle());
+ if(!selectedApp)return res.status(404).json({message:'Application not found.'});
+ if(['staff','musician'].includes(role_code)&&selectedApp.code!=='MUSIC')
+    return res.status(400).json({message:'Staff and musician roles are only available for Music.'});
  const user=check(await db().from('profiles').select('id').eq('email',email).eq('status','active').maybeSingle());
  if(!user)return res.status(404).json({message:'User not found. Create the user first.'});
  const grant=check(await db().from('organization_app_access').select('status').eq('organization_id',organization_id).eq('application_id',application_id).maybeSingle());

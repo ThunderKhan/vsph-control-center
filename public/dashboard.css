@@ -335,3 +335,7 @@ button,a {-webkit-tap-highlight-color: transparent}
 }
 /* Prevent a brief flash of Overview when navigating directly to /applications. */
 html[data-workspace-view="applications"] [data-view="overview"]{display:none!important}
+
+/* External Music demo is intentionally NOT the authenticated application launch. */
+.app-preview{display:flex;align-items:center;justify-content:center;text-align:center;min-height:44px;margin-top:8px;padding:10px 12px;border:1px solid #B8CDDF;border-radius:7px;background:#fff;color:#00255A;font-size:12px;font-weight:600;text-decoration:none}
+.app-preview:hover{background:#F1F8FD;border-color:#0069C8}

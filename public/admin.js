@@ -121,6 +121,17 @@ async function loadUsers() {
     }));
   } catch (e) { say(e.message, true); }
 }
+function syncMusicRoleOptions() {
+  const appId=document.getElementById('roleApp').value;
+  const isMusic=lookups.applications.some(app=>app.id===appId&&app.code==='MUSIC');
+  const role=document.getElementById('roleValue');
+  for(const option of role.querySelectorAll('option[data-music-only]')) {
+    option.hidden=!isMusic;
+    option.disabled=!isMusic;
+  }
+  if(!isMusic&&['staff','musician'].includes(role.value))role.value='user';
+}
+document.getElementById('roleApp').addEventListener('change',syncMusicRoleOptions);
 async function loadLookups() {
   try {
     lookups = await api("/api/admin-management/lookups");
@@ -128,6 +139,7 @@ async function loadLookups() {
     const appOpts = selectOptions(lookups.applications, "id", "name");
     ["subOrg", "accessOrg", "roleOrg"].forEach(id => document.getElementById(id).innerHTML = orgOpts);
     ["subApp", "accessApp", "roleApp"].forEach(id => document.getElementById(id).innerHTML = appOpts);
+    syncMusicRoleOptions();
     document.getElementById("clientApplications").innerHTML = lookups.applications.map(app =>
       `<label><input type="checkbox" name="clientApplication" value="${esc(app.id)}"> ${esc(app.name)} (${esc(app.code)})</label>`
     ).join("");

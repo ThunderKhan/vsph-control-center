@@ -36,13 +36,23 @@ An external Music deployment must have a **server-side** `/api/sso/start` and `/
 8. Music's server issues a **new HttpOnly Secure Music session cookie** with a tenant-scoped server-side session. Clear authorization code and state from the browser address bar via 303 redirect to an app route, and set `Cache-Control: no-store`, `Referrer-Policy: no-referrer` on the callback and server responses.
 9. Music enforces the received tenant ID + role for **every** protected API request and keeps the server-issued session short-lived. It can check ongoing entitlement with the new service-to-service endpoint `POST /api/sso/introspect` using the same confidential client header and JSON `{"client_id":"music-vercel","user_id":"UUID","organization_id":"UUID","portal_session_ref":"64-char-hashed-session-reference"}`. VSPH verifies that the **original portal session is still live**, then responds with current `active` status and `role` (or HTTP 403 on logout, expired session, or revoked membership/subscription). Store `portal_session_ref` only in Music's private server-side session, never in JavaScript, URL parameters, or client-readable cookies. Never allow the browser to supply session user/tenant fields to this endpoint. The portal's Music demo cannot substitute for this.
 
+## PR #6: identified public demo destination and receiver source
+
+The provided **public Music demo** lives at [vsph-music-system.vercel.app](https://vsph-music-system.vercel.app/). A separate “View deployed Music demo” link appears on the Music application card. This is a **public prototype preview**, not an authenticated Music session. Secure “Open application” continues through VSPH's protected `/apps/music/launch`.
+
+The connected Vercel workspace does not list this deployment, and its source repository is not confirmed. A receiver implementation has been prepared on `ThunderKhan/taj-santacruz-smart-guest-platform`, the Music prototype repository available to us, but **do not assume changes to that repository deploy to the supplied hostname**. Verify the Vercel project's Git integration and production domain before enabling the SSO settings.
+
+Music has two explicit access types: `staff` and `musician`. Apply `supabase/migrations/20261030_music_staff_musician_roles.sql` after the previous launch-code migration. VSPH admin can then assign these roles **only for Music**, per organization. For the demo prototype, musician SSO additionally requires a trusted server-only `MUSIC_PERFORMER_ID_MAP` mapping `"organizationUUID:userUUID" -> "performerRosterId"`. Until a user has a provisioned mapping, musician login is rejected rather than impersonating a performer by matching a name.
+
+The prepared Music receiver uses Vercel Functions, an encrypted HttpOnly session cookie, state-bound PKCE, a confidential exchange, and live tenant-role introspection. **The operations console still displays localStorage demonstration records.** A real Music multi-tenant backend and server-protected request/musician APIs are required before handling customer data.
+
 ## Configuration
 
 In **VSPH server** `.env` (never frontend, Git, or Vercel public variables):
 
 ```dotenv
-MUSIC_SSO_START_URL=https://music.example.test/api/sso/start
-MUSIC_SSO_CALLBACK_URL=https://music.example.test/api/sso/callback
+MUSIC_SSO_START_URL=https://vsph-music-system.vercel.app/api/sso/start
+MUSIC_SSO_CALLBACK_URL=https://vsph-music-system.vercel.app/api/sso/callback
 MUSIC_SSO_CLIENT_SECRET=<random-64-character-secret>
 ```
 
@@ -69,7 +79,7 @@ Clean up expired codes periodically (`DELETE FROM public.sso_launch_codes WHERE 
 
 - The selected `organization_id` is **not** authorization. The portal checks it against `getContexts` on both code creation and redemption; revoked subscription or removed role fails redemption.
 - Portal platform `super_admin` can have `platform_super_admin` as product context; the Music app must explicitly decide what that grants. **Never silently map platform admin to every Music function.**
-- The current `app_roles` list has `super_admin`, `admin`, `manager`, `user`, `viewer`; it does **not yet define `staff` or `musician`**. Music staff/performer authorization must be modeled separately before its demo authentication can be removed. Never infer a musician's identity from a username in the demo dataset.
+- The initial `app_roles` list has `super_admin`, `admin`, `manager`, `user`, `viewer`; it requires the **separate PR #6 role migration** before accepting `staff` or `musician`. Music staff/performer authorization must be modeled separately before its demo authentication can be removed. Never infer a musician's identity from a username in the demo dataset.
 - **Guest QR/table routes remain public** subject to appropriate abuse controls and tenant/location validation; SSO is for employees and performers.
 - Login state is not transferred with a browser localStorage object, profile JSON URL parameter, cross-domain cookie, or reusable bearer token.
 - The code is *single-use*, audience-bound to Music, PKCE-bound to a browser-initiated transaction, hashed at rest, and expires in one minute. `state` binding MUST be implemented in Music's receiver to prevent login CSRF.
