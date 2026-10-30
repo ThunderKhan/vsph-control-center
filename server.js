@@ -21,18 +21,21 @@ app.use(validateOrigin);
 // browser/proxy caches; navigating Back after logout should trigger a fresh check.
 app.use((req,res,next)=>{
  const url=(String(req.originalUrl||'').split('?')[0].replace(/\/+$/, '') || '/');
- if(url.startsWith('/api/sso/') || url.startsWith('/api/auth/') || url==='/api/apps' || url.startsWith('/api/apps/') ||
+ if(url.startsWith('/api/sso/') || url.startsWith('/api/invitations/') || url.startsWith('/api/admin-management/') || url.startsWith('/api/auth/') || url==='/api/apps' || url.startsWith('/api/apps/') ||
     url.startsWith('/apps/') || ['/', '/login', '/login.html', '/index.html',
-    '/dashboard','/applications','/admin','/dashboard.html','/applications.html','/admin.html'].includes(url)) {
+    '/dashboard','/applications','/admin','/admin/onboarding','/accept-invite','/dashboard.html','/applications.html','/admin.html'].includes(url)) {
    res.set('Cache-Control','no-store');
  }
  next();
 });
 app.use('/api/auth',require('./routes/auth'));
+app.use('/api/invitations',require('./routes/invitations'));
+
 app.use('/api/apps',require('./routes/apps'));
 app.use('/api/sso',musicSso.router);
 app.use('/api/workspaces',require('./routes/workspaces'));
 app.use('/api/admin-management',portalSession,requireAdmin,require('./routes/admin-management'));
+app.use('/api/admin-management/onboardings',portalSession,requireAdmin,require('./routes/onboarding').router);
 app.get('/api/health',async(req,res)=>{
  if(!configured())return res.status(503).json({status:'not_configured',database:false});
  try{const{error}=await db().from('applications').select('id').limit(1);if(error)throw error;
@@ -66,6 +69,10 @@ app.get('/apps/:app/home',portalSession,requireApp,(req,res)=>res.sendFile(path.
 app.get(['/dashboard','/dashboard/'],portalSession,(req,res)=>res.sendFile(path.join(__dirname,'public','dashboard.html')));
 app.get(['/applications','/applications/'],portalSession,(req,res)=>res.sendFile(path.join(__dirname,'public','dashboard.html')));
 app.get(['/admin','/admin/'],portalSession,requireAdmin,(req,res)=>res.sendFile(path.join(__dirname,'public','admin.html')));
+app.get(['/admin/onboarding','/admin/onboarding/'],portalSession,requireAdmin,(req,res)=>
+  res.sendFile(path.join(__dirname,'views','onboarding.html')));
+app.get(['/accept-invite','/accept-invite/'],(req,res)=>
+  res.sendFile(path.join(__dirname,'views','accept-invite.html')));
 // Legacy bookmarks redirect, with all authorization performed by the destination.
 app.get('/dashboard.html',(req,res)=>res.redirect(302,'/dashboard'));
 app.get('/applications.html',(req,res)=>res.redirect(302,'/applications'));
