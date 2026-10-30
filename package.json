@@ -9,10 +9,16 @@
     "dev": "nodemon server.js",
     "seed": "node seed.js",
     "test": "node --test tests/*.test.js",
-    "check": "node --check server.js && node --check routes/auth.js && node --check routes/admin-management.js && node --check routes/apps.js && node --check routes/sso.js && node --check integration/sso-config.js && node --check public/launch.js && node --check routes/onboarding.js && node --check routes/invitations.js && node --check public/onboarding.js && node --check public/invite.js"
+    "check": "node --check server.js && node --check routes/auth.js && node --check routes/admin-management.js && node --check routes/apps.js && node --check routes/sso.js && node --check integration/sso-config.js && node --check public/launch.js && node --check routes/onboarding.js && node --check routes/invitations.js && node --check public/onboarding.js && node --check public/invite.js",
+    "lint": "eslint .",
+    "format:check": "prettier --check \"docs/architecture/*.md\" \"docs/roadmap/*.md\" \"docs/operations/*.md\"",
+    "test:coverage": "node --test --experimental-test-coverage tests/*.test.js",
+    "test:db": "node --test tests/database/*.test.mjs",
+    "test:db:local": "node scripts/local-database.mjs",
+    "test:e2e": "playwright test"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20.19"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.79.0",
@@ -21,6 +27,13 @@
     "express": "^5.1.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11"
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.64.1",
+    "embedded-postgres": "^18.6.0-beta.19",
+    "eslint": "^10.14.0",
+    "globals": "^17.13.0",
+    "nodemon": "^3.1.11",
+    "pg": "^8.23.1",
+    "prettier": "^3.9.10"
   }
 }
