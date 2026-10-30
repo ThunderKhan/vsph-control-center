@@ -10,7 +10,7 @@ function harness(pathname) {
   class Element {
     constructor(id = '') {
       this.id = id;
-      this.hidden = false;
+      this.hidden = ['organizationField', 'backLink', 'authError'].includes(id);
       this.disabled = false;
       this.required = false;
       this.readOnly = false;
