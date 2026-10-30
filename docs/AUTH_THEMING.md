@@ -16,7 +16,7 @@ The portal, CRM and Music login pages use **one reusable view**, **one browser c
 
 ## Routes and security
 
-- **`/`** and **`/login`** display the shared view in portal mode. Submit calls `POST /api/auth/login`, then opens the dashboard.
+- **`/`** and **`/login`** first validate the portal session server-side. Authenticated users get an immediate HTTP `302` to `/dashboard` **without the login page rendering**; anonymous/expired/disabled sessions see the shared view in portal mode. Submit calls `POST /api/auth/login`, then opens the dashboard.
 - **`/apps/crm/login`** and **`/apps/music/login`** display the **same** shared view in app mode. Express checks the portal session and user's product access before rendering. The controller loads authorized organization contexts from `GET /api/apps/:code/contexts`.
 - The customer picker appears only in app mode. Submitting calls `POST /api/auth/app-login`, which **re-verifies password, portal account, customer membership and app-specific role** before starting an app-scoped session.
 - The client-side route detection and theme configuration are **not authorization mechanisms**. The backend still enforces all permission and tenant boundaries.

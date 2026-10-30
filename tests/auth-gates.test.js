@@ -150,3 +150,42 @@ test('revoking tenant product access denies even previously authenticated app se
   await requireApp(req,res,()=>assert.fail('revoked app access must be denied'));
   assert.equal(res.statusCode,403);
 });
+
+test('public login allows an anonymous visitor without redirecting', async () => {
+  const {optionalPortal} = withSecurity();
+  const req=request('/login');
+  const res=response();
+  let continued=false;
+  await optionalPortal(req,res,()=>{continued=true});
+  assert.equal(continued,true);
+  assert.equal(req.user,undefined);
+  assert.equal(res.location,null);
+});
+
+test('public login recognizes an active portal cookie for a pre-render redirect', async () => {
+  const {optionalPortal} = withSecurity(rows());
+  const req=request('/login',{'vsph.portal.sid':'portal-token'});
+  const res=response();
+  let continued=false;
+  await optionalPortal(req,res,()=>{continued=true});
+  assert.equal(continued,true);
+  assert.equal(req.user.id,'user-a');
+  assert.equal(req.portalSession.user_id,'user-a');
+  assert.equal(res.location,null);
+});
+
+test('expired, unknown and disabled cookies are treated as guests on the login route', async () => {
+  const scenarios=[rows(true),rows(),rows()];
+  scenarios[2].profiles.status='disabled';
+  const cookies=['portal-token','unknown-token','portal-token'];
+  for(let i=0;i<scenarios.length;i++){
+    const {optionalPortal}=withSecurity(scenarios[i]);
+    const req=request('/',{'vsph.portal.sid':cookies[i]});
+    const res=response();
+    let continued=false;
+    await optionalPortal(req,res,()=>{continued=true});
+    assert.equal(continued,true);
+    assert.equal(req.user,undefined);
+    assert.equal(res.location,null);
+  }
+});

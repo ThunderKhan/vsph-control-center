@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express=require('express');const path=require('node:path');const cookieParser=require('cookie-parser');
 const {db,configured}=require('./db');
-const {portalSession,requireAdmin,requireApp,validateOrigin,getApp,getContexts}=require('./security');
+const {portalSession,optionalPortal,requireAdmin,requireApp,validateOrigin,getApp,getContexts}=require('./security');
 const app=express();app.disable('x-powered-by');app.set('trust proxy',1);
 // All applications use this login view by default. Explicit, reviewed overrides
 // can be placed here later for a customer's structural requirements.
@@ -14,9 +14,10 @@ app.use(validateOrigin);
 // Authenticated HTML and session-dependent API responses must not be stored by
 // browser/proxy caches; navigating Back after logout should trigger a fresh check.
 app.use((req,res,next)=>{
- const url=String(req.originalUrl||'').split('?')[0];
+ const url=(String(req.originalUrl||'').split('?')[0].replace(/\/+$/, '') || '/');
  if(url.startsWith('/api/auth/') || url==='/api/apps' || url.startsWith('/api/apps/') ||
-    url.startsWith('/apps/') || ['/dashboard','/applications','/admin','/dashboard.html','/applications.html','/admin.html'].includes(url)) {
+    url.startsWith('/apps/') || ['/', '/login', '/login.html', '/index.html',
+    '/dashboard','/applications','/admin','/dashboard.html','/applications.html','/admin.html'].includes(url)) {
    res.set('Cache-Control','no-store');
  }
  next();
@@ -52,7 +53,11 @@ app.get('/admin.html',(req,res)=>res.redirect(302,'/admin'));
 app.get('/index.html',(req,res)=>res.redirect(302,'/login'));
 app.use((req,res,next)=>['/app-home.html','/app-login.html'].includes(req.path)?res.status(404).send('Not found.'):next());
 // Friendly routes keep file extensions out of public URLs without changing the HTML/Express stack.
-app.get(['/', '/login'],(req,res)=>res.sendFile(sharedAuthView));
+app.get(['/', '/login'],optionalPortal,(req,res)=>{
+  // Decide before sending HTML: a live session never sees a login-form flash.
+  if(req.user)return res.redirect(302,'/dashboard');
+  res.sendFile(sharedAuthView);
+});
 app.get('/login.html',(req,res)=>res.redirect(302,'/login'));
 app.use(express.static(path.join(__dirname,'public'),{index:false}));
 app.use((err,req,res,next)=>{console.error('Request error:',err.message);if(res.headersSent)return next(err);

@@ -92,6 +92,14 @@ Seed is idempotent for the expected demo rows. Existing users keep their previou
 
 `/admin` is intended for **VSPH platform super admins** who create customer organizations, manage products and subscriptions, provision users, assign roles, and review audit events. It is **not** the Super Admin screen inside an individual CRM or Music customer workspace. Customer/product permissions remain enforced by the existing backend.
 
+### Returning visitors with an active session
+
+When someone visits `http://localhost:3000/` or `/login`, **Express validates the HTTP-only portal session cookie before it sends the page**. A valid, unexpired session belonging to an active account receives an HTTP `302` redirect to `/dashboard` immediately, without downloading or displaying the sign-in form.
+
+Anonymous visitors, or those with expired, revoked, or disabled-account sessions, receive the normal login screen. The server uses the same validator as its protected routes, so opening a stale cookie cannot trigger a `/login` redirect loop. Sign out remains the way to switch accounts.
+
+Root and login responses use `Cache-Control: no-store` to reduce stale login pages appearing from caches. Application-specific second-stage sign-in remains mandatory and unchanged.
+
 ### Direct application URL and authentication behavior
 
 **Direct URL entry never grants access.** The portal session is checked on every request for a product login page, app workspace and protected API. App workspaces and tenant records also require a valid, product-scoped session and the user's current customer entitlement.

@@ -6,7 +6,7 @@ const vm = require('node:vm');
 
 const read = file => fs.readFileSync(path.join(__dirname, '..', file), 'utf8');
 
-function harness(pathname, hasPortalSession = false) {
+function harness(pathname) {
   class Element {
     constructor(id = '') {
       this.id = id;
@@ -63,7 +63,7 @@ function harness(pathname, hasPortalSession = false) {
   };
   const fetch = async (url, options = {}) => {
     calls.push({ url, options });
-    if (url === '/api/auth/me') return { ok: hasPortalSession, status: hasPortalSession ? 200 : 401, json: async () => hasPortalSession ? {user:{id:'user-a'}} : {message:'Please log in.'} };
+
     if (url.endsWith('/contexts')) return { ok: true, status: 200, json: async () => contexts };
     if (url === '/api/auth/app-login') return { ok: true, status: 200, json: async () => ({ redirect: '/apps/crm/home' }) };
     if (url === '/api/auth/login') return { ok: true, status: 200, json: async () => ({ message: 'Signed in' }) };
@@ -133,15 +133,10 @@ test('Music app uses the same component and selected app code', async () => {
   assert.equal(JSON.parse(request.options.body).app, 'MUSIC');
 });
 
-test('opening portal login with a valid existing cookie goes to dashboard', async () => {
-  const h = harness('/login', true);
+test('portal form does not issue a late session probe or redirect after rendering', async () => {
+  const h = harness('/login');
   await new Promise(resolve => setImmediate(resolve));
-  assert.ok(h.calls.some(call => call.url === '/api/auth/me'));
-  assert.equal(h.location.replaced, '/dashboard');
-});
-test('opening portal login without cookie remains on the sign-in form', async () => {
-  const h = harness('/login', false);
-  await new Promise(resolve => setImmediate(resolve));
+  assert.ok(!h.calls.some(call => call.url === '/api/auth/me'));
   assert.equal(h.location.replaced, null);
   assert.equal(h.elements.authSubmit.disabled, false);
 });

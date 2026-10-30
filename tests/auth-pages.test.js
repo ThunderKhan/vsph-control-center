@@ -23,7 +23,9 @@ test('portal and every product use a single, non-public login template', () => {
   assert.ok(html.includes('src="/auth-background.js"'));
   assert.ok(server.includes("path.join(__dirname,'views','auth.html')"));
   assert.ok(server.includes("res.sendFile(authViews[application.code] || sharedAuthView)"));
-  assert.ok(server.includes("app.get(['/', '/login'],(req,res)=>res.sendFile(sharedAuthView))"));
+  assert.ok(server.includes("app.get(['/', '/login'],optionalPortal,(req,res)=>{"));
+  assert.ok(server.includes("if(req.user)return res.redirect(302,'/dashboard')"));
+  assert.ok(!controller().includes('redirectExistingPortalSession'));
   for (const obsolete of ['public/login.html', 'public/app-login.html', 'public/app.js', 'public/app-login.js']) {
     assert.equal(fs.existsSync(path.join(root, obsolete)), false, obsolete + ' should not be duplicated');
   }
