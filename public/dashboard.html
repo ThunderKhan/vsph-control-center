@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#00255A">
   <title>Workspace | VSPH Control Center</title>
   <link rel="stylesheet" href="/dashboard.css">
+  <script>document.documentElement.dataset.workspaceView = /^\\/applications\\/?$/.test(location.pathname) ? 'applications' : 'overview';</script>
 </head>
 <body class="workspace-body">
   <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
