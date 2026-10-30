@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer"><meta name="theme-color" content="#00255A">
+<title>Accept invitation | VSPH Control Center</title><link rel="stylesheet" href="/invite.css"></head>
+<body>
+<header><a class="brand" href="/login">VSPH<span>.</span></a><span>CONTROL CENTER</span></header>
+<main class="invite-layout"><section class="invite-card">
+<p class="kicker">YOUR VSPH WORKSPACE</p><h1>Accept your invitation<span>.</span></h1>
+<p class="lead">Create a password to activate your customer administrator account and access the products assigned to your organization.</p>
+<form id="inviteForm">
+<label for="password">New password</label><input id="password" type="password" autocomplete="new-password" required minlength="12" maxlength="128" placeholder="At least 12 characters">
+<label for="confirmPassword">Confirm password</label><input id="confirmPassword" type="password" autocomplete="new-password" required minlength="12" maxlength="128" placeholder="Repeat your password">
+<p id="inviteError" class="error" role="alert" hidden></p>
+<button id="acceptButton" type="submit" disabled>Activate my account</button>
+</form>
+<div id="inviteSuccess" hidden class="success"><strong>Account activated.</strong><p>Your invitation has been accepted. You can now sign in to VSPH Control Center using your email and new password.</p><a href="/login">Go to sign in</a></div>
+<p class="footer-note">If this link has expired, contact your VSPH administrator to request a new invitation. Do not forward invitation links to others.</p>
+</section></main><script defer src="/invite.js"></script></body></html>
