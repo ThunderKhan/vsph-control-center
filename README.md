@@ -10,6 +10,14 @@ The portal now has an **allowlisted external launch gateway** (`/apps/MUSIC/laun
 
 Apply the reviewed `supabase/migrations/20261030_music_sso_launch_codes.sql` migration before enabling. The setup instructions, receiver protocol, role boundaries, test plan and limitations are in **[docs/MUSIC_SSO_INTEGRATION.md](docs/MUSIC_SSO_INTEGRATION.md)**. The SSO flow is a purpose-built initial handshake and should not be marketed as a complete OAuth/OIDC identity provider.
 
+## Music deployment bridge — PR #6
+
+VSPH's Music application card now has two separate actions: **Open application** (always goes through the tenant-checked VSPH launch gateway) and **View deployed Music demo** (opens the publicly supplied URL [vsph-music-system.vercel.app](https://vsph-music-system.vercel.app/) in a separate tab). A public demo link is **not** SSO.
+
+Music gains explicit **staff** and **musician** tenant roles after applying `supabase/migrations/20261030_music_staff_musician_roles.sql`. These roles cannot be assigned to CRM. The VSPH SSO handoff remains off until the actual Music Vercel project deploys its secure receiver and environment variables.
+
+A candidate receiver implementation has been prepared in the accessible `ThunderKhan/taj-santacruz-smart-guest-platform` source repository, but its connection to the supplied Vercel hostname is **unverified**. Do not configure SSO solely on the basis of a working public website. See [Music integration instructions](docs/MUSIC_SSO_INTEGRATION.md).
+
 ## Workspace dashboard
 
 The portal offers two **distinct** views in a shared responsive VSPH layout. **Overview** (`/dashboard`) summarizes access by product, customer organization and role using the existing authorization APIs. **Applications** (`/applications`) provides a dedicated searchable directory of authorized products. No simulated metrics are displayed.
