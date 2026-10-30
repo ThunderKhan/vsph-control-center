@@ -44,6 +44,6 @@ document.getElementById('recordForm').addEventListener('submit',async e=>{
 });
 document.getElementById('logoutButton').addEventListener('click',async()=>{
  await fetch('/api/auth/app-logout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({app:code})});
- location.href='/dashboard.html';
+ location.href='/dashboard';
 });
 load();

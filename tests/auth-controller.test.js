@@ -97,7 +97,7 @@ test('portal login uses shared form, password-eye and portal endpoint', async ()
   const request = h.calls.find(call => call.url === '/api/auth/login');
   assert.ok(request);
   assert.equal(JSON.parse(request.options.body).email, 'owner@vsph.test');
-  assert.equal(h.location.assigned, '/dashboard.html');
+  assert.equal(h.location.assigned, '/dashboard');
 });
 
 test('CRM app login requires authorized contexts and separate second login', async () => {
@@ -137,7 +137,7 @@ test('opening portal login with a valid existing cookie goes to dashboard', asyn
   const h = harness('/login', true);
   await new Promise(resolve => setImmediate(resolve));
   assert.ok(h.calls.some(call => call.url === '/api/auth/me'));
-  assert.equal(h.location.replaced, '/dashboard.html');
+  assert.equal(h.location.replaced, '/dashboard');
 });
 test('opening portal login without cookie remains on the sign-in form', async () => {
   const h = harness('/login', false);

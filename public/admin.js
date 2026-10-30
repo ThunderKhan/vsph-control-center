@@ -14,7 +14,7 @@ async function api(url, options = {}) {
   });
   const data = await response.json().catch(() => ({}));
   if (response.status === 401) { window.location.href = "/login"; throw new Error("Please log in again."); }
-  if (response.status === 403) { window.location.href = "/dashboard.html"; throw new Error("Super Admin access is required."); }
+  if (response.status === 403) { window.location.href = "/dashboard"; throw new Error("Super Admin access is required."); }
   if (!response.ok) throw new Error(data.message || "Request failed.");
   return data;
 }
@@ -266,7 +266,7 @@ document.getElementById("logoutButton").addEventListener("click", async () => {
     const response = await fetch("/api/auth/me");
     if (!response.ok) { window.location.href = "/login"; return; }
     const { user } = await response.json();
-    if (user.platformRole !== "super_admin") { window.location.href = "/dashboard.html"; return; }
+    if (user.platformRole !== "super_admin") { window.location.href = "/dashboard"; return; }
     await loadLookups();
     await loadOverview();
   } catch (e) { say(e.message, true); }

@@ -1,6 +1,14 @@
 # VSPH Control Center — Supabase edition
 
-An integration of the supplied VSPH dashboard (Express + vanilla HTML/JS/CSS) with **Supabase Auth** and **hosted PostgreSQL**, keeping the original interface. The old MySQL code was replaced, not carried forward.
+VSPH's multi-tenant product portal (Express + vanilla HTML/JS/CSS), integrated with **Supabase Auth** and **hosted PostgreSQL**. The portal workspace dashboard and login were redesigned with the company design system while retaining the existing backend permissions. The old MySQL integration was replaced.
+
+## Workspace dashboard
+
+The portal offers two **distinct** views in a shared responsive VSPH layout. **Overview** (`/dashboard`) summarizes access by product, customer organization and role using the existing authorization APIs. **Applications** (`/applications`) provides a dedicated searchable directory of authorized products. No simulated metrics are displayed.
+
+Both views share `public/dashboard.html`, `public/dashboard.css`, and `public/dashboard.js`, with separate Express routes. **Platform Administration** (`/admin`) now explains the VSPH super-admin workflow; existing management forms and backend permissions are unchanged.
+
+See **[docs/DASHBOARD_DESIGN.md](docs/DASHBOARD_DESIGN.md)** for navigation, responsive layout, security, and the design rationale.
 
 ## Features
 
@@ -57,7 +65,7 @@ npm run dev
 
 6. Open **http://localhost:3000** and sign into the portal with `owner@vsph.test` and your `DEMO_PASSWORD`.
 
-The login view is served at **`/`** (default) or **`/login`**. The previous `/login.html` address redirects to `/login` for compatibility. The underlying login template remains `public/login.html`; the clean route is handled by Express, not by changing frameworks.
+The login is served at `/` or `/login` using the shared `views/auth.html` template. Portal routes are `/dashboard` (Overview), `/applications` (Applications directory), and `/admin` (VSPH platform super admins only). CRM and Music use `/apps/:code/login` and `/apps/:code/home`. Legacy `.html` bookmarks redirect to these clean routes, with authentication enforced on the destinations.
 
 **Demo accounts** (all use `DEMO_PASSWORD` at first creation):
 
@@ -79,6 +87,10 @@ Seed is idempotent for the expected demo rows. Existing users keep their previou
 4. Try `music` directly: the server must refuse access.
 5. Open a second browser profile for `beta@vsph.test`: its CRM sample contact will differ. API queries always filter by selected `organization_id`.
 6. `owner@vsph.test` sees the Platform Admin panel; create a customer, assign applications and per-app user roles.
+
+### Platform administration versus product administration
+
+`/admin` is intended for **VSPH platform super admins** who create customer organizations, manage products and subscriptions, provision users, assign roles, and review audit events. It is **not** the Super Admin screen inside an individual CRM or Music customer workspace. Customer/product permissions remain enforced by the existing backend.
 
 ### Direct application URL and authentication behavior
 

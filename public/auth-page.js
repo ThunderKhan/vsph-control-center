@@ -134,7 +134,7 @@
       const response = await fetch('/api/auth/me', {
         credentials: 'same-origin', cache: 'no-store'
       });
-      if (response.ok) window.location.replace('/dashboard.html');
+      if (response.ok) window.location.replace('/dashboard');
     } catch {
       // Offline/network errors must not prevent someone from attempting login.
     }
@@ -179,7 +179,7 @@
           email: email.value.trim(),
           password: password.value
         });
-        window.location.assign('/dashboard.html');
+        window.location.assign('/dashboard');
       }
     } catch (error) {
       showError(error.message || 'Cannot connect. Please try again.');

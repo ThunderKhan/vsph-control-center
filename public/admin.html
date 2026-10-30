@@ -6,43 +6,70 @@
   <title>Administration | VSPH Control Center</title>
   <link rel="stylesheet" href="/style.css">
   <style>
-    body{margin:0;background:#f5f7fb;color:#172033;font-family:Arial,sans-serif}
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body{margin:0;background:#F6F8FB;color:#132949;font-family:Inter,Arial,sans-serif}
     .admin-shell{max-width:1400px;margin:auto;padding:32px}
     .admin-head{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
     .admin-head p,.hint{color:#64748b;line-height:1.55}
     .admin-head h1{margin-bottom:8px}
     .admin-nav{display:flex;gap:8px;flex-wrap:wrap;margin:24px 0}
-    .tab{border:1px solid #d5dbea;background:#fff;color:#344054;padding:11px 15px;border-radius:10px;cursor:pointer;font-weight:600;box-shadow:0 1px 2px #1720330a}
-    .tab.active{background:#4338ca;color:white;border-color:#4338ca}
-    .panel{background:#fff;border:1px solid #dfe5ef;border-radius:16px;padding:24px;margin-bottom:18px;box-shadow:0 4px 16px #17203308}
+    .tab{border:1px solid #d5dbea;background:#fff;color:#253F60;padding:11px 15px;border-radius:10px;cursor:pointer;font-weight:600;box-shadow:0 1px 2px #1329490a}
+    .tab.active{background:#0069C8;color:white;border-color:#0069C8}
+    .panel{background:#fff;border:1px solid #dfe5ef;border-radius:12px;padding:24px;margin-bottom:18px;box-shadow:0 4px 16px #13294908}
     .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
     .stat{padding:17px;border:1px solid #e1e6ef;background:#fbfcfe;border-radius:12px}.stat strong{display:block;font-size:25px;margin-top:7px}
     .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;align-items:end}
-    label,legend{display:block;font-size:13px;font-weight:700;margin-bottom:7px;color:#344054}
-    input,select{width:100%;box-sizing:border-box;padding:12px 13px;border:1px solid #b9c5d6;border-radius:9px;background:#f8fafc;color:#172033;font:inherit;min-height:44px}
+    label,legend{display:block;font-size:13px;font-weight:700;margin-bottom:7px;color:#253F60}
+    input,select{width:100%;box-sizing:border-box;padding:12px 13px;border:1px solid #b9c5d6;border-radius:9px;background:#f8fafc;color:#132949;font:inherit;min-height:44px}
     input::placeholder{color:#98a2b3}
-    input:focus,select:focus{outline:none;border-color:#6951df;background:#fff;box-shadow:0 0 0 3px #6951df1c}
+    input:focus,select:focus{outline:none;border-color:#0069C8;background:#fff;box-shadow:0 0 0 3px #0069C81c}
     fieldset{margin-top:4px}
     fieldset label{display:flex;align-items:center;gap:8px;padding:11px 13px;border:1px solid #d7deea;border-radius:9px;background:#f8fafc;font-weight:500;cursor:pointer}
-    fieldset label:hover{border-color:#a99bea;background:#faf9ff}
-    fieldset input{width:auto;min-height:0;accent-color:#4338ca}
-    button.primary{background:#4338ca;color:white;border:0;border-radius:9px;padding:12px 16px;font-weight:700;cursor:pointer;min-height:44px}
-    button.primary:hover{background:#3528a9}
-    button.small{border:1px solid #b9c5d6;border-radius:8px;background:#fff;color:#344054;padding:8px 11px;cursor:pointer}
-    button.small:hover{border-color:#6951df;color:#4338ca}
+    fieldset label:hover{border-color:#9BBDE4;background:#F0F6FD}
+    fieldset input{width:auto;min-height:0;accent-color:#0069C8}
+    button.primary{background:#0069C8;color:white;border:0;border-radius:9px;padding:12px 16px;font-weight:700;cursor:pointer;min-height:44px}
+    button.primary:hover{background:#0054A4}
+    button.small{border:1px solid #b9c5d6;border-radius:8px;background:#fff;color:#253F60;padding:8px 11px;cursor:pointer}
+    button.small:hover{border-color:#0069C8;color:#0069C8}
     .table-wrap{overflow:auto;margin-top:15px}table{width:100%;border-collapse:collapse;min-width:700px}
     th,td{text-align:left;padding:11px;border-bottom:1px solid #edf0f5;font-size:14px;vertical-align:top}
     th{background:#f8fafc;color:#475569}td code{font-size:12px}.status{font-weight:700}
     .message{min-height:22px;color:#334155}.error{color:#b91c1c}.section[hidden]{display:none}
     @media(max-width:600px){.admin-shell{padding:16px}.panel{padding:17px}.form-grid{grid-template-columns:1fr}}
+
+    .admin-head h1{color:#00255A;letter-spacing:-.03em;font-weight:600;font-size:clamp(28px,3vw,38px)}
+    .admin-return{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 16px;text-decoration:none;border:1px solid #C2D5E8;border-radius:8px;background:white;color:#00255A;font-size:13px;font-weight:600}
+    .admin-header-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+    .admin-purpose{margin-top:28px;padding:28px 30px;border-radius:13px;background:#00255A;color:white}
+    .purpose-label{font-size:11px;font-weight:700;letter-spacing:.14em;color:#B7D4EF}
+    .purpose-header h2{font-size:24px;letter-spacing:-.03em;line-height:1.3;margin:12px 0 8px}
+    .purpose-header p{font-size:13px;line-height:1.75;color:#D5E3F0;max-width:800px;margin:0}
+    .purpose-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:25px}
+    .purpose-grid>div{padding:17px 18px;background:#16416F;border:1px solid #35618A;border-radius:9px;display:flex;flex-direction:column;gap:7px}
+    .purpose-grid span{font-size:11px;font-weight:700;color:#99D4EF}
+    .purpose-grid strong{font-size:13px;font-weight:600}
+    .purpose-grid p{font-size:12px;line-height:1.6;color:#D4E4F1;margin:0}
+    .tab{box-shadow:none;min-height:44px;text-align:center}
+    .tab.active{background:#0069C8;color:#fff;border-color:#0069C8}
+    button.primary{text-align:center;justify-content:center}
+    :focus-visible{outline:3px solid #50C0E8;outline-offset:2px}
+    @media(max-width:720px){.purpose-grid{grid-template-columns:1fr}.admin-purpose{padding:22px}.admin-head{align-items:start}.admin-nav{margin-top:18px}}
   </style>
 </head>
 <body>
   <main class="admin-shell">
     <header class="admin-head">
-      <div><p>VSPH CONTROL CENTER / ADMIN</p><h1>Platform Administration</h1><p>Manage demo organizations, users, subscriptions, application access, and audit history.</p></div>
-      <div><a href="/dashboard.html">← Dashboard</a> &nbsp; <button id="logoutButton" class="small">Log out</button></div>
+      <div><p>VSPH CONTROL CENTER / PLATFORM</p><h1>Platform administration</h1><p>Manage which customers can use each product, and what their teams can access.</p></div>
+      <div class="admin-header-actions"><a class="admin-return" href="/dashboard">Back to overview</a><button id="logoutButton" class="small">Sign out</button></div>
     </header>
+    <section class="admin-purpose" aria-label="What you can manage">
+      <div class="purpose-header"><span class="purpose-label">FOR VSPH PLATFORM ADMINISTRATORS</span><h2>One place to manage customer access.</h2><p>Use these controls to onboard organizations, enable CRM or Music, assign people and their application roles, and review changes. This is <strong>not</strong> the Super Admin dashboard inside a customer's CRM or Music application.</p></div>
+      <div class="purpose-grid">
+        <div><span>01</span><strong>Set up clients</strong><p>Create an organization and customer administrator.</p></div>
+        <div><span>02</span><strong>Enable products</strong><p>Configure subscriptions and application access.</p></div>
+        <div><span>03</span><strong>Assign roles</strong><p>Control which users can operate each product.</p></div>
+      </div>
+    </section>
     <p id="globalMessage" class="message" role="status"></p>
     <nav class="admin-nav" aria-label="Administration sections">
       <button class="tab active" data-tab="overview">Overview</button>
@@ -63,7 +90,7 @@
         <div class="stat">Active / Trial subscriptions<strong id="statSubscriptions">—</strong></div>
         <div class="stat">Enabled app grants<strong id="statAccess">—</strong></div>
       </div>
-      <div class="panel" style="margin-top:18px"><h2>Prototype status</h2><p class="hint">Managed PostgreSQL + Supabase Auth. User memberships, subscriptions, access grants, and app-specific roles are checked independently. No direct browser database access.</p></div>
+      <div class="panel" style="margin-top:18px"><h2>Before granting access</h2><p class="hint">For an employee to enter CRM or Music, their organization needs an active or trial subscription and enabled product access. The individual also needs an assigned application role. Use the tabs above to configure these separately.</p></div>
     </section>
 
     <section class="section" id="section-organizations" hidden>

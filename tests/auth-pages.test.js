@@ -39,7 +39,7 @@ test('product login remains server-protected and app sessions stay separate', ()
   assert.ok(js.includes("'/api/auth/app-login'"));
   assert.ok(js.includes('organizationId: organizationSelect.value'));
   assert.ok(js.includes("window.location.assign(data.redirect)"));
-  assert.ok(js.includes("window.location.assign('/dashboard.html')"));
+  assert.ok(js.includes("window.location.assign('/dashboard')"));
   assert.ok(js.includes("response.status === 401"));
   assert.ok(js.includes("window.location.replace('/login')"));
 });
@@ -134,7 +134,7 @@ test('login redirects remain extension-free and old login URLs are compatible', 
   assert.ok(server.includes("app.get('/login.html',(req,res)=>res.redirect(302,'/login'))"));
   assert.ok(server.indexOf("app.get('/login.html'") < server.indexOf('app.use(express.static'));
   assert.ok(js.includes("window.location.replace('/login')"));
-  assert.ok(read('public/dashboard.js').includes('"/login"'));
+  assert.ok(read('public/dashboard.js').includes("window.location.replace('/login')"));
 });
 
 test('the shared login view and source are valid JavaScript syntax', () => {
