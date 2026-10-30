@@ -9,13 +9,15 @@
     "dev": "nodemon server.js",
     "seed": "node seed.js",
     "test": "node --test tests/*.test.js",
-    "check": "node --check server.js && node --check routes/auth.js && node --check routes/admin-management.js && node --check routes/apps.js && node --check routes/sso.js && node --check integration/sso-config.js && node --check public/launch.js && node --check routes/onboarding.js && node --check routes/invitations.js && node --check public/onboarding.js && node --check public/invite.js",
+    "check": "node scripts/check.js",
     "lint": "eslint .",
     "format:check": "prettier --check \"docs/architecture/*.md\" \"docs/roadmap/*.md\" \"docs/operations/*.md\"",
     "test:coverage": "node --test --experimental-test-coverage tests/*.test.js",
     "test:db": "node --test tests/database/*.test.mjs",
     "test:db:local": "node scripts/local-database.mjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:db": "node scripts/local-database.mjs --e2e",
+    "invitations:dispatch": "node scripts/dispatch-invitations.js"
   },
   "engines": {
     "node": ">=20.19"

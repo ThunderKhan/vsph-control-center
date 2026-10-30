@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#00255A">
+  <title>Projects | VSPH Control Center</title>
+  <link rel="stylesheet" href="/dashboard.css"><link rel="stylesheet" href="/projects.css">
+  <script>
+    document.documentElement.dataset.workspaceView = ['/applications','/applications/'].includes(location.pathname) ? 'applications' : 'overview';
+    // Apply the previous desktop preference before paint so the layout does not jump.
+    try { document.documentElement.dataset.sidebarState = localStorage.getItem('vsph.sidebar.collapsed') === 'true' ? 'collapsed' : 'expanded'; }
+    catch { document.documentElement.dataset.sidebarState = 'expanded'; }
+  </script>
+</head>
+<body class="workspace-body">
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <symbol id="icon-overview" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="icon-apps" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16"/></symbol>
+    <symbol id="icon-admin" viewBox="0 0 24 24"><path d="M12 2.5 20 6v6c0 5-3.4 8-8 9.5C7.4 20 4 17 4 12V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="icon-logout" viewBox="0 0 24 24"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4"/><path d="M14 8l4 4-4 4M8 12h10"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="icon-panel-collapse" viewBox="0 0 24 24"><rect x="3" y="3.5" width="18" height="17" rx="2"/><path d="M9 3.5v17M16 9l-3 3 3 3"/></symbol>
+    <symbol id="icon-panel-expand" viewBox="0 0 24 24"><rect x="3" y="3.5" width="18" height="17" rx="2"/><path d="M9 3.5v17M13 9l3 3-3 3"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="m5 5 14 14M19 5 5 19"/></symbol>
+    <symbol id="icon-workspace" viewBox="0 0 24 24"><path d="M3 20V6l9-4 9 4v14M3 10h18M8 20v-5h8v5M8 7h.01M12 7h.01M16 7h.01"/></symbol>
+    <symbol id="icon-music" viewBox="0 0 24 24"><path d="M9 18V5l12-2v12"/><ellipse cx="6" cy="18" rx="3" ry="2"/><ellipse cx="18" cy="15" rx="3" ry="2"/></symbol>
+    <symbol id="icon-crm" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M17 4a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 5v1"/></symbol>
+    <symbol id="icon-generic" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 8h8v8H8z"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 4 4 10-10"/></symbol>
+  </svg>
+
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+
+  <div class="workspace-shell">
+    <button id="navBackdrop" class="nav-backdrop" type="button" aria-label="Close navigation" hidden></button>
+    <aside class="workspace-sidebar" id="workspaceSidebar" aria-label="Workspace navigation">
+      <div class="sidebar-heading">
+        <a class="wordmark" href="/dashboard" aria-label="VSPH home" title="VSPH home"><span class="wordmark-full">VSPH</span><span class="wordmark-compact" aria-hidden="true">V</span></a>
+        <span class="sidebar-product-label">CONTROL CENTER</span>
+        <button id="sidebarToggle" class="sidebar-collapse-toggle" type="button"
+          aria-label="Collapse sidebar" title="Collapse sidebar" aria-expanded="true" aria-controls="workspaceSidebar">
+          <svg class="icon collapse-symbol" aria-hidden="true"><use href="#icon-panel-collapse"></use></svg>
+          <svg class="icon expand-symbol" aria-hidden="true"><use href="#icon-panel-expand"></use></svg>
+        </button>
+        <button id="closeMenu" class="icon-button mobile-close" type="button" aria-label="Close menu">
+          <svg class="icon"><use href="#icon-close"></use></svg>
+        </button>
+      </div>
+
+      <nav class="sidebar-navigation" aria-label="Main">
+        <p class="nav-label">WORKSPACE</p>
+        <a class="sidebar-link is-active" href="/dashboard" aria-label="Overview" title="Overview" aria-current="page">
+          <svg class="icon"><use href="#icon-overview"></use></svg><span>Overview</span>
+        </a>
+        <a class="sidebar-link" href="/applications" aria-label="Applications" title="Applications">
+          <svg class="icon"><use href="#icon-apps"></use></svg><span>Applications</span>
+        </a>
+        <a class="sidebar-link" href="/projects" aria-label="Projects" title="Projects"><svg class="icon" aria-hidden="true"><use href="#icon-workspace"></use></svg><span>Projects</span></a>
+        <div class="sidebar-admin-section" id="adminNavContainer" hidden>
+          <a class="sidebar-link" id="adminNav" href="/admin" aria-label="Platform administration" title="Platform administration">
+            <svg class="icon"><use href="#icon-admin"></use></svg><span>Platform administration</span>
+          </a>
+          <a class="sidebar-link" href="/admin/onboarding" aria-label="New customer" title="New customer">
+            <svg class="icon"><use href="#icon-workspace"></use></svg><span>New customer</span>
+          </a>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="account-identity">
+          <span class="account-avatar" id="avatar" aria-hidden="true">V</span>
+          <span class="account-details">
+            <strong id="sideName">Your account</strong>
+            <small id="sideRole">Loading account</small>
+          </span>
+        </div>
+        <button id="logoutButton" class="sidebar-logout" type="button" aria-label="Sign out" title="Sign out">
+          <svg class="icon" aria-hidden="true"><use href="#icon-logout"></use></svg>
+          <span>Sign out</span>
+        </button>
+      </div>
+    </aside>
+
+    <div class="workspace-main" id="mainContent">
+      <header class="workspace-topbar">
+        <div class="mobile-brand">
+          <button id="openMenu" type="button" class="icon-button" aria-label="Open navigation" aria-expanded="false" aria-controls="workspaceSidebar">
+            <svg class="icon"><use href="#icon-menu"></use></svg>
+          </button>
+          <span>VSPH</span>
+        </div>
+        <div class="topbar-context">CONTROL CENTER <span class="topbar-divider"></span> WORKSPACE</div>
+        <div class="topbar-actions">
+          <a id="topbarOnboard" class="topbar-onboard" href="/admin/onboarding" hidden>New customer</a>
+          <span class="topbar-account"><span class="topbar-account-dot"></span><span id="topAccount">Account</span></span>
+        </div>
+      </header>
+
+      <main class="workspace-content project-workspace">
+        <p class="section-kicker">WORKSPACE / PROJECTS</p>
+        <header class="project-heading"><div><h1 id="projectTitle">Projects</h1><p id="projectSubtitle">Internal work and customer delivery, with explicit project access.</p></div><div class="actions"><button id="reloadProjects" type="button">Refresh</button><button id="newProject" type="button" hidden>New project</button></div></header>
+        <p id="projectMessage" role="status" aria-live="polite"></p>
+        <section id="creation" class="project-panel" hidden><h2>Create project</h2><form id="createProjectForm"></form></section>
+        <section id="portfolio"><form id="projectFilters" class="project-filters"><label>Search projects<input name="q" maxlength="100" type="search"></label><label>Lifecycle<select name="status"><option value="">All states</option><option>planned</option><option>active</option><option>paused</option><option>completed</option><option>archived</option></select></label><button type="submit">Filter</button></form><div id="projectList" aria-busy="true"></div><button id="moreProjects" type="button" hidden>Load more</button></section>
+        <section id="projectDetail" hidden><a href="/projects">← Project portfolio</a><div id="projectSummary" class="project-summary"></div><nav class="project-sections" aria-label="Project sections"><a href="#work">Tasks</a><a href="#milestones">Milestones</a><a href="#team">Team</a><a href="#delivery">Delivery</a><a href="#activity">Activity</a></nav>
+          <section id="settings" class="project-panel" hidden><details><summary>Project settings and ownership</summary><form id="projectSettings"></form></details></section>
+          <section id="work" class="project-panel"><h2>Tasks</h2><div id="taskFilters"></div><div id="taskList" class="project-table-wrap"></div><details id="taskEditor"><summary>Create or edit task</summary><form id="taskForm"></form></details></section>
+          <section id="milestones" class="project-panel"><h2>Milestones</h2><div id="milestoneList"></div><details id="milestoneEditor"><summary>Create or edit milestone</summary><form id="milestoneForm"></form></details></section>
+          <section id="team" class="project-panel"><h2>Project team</h2><div id="teamList"></div><details id="teamEditor"><summary>Add or change a project member</summary><form id="memberForm"></form></details></section>
+          <section id="delivery" class="project-panel"><h2>Deliverables and comments</h2><div id="deliverableList"></div><form id="deliverableForm"></form><div id="commentList"></div><form id="commentForm"></form></section>
+          <section id="activity" class="project-panel"><h2>Activity history</h2><p>Latest 200 events, recorded with each mutation.</p><ol id="activityList"></ol></section>
+        </section>
+      </main>
+
+      <footer class="workspace-footer">
+        <span>© 2026 VSPH. All rights reserved.</span>
+        <span>Control Center</span>
+      </footer>
+    </div>
+  </div>
+  <script defer src="/projects.js"></script>
+</body>
+</html>

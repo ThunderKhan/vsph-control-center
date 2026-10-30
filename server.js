@@ -36,6 +36,8 @@ app.use((req,res,next)=>{
 app.use('/api/auth',require('./routes/auth'));
 app.use('/api/invitations',require('./routes/invitations'));
 
+app.use('/api/projects',require('./routes/projects').router);
+app.get(['/projects','/projects/:id'],portalSession,(req,res)=>{res.set('Cache-Control','no-store');res.sendFile(path.join(__dirname,'views','projects.html'))});
 app.use('/api/apps',require('./routes/apps'));
 app.use('/api/sso',musicSso.router);
 app.use('/api/workspaces',require('./routes/workspaces'));

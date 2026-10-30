@@ -1,0 +1,790 @@
+(() => {
+  "use strict";
+  const $ = (id) => document.getElementById(id),
+    node = (tag, text, cls) => {
+      const e = document.createElement(tag);
+      if (text !== undefined) e.textContent = String(text);
+      if (cls) e.className = cls;
+      return e;
+    };
+  const projectId = location.pathname.split("/")[2] || null;
+  let user,
+    detail,
+    directory = {},
+    items = [],
+    cursor = null,
+    taskFilter = "";
+  const states = [
+      "todo",
+      "in_progress",
+      "blocked",
+      "in_review",
+      "done",
+      "cancelled",
+    ],
+    priorities = ["low", "normal", "high", "urgent"];
+  const setMessage = (m) => {
+    $("projectMessage").textContent = m || "";
+  };
+  async function api(path, options = {}) {
+    const r = await fetch(path, {
+      credentials: "same-origin",
+      cache: "no-store",
+      ...options,
+      headers: { "Content-Type": "application/json", ...options.headers },
+    });
+    const d = await r.json().catch(() => ({}));
+    if (r.status === 401) {
+      location.assign("/login");
+      throw Error("Sign in again.");
+    }
+    if (!r.ok)
+      throw Error(
+        r.status === 409
+          ? "Another change was saved first. Refresh, review the latest data and try again."
+          : d.message || "Request failed.",
+      );
+    return d;
+  }
+  const button = (text, fn) => {
+    const b = node("button", text);
+    b.type = "button";
+    b.onclick = fn;
+    return b;
+  };
+  function field(form, label, name, type = "text", values = [], value = "") {
+    const l = node("label", label);
+    let e;
+    if (type === "select" || type === "multiple") {
+      e = node("select");
+      if (type === "multiple") e.multiple = true;
+      for (const v of values) {
+        const o = node("option", typeof v === "string" ? v : v.label);
+        o.value = typeof v === "string" ? v : v.value;
+        e.append(o);
+      }
+    } else e = node(type === "textarea" ? "textarea" : "input");
+    e.name = name;
+    e.setAttribute("aria-label", label);
+    if (e.tagName === "INPUT") e.type = type;
+    if (type === "checkbox") e.checked = Boolean(value);
+    else if (type === "multiple") {
+      for (const o of e.options) o.selected = (value || []).includes(o.value);
+    } else e.value = value ?? "";
+    if (["name", "title", "body", "key", "url", "email"].includes(name))
+      e.required = true;
+    const max = {
+      name: 150,
+      title: 200,
+      body: 4000,
+      description: 5000,
+      key: 20,
+      url: 2000,
+      team: 100,
+    };
+    if (max[name]) e.maxLength = max[name];
+    l.append(e);
+    form.append(l);
+    return e;
+  }
+  function values(form) {
+    const d = {};
+    for (const e of form.elements) {
+      if (!e.name) continue;
+      d[e.name] =
+        e.type === "checkbox"
+          ? e.checked
+          : e.multiple
+            ? [...e.selectedOptions].map((o) => o.value)
+            : e.value;
+    }
+    return d;
+  }
+  function saveForm(form, label, handler) {
+    const b = node("button", label);
+    b.type = "submit";
+    form.append(b);
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      b.disabled = true;
+      setMessage("");
+      try {
+        await handler(values(form));
+      } catch (err) {
+        setMessage(err.message);
+      } finally {
+        b.disabled = false;
+      }
+    };
+  }
+  const opts = (rows, key = "id", name = "name", empty = true) => [
+    ...(empty ? [{ value: "", label: "Not set" }] : []),
+    ...(rows || []).map((x) => ({ value: x[key], label: x[name] || x[key] })),
+  ];
+  function table(headers, rows) {
+    const t = node("table"),
+      head = node("thead"),
+      tr = node("tr");
+    for (const h of headers) tr.append(node("th", h));
+    head.append(tr);
+    const body = node("tbody");
+    for (const cols of rows) {
+      const row = node("tr");
+      for (const col of cols) {
+        const cell = node("td");
+        cell.append(col instanceof Node ? col : node("span", col ?? "—"));
+        row.append(cell);
+      }
+      body.append(row);
+    }
+    t.append(head, body);
+    return t;
+  }
+  function titleLink(p) {
+    const a = node("a", p.name);
+    a.href = "/projects/" + p.id;
+    const box = node("div");
+    box.append(a, node("small", p.key));
+    return box;
+  }
+  async function loadList(append = false) {
+    $("projectList").setAttribute("aria-busy", "true");
+    const filter = values($("projectFilters"));
+    const qs = new URLSearchParams({
+      ...filter,
+      ...(append && cursor ? { cursor } : {}),
+    });
+    try {
+      const r = await api("/api/projects?" + qs);
+      items = append ? items.concat(r.projects) : r.projects;
+      cursor = r.projects.at(-1)?.id || null;
+      $("newProject").hidden = !r.canCreate;
+      $("moreProjects").hidden = r.projects.length < 50;
+      const box = $("projectList");
+      box.replaceChildren();
+      if (!items.length)
+        box.append(node("p", "No projects match these filters."));
+      else
+        box.append(
+          table(
+            ["Project", "Ownership", "State", "Priority", "Progress", "Due"],
+            items.map((p) => [
+              titleLink(p),
+              p.kind,
+              p.status,
+              p.priority,
+              p.completed_tasks + " / " + p.total_tasks + " tasks",
+              p.due_on || "—",
+            ]),
+          ),
+        );
+    } finally {
+      $("projectList").setAttribute("aria-busy", "false");
+    }
+  }
+  async function getDirectory(email) {
+    const q = new URLSearchParams({
+      ...(projectId ? { projectId } : {}),
+      ...(email ? { email } : {}),
+    });
+    directory = await api("/api/projects/directory?" + q);
+    return directory;
+  }
+  function projectFields(form, p = {}) {
+    field(form, "Project name", "name", "text", [], p.name);
+    field(form, "Description", "description", "textarea", [], p.description);
+    field(
+      form,
+      "Priority",
+      "priority",
+      "select",
+      priorities,
+      p.priority || "normal",
+    );
+    field(form, "Due date", "dueOn", "date", [], p.due_on);
+    field(
+      form,
+      "Products linked to this work",
+      "products",
+      "multiple",
+      opts(directory.products, "id", "name", false),
+      detail?.products.map((x) => x.id) || [],
+    );
+    field(
+      form,
+      "Share project with explicitly assigned customer viewers",
+      "clientVisible",
+      "checkbox",
+      [],
+      p.client_visible,
+    );
+  }
+  async function createForm() {
+    await getDirectory();
+    const form = $("createProjectForm");
+    form.replaceChildren();
+    field(form, "Project key (uppercase)", "key");
+    projectFields(form);
+    field(
+      form,
+      "Project ownership",
+      "kind",
+      "select",
+      ["internal", "customer"],
+      "internal",
+    );
+    field(
+      form,
+      "Customer organization (customer projects only)",
+      "customerOrganizationId",
+      "select",
+      opts(directory.organizations),
+    );
+    field(form, "Start date", "startsOn", "date");
+    saveForm(form, "Create project", async (d) => {
+      const p = await api("/api/projects", {
+        method: "POST",
+        body: JSON.stringify(d),
+      });
+      location.assign("/projects/" + p.id);
+    });
+    $("creation").hidden = false;
+    form.elements.key.focus();
+  }
+  async function mutate(path, method, data) {
+    await api("/api/projects/" + projectId + path, {
+      method,
+      body: JSON.stringify({ ...data, version: detail.project.version }),
+    });
+    await loadDetail();
+    setMessage("Saved.");
+  }
+  const taskNames = () => opts(detail.tasks, "id", "title");
+  function renderTaskForm(task) {
+    const f = $("taskForm");
+    f.replaceChildren();
+    field(f, "Task title", "title", "text", [], task?.title);
+    field(f, "Description", "description", "textarea", [], task?.description);
+    field(
+      f,
+      "Assignee",
+      "assigneeId",
+      "select",
+      opts(
+        detail.members.filter(
+          (m) =>
+            m.status === "active" &&
+            ["manager", "contributor"].includes(m.role),
+        ),
+        "user_id",
+        "full_name",
+      ),
+      task?.assignee_id,
+    );
+    field(
+      f,
+      "Milestone",
+      "milestoneId",
+      "select",
+      opts(detail.milestones, "id", "title"),
+      task?.milestone_id,
+    );
+    field(
+      f,
+      "Priority",
+      "priority",
+      "select",
+      priorities,
+      task?.priority || "normal",
+    );
+    field(f, "Due date", "dueOn", "date", [], task?.due_on);
+    field(
+      f,
+      "Shared with customer viewers",
+      "shared",
+      "checkbox",
+      [],
+      task?.shared,
+    );
+    saveForm(f, task ? "Save task" : "Create task", (d) =>
+      mutate(task ? "/tasks/" + task.id : "/tasks", task ? "PATCH" : "POST", d),
+    );
+    if (task) {
+      $("taskEditor").open = true;
+      f.elements.title.focus();
+    }
+  }
+  function renderTasks() {
+    const box = $("taskList");
+    box.replaceChildren();
+    const manager = detail.role === "manager";
+    const filter = $("taskFilters");
+    filter.replaceChildren();
+    const select = node("select");
+    select.setAttribute("aria-label", "Filter tasks by status");
+    for (const s of ["", ...states]) {
+      const o = node("option", s || "All task states");
+      o.value = s;
+      select.append(o);
+    }
+    select.value = taskFilter;
+    select.onchange = () => {
+      taskFilter = select.value;
+      renderTasks();
+    };
+    filter.append(select);
+    const rows = detail.tasks
+      .filter((t) => !taskFilter || t.status === taskFilter)
+      .map((t) => {
+        const controls = node("div");
+        const editable =
+          manager ||
+          (detail.role === "contributor" && t.assignee_id === user.id);
+        if (editable && detail.project.status !== "archived") {
+          const next = {
+            todo: ["in_progress", "cancelled"],
+            in_progress: ["todo", "blocked", "in_review"],
+            blocked: ["todo", "in_progress", "cancelled"],
+            in_review: ["in_progress", "done"],
+            done: manager ? ["todo"] : [],
+            cancelled: manager ? ["todo"] : [],
+          }[t.status];
+          const state = node("select");
+          state.setAttribute("aria-label", "Status for " + t.title);
+          for (const v of [t.status, ...next]) {
+            const o = node("option", v);
+            o.value = v;
+            state.append(o);
+          }
+          state.onchange = async () => {
+            try {
+              await mutate("/tasks/" + t.id, "PATCH", { status: state.value });
+            } catch (e) {
+              setMessage(e.message);
+              state.value = t.status;
+            }
+          };
+          controls.append(state);
+          if (manager) controls.append(button("Edit", () => renderTaskForm(t)));
+        } else controls.append(node("span", t.status));
+        return [
+          t.title,
+          detail.members.find((m) => m.user_id === t.assignee_id)?.full_name ||
+            "Unassigned",
+          t.priority,
+          t.due_on || "—",
+          controls,
+        ];
+      });
+    box.append(
+      table(["Task", "Assignee", "Priority", "Due", "State / actions"], rows),
+    );
+    if (!rows.length) box.append(node("p", "No tasks in this view."));
+    $("taskEditor").hidden = !manager || detail.project.status === "archived";
+    if (manager) renderTaskForm();
+  }
+  function renderMilestoneForm(m) {
+    const f = $("milestoneForm");
+    f.replaceChildren();
+    field(f, "Milestone title", "title", "text", [], m?.title);
+    field(f, "Due date", "dueOn", "date", [], m?.due_on);
+    field(
+      f,
+      "Shared with customer viewers",
+      "shared",
+      "checkbox",
+      [],
+      m?.shared,
+    );
+    if (m) {
+      field(
+        f,
+        "Milestone state",
+        "status",
+        "select",
+        ["planned", "active", "done", "cancelled"],
+        m.status,
+      );
+      field(
+        f,
+        "Depends on",
+        "dependsOn",
+        "select",
+        opts(
+          detail.milestones.filter((x) => x.id !== m.id),
+          "id",
+          "title",
+        ),
+        m.depends_on,
+      );
+    }
+    saveForm(f, m ? "Save milestone" : "Create milestone", (d) =>
+      mutate(
+        m ? "/milestones/" + m.id : "/milestones",
+        m ? "PATCH" : "POST",
+        d,
+      ),
+    );
+    if (m) {
+      $("milestoneEditor").open = true;
+      f.elements.title.focus();
+    }
+  }
+  function renderMilestones() {
+    const box = $("milestoneList");
+    box.replaceChildren();
+    for (const m of detail.milestones) {
+      const a = node("article");
+      const tasks = detail.tasks.filter(
+        (t) => t.milestone_id === m.id && t.status !== "cancelled",
+      );
+      a.append(
+        node("h3", m.title),
+        node(
+          "p",
+          m.status +
+            " · " +
+            (m.due_on || "No target date") +
+            " · " +
+            tasks.filter((t) => t.status === "done").length +
+            "/" +
+            tasks.length +
+            " tasks complete",
+        ),
+      );
+      if (detail.role === "manager" && detail.project.status !== "archived")
+        a.append(button("Edit milestone", () => renderMilestoneForm(m)));
+      box.append(a);
+    }
+    if (!detail.milestones.length) box.textContent = "No milestones yet.";
+    $("milestoneEditor").hidden =
+      detail.role !== "manager" || detail.project.status === "archived";
+    if (detail.role === "manager") renderMilestoneForm();
+  }
+  function renderTeam() {
+    const box = $("teamList");
+    box.replaceChildren(
+      table(
+        ["Person", "Project role", "Team", "Access"],
+        detail.members.map((m) => [
+          m.full_name,
+          m.role,
+          m.team || "—",
+          m.status,
+        ]),
+      ),
+    );
+    const manager =
+      detail.role === "manager" && detail.project.status !== "archived";
+    $("teamEditor").hidden = !manager;
+    if (!manager) return;
+    const f = $("memberForm");
+    f.replaceChildren();
+    const email = field(
+      f,
+      "Find an existing account by exact email",
+      "email",
+      "email",
+    );
+    email.required = false;
+    const users = field(
+      f,
+      "Project member",
+      "userId",
+      "select",
+      opts(directory.users, "id", "full_name", false),
+    );
+    f.append(
+      button("Find account", async () => {
+        try {
+          const d = await getDirectory(email.value);
+          users.replaceChildren();
+          for (const u of d.users) {
+            const o = node("option", u.full_name + " · " + u.email);
+            o.value = u.id;
+            users.append(o);
+          }
+        } catch (e) {
+          setMessage(e.message);
+        }
+      }),
+    );
+    field(
+      f,
+      "Project role",
+      "role",
+      "select",
+      ["contributor", "manager", "viewer", "client"],
+      "contributor",
+    );
+    field(
+      f,
+      "Access status",
+      "status",
+      "select",
+      ["active", "revoked"],
+      "active",
+    );
+    field(f, "Development team", "team");
+    saveForm(f, "Save project membership", (d) => {
+      delete d.email;
+      return mutate("/members", "POST", d);
+    });
+  }
+  function renderDelivery() {
+    const manager =
+        detail.role === "manager" && detail.project.status !== "archived",
+      writer =
+        ["manager", "contributor"].includes(detail.role) &&
+        detail.project.status !== "archived";
+    const d = $("deliverableList");
+    d.replaceChildren();
+    for (const item of detail.deliverables) {
+      const a = node("a", item.title);
+      a.href = item.url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      const p = node("p");
+      p.append(a);
+      d.append(p);
+    }
+    const f = $("deliverableForm");
+    f.hidden = !manager;
+    f.replaceChildren();
+    if (manager) {
+      field(f, "Deliverable title", "title");
+      field(f, "HTTPS evidence link", "url", "url");
+      field(f, "Related task", "taskId", "select", taskNames());
+      field(f, "Shared with customer viewers", "shared", "checkbox");
+      saveForm(f, "Add deliverable", (data) =>
+        mutate("/deliverables", "POST", data),
+      );
+    }
+    const c = $("commentList");
+    c.replaceChildren();
+    for (const item of detail.comments) {
+      const a = node("article");
+      a.append(
+        node(
+          "strong",
+          detail.members.find((m) => m.user_id === item.actor_id)?.full_name ||
+            "Project member",
+        ),
+        node("p", item.body),
+        node("small", new Date(item.created_at).toLocaleString()),
+      );
+      c.append(a);
+    }
+    const cf = $("commentForm");
+    cf.hidden = !writer;
+    cf.replaceChildren();
+    if (writer) {
+      field(cf, "Comment", "body", "textarea");
+      field(cf, "Related task", "taskId", "select", taskNames());
+      if (manager)
+        field(cf, "Shared with customer viewers", "shared", "checkbox");
+      saveForm(cf, "Add comment", (data) => mutate("/comments", "POST", data));
+    }
+  }
+  async function loadDetail() {
+    detail = await api("/api/projects/" + projectId);
+    const p = detail.project;
+    $("portfolio").hidden = true;
+    $("creation").hidden = true;
+    $("newProject").hidden = true;
+    $("projectDetail").hidden = false;
+    $("projectTitle").textContent = p.name;
+    $("projectSubtitle").textContent =
+      p.key +
+      " · " +
+      p.kind +
+      " · " +
+      p.status +
+      " · Owner: " +
+      (detail.members.find((m) => m.user_id === p.owner_id)?.full_name ||
+        "Project owner") +
+      " · " +
+      p.description;
+    const tasks = detail.tasks.filter((t) => t.status !== "cancelled"),
+      done = tasks.filter((t) => t.status === "done").length,
+      today = new Date().toISOString().slice(0, 10),
+      overdue =
+        tasks.filter((t) => t.due_on && t.due_on < today && t.status !== "done")
+          .length +
+        detail.milestones.filter(
+          (m) =>
+            m.due_on &&
+            m.due_on < today &&
+            !["done", "cancelled"].includes(m.status),
+        ).length;
+    const box = $("projectSummary");
+    box.replaceChildren();
+    for (const [label, value] of [
+      [
+        "Task completion",
+        tasks.length
+          ? Math.round((done / tasks.length) * 100) + "%"
+          : "No tasks",
+      ],
+      ["Completed / total", done + " / " + tasks.length],
+      ["Overdue work", overdue],
+      [
+        "Health",
+        overdue || tasks.some((t) => t.status === "blocked")
+          ? "Needs attention"
+          : "No blocked or overdue work",
+      ],
+    ]) {
+      const c = node("div", label);
+      c.append(node("strong", value));
+      box.append(c);
+    }
+    if (detail.role === "manager") {
+      await getDirectory();
+      const f = $("projectSettings");
+      f.replaceChildren();
+      projectFields(f, p);
+      field(
+        f,
+        "Lifecycle",
+        "status",
+        "select",
+        ["planned", "active", "paused", "completed", "archived"],
+        p.status,
+      );
+      field(
+        f,
+        "Accountable owner",
+        "ownerId",
+        "select",
+        opts(
+          detail.members.filter(
+            (m) => m.status === "active" && m.role === "manager",
+          ),
+          "user_id",
+          "full_name",
+          false,
+        ),
+        p.owner_id,
+      );
+      saveForm(f, "Save project settings", (d) => mutate("", "PATCH", d));
+    }
+    $("settings").hidden = detail.role !== "manager";
+    renderTasks();
+    renderMilestones();
+    renderTeam();
+    renderDelivery();
+    const activity = $("activityList");
+    activity.replaceChildren();
+    for (const a of detail.activity)
+      activity.append(
+        node(
+          "li",
+          new Date(a.created_at).toLocaleString() +
+            " · " +
+            a.action +
+            " · " +
+            a.summary,
+        ),
+      );
+  }
+  function navigation() {
+    const root = document.documentElement,
+      toggle = $("sidebarToggle");
+    const collapse = (save) => {
+      const c = root.dataset.sidebarState === "collapsed";
+      toggle.setAttribute("aria-expanded", String(!c));
+      toggle.setAttribute(
+        "aria-label",
+        c ? "Expand sidebar" : "Collapse sidebar",
+      );
+      if (save)
+        try {
+          localStorage.setItem("vsph.sidebar.collapsed", String(c));
+        } catch {}
+    };
+    toggle.onclick = () => {
+      root.dataset.sidebarState =
+        root.dataset.sidebarState === "collapsed" ? "expanded" : "collapsed";
+      collapse(true);
+    };
+    collapse(false);
+    const close = () => {
+      document.body.classList.remove("nav-open");
+      $("navBackdrop").hidden = true;
+      $("openMenu").setAttribute("aria-expanded", "false");
+      $("openMenu").focus();
+    };
+    $("openMenu").onclick = () => {
+      document.body.classList.add("nav-open");
+      $("navBackdrop").hidden = false;
+      $("openMenu").setAttribute("aria-expanded", "true");
+      $("closeMenu").focus();
+    };
+    $("closeMenu").onclick = close;
+    $("navBackdrop").onclick = close;
+    document.addEventListener("keydown", (e) => {
+      if (!document.body.classList.contains("nav-open")) return;
+      if (e.key === "Escape") close();
+      if (e.key === "Tab") {
+        const links = [
+          ...$("workspaceSidebar").querySelectorAll("a,button"),
+        ].filter((e) => e.getClientRects().length);
+        const first = links[0],
+          last = links.at(-1);
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    });
+    for (const a of document.querySelectorAll(".sidebar-link")) {
+      a.classList.toggle("is-active", a.getAttribute("href") === "/projects");
+      if (a.getAttribute("href") === "/projects")
+        a.setAttribute("aria-current", "page");
+      else a.removeAttribute("aria-current");
+    }
+    $("logoutButton").onclick = async () => {
+      try {
+        await api("/api/auth/logout", { method: "POST" });
+        location.assign("/login");
+      } catch (e) {
+        setMessage(e.message);
+      }
+    };
+  }
+  $("newProject").onclick = () =>
+    createForm().catch((e) => setMessage(e.message));
+  $("reloadProjects").onclick = () => {
+    setMessage("");
+    (projectId ? loadDetail() : loadList()).catch((e) => setMessage(e.message));
+  };
+  $("projectFilters").onsubmit = (e) => {
+    e.preventDefault();
+    loadList().catch((e) => setMessage(e.message));
+  };
+  $("moreProjects").onclick = () =>
+    loadList(true).catch((e) => setMessage(e.message));
+  (async () => {
+    try {
+      user = (await api("/api/auth/me")).user;
+      for (const id of ["sideName", "topAccount"])
+        $(id).textContent = user.name;
+      $("sideRole").textContent =
+        user.platformRole === "super_admin"
+          ? "Platform administrator"
+          : "Project member";
+      $("avatar").textContent = user.name.slice(0, 1).toUpperCase();
+      $("adminNavContainer").hidden = user.platformRole !== "super_admin";
+      $("topbarOnboard").hidden = user.platformRole !== "super_admin";
+      navigation();
+      if (projectId) await loadDetail();
+      else await loadList();
+    } catch (e) {
+      setMessage(e.message);
+    }
+  })();
+})();
