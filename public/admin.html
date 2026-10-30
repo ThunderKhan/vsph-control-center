@@ -63,6 +63,11 @@
     button.primary{text-align:center;justify-content:center}
     :focus-visible{outline:3px solid #50C0E8;outline-offset:2px}
     @media(max-width:720px){.purpose-grid{grid-template-columns:1fr}.admin-purpose{padding:22px}.admin-head{align-items:start}.admin-nav{margin-top:18px}}
+    .onboarding-banner{display:flex;align-items:center;justify-content:space-between;gap:22px;flex-wrap:wrap;background:#F7FBFF;border-color:#CFE1F1}
+    .onboarding-banner>div{max-width:670px}.onboarding-banner h2{color:#00255A;font-size:21px;margin:8px 0 5px;letter-spacing:-.025em}
+    .onboarding-banner .hint{margin:0;font-size:13px}.onboarding-cta{background:#0069C8;color:#fff;border-color:#0069C8;min-width:165px;text-align:center;white-space:nowrap}
+    .onboarding-cta:hover{background:#0054A4;color:white}
+    @media(max-width:600px){.onboarding-banner{align-items:stretch}.onboarding-cta{width:100%}}
   </style>
 </head>
 <body>
@@ -92,6 +97,12 @@
     </nav>
 
     <section class="section" id="section-overview">
+      <div class="panel onboarding-banner">
+        <div><p class="purpose-label" style="color:#0069C8">CUSTOMER ONBOARDING</p>
+        <h2>Set up a new customer</h2>
+        <p class="hint">Provision an organization, invite its owner and enable products with subscription terms.</p></div>
+        <a class="admin-return onboarding-cta" href="/admin/onboarding">New customer</a>
+      </div>
       <div class="stats">
         <div class="stat">Organizations<strong id="statOrganizations">—</strong></div>
         <div class="stat">Users<strong id="statUsers">—</strong></div>
@@ -103,20 +114,13 @@
     </section>
 
     <section class="section" id="section-organizations" hidden>
-      <div class="panel"><h2>Create client</h2>
-        <form id="clientForm">
-          <div class="form-grid">
-            <div><label for="clientOrgName">Organization name</label><input id="clientOrgName" required maxlength="150" placeholder="ABC Events"></div>
-            <div><label for="clientSlug">Organization slug</label><input id="clientSlug" required maxlength="160" pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="abc-events"></div>
-            <div><label for="clientAdminName">Administrator full name</label><input id="clientAdminName" required maxlength="150"></div>
-            <div><label for="clientAdminEmail">Administrator email</label><input id="clientAdminEmail" type="email" required maxlength="190"></div>
-            <div><label for="clientPassword">Temporary password</label><input id="clientPassword" type="password" required minlength="10" autocomplete="new-password"></div>
-            <div><label for="clientPlan">Subscription plan (optional)</label><input id="clientPlan" value="prototype" maxlength="60"></div>
-            <div><label for="clientEnd">Subscription end date (optional)</label><input id="clientEnd" type="datetime-local"></div>
-          </div>
-          <fieldset style="border:0;padding:16px 0 4px"><legend><strong>Application access</strong></legend><div id="clientApplications" class="form-grid"></div></fieldset>
-          <button class="primary">Create client</button>
-        </form><p class="hint">Creates the organization, administrator, membership, subscriptions, and role assignments. Auth provisioning and database writes are coordinated by the server.</p>
+      <div class="panel onboarding-banner">
+        <div>
+          <p class="purpose-label" style="color:#0069C8">GUIDED CUSTOMER SETUP</p>
+          <h2>Bring a new customer on board</h2>
+          <p class="hint">Set up their organization, invite an administrator by email, choose products, and configure subscription terms in a single guided workflow. No temporary passwords required.</p>
+        </div>
+        <a class="admin-return onboarding-cta" href="/admin/onboarding">Start onboarding</a>
       </div>
       <div class="panel"><h2>Organizations</h2><div id="organizationsTable" class="table-wrap">Loading…</div></div>
     </section>
