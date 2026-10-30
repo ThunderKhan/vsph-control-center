@@ -1,6 +1,6 @@
 # VSPH Control Center — Supabase edition
 
-An integration of the supplied VSPH dashboard (Express + vanilla HTML/JS/CSS) with **Supabase Auth** and **hosted PostgreSQL**, keeping the original interface. The old MySQL code was replaced, not carried forward.
+VSPH's multi-tenant product portal (Express + vanilla HTML/JS/CSS), integrated with **Supabase Auth** and **hosted PostgreSQL**. The portal workspace dashboard and login were redesigned with the company design system while retaining the existing backend permissions. The old MySQL integration was replaced.
 
 ## Workspace dashboard
 
