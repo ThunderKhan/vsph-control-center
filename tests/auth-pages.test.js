@@ -84,3 +84,26 @@ test('portal form uses a plain, centered sign-in action', () => {
   assert.match(css, /\.portal-auth \.auth-submit\{justify-content:center;text-align:center\}/);
   assert.match(js, /label\.textContent = 'Sign in';/);
 });
+
+test('password visibility controls show accessible eye and eye-off icons on both login forms', () => {
+  for (const name of ['login.html', 'app-login.html']) {
+    const html = page(name);
+    assert.match(html, /data-password-toggle="password"/);
+    assert.match(html, /aria-label="Show password"/);
+    assert.match(html, /aria-controls="password"/);
+    assert.match(html, /data-icon="show"/);
+    assert.match(html, /data-icon="hide"/);
+    assert.match(html, /data-icon="hide"[^>]*hidden/);
+    assert.doesNotMatch(html, />Show<\/button>/);
+  }
+  for (const name of ['app.js', 'app-login.js']) {
+    const js = page(name);
+    assert.match(js, /\[data-icon="show"\]/);
+    assert.match(js, /\[data-icon="hide"\]/);
+    assert.match(js, /target\.type = shown \? 'text' : 'password'|password\.type = shown \? 'text' : 'password'/);
+    assert.match(js, /setAttribute\('aria-label', shown \? 'Hide password' : 'Show password'\)/);
+  }
+  const css = page('auth.css');
+  assert.match(css, /\.reveal svg\[hidden\]\{display:none\}/);
+  assert.match(css, /width:44px;height:44px/);
+});
