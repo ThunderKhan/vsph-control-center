@@ -42,7 +42,8 @@ body.auth-page{margin:0;min-width:320px;min-height:100vh;min-height:100dvh;backg
 .auth-submit:hover:not(:disabled){background:#0054A4}
 .auth-submit:active:not(:disabled){transform:translateY(1px)}
 .auth-submit:disabled{opacity:.7;cursor:wait}
-.auth-submit span:last-child{font-size:20px;font-weight:400}
+.auth-submit span[aria-hidden="true"]{font-size:20px;font-weight:400}
+.portal-auth .auth-submit{justify-content:center;text-align:center}
 .form-error{color:#B42318;background:#FFF5F4;border-left:3px solid #B42318;border-radius:3px;padding:10px 12px;font-size:13px;line-height:1.5;margin:8px 0 0}
 .form-error[hidden]{display:none}
 .card-foot{display:flex;align-items:center;gap:8px;margin-top:26px;padding-top:18px;border-top:1px solid #E8EBF0;color:var(--muted);font-size:11px;line-height:1.5}
