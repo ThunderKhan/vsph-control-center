@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const app = require('../server');
+const {once} = require('node:events');
 
 // Exercise the *actual Express route stack* with no credentials and no
 // Supabase connection. These pages must reject anonymous visitors before
@@ -8,6 +9,7 @@ const app = require('../server');
 test('direct URL visits cannot bypass VSPH portal login', async () => {
   const server = app.listen(0, '127.0.0.1');
   try {
+    await once(server, 'listening');
     const origin = 'http://127.0.0.1:' + server.address().port;
     for (const path of [
       '/apps/music/login', '/apps/music/home',
