@@ -28,7 +28,7 @@ app.get('/dashboard.html',portalSession,(req,res)=>res.sendFile(path.join(__dirn
 app.get('/admin.html',portalSession,requireAdmin,(req,res)=>res.sendFile(path.join(__dirname,'public','admin.html')));
 app.use((req,res,next)=>['/app-home.html','/app-login.html'].includes(req.path)?res.status(404).send('Not found.'):next());
 app.use(express.static(path.join(__dirname,'public'),{index:false}));
-app.get('/',(req,res)=>res.sendFile(path.join(__dirname,'public','index.html')));
+app.get('/',(req,res)=>res.redirect(302,'/login.html'));
 app.use((err,req,res,next)=>{console.error('Request error:',err.message);if(res.headersSent)return next(err);
  res.status(500).json({message:'Server error. Check configuration and server logs.'});});
 const port=Number(process.env.PORT||3000);
