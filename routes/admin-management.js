@@ -12,13 +12,6 @@ const asyncRoute=fn=>(req,res,next)=>Promise.resolve(fn(req,res)).catch(next);
 async function audit(req,action,target_type,target_id,details={},organization_id=null){
  check(await db().from('audit_logs').insert({actor_user_id:req.user.id,organization_id,action,target_type,target_id:String(target_id||''),details}));
 }
-async function createAuthUser(fullName,email,password,role='user'){
- const {data,error}=await db().auth.admin.createUser({email,password,email_confirm:true,user_metadata:{full_name:fullName}});
- if(error)throw error;
- try{check(await db().from('profiles').insert({id:data.user.id,full_name:fullName,email,status:'active',platform_role:role}));}
- catch(err){await db().auth.admin.deleteUser(data.user.id);throw err}
- return data.user.id;
-}
 const withCounts=async table=>{const{count,error}=await db().from(table).select('*',{count:'exact',head:true});if(error)throw error;return count};
 router.get('/overview',asyncRoute(async(req,res)=>{
  const[organizations,users,applications,subs,access]=await Promise.all([
@@ -51,17 +44,20 @@ router.get('/users',asyncRoute(async(req,res)=>{
  const names=new Map(organizations.map(o=>[o.id,o.name]));
  res.json({users:users.map(u=>({...u,organizations:memberships.filter(m=>m.user_id===u.id).map(m=>names.get(m.organization_id)).filter(Boolean).join(', ')})).sort((a,b)=>b.created_at.localeCompare(a.created_at))});
 }));
-router.post('/users',asyncRoute(async(req,res)=>{
- const fullName=String(req.body.fullName||'').trim(),email=String(req.body.email||'').toLowerCase().trim(),password=String(req.body.password||'');
- const role=req.body.platformRole==='super_admin'?'super_admin':'user';
- if(!fullName||!emailPattern.test(email)||password.length<10)return res.status(400).json({message:'Provide a name, email and password of at least 10 characters.'});
- const id=await createAuthUser(fullName,email,password,role);
- await audit(req,'user.created','user',id,{email,platformRole:role});res.status(201).json({id});
-}));
+// Legacy password/elevation endpoints are retired, including for platform admins.
+function retiredProvisioning(req,res){
+ res.set('Deprecation','true');res.set('Link','</admin/onboarding>; rel="successor-version"');
+ return res.status(410).json({message:'Password-based provisioning is retired. Use customer onboarding email invitations. Standalone user invitations and platform elevation require the governed identity workflow.'});
+}
+router.post('/users',retiredProvisioning);
 router.patch('/users/:id/status',asyncRoute(async(req,res)=>{
  const status=String(req.body.status||'');if(!reqUuid(req.params.id)||!['active','disabled'].includes(status))return res.status(400).json({message:'Invalid user or status.'});
  if(req.params.id===req.user.id&&status==='disabled')return res.status(400).json({message:'You cannot disable yourself.'});
- const user=check(await db().from('profiles').update({status}).eq('id',req.params.id).select('id').maybeSingle());
+ const target=check(await db().from('profiles').select('id,platform_role').eq('id',req.params.id).maybeSingle());
+ if(!target)return res.status(404).json({message:'User not found.'});
+ if(target.platform_role==='super_admin')return res.status(409).json({message:'Platform administrator lifecycle changes require a governed security workflow.'});
+ // Predicate also protects against an out-of-band role change between read and write.
+ const user=check(await db().from('profiles').update({status}).eq('id',req.params.id).eq('platform_role','user').select('id').maybeSingle());
  if(!user)return res.status(404).json({message:'User not found.'});
  await audit(req,'user.status_changed','user',user.id,{status});res.json({message:'User updated.'});
 }));
@@ -129,29 +125,6 @@ router.get('/audit-logs',asyncRoute(async(req,res)=>{
  const names=new Map(users.map(x=>[x.id,x.full_name])),orgNames=new Map(orgs.map(x=>[x.id,x.name]));
  res.json({logs:logs.map(l=>({...l,actor_name:names.get(l.actor_user_id),organization_name:orgNames.get(l.organization_id)}))});
 }));
-router.post('/clients',asyncRoute(async(req,res)=>{
- const name=String(req.body.organizationName||'').trim(),slug=String(req.body.slug||'').toLowerCase().trim();
- const fullName=String(req.body.adminName||'').trim(),email=String(req.body.adminEmail||'').toLowerCase().trim(),password=String(req.body.temporaryPassword||'');
- const applicationIds=[...new Set(Array.isArray(req.body.applicationIds)?req.body.applicationIds:[])].filter(reqUuid);
- const plan_code=String(req.body.planCode||'prototype').slice(0,60),ends_at=timeValue(req.body.endsAt);
- if(!name||!slugPattern.test(slug)||!fullName||!emailPattern.test(email)||password.length<10||!applicationIds.length||(req.body.endsAt&&!ends_at))return res.status(400).json({message:'Enter valid customer details, application(s), and a password of at least 10 characters.'});
- const apps=check(await db().from('applications').select('id').in('id',applicationIds).eq('status','active'));
- if(apps.length!==applicationIds.length)return res.status(400).json({message:'An application does not exist or is inactive.'});
- // Supabase Auth and REST inserts are not one database transaction. Compensate on failure.
- let authId=null,orgId=null;
- try{
-  authId=await createAuthUser(fullName,email,password);
-  const org=check(await db().from('organizations').insert({name,slug}).select('id').single());orgId=org.id;
-  check(await db().from('organization_memberships').insert({organization_id:orgId,user_id:authId,role:'owner',status:'active'}));
-  check(await db().from('subscriptions').insert(applicationIds.map(application_id=>({organization_id:orgId,application_id,plan_code,status:'active',ends_at}))));
-  check(await db().from('organization_app_access').insert(applicationIds.map(application_id=>({organization_id:orgId,application_id,status:'enabled'}))));
-  check(await db().from('user_app_roles').insert(applicationIds.map(application_id=>({organization_id:orgId,application_id,user_id:authId,role_code:'super_admin'}))));
-  await audit(req,'client.created','organization',orgId,{name,slug,email,applicationCount:applicationIds.length},orgId);
-  res.status(201).json({id:orgId,message:'Client created with per-application Super Admin role.'});
- }catch(err){
-  if(orgId)await db().from('organizations').delete().eq('id',orgId);
-  if(authId){await db().from('profiles').delete().eq('id',authId);await db().auth.admin.deleteUser(authId)}
-  throw err;
- }
-}));
+router.post('/clients',retiredProvisioning);
 module.exports=router;
+

@@ -139,14 +139,9 @@
     </section>
 
     <section class="section" id="section-users" hidden>
-      <div class="panel"><h2>Create user</h2>
-        <form id="userForm" class="form-grid">
-          <div><label for="userName">Full name</label><input id="userName" required maxlength="150"></div>
-          <div><label for="userEmail">Email</label><input id="userEmail" type="email" required maxlength="190"></div>
-          <div><label for="userPassword">Temporary password</label><input id="userPassword" type="password" required minlength="10" autocomplete="new-password"></div>
-          <div><label for="userRole">Platform role</label><select id="userRole"><option value="user">Client user</option><option value="super_admin">Super Admin</option></select></div>
-          <div class="form-actions"><button class="primary" type="submit">Create user</button></div>
-        </form><p class="hint">Use a unique temporary password of at least 10 characters. This prototype does not yet include password reset.</p>
+      <div class="panel"><h2>Invite customer administrators</h2>
+        <p class="hint">Use customer onboarding to send an email invitation. The recipient chooses their own password. Standalone user invitations and platform administrator changes require the governed identity workflow.</p>
+        <a class="admin-return onboarding-cta" href="/admin/onboarding">New customer</a>
       </div>
       <div class="panel"><h2>Users</h2><div id="usersTable" class="table-wrap">Loading…</div></div>
     </section>
@@ -196,3 +191,4 @@
   <script src="/admin.js"></script>
 </body>
 </html>
+
