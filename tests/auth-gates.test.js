@@ -123,3 +123,30 @@ test('valid portal and app sessions plus tenant entitlement permit Music access'
   assert.equal(req.appContext.organization.id,'tenant-a');
   assert.equal(req.appContext.app.code,'MUSIC');
 });
+
+test('expired Music application session returns user to second login', async () => {
+  const data = rows();
+  data.app_sessions.expires_at = past();
+  const {portalSession,requireApp} = withSecurity(data);
+  const req = request('/apps/music/home',{
+    'vsph.portal.sid':'portal-token',[appCookie('MUSIC')]:'app-token'
+  });
+  const res = response();
+  await portalSession(req,res,()=>{});
+  await requireApp(req,res,()=>assert.fail('expired app session must be denied'));
+  assert.equal(res.statusCode,302);
+  assert.equal(res.location,'/apps/music/login');
+});
+
+test('revoking tenant product access denies even previously authenticated app sessions', async () => {
+  const data = rows();
+  data.organization_app_access[0].status = 'revoked';
+  const {portalSession,requireApp} = withSecurity(data);
+  const req = request('/apps/music/home',{
+    'vsph.portal.sid':'portal-token',[appCookie('MUSIC')]:'app-token'
+  });
+  const res = response();
+  await portalSession(req,res,()=>{});
+  await requireApp(req,res,()=>assert.fail('revoked app access must be denied'));
+  assert.equal(res.statusCode,403);
+});
