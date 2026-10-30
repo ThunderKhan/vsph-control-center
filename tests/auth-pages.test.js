@@ -118,6 +118,7 @@ test('brand variants can override product or authorized customer without copying
   const cfg = context.window.VSPH_AUTH_CONFIG;
   assert.equal(cfg.base.heroKicker, 'ENTERPRISE SOFTWARE');
   assert.equal(cfg.base.action, '#0069C8');
+  assert.equal(cfg.base.layout, 'split');
   assert.ok(cfg.apps && typeof cfg.apps === 'object');
   assert.ok(cfg.organizations && typeof cfg.organizations === 'object');
   const js = controller();
