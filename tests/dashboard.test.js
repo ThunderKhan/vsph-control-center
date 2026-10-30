@@ -47,7 +47,7 @@ test('dashboard design is responsive and does not fabricate analytics', () => {
   assert.doesNotThrow(()=>new Function(js));
 });
 
-function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=false,contexts={}}={}){
+function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=false,contexts={},collapsed=false,blockedStorage=false}={}){
   class Element{
     constructor(id=''){
       this.id=id; this.children=[]; this.attributes={}; this.value=''; this.textContent='';
@@ -66,7 +66,7 @@ function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=fal
     querySelectorAll(){return[];}
     focus(){}
   }
-  const ids=['appGrid','appSearch','errorMessage','emptyMessage','logoutButton','avatar','sideName','sideRole','topAccount','welcomeMessage','adminNavContainer','adminOverviewPanel','topbarOnboard','appCount','featureAppCount','workspaceCount','navBackdrop','openMenu','closeMenu','workspaceSidebar','spotlightPanel','accessGrid','libraryCount'];
+  const ids=['appGrid','appSearch','errorMessage','emptyMessage','logoutButton','avatar','sideName','sideRole','topAccount','welcomeMessage','adminNavContainer','adminOverviewPanel','topbarOnboard','appCount','featureAppCount','workspaceCount','navBackdrop','openMenu','closeMenu','sidebarToggle','workspaceSidebar','spotlightPanel','accessGrid','libraryCount'];
   const nodes=new Map(ids.map(id=>[id,new Element(id)]));
   const visibleViews=[];
   for(const name of ['overview','applications']){
@@ -91,7 +91,8 @@ function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=fal
   };
   const location={pathname,hash:'',replaced:null,replace(url){this.replaced=url;}};
   const document={
-    title:'',body:{classList:{add(){},remove(){},contains(){return false}}},
+    title:'',documentElement:{dataset:{sidebarState:collapsed?'collapsed':'expanded'}},
+    body:{classList:{add(){},remove(){},contains(){return false}}},
     activeElement:null,
     getElementById:id=>nodes.get(id),
     querySelectorAll:selector=>selector==='[data-view]'?visibleViews:selector==='.sidebar-link'?links:[],
@@ -99,9 +100,14 @@ function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=fal
     createElementNS:(ns,tag)=>new Element(tag),
     addEventListener(){}
   };
-  const window={innerWidth:1280,location,matchMedia:()=>({matches:true}),addEventListener(){}};
+  const stored=new Map();
+  const localStorage={
+    setItem(key,value){if(blockedStorage)throw Error('Storage blocked');stored.set(key,value);},
+    getItem(key){if(blockedStorage)throw Error('Storage blocked');return stored.get(key)||null;}
+  };
+  const window={innerWidth:1280,location,localStorage,matchMedia:()=>({matches:true}),addEventListener(){}};
   vm.runInNewContext(read('public/dashboard.js'),{document,window,fetch,console});
-  return{nodes,calls,location,visibleViews,links,document};
+  return{nodes,calls,location,visibleViews,links,document,stored,window};
 }
 async function settle(){await new Promise(resolve=>setImmediate(resolve));}
 
