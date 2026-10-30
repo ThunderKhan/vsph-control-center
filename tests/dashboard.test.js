@@ -171,3 +171,52 @@ test('unauthenticated direct dashboard access navigates to portal login without 
   assert.equal(fixture.location.replaced,'/login');
   assert.ok(!fixture.calls.some(call=>call.url==='/api/apps'));
 });
+
+
+test('desktop toggle collapses to icon rail and expands with accessible state',async()=>{
+  const fixture=mount({user:{name:'Admin Example',platformRole:'super_admin'}});
+  await settle();
+  const toggle=fixture.nodes.get('sidebarToggle');
+  const root=fixture.document.documentElement;
+  assert.equal(root.dataset.sidebarState,'expanded');
+  assert.equal(toggle.attributes['aria-expanded'],'true');
+  assert.equal(toggle.attributes['aria-label'],'Collapse sidebar');
+
+  toggle.events.click();
+  assert.equal(root.dataset.sidebarState,'collapsed');
+  assert.equal(toggle.attributes['aria-expanded'],'false');
+  assert.equal(toggle.attributes['aria-label'],'Expand sidebar');
+  assert.equal(toggle.attributes.title,'Expand sidebar');
+  assert.equal(fixture.stored.get('vsph.sidebar.collapsed'),'true');
+  assert.equal(fixture.nodes.get('adminNavContainer').hidden,false);
+
+  toggle.events.click();
+  assert.equal(root.dataset.sidebarState,'expanded');
+  assert.equal(toggle.attributes['aria-expanded'],'true');
+  assert.equal(fixture.stored.get('vsph.sidebar.collapsed'),'false');
+});
+
+test('saved compact state is respected in Applications without losing permissions or navigation',async()=>{
+  const fixture=mount({
+    pathname:'/applications',collapsed:true,
+    user:{name:'Regular Member',platformRole:'user'},
+    apps:[{code:'CRM',name:'CRM',status:'active'}]
+  });
+  await settle();
+  const toggle=fixture.nodes.get('sidebarToggle');
+  assert.equal(fixture.document.documentElement.dataset.sidebarState,'collapsed');
+  assert.equal(toggle.attributes['aria-label'],'Expand sidebar');
+  assert.equal(fixture.nodes.get('adminNavContainer').hidden,true);
+  assert.equal(fixture.nodes.get('topbarOnboard').hidden,true);
+  assert.equal(fixture.nodes.get('appGrid').children.length,1);
+  assert.equal(fixture.nodes.get('appGrid').children[0].children.at(-1).href,'/apps/crm/launch');
+});
+
+test('storage failures never break sidebar control or dashboard rendering',async()=>{
+  const fixture=mount({blockedStorage:true});
+  await settle();
+  const toggle=fixture.nodes.get('sidebarToggle');
+  assert.doesNotThrow(()=>toggle.events.click());
+  assert.equal(fixture.document.documentElement.dataset.sidebarState,'collapsed');
+  assert.equal(fixture.nodes.get('appCount').textContent,'0');
+});
