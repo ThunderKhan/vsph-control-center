@@ -1,27 +1,66 @@
-const form=document.getElementById('appLoginForm');
-const errorBox=document.getElementById('loginError');
-const code=(location.pathname.split('/')[2]||'').toUpperCase();
-let available=[];
-async function initialize(){
- try{
-  const r=await fetch(`/api/apps/${encodeURIComponent(code)}/contexts`);
-  if(r.status===401){location.href='/login.html';return}
-  const data=await r.json();if(!r.ok)throw new Error(data.message||'Application not available.');
-  if(!data.organizations?.length)throw new Error('Your account is not assigned to this product.');
-  available=data.organizations;
-  document.getElementById('appTitle').textContent=data.application.name;
-  document.getElementById('email').value=data.email;
-  document.getElementById('email').readOnly=true;
-  const select=document.getElementById('organizationId');
-  for(const org of available){const opt=document.createElement('option');opt.value=org.id;opt.textContent=`${org.name} (${org.role.replaceAll('_',' ')})`;select.append(opt)}
- }catch(e){errorBox.textContent=e.message;form.querySelector('button').disabled=true}
+const form = document.getElementById('appLoginForm');
+const errorBox = document.getElementById('loginError');
+const code = (location.pathname.split('/')[2] || '').toUpperCase();
+const button = document.getElementById('appLoginButton');
+const label = button.querySelector('.submit-label');
+const email = document.getElementById('email');
+const password = document.getElementById('password');
+const select = document.getElementById('organizationId');
+const showError = text => { errorBox.textContent = text; errorBox.hidden = !text; };
+const reveal = document.querySelector('[data-password-toggle]');
+if (reveal) {
+  reveal.addEventListener('click', () => {
+    const shown = password.type === 'password';
+    password.type = shown ? 'text' : 'password';
+    reveal.textContent = shown ? 'Hide' : 'Show';
+    reveal.setAttribute('aria-label', shown ? 'Hide password' : 'Show password');
+    reveal.setAttribute('aria-pressed', String(shown));
+  });
 }
-form.addEventListener('submit',async e=>{
- e.preventDefault();errorBox.textContent='';const button=form.querySelector('button');button.disabled=true;button.textContent='Verifying access…';
- try{
-  const r=await fetch('/api/auth/app-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-   app:code,email:document.getElementById('email').value,password:document.getElementById('password').value,organizationId:document.getElementById('organizationId').value
-  })});const data=await r.json();if(!r.ok)throw new Error(data.message||'Unable to sign in.');location.href=data.redirect;
- }catch(e){errorBox.textContent=e.message;button.disabled=false;button.textContent='Enter application'}
+async function initialize() {
+  showError('');
+  button.disabled = true;
+  try {
+    const response = await fetch(`/api/apps/${encodeURIComponent(code)}/contexts`,{credentials:'same-origin'});
+    if (response.status === 401) { location.replace('/login.html'); return; }
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Application is unavailable.');
+    if (!data.organizations?.length) throw new Error('Your account is not assigned to this product.');
+    const name = data.application.name;
+    document.getElementById('appTitle').textContent = `Continue to ${name}`;
+    document.getElementById('appName').textContent = name;
+    document.title = `${name} access | VSPH Control Center`;
+    email.value = data.email;
+    email.placeholder = 'Work email';
+    select.replaceChildren();
+    for (const org of data.organizations) {
+      const option = document.createElement('option');
+      option.value = org.id;
+      option.textContent = `${org.name} (${org.role.replaceAll('_',' ')})`;
+      select.append(option);
+    }
+    select.disabled = false;
+    button.disabled = false;
+  } catch (e) { showError(e.message || 'Could not load your application access.'); }
+}
+form.addEventListener('submit', async event => {
+  event.preventDefault();
+  if (button.disabled) return;
+  showError('');
+  button.disabled = true;
+  label.textContent = 'Verifying access…';
+  try {
+    const response = await fetch('/api/auth/app-login',{
+      method:'POST', headers:{'Content-Type':'application/json'},credentials:'same-origin',
+      body:JSON.stringify({app:code,email:email.value,password:password.value,organizationId:select.value})
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Unable to verify access. Check your password.');
+    location.assign(data.redirect);
+  } catch (e) {
+    showError(e.message || 'Cannot connect. Please try again.');
+    button.disabled = false;
+    label.textContent = 'Enter application';
+  }
 });
 initialize();
