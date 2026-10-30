@@ -32,6 +32,8 @@
     const customer = isApplicationLogin && organizationSelect.value
       ? (config.organizations || {})[organizationKey] || {} : {};
     const theme = Object.assign({}, config.base || {}, product, customer);
+    // Known layout variants only; never inject arbitrary HTML or CSS from a client setting.
+    document.body.setAttribute('data-auth-layout', theme.layout === 'focused' ? 'focused' : 'split');
 
     const texts = [
       ['heroKicker', 'heroKicker'],
