@@ -116,10 +116,14 @@
         failed ? 'Product access details are temporarily unavailable.' : 'No active customer assignments'));
     }
 
-    const open = element('a', 'access-open', 'Open');
-    open.href = '/apps/' + code.toLowerCase() + '/login';
-    open.setAttribute('aria-label', 'Open ' + (app.name || code));
-    item.append(identity, detail, open);
+    if (!failed && contexts.length) {
+      const open = element('a', 'access-open', 'Open');
+      open.href = '/apps/' + code.toLowerCase() + '/login';
+      open.setAttribute('aria-label', 'Open ' + (app.name || code));
+      item.append(identity, detail, open);
+    } else {
+      item.append(identity, detail, element('span', 'access-unavailable', 'Unavailable'));
+    }
     return item;
   }
 
