@@ -121,7 +121,7 @@ test('Overview uses real product roles and customer contexts rather than repeati
   assert.ok(fixture.calls.some(x=>x.url==='/api/apps/CRM/contexts'));
   assert.ok(fixture.calls.some(x=>x.url==='/api/apps/MUSIC/contexts'));
   const first=fixture.nodes.get('accessGrid').children[0];
-  assert.equal(first.children[2].href,'/apps/crm/login');
+  assert.equal(first.children[2].href,'/apps/crm/launch');
   assert.equal(first.children[1].children[0].textContent,'admin, viewer');
   assert.equal(fixture.visibleViews[0].hidden,false);
   assert.equal(fixture.visibleViews[1].hidden,true);
@@ -144,7 +144,7 @@ test('Applications is a separate searchable directory with only server-authorize
   assert.equal(fixture.nodes.get('appGrid').children.length,2);
   assert.equal(fixture.nodes.get('accessGrid').children.length,0);
   assert.equal(fixture.nodes.get('libraryCount').textContent,'2 products');
-  assert.equal(fixture.nodes.get('appGrid').children[0].children.at(-1).href,'/apps/crm/login');
+  assert.equal(fixture.nodes.get('appGrid').children[0].children.at(-1).href,'/apps/crm/launch');
   assert.equal(fixture.visibleViews[0].hidden,true);
   assert.equal(fixture.visibleViews[1].hidden,false);
   const search=fixture.nodes.get('appSearch');
