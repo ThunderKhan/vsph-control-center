@@ -5,6 +5,7 @@ const list=[...document.querySelectorAll('.step-list .step')];
 const byId=id=>document.getElementById(id);
 const form=byId('onboardingForm'),next=byId('nextButton'),previous=byId('previousButton');
 const errors=byId('wizardError');
+let submissionKey=crypto.randomUUID();
 const state={step:0,applications:[],chosen:new Set(),plans:new Map(),busy:false,slugEdited:false};
 const slugify=value=>value.trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,160);
 function setError(message=''){errors.textContent=message;errors.hidden=!message}
@@ -117,7 +118,7 @@ function render(){
  byId('progressPercent').textContent=((state.step+1)*20)+'% COMPLETE';
  byId('progressFill').style.width=((state.step+1)*20)+'%';
  previous.disabled=state.step===0||state.busy;
- next.textContent=state.step===4?'Create customer & send invite':'Continue';
+ next.textContent=state.step===4?'Queue customer setup':'Continue';
  next.disabled=state.busy||(state.step===2&&!state.chosen.size)||(state.step===4&&!byId('confirm').checked);
  if(state.step===2)productChoices();
  if(state.step===3)subscriptionCards();
@@ -141,11 +142,11 @@ async function submit(){
     endsAt:p.endsAt?p.endsAt+'T23:59:59.999Z':null
   }))};
   const result=await request('/api/admin-management/onboardings',{
-   method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)
+   method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':submissionKey},body:JSON.stringify(payload)
   });
   form.hidden=true;byId('completeScreen').hidden=false;
-  byId('completeMessage').textContent=result.organizationName+' was created with '+result.products.length+
-    ' product'+(result.products.length===1?'':'s')+'. An invitation was requested for '+result.adminEmail+'.';
+  byId('completeMessage').textContent=result.organizationName+' was queued with '+result.products.length+
+    ' product'+(result.products.length===1?'':'s')+'. Invitation delivery is queued. Check Provisioning recovery for status.';
   document.querySelector('.wizard-card').scrollIntoView({behavior:'auto',block:'start'});
  }catch(e){state.busy=false;render();setError(e.message)}
 }
@@ -162,7 +163,7 @@ byId('orgName').addEventListener('input',e=>{
 byId('orgSlug').addEventListener('input',()=>{state.slugEdited=true});
 form.addEventListener('submit',e=>{e.preventDefault();next.click()});
 byId('startAgain').addEventListener('click',()=>{
- form.reset();form.hidden=false;byId('completeScreen').hidden=true;
+ submissionKey=crypto.randomUUID();form.reset();form.hidden=false;byId('completeScreen').hidden=true;
  state.step=0;state.busy=false;state.chosen.clear();state.plans.clear();state.slugEdited=false;render();
 });
 (async()=>{

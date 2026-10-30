@@ -52,7 +52,7 @@
             <div class="field wide"><label for="adminName">Full name <span>*</span></label><input id="adminName" name="adminName" maxlength="150" autocomplete="name" placeholder="e.g. Avery Shah" required></div>
             <div class="field wide"><label for="adminEmail">Work email address <span>*</span></label><input id="adminEmail" name="adminEmail" type="email" maxlength="190" autocomplete="off" placeholder="avery@northstar.example" required><small>Use a new email address not already registered with VSPH.</small></div>
           </div>
-          <div class="quiet-note"><strong>What they'll receive</strong><p>A Supabase Auth invitation to activate their VSPH account and manage their assigned applications.</p></div>
+          <div class="quiet-note"><strong>What they'll receive</strong><p>An invitation for this customer workspace. Delivery is queued and tracked separately.</p></div>
         </fieldset>
         <fieldset class="wizard-step" data-panel="2" hidden>
           <legend>Choose applications</legend>
@@ -85,7 +85,7 @@
         <p class="eyebrow">ONBOARDING REQUESTED</p>
         <h2>Customer provisioned.</h2>
         <p id="completeMessage"></p>
-        <div class="quiet-note"><strong>Next steps</strong><p>The administrator must open their invitation email and set their password before workspace access becomes active. Email delivery depends on the configured Supabase SMTP service.</p></div>
+        <div class="quiet-note"><strong>Next steps</strong><p>The administrator must open their invitation email and set their password before workspace access becomes active. Delivery requires the approved invitation worker and email provider. Track it in Provisioning recovery.</p></div>
         <div class="completion-actions"><a class="button primary" href="/admin">Go to administration</a><button type="button" id="startAgain" class="button secondary">Onboard another customer</button></div>
       </div>
     </section>

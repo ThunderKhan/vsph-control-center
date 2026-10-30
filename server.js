@@ -15,7 +15,7 @@ const authViews = Object.freeze({
 });
 app.use(express.json({limit:'100kb',strict:true}));app.use(express.urlencoded({extended:false,limit:'100kb',parameterLimit:50}));app.use(cookieParser());
 // Applied before credential verification and confidential SSO lookups. No body or token is a limiter key.
-app.use(['/api/auth/login','/api/auth/app-login','/api/invitations/accept'],rateLimit({limit:20,windowMs:15*60*1000}));
+app.use(['/api/auth/login','/api/auth/app-login','/api/invitations/accept','/api/invitations/inspect'],rateLimit({limit:20,windowMs:15*60*1000}));
 app.use(['/api/sso/exchange','/api/sso/introspect'],rateLimit({limit:300,windowMs:60*1000}));
 // The Music server exchanges a one-time code without a browser Origin header.
 // This exception requires its own confidential client authentication.
@@ -41,6 +41,7 @@ app.use('/api/sso',musicSso.router);
 app.use('/api/workspaces',require('./routes/workspaces'));
 app.use('/api/admin-management',portalSession,requireAdmin,require('./routes/admin-management'));
 app.use('/api/admin-management/onboardings',portalSession,requireAdmin,require('./routes/onboarding').router);
+app.get('/admin/provisioning',portalSession,requireAdmin,(req,res)=>{res.set('Cache-Control','no-store');res.sendFile(path.join(__dirname,'views','provisioning.html'))});
 app.get('/api/health',async(req,res)=>{
  if(!configured())return res.status(503).json({status:'not_configured',database:false});
  try{const{error}=await db().from('applications').select('id').limit(1);if(error)throw error;
