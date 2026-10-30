@@ -14,7 +14,7 @@ app.use(validateOrigin);
 // Authenticated HTML and session-dependent API responses must not be stored by
 // browser/proxy caches; navigating Back after logout should trigger a fresh check.
 app.use((req,res,next)=>{
- const url=String(req.originalUrl||'').split('?')[0];
+ const url=(String(req.originalUrl||'').split('?')[0].replace(/\/+$/, '') || '/');
  if(url.startsWith('/api/auth/') || url==='/api/apps' || url.startsWith('/api/apps/') ||
     url.startsWith('/apps/') || ['/', '/login', '/login.html', '/index.html',
     '/dashboard','/applications','/admin','/dashboard.html','/applications.html','/admin.html'].includes(url)) {
