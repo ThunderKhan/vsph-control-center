@@ -51,7 +51,7 @@
     const code = String(app.code || '').toUpperCase();
     const details = productPresentation[code] || {
       category: 'BUSINESS APPLICATION',
-      description: 'Your organization's assigned workspace.',
+      description: 'Your assigned business workspace.',
       icon: 'icon-generic'
     };
     const card = element('article', 'app-card');
