@@ -27,13 +27,14 @@ An external Music deployment must have a **server-side** `/api/sso/start` and `/
    ```json
    {
      "user":{"id":"UUID","email":"person@example.test","name":"Example User"},
+     "portal_session_ref":"64-char-hashed-session-reference",
      "application":{"code":"MUSIC","id":"UUID"},
      "organization":{"id":"UUID","name":"Authorized Venue"},
      "role":"manager"
    }
    ```
 8. Music's server issues a **new HttpOnly Secure Music session cookie** with a tenant-scoped server-side session. Clear authorization code and state from the browser address bar via 303 redirect to an app route, and set `Cache-Control: no-store`, `Referrer-Policy: no-referrer` on the callback and server responses.
-9. Music enforces the received tenant ID + role for **every** protected API request and keeps the server-issued session short-lived. It can check ongoing entitlement with the new service-to-service endpoint `POST /api/sso/introspect` using the same confidential client header and JSON `{"client_id":"music-vercel","user_id":"UUID","organization_id":"UUID"}`. VSPH responds with current `active` status and `role` (or HTTP 403 on revoked membership/subscription). Never allow the browser to supply session user/tenant fields to this endpoint. The portal's Music demo cannot substitute for this.
+9. Music enforces the received tenant ID + role for **every** protected API request and keeps the server-issued session short-lived. It can check ongoing entitlement with the new service-to-service endpoint `POST /api/sso/introspect` using the same confidential client header and JSON `{"client_id":"music-vercel","user_id":"UUID","organization_id":"UUID","portal_session_ref":"64-char-hashed-session-reference"}`. VSPH verifies that the **original portal session is still live**, then responds with current `active` status and `role` (or HTTP 403 on logout, expired session, or revoked membership/subscription). Store `portal_session_ref` only in Music's private server-side session, never in JavaScript, URL parameters, or client-readable cookies. Never allow the browser to supply session user/tenant fields to this endpoint. The portal's Music demo cannot substitute for this.
 
 ## Configuration
 
