@@ -29,7 +29,7 @@
     <button id="navBackdrop" class="nav-backdrop" type="button" aria-label="Close navigation" hidden></button>
     <aside class="workspace-sidebar" id="workspaceSidebar" aria-label="Workspace navigation">
       <div class="sidebar-heading">
-        <a class="wordmark" href="/dashboard.html" aria-label="VSPH home">VSPH</a>
+        <a class="wordmark" href="/dashboard" aria-label="VSPH home">VSPH</a>
         <span class="sidebar-product-label">CONTROL CENTER</span>
         <button id="closeMenu" class="icon-button mobile-close" type="button" aria-label="Close menu">
           <svg class="icon"><use href="#icon-close"></use></svg>
@@ -38,16 +38,16 @@
 
       <nav class="sidebar-navigation" aria-label="Main">
         <p class="nav-label">WORKSPACE</p>
-        <a class="sidebar-link is-active" href="#overview" aria-current="page">
+        <a class="sidebar-link is-active" href="/dashboard" aria-current="page">
           <svg class="icon"><use href="#icon-overview"></use></svg><span>Overview</span>
         </a>
-        <a class="sidebar-link" href="#applications">
+        <a class="sidebar-link" href="/applications">
           <svg class="icon"><use href="#icon-apps"></use></svg><span>Applications</span>
         </a>
         <div class="sidebar-admin-section" id="adminNavContainer" hidden>
-          <p class="nav-label nav-label-secondary">MANAGEMENT</p>
-          <a class="sidebar-link" id="adminNav" href="/admin.html">
-            <svg class="icon"><use href="#icon-admin"></use></svg><span>Platform admin</span>
+          <p class="nav-label nav-label-secondary">MANAGEMENT</p><p class="nav-help">Customers, products and permissions</p>
+          <a class="sidebar-link" id="adminNav" href="/admin" title="Manage customers, applications, users, subscriptions and access">
+            <svg class="icon"><use href="#icon-admin"></use></svg><span>Platform administration</span>
           </a>
         </div>
       </nav>
@@ -79,7 +79,7 @@
       </header>
 
       <main class="workspace-content">
-        <section class="page-intro" id="overview" aria-labelledby="pageTitle">
+        <section class="page-intro" id="overview" aria-labelledby="pageTitle" data-view="overview">
           <p class="section-kicker">WORKSPACE / OVERVIEW</p>
           <div class="page-intro-row">
             <div>
@@ -90,13 +90,13 @@
           </div>
         </section>
 
-        <section class="bento-grid" aria-label="Workspace summary">
+        <section class="bento-grid" aria-label="Workspace summary" data-view="overview">
           <article class="feature-panel spotlight-surface" id="spotlightPanel">
             <div class="feature-content">
               <p class="feature-kicker"><span class="signal-dot"></span> YOUR ACCESS</p>
               <h2>Your tools, organized.</h2>
               <p>Open the products assigned to your account. Every application has its own secure sign-in and permissions.</p>
-              <a class="feature-link" href="#applications">View applications</a>
+              <a class="feature-link" href="/applications">View applications</a>
             </div>
             <div class="feature-summary" aria-label="Products available to you">
               <span id="featureAppCount">—</span>
@@ -118,12 +118,55 @@
           </div>
         </section>
 
-        <section class="applications-section" id="applications" aria-labelledby="appsTitle">
+        <section class="access-overview" data-view="overview" aria-labelledby="accessTitle">
           <div class="apps-section-header">
             <div>
-              <p class="section-kicker">YOUR TOOLS</p>
-              <h2 id="appsTitle">Applications</h2>
-              <p class="section-description">Select a product to continue.</p>
+              <p class="section-kicker">ACCESS SUMMARY</p>
+              <h2 id="accessTitle">Your access</h2>
+              <p class="section-description">See your customer workspaces and roles in each product.</p>
+            </div>
+            <a class="secondary-link" href="/applications">Browse applications</a>
+          </div>
+          <div id="accessGrid" class="access-grid" aria-live="polite" aria-busy="true">
+            <div class="loading-state"><span class="loading-indicator"></span> Checking your access</div>
+          </div>
+        </section>
+
+        <section class="overview-details" data-view="overview" aria-label="How the workspace works">
+          <article class="overview-help">
+            <p class="section-kicker">HOW IT WORKS</p>
+            <h2>Two sign-ins. One workspace.</h2>
+            <ol class="access-steps">
+              <li><span>01</span><div><strong>Portal access</strong><p>Sign in once to see the products assigned to your account.</p></div></li>
+              <li><span>02</span><div><strong>Product verification</strong><p>Choose a customer workspace and verify your password for that application.</p></div></li>
+              <li><span>03</span><div><strong>Work securely</strong><p>Each product enforces your role and customer permissions.</p></div></li>
+            </ol>
+          </article>
+          <article class="overview-manage" id="adminOverviewPanel" hidden>
+            <p class="section-kicker">PLATFORM ADMINISTRATION</p>
+            <h2>Manage access across VSPH.</h2>
+            <p>Create client organizations, configure subscriptions, assign users to products, and review audit activity.</p>
+            <a class="secondary-link" href="/admin">Open administration</a>
+          </article>
+        </section>
+
+        <section class="page-intro" data-view="applications" hidden aria-labelledby="libraryTitle">
+          <p class="section-kicker">WORKSPACE / APPLICATIONS</p>
+          <div class="page-intro-row">
+            <div>
+              <h1 id="libraryTitle">Applications<span class="title-period">.</span></h1>
+              <p class="page-lead">Find the products available to your account.</p>
+            </div>
+            <span class="account-status"><svg class="icon"><use href="#icon-check"></use></svg> Assigned access</span>
+          </div>
+        </section>
+
+        <section class="applications-section" id="applications" data-view="applications" hidden aria-labelledby="appsTitle">
+          <div class="apps-section-header">
+            <div>
+              <p class="section-kicker">PRODUCT DIRECTORY</p>
+              <h2 id="appsTitle">Your applications</h2>
+              <p class="section-description">Search and open a product to verify your application access.</p>
             </div>
             <div class="search-container">
               <label class="visually-hidden" for="appSearch">Search applications</label>
@@ -131,14 +174,14 @@
               <input id="appSearch" type="search" placeholder="Search applications" autocomplete="off">
             </div>
           </div>
+          <div class="directory-toolbar"><span id="libraryCount" aria-live="polite">Loading products</span><span>Available to your account</span></div>
           <div id="appGrid" class="application-grid" aria-live="polite" aria-busy="true">
             <div class="loading-state"><span class="loading-indicator"></span> Loading applications</div>
           </div>
           <p id="emptyMessage" class="feedback-state" hidden>No applications match your search.</p>
-          <p id="errorMessage" class="feedback-state error-state" role="alert" hidden></p>
         </section>
-
-        <section class="access-note" aria-label="About application access">
+        <p id="errorMessage" class="feedback-state error-state" role="alert" hidden></p>
+        <section class="access-note" data-view="applications" hidden aria-label="About application access">
           <span class="access-note-icon"><svg class="icon"><use href="#icon-admin"></use></svg></span>
           <div><strong>Access stays with your account.</strong><p>Only applications assigned to you appear here. Opening one may require an additional sign-in.</p></div>
         </section>
