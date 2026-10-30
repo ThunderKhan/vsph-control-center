@@ -50,6 +50,9 @@
           <a class="sidebar-link" id="adminNav" href="/admin" title="Manage customers, applications, users, subscriptions and access">
             <svg class="icon"><use href="#icon-admin"></use></svg><span>Platform administration</span>
           </a>
+          <a class="sidebar-link sidebar-onboarding" href="/admin/onboarding" title="Create an organization, invite an administrator, and configure subscriptions">
+            <svg class="icon"><use href="#icon-workspace"></use></svg><span>New customer</span>
+          </a>
         </div>
       </nav>
 
@@ -76,7 +79,10 @@
           <span>VSPH</span>
         </div>
         <div class="topbar-context">CONTROL CENTER <span class="topbar-divider"></span> WORKSPACE</div>
-        <span class="topbar-account"><span class="topbar-account-dot"></span><span id="topAccount">Account</span></span>
+        <div class="topbar-actions">
+          <a id="topbarOnboard" class="topbar-onboard" href="/admin/onboarding" hidden>New customer</a>
+          <span class="topbar-account"><span class="topbar-account-dot"></span><span id="topAccount">Account</span></span>
+        </div>
       </header>
 
       <main class="workspace-content">
@@ -147,7 +153,10 @@
             <p class="section-kicker">PLATFORM ADMINISTRATION</p>
             <h2>Manage access across VSPH.</h2>
             <p>Create client organizations, configure subscriptions, assign users to products, and review audit activity.</p>
-            <a class="secondary-link" href="/admin">Open administration</a>
+            <div class="admin-actions">
+              <a class="primary-link" href="/admin/onboarding">Onboard a customer</a>
+              <a class="secondary-link" href="/admin">Open administration</a>
+            </div>
           </article>
         </section>
 
