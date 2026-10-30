@@ -43,6 +43,8 @@ jobs:
           node-version: '20'
       - run: npm ci
       - run: npm run test:db
+      - name: Verify disposable native database helper
+        run: npm run test:db:local
   browser:
     name: Browser smoke
     runs-on: ubuntu-latest
@@ -67,6 +69,8 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
+      - name: Verify disposable authenticated browser helper
+        run: npm run test:e2e:db
       - uses: actions/upload-artifact@v4
         if: always()
         with:
