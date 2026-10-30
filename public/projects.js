@@ -676,17 +676,32 @@
     renderDelivery();
     const activity = $("activityList");
     activity.replaceChildren();
-    for (const a of detail.activity)
-      activity.append(
-        node(
-          "li",
-          new Date(a.created_at).toLocaleString() +
-            " · " +
-            a.action +
-            " · " +
-            a.summary,
-        ),
-      );
+    const labels = {
+      "project.created": "Project created",
+      update: "Project updated",
+      "member.save": "Project membership changed",
+      "task.create": "Task created",
+      "task.update": "Task updated",
+      "milestone.create": "Milestone created",
+      "milestone.update": "Milestone updated",
+      "comment.create": "Comment added",
+      "deliverable.create": "Deliverable added",
+    };
+    for (const event of detail.activity) {
+      const actor =
+        detail.members.find((m) => m.user_id === event.actor_id)?.full_name ||
+        "Project member";
+      const text =
+        new Date(event.created_at).toLocaleString() +
+        " · " +
+        actor +
+        " · " +
+        (labels[event.action] || "Project activity") +
+        (event.summary === event.action ? "" : " · " + event.summary);
+      const li = node("li", text);
+      li.dataset.action = event.action;
+      activity.append(li);
+    }
   }
   function navigation() {
     const root = document.documentElement,

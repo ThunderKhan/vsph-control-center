@@ -124,7 +124,9 @@ test("authenticated project delivery workflow persists and denies an outsider", 
   await expect(page.locator("#taskList")).toContainText(
     "Implement tested flow",
   );
-  await expect(page.locator("#activityList")).toContainText("task.update");
+  await expect(
+    page.locator('#activityList [data-action="task.update"]').first(),
+  ).toBeVisible();
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth + 1,
