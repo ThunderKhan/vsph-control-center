@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#00255A"><title>New customer | VSPH Control Center</title>
+<link rel="stylesheet" href="/onboarding.css">
+</head>
+<body>
+<header class="onboarding-header">
+  <a class="wordmark" href="/admin">VSPH<span>.</span></a>
+  <div class="header-middle">CONTROL CENTER <span>/</span> CUSTOMER ONBOARDING</div>
+  <a href="/admin" class="return-link">Back to administration</a>
+</header>
+<main class="onboarding-shell">
+  <div class="intro">
+    <p class="eyebrow">CUSTOMER SUCCESS / SETUP</p>
+    <h1>Onboard a customer<span class="dot">.</span></h1>
+    <p>Set up an organization, invite its administrator, and activate the right products in one guided workflow.</p>
+  </div>
+  <div class="onboarding-layout">
+    <aside class="step-sidebar" aria-label="Setup progress">
+      <p class="side-kicker">SETUP CHECKLIST</p>
+      <ol id="stepList" class="step-list">
+        <li class="step active" data-step="0"><span class="number">01</span><div><strong>Organization</strong><small>Company identity</small></div></li>
+        <li class="step" data-step="1"><span class="number">02</span><div><strong>Administrator</strong><small>Email invitation</small></div></li>
+        <li class="step" data-step="2"><span class="number">03</span><div><strong>Applications</strong><small>Select products</small></div></li>
+        <li class="step" data-step="3"><span class="number">04</span><div><strong>Subscriptions</strong><small>Plans and terms</small></div></li>
+        <li class="step" data-step="4"><span class="number">05</span><div><strong>Review</strong><small>Confirm and provision</small></div></li>
+      </ol>
+      <div class="side-note">
+        <span class="status-dot"></span>
+        <strong>Secure provisioning</strong>
+        <p>Customer access remains pending until the invited administrator accepts their email invitation.</p>
+      </div>
+    </aside>
+    <section class="wizard-card" aria-label="Customer onboarding form">
+      <div class="progress-top"><span id="stepIndicator">STEP 1 OF 5</span><span id="progressPercent">20% COMPLETE</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:20%"></div></div>
+      <form id="onboardingForm" novalidate>
+        <fieldset class="wizard-step" data-panel="0">
+          <legend>Organization details</legend>
+          <p class="step-description">These details identify the customer everywhere in VSPH.</p>
+          <div class="field-grid">
+            <div class="field wide"><label for="orgName">Organization name <span>*</span></label><input id="orgName" name="organizationName" maxlength="150" placeholder="e.g. Northstar Hospitality" autocomplete="organization" required><small>Use the customer's registered or operating name.</small></div>
+            <div class="field wide"><label for="orgSlug">Workspace slug <span>*</span></label><div class="slug-input"><span>vsph /</span><input id="orgSlug" name="slug" maxlength="160" pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="northstar-hospitality" required></div><small>Lowercase letters, numbers, and hyphens. Must be unique.</small></div>
+          </div>
+        </fieldset>
+        <fieldset class="wizard-step" data-panel="1" hidden>
+          <legend>Invite an administrator</legend>
+          <p class="step-description">The customer will receive an email link to create a password. You never need to choose or share their password.</p>
+          <div class="field-grid">
+            <div class="field wide"><label for="adminName">Full name <span>*</span></label><input id="adminName" name="adminName" maxlength="150" autocomplete="name" placeholder="e.g. Avery Shah" required></div>
+            <div class="field wide"><label for="adminEmail">Work email address <span>*</span></label><input id="adminEmail" name="adminEmail" type="email" maxlength="190" autocomplete="off" placeholder="avery@northstar.example" required><small>Use a new email address not already registered with VSPH.</small></div>
+          </div>
+          <div class="quiet-note"><strong>What they'll receive</strong><p>A Supabase Auth invitation to activate their VSPH account and manage their assigned applications.</p></div>
+        </fieldset>
+        <fieldset class="wizard-step" data-panel="2" hidden>
+          <legend>Choose applications</legend>
+          <p class="step-description">Only active products are available. The invited administrator receives a product-specific Super Admin role for each one.</p>
+          <div id="productChoices" class="product-choices" aria-live="polite"><p class="subtle">Loading products…</p></div>
+          <p class="field-help">Select at least one product to continue.</p>
+        </fieldset>
+        <fieldset class="wizard-step" data-panel="3" hidden>
+          <legend>Configure subscriptions</legend>
+          <p class="step-description">Set a plan and billing state for every selected product. Trials require an end date; active subscriptions may leave it blank.</p>
+          <div id="subscriptionCards" class="subscription-cards"></div>
+          <div class="quiet-note"><strong>Product access</strong><p>Selected products will receive enabled access grants. No payment is processed by this wizard.</p></div>
+        </fieldset>
+        <fieldset class="wizard-step" data-panel="4" hidden>
+          <legend>Review onboarding</legend>
+          <p class="step-description">Review everything before sending the invitation and provisioning access.</p>
+          <div id="reviewDetails" class="review-grid"></div>
+          <label class="confirm"><input id="confirm" type="checkbox"> <span>I have verified the organization, administrator email, products, and subscription details.</span></label>
+          <p class="field-help">Submitting will create the organization and request the administrator invitation. This action cannot be undone from this wizard.</p>
+        </fieldset>
+        <p id="wizardError" class="wizard-error" role="alert" aria-live="assertive" hidden></p>
+        <div class="form-footer">
+          <button id="previousButton" class="button secondary" type="button" disabled>Previous</button>
+          <span class="save-note">Details are not saved until you submit.</span>
+          <button id="nextButton" class="button primary" type="button" disabled>Continue</button>
+        </div>
+      </form>
+      <div id="completeScreen" hidden aria-live="polite" class="completion">
+        <div class="success-icon">✓</div>
+        <p class="eyebrow">ONBOARDING REQUESTED</p>
+        <h2>Customer provisioned.</h2>
+        <p id="completeMessage"></p>
+        <div class="quiet-note"><strong>Next steps</strong><p>The administrator must open their invitation email and set their password before workspace access becomes active. Email delivery depends on the configured Supabase SMTP service.</p></div>
+        <div class="completion-actions"><a class="button primary" href="/admin">Go to administration</a><button type="button" id="startAgain" class="button secondary">Onboard another customer</button></div>
+      </div>
+    </section>
+  </div>
+</main>
+<script defer src="/onboarding.js"></script>
+</body>
+</html>
