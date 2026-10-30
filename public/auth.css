@@ -56,3 +56,60 @@ body.auth-page{margin:0;min-width:320px;min-height:100vh;min-height:100dvh;backg
 @media(max-width:900px){.auth-layout{padding:26px 28px 20px}.auth-main{grid-template-columns:1fr;gap:32px;justify-items:center;padding:52px 0}.auth-intro{max-width:460px;text-align:center}.intro-kicker{justify-content:center;margin-bottom:16px}.auth-intro h1{font-size:clamp(36px,6vw,48px);margin-bottom:10px}.auth-intro h1 br{display:none}.auth-intro p{font-size:15px;margin:auto}.pixel-progress{display:none}.auth-card{max-width:460px}}
 @media(max-width:540px){.auth-layout{padding:19px 20px 22px}.brand-text{font-size:18px}.header-caption{font-size:9px}.auth-main{gap:27px;padding:42px 0}.auth-intro h1{font-size:36px;line-height:1.22}.auth-intro p{font-size:14px;line-height:1.6}.auth-card{padding:28px 24px}.card-kicker{margin-bottom:20px}.auth-card h2{font-size:25px}.auth-footer{flex-direction:column;gap:7px;text-align:center}}
 @media(prefers-reduced-motion:reduce){.auth-page *{transition:none!important;animation:none!important}}
+
+
+/* Portal sign-in: a self-contained desktop viewport, with natural scrolling
+   retained on narrow or short screens so controls are never clipped. */
+.portal-auth .auth-intro { max-width: 100%; }
+.portal-auth .intro-kicker {
+  justify-content: flex-start;
+  gap: 0;
+  margin-bottom: 21px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .15em;
+}
+.portal-auth .auth-intro h1 {
+  font-size: clamp(56px, 5.2vw, 82px);
+  line-height: 1.07;
+  letter-spacing: -.055em;
+  margin-bottom: 26px;
+}
+.portal-auth .auth-footer { flex-shrink: 0; }
+
+@media (min-width: 901px) and (min-height: 700px) {
+  body.portal-auth { overflow: hidden; }
+  .portal-auth .auth-layout {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+  .portal-auth .auth-main {
+    min-height: 0;
+    padding-top: 16px;
+    padding-bottom: 20px;
+  }
+}
+@media (min-width: 901px) and (max-height: 699px) {
+  .portal-auth .auth-main { padding: 24px 0; }
+  .portal-auth .auth-intro h1 { font-size: clamp(50px, 5vw, 68px); }
+}
+@media (max-width: 900px) {
+  .portal-auth .auth-layout { min-height: 100vh; min-height: 100dvh; }
+  .portal-auth .auth-main { padding: 30px 0; }
+  .portal-auth .auth-intro {
+    text-align: left;
+    width: 100%;
+    max-width: 460px;
+  }
+  .portal-auth .intro-kicker { justify-content: flex-start; margin-bottom: 16px; }
+  .portal-auth .auth-intro h1 { font-size: clamp(42px, 6vw, 54px); margin-bottom: 15px; }
+  .portal-auth .auth-intro p { margin-left: 0; }
+}
+@media (max-width: 540px) {
+  .portal-auth .auth-main { padding: 24px 0; }
+  .portal-auth .intro-kicker { font-size: 12px; }
+  .portal-auth .auth-intro h1 { font-size: clamp(36px, 9.5vw, 48px); line-height: 1.14; }
+}
