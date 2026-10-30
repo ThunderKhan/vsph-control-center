@@ -52,3 +52,24 @@ test('login pages omit redundant corner and footer slogans', () => {
     assert.doesNotMatch(html, /header-caption/);
   }
 });
+
+test('portal login keeps the form but removes nonessential decoration and note', () => {
+  const html = page('login.html');
+  assert.match(html, /class="auth-page portal-auth"/);
+  assert.match(html, /<div class="intro-kicker">ENTERPRISE SOFTWARE<\/div>/);
+  assert.doesNotMatch(html, /class="intro-rule"|class="pixel-progress"/);
+  assert.doesNotMatch(html, /Access is managed by your organization\.|class="card-foot"/);
+  assert.match(html, /id="loginForm"/);
+  assert.match(html, /© 2026 VSPH\. All rights reserved\./);
+  assert.match(html, /Enterprise Software Solutions for a Smarter Tomorrow\./);
+});
+
+test('portal layout uses viewport sizing on desktop with a short-screen fallback', () => {
+  const css = page('auth.css');
+  assert.match(css, /body\.portal-auth \{ overflow: hidden; \}/);
+  assert.match(css, /\.portal-auth \.auth-layout \{[\s\S]*?height: 100dvh;/);
+  assert.match(css, /\.portal-auth \.auth-main \{[\s\S]*?min-height: 0;/);
+  assert.match(css, /max-height: 699px/);
+  assert.match(css, /max-width: 900px/);
+  assert.match(css, /\.portal-auth \.auth-intro h1 \{/);
+});
