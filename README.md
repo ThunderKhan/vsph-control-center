@@ -2,6 +2,12 @@
 
 VSPH's multi-tenant product portal (Express + vanilla HTML/JS/CSS), integrated with **Supabase Auth** and **hosted PostgreSQL**. The portal workspace dashboard and login were redesigned with the company design system while retaining the existing backend permissions. The old MySQL integration was replaced.
 
+## Guided customer onboarding — PR #7
+
+Platform Super Admins can start a five-step onboarding wizard at `/admin/onboarding` for organization details, administrator **email invitation**, application selection, per-product plans and subscription end dates, and final review. It uses Supabase Auth invitation links rather than staff-selected temporary passwords. New customer membership stays `invited` until the recipient accepts and creates a password at `/accept-invite`.
+
+**Setup required:** Configure `PUBLIC_ORIGIN`, add `/accept-invite` to your Supabase Auth redirect allowlist, and configure SMTP/email delivery before sending actual invitations. The wizard does not charge subscriptions or send invoices. See [Customer onboarding guide](docs/CUSTOMER_ONBOARDING.md) for configuration, rollback limitations, and the invitation lifecycle.
+
 ## Music external app launch and central SSO foundation (PR #5)
 
 The portal now has an **allowlisted external launch gateway** (`/apps/MUSIC/launch`) with an organization picker and a back-channel, 60-second, single-use authorization-code exchange. Selected tenant and application role are verified from the current Supabase data **at issue and redemption time**. The Music backend can introspect current tenant permissions and the original live portal session when enforcing its own session.
