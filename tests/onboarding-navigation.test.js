@@ -51,7 +51,7 @@ test('expired invitation opens recovery instructions; tokenized link opens activ
  assert.match(expired.nodes.inviteInstructionsText.textContent,/invalid or expired/);
  const valid=renderInvitation('#access_token=example-token');
  assert.equal(valid.nodes.inviteInstructions.hidden,true);
- assert.equal(valid.nodes.inviteForm.hidden,undefined);
+ assert.equal(valid.nodes.inviteForm.hidden,false);
  assert.equal(valid.nodes.acceptButton.disabled,false);
  assert.equal(valid.history.cleaned,true);
 });
