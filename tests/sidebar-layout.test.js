@@ -13,7 +13,7 @@ test('desktop sidebar uses an animating grid track, so the main area reflows',()
   assert.match(css,/:root\[data-sidebar-state="collapsed"\] \.workspace-shell\s*\{\s*grid-template-columns:72px minmax\(0,1fr\)/);
   assert.match(css,/\.workspace-shell\s*\{min-height:100vh;display:grid;grid-template-columns:256px minmax\(0,1fr\)/);
   assert.match(css,/@media\(max-width:950px\)\s*\{[\s\S]*?\.workspace-shell\s*\{display:block\}/);
-  assert.match(css,/@media\(max-width:950px\)\s*\{\s*\.sidebar-collapse-toggle\{display:none\}/);
+  assert.match(css,/@media\(max-width:950px\)\s*\{[\s\S]*?\.sidebar-heading\{position:static\}[\s\S]*?\.sidebar-collapse-toggle\{display:none\}/);
   assert.match(css,/@media\(prefers-reduced-motion:reduce\)\s*\{\s*\.workspace-shell,\.sidebar-collapse-toggle\{transition:none!important\}/);
 });
 
