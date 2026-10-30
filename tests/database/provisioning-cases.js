@@ -46,4 +46,12 @@ module.exports.disableRegression=async(pool,appId)=>{
  const row=(await pool.query('select state,token_hash from membership_invitations where id=$1',[work.invitation.id])).rows[0];assert.equal(row.state,'revoked');assert.equal(row.token_hash,null);
  assert.equal((await pool.query('select status from profiles where id=$1',[uid])).rows[0].status,'disabled');
  assert.equal((await pool.query('select state from invitation_outbox where id=$1',[work.outbox.id])).rows[0].state,'revoked');
+ await cmd('begin',crypto.randomUUID(),{organizationName:'Disable race',slug:'disable-race',adminName:'Race owner',adminEmail:'disable-race@example.test',products:[{applicationId:appId,planCode:'standard',status:'active',endsAt:null}]});
+ const lease2=crypto.randomUUID(),race=await cmd('claim',lease2,{},null),target=race.invitation.auth_user_id,acceptance=crypto.randomUUID();
+ await pool.query('insert into auth.users(id) values($1)',[target]);await cmd('bind',race.outbox.id,{lease:lease2,userId:target,tokenHash,encryptedDelivery:'ciphertext'},null);await cmd('sent',race.outbox.id,{lease:lease2},null);await cmd('reserve_accept',race.invitation.id,{tokenHash,acceptanceId:acceptance},null);
+ const concurrent=await Promise.allSettled([cmd('finish_accept',race.invitation.id,{acceptanceId:acceptance},null),pool.query("select set_profile_status($1,$2,'disabled')",[actor,target])]);
+ assert.equal(concurrent[1].status,'fulfilled','Explicit disable must not lose to a deadlock');
+ assert.equal((await pool.query('select status from profiles where id=$1',[target])).rows[0].status,'disabled');
+ assert.ok(!concurrent.some(r=>r.status==='rejected'&&r.reason.code==='40P01'));
+
 };

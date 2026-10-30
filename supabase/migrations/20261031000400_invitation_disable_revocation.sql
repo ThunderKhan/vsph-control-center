@@ -113,6 +113,11 @@ begin
   update public.provisioning_jobs set state='processing' where id=j.id;
   return jsonb_build_object('outbox',to_jsonb(o),'invitation',to_jsonb(i),'job',to_jsonb(j));
  elsif p_action in ('bind','sent','failed') then
+  -- Global mutation lock order: target profile -> invitation -> outbox -> job.
+  -- Claim leases are short transactions and do not lock profiles/invitations.
+  select inv.* into i from public.membership_invitations inv join public.invitation_outbox ob on ob.invitation_id=inv.id where ob.id=p_id;
+  perform 1 from public.profiles where id=coalesce(i.user_id,nullif(p_data->>'userId','')::uuid) for update;
+  perform 1 from public.membership_invitations where id=i.id for update;
   select * into o from public.invitation_outbox where id=p_id for update;
   if not found or o.state<>'leased' or o.lease_token<>(p_data->>'lease')::uuid or o.lease_until<=now() then raise exception 'Lease lost' using errcode='40001';end if;
   select * into i from public.membership_invitations where id=o.invitation_id for update;
@@ -139,6 +144,7 @@ begin
    update public.provisioning_jobs set state='requires_attention' where id=j.id;
   end if;return jsonb_build_object('ok',true);
  end if;
+ perform 1 from public.profiles where id=(select user_id from public.membership_invitations where id=p_id) for update;
  select * into i from public.membership_invitations where id=p_id for update;
  if not found then raise exception 'Invitation unavailable' using errcode='42501';end if;
  if p_action in ('retry','revoke','recover') then
