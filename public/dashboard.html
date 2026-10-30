@@ -1,109 +1,155 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VSPH Control Center</title>
-  <link rel="stylesheet" href="/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#00255A">
+  <title>Workspace | VSPH Control Center</title>
+  <link rel="stylesheet" href="/dashboard.css">
 </head>
-<body class="dashboard-body">
-  <aside class="sidebar">
-    <a class="brand" href="/dashboard.html">
-      <span class="brand-mark">V</span>
-      <span>VSPH<span class="brand-light">Control</span></span>
-    </a>
+<body class="workspace-body">
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <symbol id="icon-overview" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="icon-apps" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16"/></symbol>
+    <symbol id="icon-admin" viewBox="0 0 24 24"><path d="M12 2.5 20 6v6c0 5-3.4 8-8 9.5C7.4 20 4 17 4 12V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="icon-logout" viewBox="0 0 24 24"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4"/><path d="M14 8l4 4-4 4M8 12h10"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="m5 5 14 14M19 5 5 19"/></symbol>
+    <symbol id="icon-workspace" viewBox="0 0 24 24"><path d="M3 20V6l9-4 9 4v14M3 10h18M8 20v-5h8v5M8 7h.01M12 7h.01M16 7h.01"/></symbol>
+    <symbol id="icon-music" viewBox="0 0 24 24"><path d="M9 18V5l12-2v12"/><ellipse cx="6" cy="18" rx="3" ry="2"/><ellipse cx="18" cy="15" rx="3" ry="2"/></symbol>
+    <symbol id="icon-crm" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M17 4a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 5v1"/></symbol>
+    <symbol id="icon-generic" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 8h8v8H8z"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 4 4 10-10"/></symbol>
+  </svg>
 
-    <div class="side-label">WORKSPACE</div>
-    <a class="nav-link active" href="/dashboard.html">▦ &nbsp; Overview</a>
-    <a class="nav-link" href="#applications">▣ &nbsp; Applications</a>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
 
-    <div class="side-label">MANAGEMENT</div>
-    <a class="nav-link" id="adminNav" href="/admin.html" hidden>⚙ &nbsp; Platform Admin</a>
-    <a class="nav-link" href="#organizations">◫ &nbsp; Organizations</a>
-    <a class="nav-link" href="#users">♙ &nbsp; Users & Roles</a>
-    <a class="nav-link" href="#subscriptions">◇ &nbsp; Subscriptions</a>
-    <a class="nav-link" href="#activity">◷ &nbsp; Activity Logs</a>
-
-    <div class="sidebar-bottom">
-      <div class="profile-avatar" id="avatar">V</div>
-      <div class="profile-info">
-        <strong id="sideName">Loading...</strong>
-        <span id="sideRole">Account</span>
+  <div class="workspace-shell">
+    <button id="navBackdrop" class="nav-backdrop" type="button" aria-label="Close navigation" hidden></button>
+    <aside class="workspace-sidebar" id="workspaceSidebar" aria-label="Workspace navigation">
+      <div class="sidebar-heading">
+        <a class="wordmark" href="/dashboard.html" aria-label="VSPH home">VSPH</a>
+        <span class="sidebar-product-label">CONTROL CENTER</span>
+        <button id="closeMenu" class="icon-button mobile-close" type="button" aria-label="Close menu">
+          <svg class="icon"><use href="#icon-close"></use></svg>
+        </button>
       </div>
-      <button class="logout-icon" id="logoutButton" title="Log out">↗</button>
-    </div>
-  </aside>
 
-  <main class="main-content">
-    <header class="topbar">
-      <div>
-        <div class="breadcrumb">Workspace / <strong>Overview</strong></div>
-        <h1>Good to see you, <span id="greetingName">Admin</span> 👋</h1>
-        <p class="muted">Manage your applications and workspace from one place.</p>
-      </div>
-      <div class="topbar-right">
-        <span class="online-dot"></span>
-        <span class="online-text">System online</span>
-        <div class="top-avatar" id="topAvatar">A</div>
-      </div>
-    </header>
-
-    <section class="welcome-banner">
-      <div class="banner-content">
-        <span class="eyebrow">VSPH PLATFORM</span>
-        <h2>Everything you need.<br>One control center.</h2>
-        <p>Access your business applications securely from a single workspace.</p>
-        <a href="#applications" class="banner-button">Explore applications →</a>
-      </div>
-      <div class="banner-art" aria-hidden="true">
-        <div class="art-orbit orbit-one"></div>
-        <div class="art-orbit orbit-two"></div>
-        <div class="art-center">V</div>
-        <div class="art-tile tile-one">♫</div>
-        <div class="art-tile tile-two">▤</div>
-        <div class="art-tile tile-three">▣</div>
-      </div>
-    </section>
-
-    <section class="stats-grid">
-      <article class="stat-card">
-        <div class="stat-icon purple">▦</div>
-        <div><span class="stat-label">Available apps</span><strong id="appCount">—</strong><small>Active applications</small></div>
-      </article>
-      <article class="stat-card">
-        <div class="stat-icon blue">◫</div>
-        <div><span class="stat-label">Workspace</span><strong id="workspaceCount">—</strong><small>Organizations assigned</small></div>
-      </article>
-      <article class="stat-card">
-        <div class="stat-icon green">✓</div>
-        <div><span class="stat-label">Account status</span><strong class="status-value">Active</strong><small>You're signed in</small></div>
-      </article>
-    </section>
-
-    <section id="applications" class="applications-section">
-      <div class="section-heading">
-        <div>
-          <span class="eyebrow dark-eyebrow">YOUR WORKSPACE</span>
-          <h2>Applications</h2>
-          <p class="muted">Choose an application to continue your work.</p>
+      <nav class="sidebar-navigation" aria-label="Main">
+        <p class="nav-label">WORKSPACE</p>
+        <a class="sidebar-link is-active" href="#overview" aria-current="page">
+          <svg class="icon"><use href="#icon-overview"></use></svg><span>Overview</span>
+        </a>
+        <a class="sidebar-link" href="#applications">
+          <svg class="icon"><use href="#icon-apps"></use></svg><span>Applications</span>
+        </a>
+        <div class="sidebar-admin-section" id="adminNavContainer" hidden>
+          <p class="nav-label nav-label-secondary">MANAGEMENT</p>
+          <a class="sidebar-link" id="adminNav" href="/admin.html">
+            <svg class="icon"><use href="#icon-admin"></use></svg><span>Platform admin</span>
+          </a>
         </div>
-        <input id="appSearch" class="search-input" type="search" placeholder="⌕  Search applications...">
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="account-identity">
+          <span class="account-avatar" id="avatar" aria-hidden="true">V</span>
+          <span class="account-details">
+            <strong id="sideName">Your account</strong>
+            <small id="sideRole">Loading account</small>
+          </span>
+        </div>
+        <button id="logoutButton" class="sidebar-logout" type="button">
+          <svg class="icon"><use href="#icon-logout"></use></svg><span>Sign out</span>
+        </button>
       </div>
+    </aside>
 
-      <div id="appGrid" class="app-grid">
-        <div class="loading-card">Loading your applications...</div>
-      </div>
-      <p id="emptyMessage" class="empty-message" hidden>No applications match your search.</p>
-      <p id="errorMessage" class="error-message" role="status"></p>
-    </section>
+    <div class="workspace-main" id="mainContent">
+      <header class="workspace-topbar">
+        <div class="mobile-brand">
+          <button id="openMenu" type="button" class="icon-button" aria-label="Open navigation" aria-expanded="false" aria-controls="workspaceSidebar">
+            <svg class="icon"><use href="#icon-menu"></use></svg>
+          </button>
+          <span>VSPH</span>
+        </div>
+        <div class="topbar-context">CONTROL CENTER <span class="topbar-divider"></span> WORKSPACE</div>
+        <span class="topbar-account"><span class="topbar-account-dot"></span><span id="topAccount">Account</span></span>
+      </header>
 
-    <footer class="dashboard-footer">
-      <span>© 2026 VSPH Platform</span>
-      <span>Secure workspace · Supabase prototype</span>
-    </footer>
-  </main>
+      <main class="workspace-content">
+        <section class="page-intro" id="overview" aria-labelledby="pageTitle">
+          <p class="section-kicker">WORKSPACE / OVERVIEW</p>
+          <div class="page-intro-row">
+            <div>
+              <h1 id="pageTitle">Your workspace<span class="title-period">.</span></h1>
+              <p class="page-lead" id="welcomeMessage">Applications and access, all in one place.</p>
+            </div>
+            <span class="account-status"><svg class="icon"><use href="#icon-check"></use></svg> Account active</span>
+          </div>
+        </section>
 
-  <script src="/dashboard.js"></script>
+        <section class="bento-grid" aria-label="Workspace summary">
+          <article class="feature-panel spotlight-surface" id="spotlightPanel">
+            <div class="feature-content">
+              <p class="feature-kicker"><span class="signal-dot"></span> YOUR ACCESS</p>
+              <h2>Work, without the extra steps.</h2>
+              <p>Open the products available to your account. Each application keeps its own permissions and secure sign-in.</p>
+              <a class="feature-link" href="#applications">View applications</a>
+            </div>
+            <div class="feature-summary" aria-label="Products available to you">
+              <span id="featureAppCount">—</span>
+              <small>available applications</small>
+            </div>
+          </article>
+
+          <div class="summary-panels">
+            <article class="metric-panel" aria-labelledby="appMetricTitle">
+              <span class="metric-caption" id="appMetricTitle">Applications</span>
+              <strong id="appCount" class="metric-value" aria-live="polite">—</strong>
+              <span class="metric-detail">Products available to you</span>
+            </article>
+            <article class="metric-panel" aria-labelledby="workspaceMetricTitle">
+              <span class="metric-caption" id="workspaceMetricTitle">Organizations</span>
+              <strong id="workspaceCount" class="metric-value" aria-live="polite">—</strong>
+              <span class="metric-detail">Your accessible workspaces</span>
+            </article>
+          </div>
+        </section>
+
+        <section class="applications-section" id="applications" aria-labelledby="appsTitle">
+          <div class="apps-section-header">
+            <div>
+              <p class="section-kicker">YOUR TOOLS</p>
+              <h2 id="appsTitle">Applications</h2>
+              <p class="section-description">Select a product to continue.</p>
+            </div>
+            <div class="search-container">
+              <label class="visually-hidden" for="appSearch">Search applications</label>
+              <svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>
+              <input id="appSearch" type="search" placeholder="Search applications" autocomplete="off">
+            </div>
+          </div>
+          <div id="appGrid" class="application-grid" aria-live="polite" aria-busy="true">
+            <div class="loading-state"><span class="loading-indicator"></span> Loading applications</div>
+          </div>
+          <p id="emptyMessage" class="feedback-state" hidden>No applications match your search.</p>
+          <p id="errorMessage" class="feedback-state error-state" role="alert" hidden></p>
+        </section>
+
+        <section class="access-note" aria-label="About application access">
+          <span class="access-note-icon"><svg class="icon"><use href="#icon-admin"></use></svg></span>
+          <div><strong>Access stays with your account.</strong><p>Only applications assigned to you appear here. Opening one may require an additional sign-in.</p></div>
+        </section>
+      </main>
+
+      <footer class="workspace-footer">
+        <span>© 2026 VSPH. All rights reserved.</span>
+        <span>Control Center</span>
+      </footer>
+    </div>
+  </div>
+  <script defer src="/dashboard.js"></script>
 </body>
 </html>
