@@ -77,9 +77,9 @@ async function exchange(req,res,next){
     const session=check(await db().from('portal_sessions').select('token_hash,user_id,expires_at').eq('token_hash',launch.portal_token_hash).maybeSingle());
     if(!session || session.user_id!==launch.user_id || new Date(session.expires_at).getTime()<=Date.now())
       return res.status(401).json({message:'Portal session unavailable.'});
-    const user=check(await db().from('profiles').select('id,full_name,email,status').eq('id',launch.user_id).maybeSingle());
+    const user=check(await db().from('profiles').select('id,full_name,email,status,platform_role').eq('id',launch.user_id).maybeSingle());
     if(!user || user.status!=='active')return res.status(403).json({message:'User is not active.'});
-    const context=await appContexts({...user,platform_role:(check(await db().from('profiles').select('platform_role').eq('id',user.id).maybeSingle()))?.platform_role});
+    const context=await appContexts(user);
     const org=context?.organizations.find(o=>o.id===launch.organization_id);
     if(!org || context.app.id!==launch.application_id)return res.status(403).json({message:'Music entitlement revoked.'});
     return res.json({
