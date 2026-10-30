@@ -24,6 +24,8 @@ test('Overview and Applications use distinct protected routes and separate views
   assert.match(html, /href="\/dashboard"/);
   assert.match(html, /href="\/applications"/);
   assert.match(html, /href="\/admin"/);
+  assert.match(html, /id="topbarOnboard" class="topbar-onboard" href="\/admin\/onboarding" hidden/);
+  assert.match(html, /class="sidebar-link sidebar-onboarding" href="\/admin\/onboarding"/);
   assert.match(js, /location.pathname/);
   assert.match(js, /renderAccessOverview/);
   assert.match(js, /\/contexts/);
@@ -49,7 +51,7 @@ function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=fal
   class Element{
     constructor(id=''){
       this.id=id; this.children=[]; this.attributes={}; this.value=''; this.textContent='';
-      this.hidden=['emptyMessage','errorMessage','adminNavContainer','adminOverviewPanel','navBackdrop'].includes(id);
+      this.hidden=['emptyMessage','errorMessage','adminNavContainer','adminOverviewPanel','topbarOnboard','navBackdrop'].includes(id);
       this.disabled=false; this.events={}; this.style={setProperty(){}};
       this.classList={add(){},remove(){},toggle(){},contains(){return false}};
     }
@@ -64,7 +66,7 @@ function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=fal
     querySelectorAll(){return[];}
     focus(){}
   }
-  const ids=['appGrid','appSearch','errorMessage','emptyMessage','logoutButton','avatar','sideName','sideRole','topAccount','welcomeMessage','adminNavContainer','adminOverviewPanel','appCount','featureAppCount','workspaceCount','navBackdrop','openMenu','closeMenu','workspaceSidebar','spotlightPanel','accessGrid','libraryCount'];
+  const ids=['appGrid','appSearch','errorMessage','emptyMessage','logoutButton','avatar','sideName','sideRole','topAccount','welcomeMessage','adminNavContainer','adminOverviewPanel','topbarOnboard','appCount','featureAppCount','workspaceCount','navBackdrop','openMenu','closeMenu','workspaceSidebar','spotlightPanel','accessGrid','libraryCount'];
   const nodes=new Map(ids.map(id=>[id,new Element(id)]));
   const visibleViews=[];
   for(const name of ['overview','applications']){
@@ -116,6 +118,7 @@ test('Overview uses real product roles and customer contexts rather than repeati
   assert.equal(fixture.nodes.get('workspaceCount').textContent,'3');
   assert.equal(fixture.nodes.get('adminNavContainer').hidden,false);
   assert.equal(fixture.nodes.get('adminOverviewPanel').hidden,false);
+  assert.equal(fixture.nodes.get('topbarOnboard').hidden,false);
   assert.equal(fixture.nodes.get('accessGrid').children.length,2);
   assert.equal(fixture.nodes.get('appGrid').children.length,0);
   assert.ok(fixture.calls.some(x=>x.url==='/api/apps/CRM/contexts'));
@@ -141,6 +144,7 @@ test('Applications is a separate searchable directory with only server-authorize
   await settle();
   assert.equal(fixture.document.title,'Applications | VSPH Control Center');
   assert.equal(fixture.nodes.get('adminNavContainer').hidden,true);
+  assert.equal(fixture.nodes.get('topbarOnboard').hidden,true);
   assert.equal(fixture.nodes.get('appGrid').children.length,2);
   assert.equal(fixture.nodes.get('accessGrid').children.length,0);
   assert.equal(fixture.nodes.get('libraryCount').textContent,'2 products');
