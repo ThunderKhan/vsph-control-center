@@ -5,7 +5,8 @@ if (reveal) {
   reveal.addEventListener('click', () => {
     const shown = target.type === 'password';
     target.type = shown ? 'text' : 'password';
-    reveal.textContent = shown ? 'Hide' : 'Show';
+    reveal.querySelector('[data-icon="show"]').hidden = shown;
+    reveal.querySelector('[data-icon="hide"]').hidden = !shown;
     reveal.setAttribute('aria-label', shown ? 'Hide password' : 'Show password');
     reveal.setAttribute('aria-pressed', String(shown));
   });
