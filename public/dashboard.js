@@ -243,8 +243,10 @@
       byId('avatar').textContent = firstName.charAt(0).toUpperCase() || 'V';
       byId('topAccount').textContent = name;
       byId('welcomeMessage').textContent = 'Welcome back, ' + firstName + '. Your applications are ready when you are.';
-      byId('adminNavContainer').hidden = user.platformRole !== 'super_admin';
-      byId('adminOverviewPanel').hidden = user.platformRole !== 'super_admin';
+      const isPlatformAdmin = user.platformRole === 'super_admin';
+      byId('adminNavContainer').hidden = !isPlatformAdmin;
+      byId('adminOverviewPanel').hidden = !isPlatformAdmin;
+      byId('topbarOnboard').hidden = !isPlatformAdmin;
 
       const result = await responseJson('/api/apps');
       if (!result) return;
