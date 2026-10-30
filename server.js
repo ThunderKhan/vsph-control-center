@@ -4,14 +4,19 @@ const {db,configured}=require('./db');
 const {portalSession,optionalPortal,requireAdmin,requireApp,validateOrigin,getApp,getContexts}=require('./security');
 const musicSso=require('./routes/sso');
 const {musicConfig}=require('./integration/sso-config');
-const app=express();app.disable('x-powered-by');app.set('trust proxy',1);
+const {securityHeaders,trustProxy,rateLimit,safeError}=require('./http-security');
+const app=express();app.disable('x-powered-by');app.set('trust proxy',trustProxy());
+app.use(securityHeaders);
 // All applications use this login view by default. Explicit, reviewed overrides
 // can be placed here later for a customer's structural requirements.
 const sharedAuthView = path.join(__dirname,'views','auth.html');
 const authViews = Object.freeze({
   // CRM: path.join(__dirname,'views','crm-special-login.html')
 });
-app.use(express.json({limit:'100kb'}));app.use(express.urlencoded({extended:false}));app.use(cookieParser());
+app.use(express.json({limit:'100kb',strict:true}));app.use(express.urlencoded({extended:false,limit:'100kb',parameterLimit:50}));app.use(cookieParser());
+// Applied before credential verification and confidential SSO lookups. No body or token is a limiter key.
+app.use(['/api/auth/login','/api/auth/app-login','/api/invitations/accept'],rateLimit({limit:20,windowMs:15*60*1000}));
+app.use(['/api/sso/exchange','/api/sso/introspect'],rateLimit({limit:300,windowMs:60*1000}));
 // The Music server exchanges a one-time code without a browser Origin header.
 // This exception requires its own confidential client authentication.
 app.post('/api/sso/exchange',musicSso.exchange);
@@ -87,8 +92,8 @@ app.get(['/', '/login'],optionalPortal,(req,res)=>{
 });
 app.get('/login.html',(req,res)=>res.redirect(302,'/login'));
 app.use(express.static(path.join(__dirname,'public'),{index:false}));
-app.use((err,req,res,next)=>{console.error('Request error:',err.message);if(res.headersSent)return next(err);
- res.status(500).json({message:'Server error. Check configuration and server logs.'});});
+app.use(safeError);
 const port=Number(process.env.PORT||3000);
 if(require.main===module)app.listen(port,()=>console.log(`VSPH Control Center → http://localhost:${port}`));
 module.exports=app;
+
