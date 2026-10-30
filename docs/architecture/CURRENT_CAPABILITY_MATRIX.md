@@ -1,14 +1,14 @@
-# Current capability matrix
+# Current capability matrix — Phase 2
 
-| Domain                                    | Baseline                                                       | Required gate                                                        |
-| ----------------------------------------- | -------------------------------------------------------------- | -------------------------------------------------------------------- |
-| Portal, mobile sidebar, product directory | Implemented; 77 baseline tests; anonymous browser checks added | Authenticated staging browser coverage                               |
-| Tenant isolation                          | Server predicates and fail-closed RLS                          | Full real DB-backed HTTP role matrix                                 |
-| Customer onboarding                       | Wizard, pending membership, Supabase invite                    | Durable workflow, staged SMTP, safe invite state                     |
-| Roles, subscriptions                      | Platform admin CRUD, coarse product roles                      | Customer self-service, separation of duties, lifecycle               |
-| Music SSO                                 | Portal handshake; receiver PR open                             | Proven deployment binding, persistent operations backend, staged E2E |
-| Projects/delivery/releases                | Absent                                                         | M7/M8 complete vertical workflows                                    |
-| Notifications/reporting                   | Basic audit list and access counts                             | Outbox, immutable events, truthful reconciled metrics                |
-| Operations                                | Health endpoint, basic CI                                      | Rate controls, observability, restore/load/security exercises        |
+| Domain                                | Implemented                                                                                                                                 | Remaining release gate                                                                   |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Portal/sidebar/products/subscriptions | Existing routes and access retained with regression tests                                                                                   | Real Auth/hosted environment UAT                                                         |
+| Customer provisioning                 | Atomic idempotent tenant/job/outbox, leased encrypted retry, recovery screen                                                                | Approved provider, real Auth/email proof, legacy invite reconciliation                   |
+| Invitation acceptance                 | Purpose/expiry/replay/revocation, one target membership, existing account identity, explicit-disable preservation                           | Auth side-effect reconciliation and reviewed replacement for expired/revoked invitations |
+| Projects MVP                          | Private internal/customer projects, owner/team/roles, milestones/dependencies/tasks, comments/evidence/history/progress, responsive REST/UI | Target migrations and hosted UAT; bounded MVP scale                                      |
+| GitHub/releases/deployments           | No application-level integration                                                                                                            | M8                                                                                       |
+| Reporting/notifications               | Project metrics/activity from real records, existing audit list                                                                             | Global reporting/search/outbox notifications/retention (M9)                              |
+| Music                                 | Portal handshake foundation retained; separate receiver PR unchanged                                                                        | Verified domain/Git/backend ownership and staged SSO                                     |
+| Operations                            | Node/native SQL/authenticated Chromium CI and existing HTTP controls                                                                        | Distributed limits, MFA, restore/load/incident/alerting and final UAT                    |
 
-Validation changes add native PostgreSQL migration/constraint/concurrency tests and Chromium anonymous smoke checks. They do not stand in for Supabase Auth or full authenticated UAT.
+Test fixtures are SQL-only synthetic records in empty isolated loopback databases. Production migrations seed no projects/users. Database-backed HTTP tests use a test transport adapter, not real PostgREST or Supabase Auth/SMTP. Never equate an isolated fixture with a deployed customer environment.

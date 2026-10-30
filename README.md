@@ -1,12 +1,18 @@
 # VSPH Control Center — Supabase edition
 
+Projects MVP and durable provisioning are implemented. **Target rollout requires reviewed migrations 20261031000200, 20261031000300 and 20261031000400 before deploying this backend. No hosted migration/deployment is implied by a Git merge.** See [Projects guide](docs/operations/PROJECTS_GUIDE.md), [provisioning operations](docs/operations/PROVISIONING_V2.md), and [current execution report](docs/roadmap/IMPLEMENTATION_REPORT.md).
+
 VSPH's multi-tenant product portal (Express + vanilla HTML/JS/CSS), integrated with **Supabase Auth** and **hosted PostgreSQL**. The portal workspace dashboard and login were redesigned with the company design system while retaining the existing backend permissions. The old MySQL integration was replaced.
 
 ## Guided customer onboarding — PR #7
 
-Platform Super Admins can start a five-step onboarding wizard at `/admin/onboarding` for organization details, administrator **email invitation**, application selection, per-product plans and subscription end dates, and final review. It uses Supabase Auth invitation links rather than staff-selected temporary passwords. New customer membership stays `invited` until the recipient accepts and creates a password at `/accept-invite`.
+Platform administrators use the five-step `/admin/onboarding` wizard. Submission commits a durable idempotent job/tenant/grants/outbox transaction; it does not send email synchronously. `/admin/provisioning` shows delivery/acceptance/failure state and audited retry, revoke and reconciled recovery. A separately invoked worker requires an approved authenticated HTTPS delivery provider, idempotency contract and server-only outbox encryption key. It is disabled by default.
 
-**Setup required:** Configure `PUBLIC_ORIGIN`, add `/accept-invite` to your Supabase Auth redirect allowlist, and configure SMTP/email delivery before sending actual invitations. The wizard does not charge subscriptions or send invoices. See [Customer onboarding guide](docs/CUSTOMER_ONBOARDING.md) for configuration, rollback limitations, and the invitation lifecycle.
+Invitations are purpose-bound, expiring, single-use capabilities for one membership. Newly provisioned identities stay disabled until enrollment completes. Existing accounts must sign in and their passwords are not reset by acceptance. Explicit account disable revokes pending enrollment. Legacy broad bearer invitation links are rejected and must be reconciled before rollout. See [current customer onboarding](docs/CUSTOMER_ONBOARDING.md).
+
+## Internal project delivery
+
+Open `/projects` to create internal/customer engagements, assign accountable owners and project teams, manage milestones/dependencies/tasks/priorities/dates, collect comments/HTTPS deliverables and inspect activity/progress. Project membership is separate from product roles and entitlements. Managers govern work; contributors update assigned task status; viewers and explicitly shared customer viewers are read-only. Mutations validate current access and project version in PostgreSQL with atomic audit. See [usage and API contract](docs/operations/PROJECTS_GUIDE.md).
 
 ## Music external app launch and central SSO foundation (PR #5)
 
@@ -53,7 +59,7 @@ See **[docs/DASHBOARD_DESIGN.md](docs/DASHBOARD_DESIGN.md)** for navigation, res
 ## Start on Windows (PowerShell)
 
 1. Extract this ZIP and open the `vsph-control-center` folder in VS Code.
-2. In Supabase, create a project. In **SQL Editor**, paste and run `supabase/schema.sql`. (Only do this on a new project.)
+2. In Supabase, create a project. In an approved empty/staging project, review the bootstrap and all ordered migrations. Never run bootstrap or destructive test fixtures on an existing customer database. Reconcile history and follow docs/operations/PROJECTS_GUIDE.md before deploying.
 3. In **Project Settings → API Keys** (location may vary in Supabase UI), copy the URL and API keys. Never use the secret key in browser code.
 4. In the terminal in the project folder:
 
@@ -76,12 +82,12 @@ DEMO_PASSWORD=choose-a-unique-12-plus-character-password
 
 For older projects, the **anon key** can be used in `SUPABASE_PUBLISHABLE_KEY` and the **service_role key** in `SUPABASE_SECRET_KEY`. **Do not commit `.env` to Git.**
 
-5. Install and seed:
+5. Install and run against your approved, migrated environment. Do not seed a customer database:
 
 ```powershell
-npm install
+npm ci
 npm test
-npm run seed
+npm run check
 npm run dev
 ```
 
@@ -89,15 +95,15 @@ npm run dev
 
 The login is served at `/` or `/login` using the shared `views/auth.html` template. Portal routes are `/dashboard` (Overview), `/applications` (Applications directory), and `/admin` (VSPH platform super admins only). CRM and Music use `/apps/:code/login` and `/apps/:code/home`. Legacy `.html` bookmarks redirect to these clean routes, with authentication enforced on the destinations.
 
-**Demo accounts** (all use `DEMO_PASSWORD` at first creation):
+**Legacy isolated-demo fixtures only** (not installed by normal start or new migrations; never seed real customer databases):
 
-| Email | Portal products | Organization |
-| --- | --- | --- |
+| Email             | Portal products                   | Organization                                                |
+| ----------------- | --------------------------------- | ----------------------------------------------------------- |
 | `owner@vsph.test` | CRM + Music, Platform Super Admin | VSPH Internal (only explicitly assigned product workspaces) |
-| `crm@vsph.test` | CRM only | Alpha CRM Ltd |
-| `beta@vsph.test` | CRM only | Beta CRM Ltd |
-| `music@vsph.test` | Music only | Music Venue Ltd |
-| `both@vsph.test` | CRM + Music | Both Products Ltd |
+| `crm@vsph.test`   | CRM only                          | Alpha CRM Ltd                                               |
+| `beta@vsph.test`  | CRM only                          | Beta CRM Ltd                                                |
+| `music@vsph.test` | Music only                        | Music Venue Ltd                                             |
+| `both@vsph.test`  | CRM + Music                       | Both Products Ltd                                           |
 
 Seed is idempotent for the expected demo rows. Existing users keep their previous password; changing `DEMO_PASSWORD` does not reset previously created Supabase Auth accounts.
 
@@ -126,14 +132,14 @@ Root and login responses use `Cache-Control: no-store` to reduce stale login pag
 
 **Direct URL entry never grants access.** The portal session is checked on every request for a product login page, app workspace and protected API. App workspaces and tenant records also require a valid, product-scoped session and the user's current customer entitlement.
 
-| Browser action | Expected result |
-| --- | --- |
-| Open `/apps/music/login` without a portal session | Redirect to `/login` |
-| Open `/apps/music/home` without a portal session | Redirect to `/login` |
+| Browser action                                                              | Expected result                                      |
+| --------------------------------------------------------------------------- | ---------------------------------------------------- |
+| Open `/apps/music/login` without a portal session                           | Redirect to `/login`                                 |
+| Open `/apps/music/home` without a portal session                            | Redirect to `/login`                                 |
 | Open `/apps/music/home` with a portal session but without the Music session | Redirect to `/apps/music/login` for the second login |
-| Open Music with both valid sessions and current permissions | Enter the authorized customer workspace |
-| Try `/api/apps/MUSIC/records` without required sessions | HTTP 401 JSON response |
-| Enter `/login` with a valid portal session | Redirect to the dashboard |
+| Open Music with both valid sessions and current permissions                 | Enter the authorized customer workspace              |
+| Try `/api/apps/MUSIC/records` without required sessions                     | HTTP 401 JSON response                               |
+| Enter `/login` with a valid portal session                                  | Redirect to the dashboard                            |
 
 Visiting `/login` **does not sign a user out**. Existing browser cookies can stay valid for up to four hours; use **Log out** or a fresh private browsing window for a genuinely anonymous test. Protected pages and session-dependent API responses set `Cache-Control: no-store` to reduce stale-content exposure. Product URL routing is not a security boundary; backend authorization is.
 
@@ -183,4 +189,3 @@ seed.js                   Create demo identities, tenants, product access
 `DESIGN.md` at the repository root is the reference for VSPH colors, typography, spacing, accessibility, copy, and logo usage. The **portal, CRM and Music login routes now render the same `views/auth.html` template**, styled by `public/auth.css` and `public/auth-background.js` and controlled by `public/auth-page.js`. The obsolete separate HTML/JS login implementations were removed. For future product or organization-specific appearance, use `public/auth-config.js`; see **[docs/AUTH_THEMING.md](docs/AUTH_THEMING.md)** for examples and the secure structural-override extension point. Other dashboard styling remains in `public/style.css`.
 
 The animated dot grid is a lightweight Canvas adaptation of the supplied Three.js design. It requires no extra dependencies, pauses while the page is hidden, and respects reduced-motion preferences. Existing password authentication and app-scoped sessions are unchanged.
-

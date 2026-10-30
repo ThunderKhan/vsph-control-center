@@ -1,6 +1,6 @@
 # Route authorization matrix
 
-This describes the baseline, not the target permission implementation. Cookies are opaque hashes; browser writes require exact PUBLIC_ORIGIN. Exceptions are confidential SSO exchange and introspection.
+The original portal/product rows are retained below; current Projects authorization is specified in PROJECTS.md and durable invitations in operations/PROVISIONING_V2.md. Cookies are opaque hashes; browser writes require exact PUBLIC_ORIGIN. Exceptions are confidential SSO exchange and introspection.
 
 | Routes                                             | Boundary                                                            | Failure cases / pending verification                                             |
 | -------------------------------------------------- | ------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
@@ -19,3 +19,10 @@ This describes the baseline, not the target permission implementation. Cookies a
 | GET /api/health                                    | Public dependency probe                                             | 503 unconfigured/unavailable; no secrets                                         |
 
 Target permission families: platform.customer.manage, platform.identity.manage, platform.portfolio.manage; organization.member.invite / role.assign within permitted tenant; product.record.read/write by product role; project.manage / assigned-task.update / shared-record.read independently of product grants. None is implemented merely by naming it here.
+
+## Phase 2 boundaries
+
+- /api/projects and /projects: active portal identity. Portfolio creation is platform super_admin only; project detail/mutations use explicit project roles and current tenant sharing. Database versions serialize edits and activity/audit commit with data. See PROJECTS.md.
+- POST onboarding: platform admin + strict payload + UUID Idempotency-Key. No synchronous Auth/email writes.
+- /admin/provisioning and retry/revoke/recover: platform admin, bounded job reads, state/lease/reconciliation checks and audits.
+- Invitation inspect/accept: exact purpose capability + expiry/state; existing identity additionally authenticates as that user. Only target membership activates; broad bearer activation removed. New account enrollment may not override explicit disable.

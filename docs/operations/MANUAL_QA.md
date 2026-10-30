@@ -27,10 +27,10 @@ Prerequisites: reconcile schema/history; install reviewed migrations; exact PUBL
 ## Customer onboarding and invitation acceptance
 
 - [ ] Five steps preserve entered fields and validate name, slug, administrator email, unique products, plan code and future trial end date.
-- [ ] Unavailable product, duplicate slug/email, malformed IDs and repeated/concurrent submits fail safely with no unintended duplicates. Durable idempotency/reconciliation is still incomplete; do not approve this gate on mocked success.
+- [ ] Unavailable product, duplicate slug/email, malformed IDs and repeated/concurrent submits fail safely with no unintended duplicates. Verify the durable job/outbox and same-key retry evidence; external Auth/delivery failures still require provider reconciliation.
 - [ ] Review step matches server payload. Customer membership stays invited until acceptance; invitation alone grants no product access.
 - [ ] Approved synthetic recipient receives the email, exact redirect reaches /accept-invite, token fragment is removed promptly and no token enters logs/screenshots.
-- [ ] Recipient sets password and can access only intended tenant/products. Verify purpose/expiry/revocation and accept-one-invite behavior after durable invitation state is implemented; current purpose model is insufficient for release.
+- [ ] Recipient sets password and can access only intended tenant/products. Verify the purpose-bound capability, expiry/revocation and accept-one-membership behavior; legacy broad bearer links must fail.
 - [ ] Wrong account/email, expired/replayed/revoked link, missing token, failed SMTP, duplicate resend and Auth-success/DB-failure are exercised with reconciliation evidence. Resend/revoke/repair UI remains M2/M3 work.
 - [ ] Legacy POST /api/admin-management/users and /clients return 410, including requests for super_admin elevation. Admin UI collects no temporary password/platform role.
 
@@ -52,12 +52,12 @@ Prerequisites: reconcile schema/history; install reviewed migrations; exact PUBL
 - [ ] Subscription flags are presented as entitlements; no invoice/payment/revenue assertions appear.
 - [ ] Renewal notices, history, customer detail, customer-admin self-service, bulk confirmations, exports and notification retry gates remain unimplemented; record these as blocked/unavailable, not passes.
 
-## Project portfolio and delivery — currently unavailable
+## Project portfolio and delivery — current MVP and later integration gates
 
-- [ ] Confirm no existing product card is misrepresented as an internal project. /projects currently returns 404.
-- [ ] After M7: create internal/client project, accountable owner, product links and explicit team assignments; customer visibility must be opt-in.
-- [ ] After M7: create/depend/complete milestones, assign/update tasks, attach safe HTTPS delivery evidence, compute actual overdue health and archive a project.
-- [ ] After M7: unrelated tenant/customer cannot list/read/edit/export internal project records or assign itself; product grants do not imply project membership.
+- [ ] Confirm no existing product card is misrepresented as an internal project. /projects is now the authenticated portfolio.
+- [ ] create internal/client project, accountable owner, product links and explicit team assignments; customer visibility must be opt-in.
+- [ ] create/depend/complete milestones, assign/update tasks, attach safe HTTPS delivery evidence, compute actual overdue health and archive a project.
+- [ ] unrelated tenant/customer cannot list/read/edit/export internal project records or assign itself; product grants do not imply project membership.
 - [ ] After M8: verify actual repo/PR/CI/release/deployment facts against the connected provider, stale/disconnected states, deduplicated webhook/poll events, environment binding and rollback evidence.
 - [ ] GitHub/Vercel tools used for engineering this change are not application-level integrations. No connected-project feature is claimed today.
 
@@ -87,3 +87,20 @@ Prerequisites: reconcile schema/history; install reviewed migrations; exact PUBL
 - [ ] Music introspection observes revoked portal session; independent Music logout is tested only once verified receiver is deployed.
 
 Acceptance sign-off requires evidence for every applicable check and an explicit residual-risk decision. Unimplemented functionality remains a release blocker, not an optional pass.
+
+## Phase 2 implemented acceptance (supersedes earlier unavailable labels)
+
+The Projects MVP now exists at /projects after staging migration installation. The earlier M7 “currently unavailable” section is historical; use these current checks:
+
+- [ ] Platform administrator creates an internal and a customer project; ownership/product links are distinct from entitlements.
+- [ ] Manager assigns active accounts to manager/contributor/viewer/client roles and development-team labels; owner must transfer accountability before revocation.
+- [ ] Contributor updates assigned task status, cannot edit title/assignee/team or unrelated work. Viewer/client writes fail on API as well as UI.
+- [ ] Milestones/dependencies/tasks/priorities/dates save and reload; task/milestone/project invalid transitions fail. Changing a dependency while completing a milestone cannot bypass dependency readiness.
+- [ ] Comments/HTTPS evidence and actor activity persist; private evidence linked to a private task does not leak its title through client history.
+- [ ] Concurrent same-version changes produce one winner/409; membership/tenant revocation blocks the next request. Explicit account disable racing enrollment cannot deadlock into successful reactivation.
+- [ ] Visible task completion/overdue work matches source records; no tasks means “No tasks”, not invented percentages. Customer views count only shared work.
+- [ ] Mobile tables scroll within panels without page overflow; desktop sidebar collapse and mobile drawer work, labels/focus remain usable.
+- [ ] New onboarding requests are 202 queued and repeat idempotently; inspect outbox/recovery, never assume email was sent. Failed provider/Auth enrollment stays recoverable without membership activation.
+- [ ] Reject legacy bearer activation, wrong/missing purpose proof, expiry, replay, revoked capability and existing-account identity mismatch. Accept one invite without activating another pending membership.
+
+Automated isolated PostgreSQL and desktop/mobile workflows cover these core paths; full hosted Auth/provider/SMTP, real-device/accessibility and production UAT remain separate sign-offs.
