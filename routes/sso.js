@@ -90,4 +90,24 @@ async function exchange(req,res,next){
     });
   }catch(err){next(err)}
 }
-module.exports={router,exchange};
+// Music may revalidate its short-lived server-side session against current
+// VSPH entitlements. The confidential client secret is never sent to browsers.
+async function introspect(req,res,next){
+  try{
+    noStore(res);
+    const cfg=musicConfig();
+    if(!cfg || !verifySecret(req.get('x-vsph-client-secret'),cfg.secret))
+      return res.status(401).json({active:false});
+    const {client_id,user_id,organization_id}=req.body||{};
+    const isUuid=value=>typeof value==='string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+    if(client_id!==CLIENT_ID || !isUuid(user_id) || !isUuid(organization_id))
+      return res.status(400).json({active:false});
+    const user=check(await db().from('profiles').select('id,status,platform_role').eq('id',user_id).maybeSingle());
+    if(!user || user.status!=='active')return res.status(403).json({active:false});
+    const context=await appContexts(user);
+    const organization=context?.organizations.find(o=>o.id===organization_id);
+    if(!organization)return res.status(403).json({active:false});
+    res.json({active:true,application:ALLOWED_CODE,organization_id,role:organization.role});
+  }catch(err){next(err)}
+}
+module.exports={router,exchange,introspect};
