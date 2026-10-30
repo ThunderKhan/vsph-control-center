@@ -4,7 +4,7 @@ const router=express.Router();
 
 const slugPattern=/^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const emailPattern=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const uuidPattern=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const uuidPattern=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const validId=id=>typeof id==='string'&&uuidPattern.test(id);
 const errorResponse=(res,status,message)=>res.status(status).json({message});
 
