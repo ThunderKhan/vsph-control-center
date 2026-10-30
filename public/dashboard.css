@@ -40,7 +40,6 @@ button,a {-webkit-tap-highlight-color: transparent}
 .wordmark {font-size:25px;font-weight:700;letter-spacing:.025em;line-height:1.2;color:white;text-decoration:none}
 .sidebar-product-label {margin-top:9px;font-size:10px;letter-spacing:.17em;font-weight:600;color:#AFC8E5}
 .nav-label {margin:0 12px 14px;font-size:10px;letter-spacing:.15em;color:#9CB8D6;font-weight:600}
-.nav-label-secondary {margin-top:34px}
 .sidebar-navigation {display:flex;flex-direction:column}
 .sidebar-link {
   display:flex;align-items:center;gap:13px;padding:13px 14px;min-height:48px;
@@ -276,7 +275,6 @@ button,a {-webkit-tap-highlight-color: transparent}
 
 
 /* Overview-only access summary and two-stage security explanation. */
-.nav-help{font-size:11px;line-height:1.5;color:#ADC6DF;margin:-7px 12px 12px;max-width:200px}
 .access-overview{margin:0 0 20px}
 .secondary-link{
   display:inline-flex;align-items:center;justify-content:center;text-align:center;min-height:44px;
@@ -350,8 +348,6 @@ html[data-workspace-view="applications"] [data-view="overview"]{display:none!imp
   font-weight:700;white-space:nowrap;transition:background .15s;
 }
 .topbar-onboard:hover,.primary-link:hover{background:#0054A4;border-color:#0054A4}
-.sidebar-onboarding{color:#fff;background:rgba(80,192,232,.12);border:1px solid rgba(80,192,232,.28);margin-top:8px}
-.sidebar-onboarding:hover{background:rgba(80,192,232,.22)}
 .admin-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:18px}
 @media(max-width:680px){
   .topbar-actions{gap:9px}
