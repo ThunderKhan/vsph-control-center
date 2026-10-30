@@ -170,3 +170,10 @@ body.auth-page[data-auth-layout="focused"] .auth-card{max-width:460px}
   .auth-footer{justify-content:flex-start}
 }
 @media(prefers-reduced-motion:reduce){.auth-page *{transition:none!important;animation:none!important}}
+
+
+/* Invitation recovery belongs to central login, not product reauthentication. */
+.invite-entry{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:5px 9px;border-top:1px solid #E3EAF2;margin-top:24px;padding-top:20px;color:#62768B;font-size:12px;line-height:1.5;text-align:center}
+.invite-entry a{font-weight:600;color:var(--blue);text-decoration:none}
+.invite-entry a:hover{text-decoration:underline}
+.app-auth .invite-entry{display:none!important}
