@@ -7,9 +7,14 @@ let token=fragment.get('access_token');
 const errorDesc=fragment.get('error_description')||fragment.get('error');
 history.replaceState(null,'',location.pathname);
 function report(message){error.textContent=message;error.hidden=!message}
-if(errorDesc)report('The invitation link is invalid or expired. Request a new invitation.');
-else if(!token)report('No invitation token found. Open the full link from your invitation email.');
-else button.disabled=false;
+if(errorDesc || !token){
+  // Direct visits from the login page are instructions-only. There is no
+  // way to activate a tenant without the token supplied in the email.
+  form.hidden=true;
+  by('inviteInstructions').hidden=false;
+  if(errorDesc)by('inviteInstructionsText').textContent=
+    'Your invitation link is invalid or expired. Contact your VSPH administrator for a new invitation email.';
+}else button.disabled=false;
 form.addEventListener('submit',async event=>{
  event.preventDefault();
  if(!token)return;
