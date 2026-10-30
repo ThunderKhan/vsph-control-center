@@ -2,14 +2,28 @@ const {db,check} = require('./db');
 const {permittedContexts}=require('./access-policy');
 const {newToken,hashToken,cookieOptions,appCookie,SESSION_HOURS}=require('./tokens');
 function isFuture(iso) {return new Date(iso).getTime()>Date.now();}
+// Page navigations go to the proper sign-in screen. API calls retain JSON
+// 401 errors so consumers cannot accidentally interpret HTML as API data.
+function isPageNavigation(req) {
+ const target=String(req.originalUrl||req.url||'');
+ return req.method==='GET' && !target.startsWith('/api/');
+}
+function portalDenied(req,res,message) {
+ if(isPageNavigation(req))return res.redirect(302,'/login');
+ return res.status(401).json({message});
+}
+function appDenied(req,res,message,code) {
+ if(isPageNavigation(req))return res.redirect(302,'/apps/'+encodeURIComponent(code.toLowerCase())+'/login');
+ return res.status(401).json({message});
+}
 async function portalSession(req,res,next){
   try{
     const raw=req.cookies?.['vsph.portal.sid'];
-    if(!raw) return res.status(401).json({message:'Please log in.'});
+    if(!raw) return portalDenied(req,res,'Please log in.');
     const session=check(await db().from('portal_sessions').select('token_hash,user_id,expires_at').eq('token_hash',hashToken(raw)).maybeSingle());
-    if(!session||!isFuture(session.expires_at))return res.status(401).json({message:'Portal session expired. Please log in.'});
+    if(!session||!isFuture(session.expires_at))return portalDenied(req,res,'Portal session expired. Please log in.');
     const user=check(await db().from('profiles').select('id,full_name,email,status,platform_role').eq('id',session.user_id).maybeSingle());
-    if(!user||user.status!=='active')return res.status(401).json({message:'Account is disabled or unavailable.'});
+    if(!user||user.status!=='active')return portalDenied(req,res,'Account is disabled or unavailable.');
     req.portalSession=session; req.user=user; next();
   }catch(err){next(err)}
 }
@@ -38,9 +52,9 @@ async function requireApp(req,res,next){
  try{
   const code=String(req.params.app||'').toUpperCase();
   const raw=req.cookies?.[appCookie(code)];
-  if(!raw)return res.status(401).json({message:'Sign into the application first.'});
+  if(!raw)return appDenied(req,res,'Sign into the application first.',code);
   const session=check(await db().from('app_sessions').select('*').eq('token_hash',hashToken(raw)).eq('portal_token_hash',req.portalSession.token_hash).eq('user_id',req.user.id).maybeSingle());
-  if(!session||!isFuture(session.expires_at))return res.status(401).json({message:'Application session expired. Sign in again.'});
+  if(!session||!isFuture(session.expires_at))return appDenied(req,res,'Application session expired. Sign in again.',code);
   const app=await getApp(code);
   if(!app||app.id!==session.application_id)return res.status(403).json({message:'Application access denied.'});
   const contexts=await getContexts(req.user,app);
