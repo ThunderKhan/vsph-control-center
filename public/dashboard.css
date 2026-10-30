@@ -424,6 +424,8 @@ html[data-workspace-view="applications"] [data-view="overview"]{display:none!imp
 /* Narrow layouts retain the existing full-width off-canvas navigation.
    Desktop collapse state can be persisted without affecting the mobile drawer. */
 @media(max-width:950px){
+  /* Keep the existing close button positioned against the mobile drawer. */
+  .sidebar-heading{position:static}
   .sidebar-collapse-toggle{display:none}
 }
 @media(prefers-reduced-motion:reduce){
