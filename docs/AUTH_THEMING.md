@@ -20,6 +20,8 @@ The portal, CRM and Music login pages use **one reusable view**, **one browser c
 - **`/apps/crm/login`** and **`/apps/music/login`** display the **same** shared view in app mode. Express checks the portal session and user's product access before rendering. The controller loads authorized organization contexts from `GET /api/apps/:code/contexts`.
 - The customer picker appears only in app mode. Submitting calls `POST /api/auth/app-login`, which **re-verifies password, portal account, customer membership and app-specific role** before starting an app-scoped session.
 - The client-side route detection and theme configuration are **not authorization mechanisms**. The backend still enforces all permission and tenant boundaries.
+- Opening a product URL anonymously redirects to `/login`. With only a portal session, opening its workspace redirects to the product's second login; API calls return JSON `401` instead. If a browser has a still-valid portal cookie, typing a product URL can reach its **authorized** second login without typing portal credentials again. This is normal session behavior, not a bypass.
+- Protected page and API responses are marked `Cache-Control: no-store`. A visit to `/login` does **not** log out an existing session; sign out or use a fresh private browser window when testing anonymous access.
 - `/login.html` redirects to `/login`; old duplicate login files were removed.
 
 ## Customizing a product's login
