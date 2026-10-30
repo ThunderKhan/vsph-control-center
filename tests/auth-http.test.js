@@ -14,7 +14,7 @@ test('direct URL visits cannot bypass VSPH portal login', async () => {
     for (const path of [
       '/apps/music/login', '/apps/music/home',
       '/apps/crm/login', '/apps/crm/home',
-      '/dashboard', '/admin'
+      '/dashboard', '/applications', '/admin'
     ]) {
       const response = await fetch(origin + path, {redirect: 'manual'});
       assert.equal(response.status, 302, path);
@@ -31,6 +31,15 @@ test('direct URL visits cannot bypass VSPH portal login', async () => {
       assert.match(response.headers.get('cache-control') || '', /no-store/, path);
     }
 
+    // Old bookmarks normalize to clean URLs; the destination still enforces login.
+    for (const [legacy, clean] of [
+      ['/dashboard.html','/dashboard'], ['/applications.html','/applications'],
+      ['/admin.html','/admin'], ['/login.html','/login'], ['/index.html','/login']
+    ]) {
+      const response = await fetch(origin + legacy, {redirect:'manual'});
+      assert.equal(response.status,302,legacy);
+      assert.equal(response.headers.get('location'),clean,legacy);
+    }
     for (const path of ['/app-home.html', '/app-login.html']) {
       const response = await fetch(origin + path, {redirect: 'manual'});
       assert.equal(response.status, 404, path);
