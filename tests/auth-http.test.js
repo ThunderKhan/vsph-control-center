@@ -12,7 +12,7 @@ test('direct URL visits cannot bypass VSPH portal login', async () => {
     await once(server, 'listening');
     const origin = 'http://127.0.0.1:' + server.address().port;
     for (const path of [
-      '/apps/music/login', '/apps/music/home',
+      '/apps/music/login', '/apps/music/launch', '/apps/music/home',
       '/apps/crm/login', '/apps/crm/home',
       '/dashboard', '/applications', '/admin'
     ]) {
