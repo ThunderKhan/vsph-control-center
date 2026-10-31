@@ -88,3 +88,5 @@ jobs:
           node-version: '20'
       - run: npm ci
       - run: npm audit --omit=dev --audit-level=high
+      - name: Development dependency high-severity gate
+        run: npm audit --audit-level=high

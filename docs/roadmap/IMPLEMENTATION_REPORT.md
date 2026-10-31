@@ -1,3 +1,42 @@
+# Phase 3 implementation and acceptance — 31 October 2026
+
+Engineering delivery is implemented as a project-scoped, read-only GitHub App workflow, verified with durable isolated database/provider/browser fixtures. Live GitHub App/Supabase/Vercel acceptance and production release remain blocked; full enterprise readiness is not claimed. Phase 3 started from verified main `25dcfed5a74f1e43c1bd49ff687a3f36cce082d7`; feature main is `c569638078a9f4deddb68e81039c74fc32a80d6c`. Final acceptance PR #26 records its own merge SHA in GitHub metadata and adds an empty-contributor response regression (104 Node cases total), exact installation-ID checking, bounded delivery HTTP throttling, clearer table screenshots and a full development-dependency high-severity gate. [PROGRESS.md](PROGRESS.md) has M0–M12 status and every Phase 3 PR/merge SHA.
+
+## Implemented and verified
+
+- Platform-approved project installation/account → manager repository discovery/selection → canonical metadata and bounded commit/contributor/PR/Actions/check/release/tag synchronization. GitHub owns source facts. Repository-scoped read tokens stay server-only; no PAT UI or code/deployment writes.
+- Durable per-page checkpoints, expiring fenced leases, SKIP LOCKED claims, duplicate prevention, persistent backoff/attention and safe disconnect/reconnect. Optional raw-body HMAC webhooks dedupe delivery UUID/hash and queue canonical polling; polling works independently. Source data hides from clients/unrelated/revoked users and inactive connections/approvals.
+- Responsive Engineering screen shows connection state/freshness/checkpoint/retry, type-filtered source records, immutable historical snapshots, explicit same-project task/milestone links and original GitHub links. No similar-name inference or fabricated deployment facts.
+- Transactional in-app notification capture for assignments, milestone completion and PR/release/build failure/recovery changes; preferences, deduped outbox, bounded dispatch, failure retries/attention recovery and read ownership. Daily overdue assigned-task scan is an explicitly invoked finite batch.
+- Scoped reports filter project/customer/owner/state/project creation date and reconcile stored work, milestones, requested PR reviews and retained build observations. Generated/sync timestamps distinguish freshness. Historical failed observations do not claim latest-branch health, uptime or forecasts.
+- M5 static adapter/role/payload registry, truthful portal-only fallback and generic product cookie cleanup. Native tests exercise a third product's context, entitlement revocation and logout cascade without route changes. Full registry governance remains partial.
+- M3 own-session inventory/public UUIDs and atomic revoke-other-session/product cascade/audit, including real concurrent denial. No hashes/cookies/device claims are exposed. MFA/step-up/recovery remain incomplete.
+
+## Evidence and failed checks
+
+Feature [CI 41173930156](https://github.com/ThunderKhan/vsph-control-center/actions/runs/41173930156): **103 Node tests, 20 native PostgreSQL tests and 14 desktop/mobile Chromium cases passed**, plus syntax, lint, formatting, coverage and production dependency audit. Native PostgreSQL 17 and ordinary-user disposable PostgreSQL helper both pass; authenticated Chromium and its disposable helper both pass. [Browser report/screenshots](https://github.com/ThunderKhan/vsph-control-center/actions/runs/41173930156/artifacts/13031983404) show only synthetic identities and fixture/sandbox data. Local supplemental PostgreSQL WASM/Chromium and SQL/HTTP checks passed; these supplement native CI and do not verify hosted PostgREST/Auth or live GitHub.
+
+Failures corrected before merge: SQL alias ambiguity; null lease comparison; webhook/reconnect backoff bypass; check-run source timestamps; worker retry override; fixture API Origin omission. One Node 20 worker serialization failure was not merged; subsequent quiet-startup rerun passed. Development audit now reports six moderate findings via minimatch <11.0.1 (GHSA-g3hv-75wg-m249), no high/critical; production audit is clean. Current tool dependency ranges are major 10 while the published patch is major 11; unsafe forced downgrade/override was not applied. This remains explicit risk R16. Coverage output is collected without claiming full production-provider coverage. Windows-native execution was unavailable.
+
+## Migration and provider state
+
+Phase 2 migrations 002/003/004 were re-reviewed with their core schema/Music/001 dependencies. Phase 3 adds 005 delivery persistence/functions, 006 notification/reporting infrastructure and 007 session IDs/revocation. **All are unapplied hosted.** Native populated upgrade rehearsal inserts an existing disabled/invited identity, tenant and session before 005–007, then checks preservation and session ID backfill. This is not a hosted backup/restore rehearsal. No Supabase connector/runtime keys/approved isolated hosted target were available, so hosted history, backup, actual Auth and PostgREST privileges remain unverified.
+
+Connected Vercel inventory returned 14 projects; the project called vsph is Next.js with a different hostname and no established Control Center Git mapping. No authorized VSPH project-to-Vercel binding was established; Vercel remains disabled. Music is unchanged by Phase 3 and must independently prove its source/backend/SSO. Companion [Music PR #1](https://github.com/ThunderKhan/taj-santacruz-smart-guest-platform/pull/1) was reconfirmed open/unmerged at head dff464ce98848b8c3e8a04830ed6ab5a7f0443d5. No backend deployment requiring missing migrations was performed. No real customer emails, production mutations, purchases, credential changes or automatic deployment/rollback occurred.
+
+## Operational limits and exact remaining work
+
+- Configure an organization-owned least-privilege App, installation/account ownership and server-only key/optional webhook secret; approve installation per project and run real sandbox comparison. Fixture success is not this live acceptance.
+- Reconcile hosted migration history, take/verify staging backup, install ordered migrations and exercise real Auth/PostgREST/restore before separate deployment approval.
+- At most 20 connections/project, 10×100 pages/category/cycle, 10,000 records/connection and latest 200 records/events; discovery 50×50 repos. These are bounded recent observations, not a complete GitHub archive. Check runs cover the default branch; workflow runs cover provider-returned runs. Requested reviewers are not approval decisions. Contributors/tags have unknown source timestamps.
+- Explicit finite github:sync and notifications:dispatch schedulers are required for unattended refresh/reminders. The app does not start hidden workers. Provider-side removal may only be observed at the next successful poll if webhooks are absent. Event/outbox/receipt retention and operational monitoring require ownership.
+- Vercel deployment/environment/failure ingestion, live URLs and release-to-deployment associations remain disabled/unimplemented pending ownership. No production promotion/rollback exists.
+- M5 owner/lifecycle/environment/support/document metadata, atomic legacy admin operations and verified health; M9 global search/export/pagination, overdue milestone/subscription/security/external notices; M3 MFA/recovery/invitation governance; M11 distributed limits/restore/load/incident/alerts/full accessibility remain outstanding.
+
+Use [GITHUB_DELIVERY.md](../operations/GITHUB_DELIVERY.md), [PROJECT_NOTIFICATIONS.md](../operations/PROJECT_NOTIFICATIONS.md), [PRODUCT_ADAPTERS.md](../operations/PRODUCT_ADAPTERS.md), [ACCOUNT_SESSIONS.md](../operations/ACCOUNT_SESSIONS.md), [PHASE3_MIGRATIONS.md](../operations/PHASE3_MIGRATIONS.md), [WINDOWS_HANDOFF.md](../operations/WINDOWS_HANDOFF.md) and [MANUAL_QA.md](../operations/MANUAL_QA.md). The historical Phase 2 report follows for continuity; its status statements describe that cutoff.
+
+---
+
 # Phase 2 implementation and acceptance report — 31 October 2026
 
 **Projects MVP is implemented with durable data and permissions and verified in isolated PostgreSQL/browser acceptance. Hosted rollout is NOT performed or approved; full enterprise readiness is not claimed.** Execution continued from `2131e3710a7cd52c4de4b3e5ebe26bad9f93c1dc`. Feature main is `af2abd0829b7754b8819d83b1c53325b7a7369a6`; this final acceptance/report change has its own later PR/merge metadata.

@@ -273,3 +273,32 @@ test("unchanged checks retain source time and transient failures delegate expone
   });
   assert.equal(calls[1][3].retryAfter, undefined);
 });
+
+test("empty contributor responses advance the durable page without fabricating records", async () => {
+  const repo = {
+    id: 9,
+    owner: { id: 8 },
+    full_name: "fixture/private",
+    default_branch: "main",
+    private: true,
+  };
+  const provider = client({
+    config,
+    fetchImpl: async (url) =>
+      url.endsWith("/access_tokens")
+        ? response({ token: "test" })
+        : url.endsWith("/repositories/9")
+          ? response(repo)
+          : url.includes("/contributors?")
+            ? new Response(null, { status: 204 })
+            : response(installation),
+  });
+  const result = await provider.page({
+    installation_id: 7,
+    account_id: 8,
+    repository_id: 9,
+    checkpoint: { kind: 1, page: 1 },
+  });
+  assert.deepEqual(result.records, []);
+  assert.deepEqual(result.checkpoint, { kind: 2, page: 1 });
+});

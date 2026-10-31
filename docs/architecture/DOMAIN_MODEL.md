@@ -11,3 +11,7 @@ Existing relationships: auth.users → profiles → organization_memberships; or
 Project tables enforce same-project and same-tenant relationships at the database layer as well as in API predicates. Links start as HTTPS metadata only; attachments require separate policy and storage review.
 
 Phase 2 implementation: project tables/functions and explicit role matrix are in PROJECTS.md. Provisioning jobs, membership invitations and encrypted invitation outbox are a separate workflow domain, not projects or product subscriptions. Development teams are per-project membership labels in this MVP.
+
+Phase 3 adds project-specific GitHub App installation approvals → repository connections → read-only provider observations → immutable delivery event snapshots. Task/milestone links reference provider observations in the same project. Repository ownership remains at GitHub; Control Center is not a source-control server. Optional webhooks enqueue canonical polling, not untrusted payload facts.
+
+Project notification outbox → user inbox is a separate delivery workflow with personal preferences and current permission checks. Reports derive from scoped project work and ingested observations. Product adapter registry remains separate from both project permissions and organization entitlements. Public session UUIDs are display/revocation identifiers, never authentication credentials. No Vercel mapping, live deployment or enterprise health metric is inferred from a similar product name.

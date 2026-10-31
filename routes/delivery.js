@@ -9,6 +9,7 @@ const {
   ProviderError,
 } = require("../services/github/provider");
 const { tick } = require("../services/github/sync");
+const { rateLimit } = require("../http-security");
 const command = (actor, action, id, data = {}) =>
   db()
     .rpc("delivery_command", {
@@ -35,12 +36,16 @@ function fields(body, allowed) {
 }
 function router({ provider = client(), call = command } = {}) {
   const r = express.Router({ mergeParams: true });
-  r.use(portalSession, (req, res, next) => {
-    res.set("Cache-Control", "no-store");
-    if (!uuid(req.params.projectId))
-      return res.status(400).json({ message: "Invalid project." });
-    next();
-  });
+  r.use(
+    portalSession,
+    rateLimit({ limit: 120, windowMs: 60000 }),
+    (req, res, next) => {
+      res.set("Cache-Control", "no-store");
+      if (!uuid(req.params.projectId))
+        return res.status(400).json({ message: "Invalid project." });
+      next();
+    },
+  );
   const run = (fn) =>
     rpcRoute(async (req, res) => {
       try {

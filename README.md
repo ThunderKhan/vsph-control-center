@@ -1,6 +1,6 @@
 # VSPH Control Center — Supabase edition
 
-Projects MVP and durable provisioning are implemented. **Target rollout requires reviewed migrations 20261031000200, 20261031000300 and 20261031000400 before deploying this backend. No hosted migration/deployment is implied by a Git merge.** See [Projects guide](docs/operations/PROJECTS_GUIDE.md), [provisioning operations](docs/operations/PROVISIONING_V2.md), and [current execution report](docs/roadmap/IMPLEMENTATION_REPORT.md).
+Projects MVP, durable provisioning, read-only GitHub delivery, project inbox/reporting and own-session controls are implemented. **Target rollout requires all reviewed ordered migrations through 20261031000700 before deploying this backend. No hosted migration/deployment is implied by a Git merge.** See [Projects guide](docs/operations/PROJECTS_GUIDE.md), [provisioning operations](docs/operations/PROVISIONING_V2.md), and [current execution report](docs/roadmap/IMPLEMENTATION_REPORT.md).
 
 VSPH's multi-tenant product portal (Express + vanilla HTML/JS/CSS), integrated with **Supabase Auth** and **hosted PostgreSQL**. The portal workspace dashboard and login were redesigned with the company design system while retaining the existing backend permissions. The old MySQL integration was replaced.
 
@@ -13,6 +13,12 @@ Invitations are purpose-bound, expiring, single-use capabilities for one members
 ## Internal project delivery
 
 Open `/projects` to create internal/customer engagements, assign accountable owners and project teams, manage milestones/dependencies/tasks/priorities/dates, collect comments/HTTPS deliverables and inspect activity/progress. Project membership is separate from product roles and entitlements. Managers govern work; contributors update assigned task status; viewers and explicitly shared customer viewers are read-only. Mutations validate current access and project version in PostgreSQL with atomic audit. See [usage and API contract](docs/operations/PROJECTS_GUIDE.md).
+
+## Engineering delivery and project operations — Phase 3
+
+Projects → Engineering supports project-specific GitHub App approval, authorized repository discovery/selection, bounded read-only sync, source-linked PR/build/release history and explicit task/milestone links. Tokens stay server-only; the connector is off until an operator configures and installs the least-privilege App. Vercel remains disabled without verified ownership. Live GitHub/Supabase acceptance is unverified; isolated fixture success does not certify it. See [GitHub setup/limits](docs/operations/GITHUB_DELIVERY.md).
+
+Project inbox/reporting provides transactional in-app notifications, preferences/read/retry controls and scoped work/engineering reports. Your active sessions permits private own-session inventory/revocation with product-session cascade. Explicit finite `github:sync` and `notifications:dispatch` commands support scheduling; normal server startup never starts hidden workers or sends customer email. See [notifications/reports](docs/operations/PROJECT_NOTIFICATIONS.md), [sessions](docs/operations/ACCOUNT_SESSIONS.md), [migration readiness](docs/operations/PHASE3_MIGRATIONS.md), [full PowerShell handoff](docs/operations/WINDOWS_HANDOFF.md), and [manual QA](docs/operations/MANUAL_QA.md).
 
 ## Music external app launch and central SSO foundation (PR #5)
 
@@ -51,7 +57,7 @@ See **[docs/DASHBOARD_DESIGN.md](docs/DASHBOARD_DESIGN.md)** for navigation, res
 
 ## Requirements
 
-- Node.js 20+ (Windows PowerShell is supported)
+- Node.js >=20.19 (Linux CI verified; Windows PowerShell commands supplied, native Windows execution unavailable)
 - A new [Supabase](https://supabase.com/dashboard) project with its **Project URL**, **publishable key** (or legacy anon key), and **secret key** (or legacy service_role key)
 - Internet access from the Node.js server to Supabase
 - No local PostgreSQL installation, Docker, or MySQL needed.
@@ -77,7 +83,7 @@ SUPABASE_SECRET_KEY=sb_secret_...
 PORT=3000
 PUBLIC_ORIGIN=http://localhost:3000
 NODE_ENV=development
-DEMO_PASSWORD=choose-a-unique-12-plus-character-password
+DEMO_PASSWORD= # Optional isolated bootstrap only; normal startup needs no demo password
 ```
 
 For older projects, the **anon key** can be used in `SUPABASE_PUBLISHABLE_KEY` and the **service_role key** in `SUPABASE_SECRET_KEY`. **Do not commit `.env` to Git.**
@@ -178,7 +184,7 @@ seed.js                   Create demo identities, tenants, product access
 - The **secret/service-role key bypasses RLS**. It is only stored on the Node backend. Direct database access by browser roles is denied, and backend queries explicitly filter `organization_id`. This is a prototype architecture; a production system should add DB-level tenant enforcement with scoped user JWT / appropriate RLS policies, or protected tenant-aware RPC functions, then penetration-test the boundaries.
 - Account creation spans the Supabase Auth service and PostgREST calls, so it is not truly atomic. The client creation endpoint attempts cleanup if later steps fail; production must implement provisioning jobs / retry or a database transaction via a dedicated RPC.
 - Demo account credentials should be replaced with individual customer credentials and password reset/onboarding workflows.
-- Portal and app sessions expire after 4 hours, are stored hashed, and are tied together; portal logout cascades through app sessions. For production, add rate limiting, refresh flows, MFA, operational logging, backups and automated end-to-end tests.
+- Portal and app sessions expire after 4 hours, are stored hashed, and are tied together; portal logout cascades through app sessions. Process rate limits, self-service revocation, native PostgreSQL and authenticated browser tests exist. Distributed limits, MFA/recovery, real provider/staging UAT, operational restore/load/incident controls remain release gates.
 - The `role` check supports viewer as read-only; granular permissions in larger CRM/Music feature sets are not implemented yet.
 - No live Supabase keys are bundled; a real connection and database integration testing must be completed in **your own** Supabase project.
 - Currently runs as a local Node/Express server. Supabase hosts the database/authentication, **not** this Express frontend/backend. For internet hosting, deploy Node separately (e.g. Render, Railway, Fly.io, Vercel with configuration).

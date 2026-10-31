@@ -90,6 +90,7 @@ function client({
         throw new ProviderError("repository_unavailable", 3600);
       throw new ProviderError("provider_unavailable");
     }
+    if (response.status === 204) return null;
     // Bound actual streamed bytes, including a response without Content-Length.
     let bytes = 0;
     const chunks = [];
@@ -115,6 +116,7 @@ function client({
       appJwt(config),
     );
     if (
+      String(data.id) !== String(id) ||
       String(data.app_id) !== config.appId ||
       data.suspended_at ||
       !positive(data.account?.id) ||
@@ -243,7 +245,12 @@ function client({
       "per_page=100&page=" +
       page;
     const data = await request(path, access),
-      list = Array.isArray(data) ? data : data.workflow_runs || data.check_runs;
+      list =
+        data === null
+          ? []
+          : Array.isArray(data)
+            ? data
+            : data.workflow_runs || data.check_runs;
     if (!Array.isArray(list) || list.length > 100)
       throw new ProviderError("invalid_provider_response");
     const records = list.map((x) => normalize(kind, x, repo.fullName, now()));

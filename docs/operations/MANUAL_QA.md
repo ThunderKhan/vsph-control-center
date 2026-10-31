@@ -104,3 +104,21 @@ The Projects MVP now exists at /projects after staging migration installation. T
 - [ ] Reject legacy bearer activation, wrong/missing purpose proof, expiry, replay, revoked capability and existing-account identity mismatch. Accept one invite without activating another pending membership.
 
 Automated isolated PostgreSQL and desktop/mobile workflows cover these core paths; full hosted Auth/provider/SMTP, real-device/accessibility and production UAT remain separate sign-offs.
+
+## Phase 3 engineering, inbox and sessions
+
+- [ ] Approved migrated staging only: verify 002–007 history/backup and real PostgREST/Auth behavior. Confirm no bootstrap/seed/customer emails/deployment occurs during fixture tests.
+- [ ] Default disabled GitHub connector explains required setup. App ID/key/secret/token never appear in HTML, JSON, console, logs or screenshots. Invalid key/permission/token fails safely.
+- [ ] Platform admin verifies project-specific installation; manager discovers paginated repositories only from that installation. Wrong account/App, suspended or missing permission denies. Product admin, contributor, client and outsider cannot connect/synchronize/disconnect.
+- [ ] Connect one or multiple authorized repos; canonical name/default branch/private state match GitHub. Sync categories advance bounded checkpoints and survive reload/restart. Confirm commits/contributors, all PR states, runs/checks, releases and tags against actual sandbox sources after provider setup.
+- [ ] Inspect source/observation timestamps, unknown tag/contributor times, stale data, rate-limit deadline and attention. Duplicate polling/webhooks create no duplicate records/events. Retry/webhook/reconnect cannot bypass persisted backoff. Invalid/tampered/conflicting webhook denies.
+- [ ] Disconnect during a claimed sync; stale worker cannot publish. Revoke installation/project membership; private records, links, notifications and reports disappear on subsequent reads. Client sharing never grants engineering metadata. Cross-project task/milestone/source IDs deny.
+- [ ] Link PR/release using explicit persisted IDs; reload and verify association. Do not infer linkage by similar titles. Compare historical failure/recovery timeline with source state.
+- [ ] Vercel displays disabled/unconfigured until exact ownership/source/project mapping is established. No Music hostname is connected by name similarity. No automatic deploy/rollback/secret operation exists.
+- [ ] Assignment, milestone completion, PR/release change and build failure/recovery enter personal in-app inbox; repeat dispatch does not duplicate. Preference opt-out suppresses new delivery. Mark read affects only own entry. Test internal dispatcher failure/backoff/attention retry.
+- [ ] Run approved finite overdue scan; daily task/user reminders dedupe. Verify overdue task completion/date and assignee/permission changes. Overdue milestone and external-channel notices remain incomplete.
+- [ ] Reconcile report task progress/assignments/overdue/milestone/open PR/requested-review/failure counts; filter project/customer/owner/lifecycle/creation dates. Reject invalid UUID/date/filter, wrong-tenant IDs and disabled sessions. Retained failed observations are not current uptime/build health.
+- [ ] Verify desktop collapse, mobile drawer, horizontal delivery/report table scrolling, keyboard labels, source link safety and no page overflow. Full accessibility/real-device/zoom certification remains pending.
+- [ ] Register isolated third sandbox product and entitlement; generic context works without code changes, denies revoked/expired/wrong-tenant access, reports unconfigured operational records and clears its cookie/session on portal logout. CRM/Music policies still hold.
+- [ ] Own session inventory shows current/other created/expiry timestamps and no hashes/cookies. Wrong-user ID cannot revoke another user, current session is preserved, other product sessions cascade, simultaneous revocations fail closed. Expired/revoked current session denies.
+- [ ] Repeat existing login/dashboard/onboarding/purpose-bound invite/subscription/product/admin/audit/logout matrix above. MFA/recovery/legacy invitations/Music live SSO require their separate remaining acceptance.
