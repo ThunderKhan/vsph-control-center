@@ -1,0 +1,103 @@
+const test = require("node:test"),
+  assert = require("node:assert/strict");
+const { spawnSync } = require("node:child_process");
+const {
+  verifyManifest,
+  assess,
+  tables,
+  signatures,
+} = require("../services/readiness/database");
+const clean = () => ({
+  roles: ["anon", "authenticated", "service_role"],
+  tables: tables.map((name) => ({ name, rls: true, browserAccess: false })),
+  functions: signatures.map((signature) => ({
+    signature,
+    exists: true,
+    definer: true,
+    fixedSearchPath: true,
+    browserExecute: false,
+    serviceExecute: true,
+  })),
+  historyExists: true,
+  history: [],
+  sessionPublicId: true,
+});
+test("manifest hashes every ordered migration and rejects drift", () => {
+  const { manifest, errors } = verifyManifest();
+  assert.deepEqual(errors, []);
+  assert.equal(manifest.migrations.length, 9);
+  const changed = structuredClone(manifest);
+  changed.migrations[0].sha256 = "0".repeat(64);
+  assert.ok(
+    verifyManifest(changed).errors.some((e) => e.startsWith("checksum:")),
+  );
+});
+test("legacy collision and missing ledger block readiness even with complete catalogs", () => {
+  const { manifest } = verifyManifest(),
+    s = clean();
+  s.history = manifest.migrations.map((m) => ({
+    version: m.version,
+    name: m.name,
+  }));
+  const result = assess(s, manifest);
+  assert.equal(result.catalogChecksPassed, true);
+  assert.equal(result.historyReconciled, false);
+  assert.equal(result.releaseReady, false);
+  assert.ok(
+    result.blockers.includes(
+      "legacy_version_collision_requires_reconciliation",
+    ),
+  );
+});
+test("missing tables/functions, RLS and direct browser grants fail closed", () => {
+  const { manifest } = verifyManifest(),
+    s = clean();
+  s.tables[0].browserAccess = true;
+  s.tables[1].rls = false;
+  s.functions[0].fixedSearchPath = false;
+  s.functions[1].browserExecute = true;
+  s.functions.pop();
+  s.tables.pop();
+  const result = assess(s, manifest);
+  assert.equal(result.catalogChecksPassed, false);
+  for (const prefix of [
+    "browser_table_access:",
+    "rls_disabled:",
+    "unsafe_function:",
+    "function_grants:",
+    "missing_function:",
+    "missing_table:",
+  ])
+    assert.ok(result.blockers.some((b) => b.startsWith(prefix)));
+});
+test("staging inspection refuses absent approval, mismatch and insecure remote TLS without logging credentials", () => {
+  for (const extra of [
+    {},
+    {
+      STAGING_INSPECTION_APPROVED: "true",
+      STAGING_DATABASE_URL:
+        "postgres://private:never-print@localhost/vsph_test",
+      STAGING_DATABASE_HOST: "wrong",
+      STAGING_DATABASE_NAME: "vsph_test",
+    },
+    {
+      STAGING_INSPECTION_APPROVED: "true",
+      STAGING_DATABASE_URL:
+        "postgres://private:never-print@remote.example.test/postgres?sslmode=no-verify",
+      STAGING_DATABASE_HOST: "remote.example.test",
+      STAGING_DATABASE_NAME: "postgres",
+    },
+  ]) {
+    const result = spawnSync(
+      process.execPath,
+      ["scripts/staging-readiness.js"],
+      {
+        cwd: process.cwd(),
+        env: { PATH: process.env.PATH, ...extra },
+        encoding: "utf8",
+      },
+    );
+    assert.equal(result.status, 1);
+    assert.doesNotMatch(result.stdout + result.stderr, /never-print/);
+  }
+});

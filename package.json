@@ -19,7 +19,9 @@
     "test:e2e:db": "node scripts/local-database.mjs --e2e",
     "invitations:dispatch": "node scripts/dispatch-invitations.js",
     "github:sync": "node scripts/sync-github.js",
-    "notifications:dispatch": "node scripts/dispatch-project-notifications.js"
+    "notifications:dispatch": "node scripts/dispatch-project-notifications.js",
+    "check:migrations": "node scripts/staging-readiness.js --manifest-only",
+    "staging:inspect": "node scripts/staging-readiness.js"
   },
   "engines": {
     "node": ">=20.19"
