@@ -101,3 +101,18 @@ test("staging inspection refuses absent approval, mismatch and insecure remote T
     assert.doesNotMatch(result.stdout + result.stderr, /never-print/);
   }
 });
+
+test("CRM and Music tenant tables are mandatory security inspection targets", () => {
+  const { manifest } = verifyManifest();
+  for (const name of ["crm_contacts", "music_requests"]) {
+    assert.ok(tables.includes(name));
+    const s = clean();
+    s.tables.find((t) => t.name === name).browserAccess = true;
+    assert.ok(
+      assess(s, manifest).blockers.includes("browser_table_access:" + name),
+    );
+    s.tables.find((t) => t.name === name).browserAccess = false;
+    s.tables.find((t) => t.name === name).rls = false;
+    assert.ok(assess(s, manifest).blockers.includes("rls_disabled:" + name));
+  }
+});

@@ -53,6 +53,8 @@ const tables = [
   "portal_sessions",
   "app_sessions",
   "audit_logs",
+  "crm_contacts",
+  "music_requests",
   "sso_launch_codes",
   "provisioning_jobs",
   "membership_invitations",
