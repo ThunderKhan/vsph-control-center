@@ -89,6 +89,10 @@ function router({ provider = client(), call = command } = {}) {
     run(async (req) => ({
       ...(await detail(req)),
       configured: Boolean(configuration()),
+      providerMode:
+        configuration()?.mode === "isolated-fixture"
+          ? "isolated-fixture"
+          : "live-unverified",
       vercel: {
         enabled: false,
         reason: "No verified project ownership mapping.",
@@ -235,17 +239,15 @@ function webhook({
         event === "installation" &&
         ["deleted", "suspend"].includes(data.action);
       const hash = crypto.createHash("sha256").update(req.body).digest("hex");
-      res
-        .status(202)
-        .json(
-          await call(null, "webhook", null, {
-            deliveryId,
-            hash,
-            installationId: data.installation.id,
-            repositoryId: data.repository?.id || 0,
-            revoked,
-          }),
-        );
+      res.status(202).json(
+        await call(null, "webhook", null, {
+          deliveryId,
+          hash,
+          installationId: data.installation.id,
+          repositoryId: data.repository?.id || 0,
+          revoked,
+        }),
+      );
     } catch (e) {
       if (e instanceof SyntaxError)
         return res.status(400).json({ message: "Invalid webhook." });

@@ -674,6 +674,11 @@
     renderMilestones();
     renderTeam();
     renderDelivery();
+    document.dispatchEvent(
+      new CustomEvent("vsph:project-loaded", {
+        detail: { project: detail, user },
+      }),
+    );
     const activity = $("activityList");
     activity.replaceChildren();
     const labels = {
