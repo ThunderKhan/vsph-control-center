@@ -1,4 +1,6 @@
 const crypto = require("node:crypto");
+const { isDeepStrictEqual } = require("node:util");
+const jsonDetails = (value) => JSON.parse(JSON.stringify(value || {}));
 const { uuid } = require("../rpc");
 const categories = [
   "commit",
@@ -133,6 +135,10 @@ async function verifyGithub({ provider, target, readApplication }) {
         original.state !== stored.state ||
         original.title !== stored.title ||
         original.url !== stored.url ||
+        !isDeepStrictEqual(
+          jsonDetails(original.details),
+          jsonDetails(stored.details),
+        ) ||
         new Date(original.sourceAt).getTime() !==
           new Date(stored.source_at).getTime()
       )

@@ -179,3 +179,68 @@ test("stale persisted facts cannot pass a live comparison", async () => {
     /stale/,
   );
 });
+
+test("detail-only provider changes fail and JSONB object key ordering is irrelevant", async () => {
+  const target = {
+    ...approvedTarget(env),
+    projectId: "allowed",
+    deniedProjectId: "denied",
+  };
+  const live = {
+    ...records[0],
+    kind: "contributor",
+    sourceId: "7",
+    details: { contributions: 100, login: "dev", optional: undefined },
+  };
+  const providerWithDetails = {
+    ...provider,
+    page: async (c) => ({
+      fullName: "fixture/private",
+      records: c.checkpoint.kind === 1 ? [live] : [],
+    }),
+  };
+  let details = { login: "dev", contributions: 1 };
+  const readApplication = async (id) =>
+    id === "denied"
+      ? { status: 403, data: {} }
+      : {
+          status: 200,
+          data: {
+            connections: [
+              {
+                id: "c",
+                repository_id: 9,
+                installation_id: 7,
+                status: "active",
+              },
+            ],
+            records: [
+              {
+                connection_id: "c",
+                kind: "contributor",
+                source_id: "7",
+                title: live.title,
+                state: live.state,
+                url: live.url,
+                source_at: live.sourceAt,
+                details,
+              },
+            ],
+          },
+        };
+  await assert.rejects(
+    verifyGithub({ provider: providerWithDetails, target, readApplication }),
+    /stale/,
+  );
+  details = { login: "dev", contributions: 100 };
+  assert.equal(
+    (
+      await verifyGithub({
+        provider: providerWithDetails,
+        target,
+        readApplication,
+      })
+    ).persistedReadComparisonVerified,
+    true,
+  );
+});
