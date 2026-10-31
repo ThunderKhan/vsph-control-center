@@ -1,6 +1,7 @@
 const express=require('express');
 const {db,publicAuth,check}=require('../db');
 const {newToken,hashToken,cookieOptions,appCookie,portalSession,getApp,getContexts,SESSION_HOURS}=require('../security');
+const {applicationCookieNames}=require('../products/adapters');
 const router=express.Router();
 const expiry=()=>new Date(Date.now()+SESSION_HOURS*3600000).toISOString();
 async function verifyCredentials(email,password){
@@ -55,7 +56,7 @@ router.post('/logout',async(req,res,next)=>{
   const raw=req.cookies?.['vsph.portal.sid'];
   if(raw)check(await db().from('portal_sessions').delete().eq('token_hash',hashToken(raw)));
   res.clearCookie('vsph.portal.sid',{path:'/',sameSite:'lax',secure:process.env.NODE_ENV==='production'});
-  for(const app of ['CRM','MUSIC'])res.clearCookie(appCookie(app),{path:'/',sameSite:'lax',secure:process.env.NODE_ENV==='production'});
+  for(const name of applicationCookieNames(req.cookies))res.clearCookie(name,{path:'/',sameSite:'lax',secure:process.env.NODE_ENV==='production'});
   res.json({message:'Signed out.'});
  }catch(err){next(err)}
 });

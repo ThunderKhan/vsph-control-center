@@ -1,0 +1,7 @@
+# Reviewed product adapters
+
+M5 incremental foundation: products/adapters.js owns the static CRM/Music table/role/payload definitions. A database product code never selects an arbitrary table or executable plugin. Unknown products use the portal-only adapter: normal product login, subscription, tenant, membership, role and session checks still apply, but no operational records or external health are invented. Context diagnostics expose capabilities and a fixed local launch path; they contain no credentials or user-editable redirects.
+
+Third sandbox products can use the existing application/role/grant registry without adding a route or cookie-cleanup entry. Native fixtures create a third product and verify scoped context, no-record fallback, entitlement revocation and portal logout cascading its session. Portal logout clears received syntactically valid product cookies, including newly registered products. Existing CRM/Music record role/field allowlists remain enforced server-side.
+
+This does not complete M5: governed registry ownership/lifecycle/environment metadata, atomic legacy application administration, integration diagnostics/verified service probes, support/doc details and reviewed external launch configuration remain backlog. No health is marked healthy without evidence. Music SSO is unchanged and disabled until its independent provenance/backend requirements pass. No hosted product or seed was created.

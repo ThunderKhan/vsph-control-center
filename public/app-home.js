@@ -8,7 +8,7 @@ async function api(url,options={}){
 }
 async function load(){
  try{
-  const {application,organization,user,role,capabilities}=await api(`/api/apps/${code}/context`);
+  const {application,organization,user,role,capabilities,integration}=await api(`/api/apps/${code}/context`);
   document.getElementById('appTitle').textContent=application.name;
   document.getElementById('userName').textContent=user.name;
   document.getElementById('tenantName').textContent=organization.name;
@@ -20,9 +20,10 @@ async function load(){
   }else if(code==='MUSIC'){
    document.getElementById('recordsHeading').textContent='Music Requests';
    document.getElementById('recordForm').innerHTML='<label for="fieldOne">Song title</label><input id="fieldOne" required maxlength="150" placeholder="Song title"><label for="fieldTwo">Artist</label><input id="fieldTwo" maxlength="150" placeholder="Artist"><button>Add request</button>';
-  }else{document.getElementById('recordsHeading').textContent='Module coming soon';document.getElementById('recordForm').hidden=true}
+  }else{document.getElementById('recordsHeading').textContent='Product workspace';document.getElementById('recordForm').hidden=true;document.getElementById('workspaceDescription').textContent='Product access verified. No operational record adapter is connected. External service health is unverified.'}
   if(!capabilities?.createRecords){document.getElementById('recordForm').hidden=true;message.textContent='View-only access.'}
-  await loadRecords();
+  if(integration?.recordsConfigured)await loadRecords();
+  else document.querySelector('.records-table')?.setAttribute('hidden','');
  }catch(err){message.textContent=err.message}
 }
 async function loadRecords(){
