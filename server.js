@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({quiet:true});
 const express=require('express');const path=require('node:path');const cookieParser=require('cookie-parser');
 const {db,configured}=require('./db');
 const {portalSession,optionalPortal,requireAdmin,requireApp,validateOrigin,getApp,getContexts}=require('./security');
