@@ -40,7 +40,7 @@ test("authenticated project delivery workflow persists and denies an outsider", 
   const form = page.locator("#createProjectForm");
   await form
     .getByLabel("Project key")
-    .fill("E2E-" + testInfo.project.name.toUpperCase());
+    .fill("E2E-" + testInfo.project.name.toUpperCase() + "-" + testInfo.retry);
   await form
     .getByLabel("Project name", { exact: true })
     .fill("Verified delivery " + testInfo.project.name);
@@ -101,6 +101,10 @@ test("authenticated project delivery workflow persists and denies an outsider", 
     ).toHaveValue(state);
   }
   await expect(page.locator("#projectSummary")).toContainText("100%");
+  await expect(page.locator("#projectDetail")).toHaveAttribute(
+    "aria-busy",
+    "false",
+  );
   const comment = page.locator("#commentForm");
   await comment
     .getByLabel("Comment", { exact: true })

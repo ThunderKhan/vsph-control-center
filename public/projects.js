@@ -252,12 +252,25 @@
     form.elements.key.focus();
   }
   async function mutate(path, method, data) {
-    await api("/api/projects/" + projectId + path, {
-      method,
-      body: JSON.stringify({ ...data, version: detail.project.version }),
-    });
-    await loadDetail();
-    setMessage("Saved.");
+    const container = $("projectDetail"),
+      controls = [
+        ...container.querySelectorAll("input,select,textarea,button"),
+      ].map((control) => [control, control.disabled]);
+    container.setAttribute("aria-busy", "true");
+    for (const [control] of controls) control.disabled = true;
+    setMessage("");
+    try {
+      await api("/api/projects/" + projectId + path, {
+        method,
+        body: JSON.stringify({ ...data, version: detail.project.version }),
+      });
+      await loadDetail();
+      setMessage("Saved.");
+    } finally {
+      for (const [control, disabled] of controls)
+        if (control.isConnected) control.disabled = disabled;
+      container.setAttribute("aria-busy", "false");
+    }
   }
   const taskNames = () => opts(detail.tasks, "id", "title");
   function renderTaskForm(task) {
@@ -587,125 +600,138 @@
     }
   }
   async function loadDetail() {
-    detail = await api("/api/projects/" + projectId);
-    const p = detail.project;
-    $("portfolio").hidden = true;
-    $("creation").hidden = true;
-    $("newProject").hidden = true;
-    $("projectDetail").hidden = false;
-    $("projectTitle").textContent = p.name;
-    $("projectSubtitle").textContent =
-      p.key +
-      " · " +
-      p.kind +
-      " · " +
-      p.status +
-      " · Owner: " +
-      (detail.members.find((m) => m.user_id === p.owner_id)?.full_name ||
-        "Project owner") +
-      " · " +
-      p.description;
-    const tasks = detail.tasks.filter((t) => t.status !== "cancelled"),
-      done = tasks.filter((t) => t.status === "done").length,
-      today = new Date().toISOString().slice(0, 10),
-      overdue =
-        tasks.filter((t) => t.due_on && t.due_on < today && t.status !== "done")
-          .length +
-        detail.milestones.filter(
-          (m) =>
-            m.due_on &&
-            m.due_on < today &&
-            !["done", "cancelled"].includes(m.status),
-        ).length;
-    const box = $("projectSummary");
-    box.replaceChildren();
-    for (const [label, value] of [
-      [
-        "Task completion",
-        tasks.length
-          ? Math.round((done / tasks.length) * 100) + "%"
-          : "No tasks",
-      ],
-      ["Completed / total", done + " / " + tasks.length],
-      ["Overdue work", overdue],
-      [
-        "Health",
-        overdue || tasks.some((t) => t.status === "blocked")
-          ? "Needs attention"
-          : "No blocked or overdue work",
-      ],
-    ]) {
-      const c = node("div", label);
-      c.append(node("strong", value));
-      box.append(c);
-    }
-    if (detail.role === "manager") {
-      await getDirectory();
-      const f = $("projectSettings");
-      f.replaceChildren();
-      projectFields(f, p);
-      field(
-        f,
-        "Lifecycle",
-        "status",
-        "select",
-        ["planned", "active", "paused", "completed", "archived"],
-        p.status,
-      );
-      field(
-        f,
-        "Accountable owner",
-        "ownerId",
-        "select",
-        opts(
-          detail.members.filter(
-            (m) => m.status === "active" && m.role === "manager",
+    const container = $("projectDetail"),
+      controls = [
+        ...container.querySelectorAll("input,select,textarea,button"),
+      ].map((control) => [control, control.disabled]);
+    container.setAttribute("aria-busy", "true");
+    for (const [control] of controls) control.disabled = true;
+    try {
+      detail = await api("/api/projects/" + projectId);
+      const p = detail.project;
+      $("portfolio").hidden = true;
+      $("creation").hidden = true;
+      $("newProject").hidden = true;
+      $("projectDetail").hidden = false;
+      $("projectTitle").textContent = p.name;
+      $("projectSubtitle").textContent =
+        p.key +
+        " · " +
+        p.kind +
+        " · " +
+        p.status +
+        " · Owner: " +
+        (detail.members.find((m) => m.user_id === p.owner_id)?.full_name ||
+          "Project owner") +
+        " · " +
+        p.description;
+      const tasks = detail.tasks.filter((t) => t.status !== "cancelled"),
+        done = tasks.filter((t) => t.status === "done").length,
+        today = new Date().toISOString().slice(0, 10),
+        overdue =
+          tasks.filter(
+            (t) => t.due_on && t.due_on < today && t.status !== "done",
+          ).length +
+          detail.milestones.filter(
+            (m) =>
+              m.due_on &&
+              m.due_on < today &&
+              !["done", "cancelled"].includes(m.status),
+          ).length;
+      const box = $("projectSummary");
+      box.replaceChildren();
+      for (const [label, value] of [
+        [
+          "Task completion",
+          tasks.length
+            ? Math.round((done / tasks.length) * 100) + "%"
+            : "No tasks",
+        ],
+        ["Completed / total", done + " / " + tasks.length],
+        ["Overdue work", overdue],
+        [
+          "Health",
+          overdue || tasks.some((t) => t.status === "blocked")
+            ? "Needs attention"
+            : "No blocked or overdue work",
+        ],
+      ]) {
+        const c = node("div", label);
+        c.append(node("strong", value));
+        box.append(c);
+      }
+      if (detail.role === "manager") {
+        await getDirectory();
+        const f = $("projectSettings");
+        f.replaceChildren();
+        projectFields(f, p);
+        field(
+          f,
+          "Lifecycle",
+          "status",
+          "select",
+          ["planned", "active", "paused", "completed", "archived"],
+          p.status,
+        );
+        field(
+          f,
+          "Accountable owner",
+          "ownerId",
+          "select",
+          opts(
+            detail.members.filter(
+              (m) => m.status === "active" && m.role === "manager",
+            ),
+            "user_id",
+            "full_name",
+            false,
           ),
-          "user_id",
-          "full_name",
-          false,
-        ),
-        p.owner_id,
+          p.owner_id,
+        );
+        saveForm(f, "Save project settings", (d) => mutate("", "PATCH", d));
+      }
+      $("settings").hidden = detail.role !== "manager";
+      renderTasks();
+      renderMilestones();
+      renderTeam();
+      renderDelivery();
+      document.dispatchEvent(
+        new CustomEvent("vsph:project-loaded", {
+          detail: { project: detail, user },
+        }),
       );
-      saveForm(f, "Save project settings", (d) => mutate("", "PATCH", d));
-    }
-    $("settings").hidden = detail.role !== "manager";
-    renderTasks();
-    renderMilestones();
-    renderTeam();
-    renderDelivery();
-    document.dispatchEvent(
-      new CustomEvent("vsph:project-loaded", {
-        detail: { project: detail, user },
-      }),
-    );
-    const activity = $("activityList");
-    activity.replaceChildren();
-    const labels = {
-      "project.created": "Project created",
-      update: "Project updated",
-      "member.save": "Project membership changed",
-      "task.create": "Task created",
-      "task.update": "Task updated",
-      "milestone.create": "Milestone created",
-      "milestone.update": "Milestone updated",
-      "comment.create": "Comment added",
-      "deliverable.create": "Deliverable added",
-    };
-    for (const event of detail.activity) {
-      const actor =
-        detail.members.find((m) => m.user_id === event.actor_id)?.full_name ||
-        "Project member";
-      const text =
-        new Date(event.created_at).toLocaleString() +
-        " · " +
-        actor +
-        " · " +
-        (labels[event.action] || "Project activity") +
-        (event.summary === event.action ? "" : " · " + event.summary);
-      const li = node("li", text);
-      li.dataset.action = event.action;
-      activity.append(li);
+      const activity = $("activityList");
+      activity.replaceChildren();
+      const labels = {
+        "project.created": "Project created",
+        update: "Project updated",
+        "member.save": "Project membership changed",
+        "task.create": "Task created",
+        "task.update": "Task updated",
+        "milestone.create": "Milestone created",
+        "milestone.update": "Milestone updated",
+        "comment.create": "Comment added",
+        "deliverable.create": "Deliverable added",
+      };
+      for (const event of detail.activity) {
+        const actor =
+          detail.members.find((m) => m.user_id === event.actor_id)?.full_name ||
+          "Project member";
+        const text =
+          new Date(event.created_at).toLocaleString() +
+          " · " +
+          actor +
+          " · " +
+          (labels[event.action] || "Project activity") +
+          (event.summary === event.action ? "" : " · " + event.summary);
+        const li = node("li", text);
+        li.dataset.action = event.action;
+        activity.append(li);
+      }
+    } finally {
+      for (const [control, disabled] of controls)
+        if (control.isConnected) control.disabled = disabled;
+      container.setAttribute("aria-busy", "false");
     }
   }
   function navigation() {
