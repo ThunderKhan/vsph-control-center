@@ -9,7 +9,7 @@ begin
  perform 1 from public.portal_sessions where user_id=p_actor and token_hash=p_data->>'currentHash' and expires_at>now() for share;
  if not found then raise exception 'Session unavailable' using errcode='42501';end if;
  if p_action='list' then
-  return jsonb_build_object('sessions',coalesce((select jsonb_agg(x) from (select public_id id,created_at,expires_at,token_hash=p_data->>'currentHash' current_session from public.portal_sessions where user_id=p_actor and expires_at>now() order by created_at desc limit 100) x),'[]'));
+  return jsonb_build_object('sessions',coalesce((select jsonb_agg(x) from (select public_id id,created_at,expires_at,token_hash=p_data->>'currentHash' current_session from public.portal_sessions where user_id=p_actor and expires_at>now() order by (token_hash=p_data->>'currentHash') desc,created_at desc limit 100) x),'[]'));
  elsif p_action='revoke' then
   delete from public.portal_sessions where user_id=p_actor and public_id=p_id and token_hash<>p_data->>'currentHash';
  elsif p_action='revoke_others' then
