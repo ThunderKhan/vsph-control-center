@@ -226,3 +226,4 @@
   font-size: 16px;
   line-height: 1.45;
 }
+.delivery-controls{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin:16px 0}.delivery-controls label{display:grid;gap:6px}.delivery-connections{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px;margin:18px 0}.delivery-connections article{border:1px solid #dce4ec;border-radius:10px;padding:16px;min-width:0;overflow-wrap:anywhere}.delivery-connections button{margin:4px}#engineeringContent select{max-width:100%;min-height:44px}#engineeringRecords table{min-width:800px}#engineeringRecords td{max-width:300px;overflow-wrap:anywhere}#engineeringTimeline li{margin-bottom:12px;overflow-wrap:anywhere}#repositoryDiscovery{display:flex;gap:10px;flex-wrap:wrap}

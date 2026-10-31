@@ -104,12 +104,13 @@
         <p id="projectMessage" role="status" aria-live="polite"></p>
         <section id="creation" class="project-panel" hidden><h2>Create project</h2><form id="createProjectForm"></form></section>
         <section id="portfolio"><form id="projectFilters" class="project-filters"><label>Search projects<input name="q" maxlength="100" type="search"></label><label>Lifecycle<select name="status"><option value="">All states</option><option>planned</option><option>active</option><option>paused</option><option>completed</option><option>archived</option></select></label><button type="submit">Filter</button></form><div id="projectList" aria-busy="true"></div><button id="moreProjects" type="button" hidden>Load more</button></section>
-        <section id="projectDetail" hidden><a href="/projects">← Project portfolio</a><div id="projectSummary" class="project-summary"></div><nav class="project-sections" aria-label="Project sections"><a href="#work">Tasks</a><a href="#milestones">Milestones</a><a href="#team">Team</a><a href="#delivery">Delivery</a><a href="#activity">Activity</a></nav>
+        <section id="projectDetail" hidden><a href="/projects">← Project portfolio</a><div id="projectSummary" class="project-summary"></div><nav class="project-sections" aria-label="Project sections"><a href="#work">Tasks</a><a href="#milestones">Milestones</a><a href="#team">Team</a><a href="#delivery">Delivery</a><a href="#engineering">Engineering</a><a href="#activity">Activity</a></nav>
           <section id="settings" class="project-panel" hidden><details><summary>Project settings and ownership</summary><form id="projectSettings"></form></details></section>
           <section id="work" class="project-panel"><h2>Tasks</h2><div id="taskFilters"></div><div id="taskList" class="project-table-wrap"></div><details id="taskEditor"><summary>Create or edit task</summary><form id="taskForm"></form></details></section>
           <section id="milestones" class="project-panel"><h2>Milestones</h2><div id="milestoneList"></div><details id="milestoneEditor"><summary>Create or edit milestone</summary><form id="milestoneForm"></form></details></section>
           <section id="team" class="project-panel"><h2>Project team</h2><div id="teamList"></div><details id="teamEditor"><summary>Add or change a project member</summary><form id="memberForm"></form></details></section>
           <section id="delivery" class="project-panel"><h2>Deliverables and comments</h2><div id="deliverableList"></div><form id="deliverableForm"></form><div id="commentList"></div><form id="commentForm"></form></section>
+          <section id="engineering" class="project-panel" hidden><h2>Engineering delivery</h2><p id="engineeringMessage" role="status" aria-live="polite"></p><div id="engineeringContent"></div></section>
           <section id="activity" class="project-panel"><h2>Activity history</h2><p>Latest 200 events, recorded with each mutation.</p><ol id="activityList"></ol></section>
         </section>
       </main>
@@ -120,6 +121,7 @@
       </footer>
     </div>
   </div>
+  <script defer src="/project-delivery.js"></script>
   <script defer src="/projects.js"></script>
 </body>
 </html>
