@@ -1,4 +1,4 @@
-# Windows PowerShell — Phase 3
+# Windows PowerShell — continued implementation
 
 Commands/scripts are verified in Linux Work/CI; native Windows execution was unavailable. Preserve personal changes before switching main. Use an ordinary OS account for the disposable PostgreSQL helpers.
 
@@ -10,6 +10,7 @@ git pull --ff-only origin main
 npm ci
 npm test
 npm run check
+npm run check:migrations
 npm run lint
 npm run format:check
 npm run test:coverage
@@ -41,3 +42,11 @@ npm run notifications:dispatch
 ```
 
 They persist sync/notification state in the configured database. They were not run against hosted customer databases in this execution. github:sync refuses disabled/incomplete App configuration. No hidden worker or background continuation is started by npm run dev. Do not run invitations:dispatch against real recipients as a development step; invitation provider remains off/unverified. Music SSO remains separately gated. Full manual cases are in MANUAL_QA.md, GITHUB_DELIVERY.md and ACCOUNT_SESSIONS.md.
+
+## New readiness and reminder acceptance
+
+After approved target setup, `npm run staging:inspect` performs read-only catalog checks using dedicated STAGING_DATABASE_* variables and explicit approval; do not point it at an undesignated live environment. `npm run github:verify` compares real provider facts and optionally an approved staged application session; see LIVE_GITHUB_ACCEPTANCE.md for its exact settings. Neither command applies migrations or certifies release readiness.
+
+Migration 20261031065919_overdue_milestone_notifications.sql follows 007 and remains unapplied hosted. Create an unfinished overdue milestone with two explicit project managers in isolated staging; invoke the approved notifications dispatcher, verify one reminder per manager per UTC day, then test opt-out, completion before delivery, demotion and revocation. Product roles do not confer manager notifications.
+
+`npm run test:restore:ci` is intentionally restricted to the identified PostgreSQL 17 Docker service in GitHub CI. It is not a general PowerShell restore command. Native Windows commands above are repository-supported and verified in Linux/CI, not executed on Windows here. See RESTORE_REHEARSAL.md and HOSTED_SCHEMA_FINDINGS.md for the separate hosted recovery gate.
