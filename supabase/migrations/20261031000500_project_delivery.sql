@@ -61,7 +61,7 @@ begin
    update public.project_github_installations set status='revoked' where installation_id=(p_data->>'installationId')::bigint;
    update public.project_repositories set status='attention',last_error='installation_revoked',lease_token=null,lease_until=null,version=version+1 where installation_id=(p_data->>'installationId')::bigint and status<>'disconnected';
   else
-   update public.project_repositories set sync_requested=true,next_sync_at=least(next_sync_at,now()) where installation_id=(p_data->>'installationId')::bigint and repository_id=(p_data->>'repositoryId')::bigint and status='active';
+   update public.project_repositories set sync_requested=true,next_sync_at=case when last_error is not null then greatest(next_sync_at,now()) else least(next_sync_at,now()) end where installation_id=(p_data->>'installationId')::bigint and repository_id=(p_data->>'repositoryId')::bigint and status='active';
   end if;
   return '{"accepted":true}';
  end if;
@@ -79,7 +79,7 @@ begin
   -- Same lock order as interactive delivery changes: project -> connection -> grant.
   select pr.* into p from public.projects pr join public.project_repositories x on x.project_id=pr.id where x.id=p_id for update of pr;
   select * into c from public.project_repositories where id=p_id for update;
-  if not found or c.status<>'active' or c.lease_token is distinct from (p_data->>'leaseToken')::uuid or c.lease_until<=now() or p.status='archived' then raise exception 'Stale sync lease' using errcode='40001';end if;
+  if not found or c.status<>'active' or c.lease_token is null or p_data->>'leaseToken' is null or c.lease_until is null or c.lease_token is distinct from (p_data->>'leaseToken')::uuid or c.lease_until<=now() or p.status='archived' then raise exception 'Stale sync lease' using errcode='40001';end if;
   perform 1 from public.project_github_installations where project_id=c.project_id and installation_id=c.installation_id and status='active' for share;
   if not found then raise exception 'Installation unavailable' using errcode='42501';end if;
   if p_action='failed' then
@@ -110,9 +110,9 @@ begin
  if p_action='detail' then
   return jsonb_build_object('installations',coalesce((select jsonb_agg(g) from public.project_github_installations g where project_id=p.id),'[]'),
    'connections',coalesce((select jsonb_agg(to_jsonb(x)-'lease_token'-'lease_until') from public.project_repositories x where project_id=p.id),'[]'),
-   'records',coalesce((select jsonb_agg(x) from (select d.* from public.project_delivery_records d join public.project_repositories c on c.id=d.connection_id join public.project_github_installations g on g.project_id=c.project_id and g.installation_id=c.installation_id where d.project_id=p.id and c.status='active' and g.status='active' order by d.source_at desc,d.id limit 200) x),'[]'),
-   'events',coalesce((select jsonb_agg(x) from (select e.id,e.observed_at,e.snapshot,e.fingerprint from public.project_delivery_events e join public.project_delivery_records d on d.id=e.record_id join public.project_repositories c on c.id=d.connection_id join public.project_github_installations g on g.project_id=c.project_id and g.installation_id=c.installation_id where e.project_id=p.id and c.status='active' and g.status='active' order by e.id desc limit 200) x),'[]'),
-   'links',coalesce((select jsonb_agg(l) from public.project_delivery_links l join public.project_delivery_records d on d.id=l.record_id join public.project_repositories c on c.id=d.connection_id join public.project_github_installations g on g.project_id=c.project_id and g.installation_id=c.installation_id where l.project_id=p.id and c.status='active' and g.status='active'),'[]'));
+   'records',coalesce((select jsonb_agg(x) from (select d.* from public.project_delivery_records d join public.project_repositories conn on conn.id=d.connection_id join public.project_github_installations g on g.project_id=conn.project_id and g.installation_id=conn.installation_id where d.project_id=p.id and conn.status='active' and g.status='active' order by d.source_at desc,d.id limit 200) x),'[]'),
+   'events',coalesce((select jsonb_agg(x) from (select e.id,e.observed_at,e.snapshot,e.fingerprint from public.project_delivery_events e join public.project_delivery_records d on d.id=e.record_id join public.project_repositories conn on conn.id=d.connection_id join public.project_github_installations g on g.project_id=conn.project_id and g.installation_id=conn.installation_id where e.project_id=p.id and conn.status='active' and g.status='active' order by e.id desc limit 200) x),'[]'),
+   'links',coalesce((select jsonb_agg(l) from public.project_delivery_links l join public.project_delivery_records d on d.id=l.record_id join public.project_repositories conn on conn.id=d.connection_id join public.project_github_installations g on g.project_id=conn.project_id and g.installation_id=conn.installation_id where l.project_id=p.id and conn.status='active' and g.status='active'),'[]'));
  end if;
  if role<>'manager' then raise exception 'Manager required' using errcode='42501';end if;
  if p.status in ('completed','archived') then raise exception 'Project is read only' using errcode='22023';end if;
@@ -129,7 +129,7 @@ begin
   if not found then raise exception 'Installation not approved for project' using errcode='42501';end if;
   if (select count(*) from public.project_repositories where project_id=p.id)>=20 and not exists(select 1 from public.project_repositories where project_id=p.id and repository_id=(p_data->>'repositoryId')::bigint) then raise exception 'Connection budget reached' using errcode='22023';end if;
   insert into public.project_repositories(project_id,installation_id,repository_id,full_name,default_branch,private) values(p.id,(p_data->>'installationId')::bigint,(p_data->>'repositoryId')::bigint,p_data->>'fullName',p_data->>'defaultBranch',(p_data->>'private')::boolean)
-  on conflict(project_id,repository_id) do update set status='active',installation_id=excluded.installation_id,full_name=excluded.full_name,default_branch=excluded.default_branch,private=excluded.private,checkpoint='{"kind":0,"page":1}',version=project_repositories.version+1,lease_token=null,lease_until=null,next_sync_at=now(),attempts=0,last_error=null;
+  on conflict(project_id,repository_id) do update set status='active',installation_id=excluded.installation_id,full_name=excluded.full_name,default_branch=excluded.default_branch,private=excluded.private,checkpoint='{"kind":0,"page":1}',version=project_repositories.version+1,lease_token=null,lease_until=null,next_sync_at=case when project_repositories.last_error is not null then greatest(project_repositories.next_sync_at,now()) else now() end,attempts=project_repositories.attempts,last_error=project_repositories.last_error;
  elsif p_action in ('request','disconnect') then
   select * into c from public.project_repositories where id=(p_data->>'connectionId')::uuid and project_id=p.id for update;
   if not found then raise exception 'Connection unavailable' using errcode='P0002';end if;
@@ -142,7 +142,7 @@ begin
    update public.project_repositories set sync_requested=true,next_sync_at=greatest(now(),case when last_error is not null then next_sync_at else now() end),status='active',attempts=0,version=version+1 where id=c.id;
   end if;
  elsif p_action='link' then
-  select d.* into r from public.project_delivery_records d join public.project_repositories c on c.id=d.connection_id where d.id=(p_data->>'recordId')::uuid and d.project_id=p.id and c.status='active';
+  select d.* into r from public.project_delivery_records d join public.project_repositories conn on conn.id=d.connection_id where d.id=(p_data->>'recordId')::uuid and d.project_id=p.id and conn.status='active';
   if not found or r.kind not in ('pull','release') then raise exception 'Link source unavailable' using errcode='22023';end if;
   insert into public.project_delivery_links(project_id,record_id,task_id,milestone_id,actor_id) values(p.id,r.id,nullif(p_data->>'taskId','')::uuid,nullif(p_data->>'milestoneId','')::uuid,p_actor)
   on conflict(project_id,record_id) do update set task_id=excluded.task_id,milestone_id=excluded.milestone_id,actor_id=excluded.actor_id;

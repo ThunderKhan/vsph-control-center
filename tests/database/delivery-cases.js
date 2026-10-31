@@ -13,6 +13,8 @@ module.exports = async pool => {
  await assert.rejects(call('connect',p.id,{...repo,accountId:100}),{code:'42501'});
  await call('connect',p.id,repo);
  const c=(await call('detail',p.id)).connections[0];
+ await assert.rejects(call('ingest',c.id,{records:[],checkpoint:{kind:0,page:1}},null),{code:'40001'});
+ await assert.rejects(call('failed',c.id,{code:'sync_failed'},null),{code:'40001'});
  const claims=await Promise.all([call('claim',c.id,{},null),call('claim',c.id,{},null)]);
  assert.equal(claims.filter(Boolean).length,1);const lease=claims.find(Boolean);
  const record={kind:'pull',sourceId:'1',title:'Private change',url:'https://github.com/fixture/private/pull/1',state:'open',sourceAt:'2026-10-30T00:00:00Z',details:{number:1}};
@@ -44,6 +46,9 @@ module.exports = async pool => {
  assert.equal(await call('claim',c.id,{},null),null);
  const active=(await call('detail',p.id)).connections[0];await call('request',p.id,{connectionId:c.id,version:active.version});
  assert.equal(await call('claim',c.id,{},null),null,'manual requests cannot bypass provider backoff');
+ await call('webhook',null,{...receipt,deliveryId:crypto.randomUUID()},null);
+ assert.equal(await call('claim',c.id,{},null),null,'webhooks preserve backoff');
+ await call('connect',p.id,repo);assert.equal(await call('claim',c.id,{},null),null,'reconnect preserves backoff');
  await call('webhook',null,{...receipt,deliveryId:crypto.randomUUID(),revoked:true},null);
  assert.equal((await call('detail',p.id)).records.length,0);
  await pc('member.save',p.id,{version:3,userId:user,role:'contributor',status:'revoked'});
