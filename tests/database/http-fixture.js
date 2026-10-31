@@ -14,6 +14,7 @@ module.exports=function databaseBackedServer(pool,auth){
    in(key,value){values.push(value);predicates.push(identifier(key)+'=any($'+values.length+'::uuid[])');return q},
    limit(value){limit=value;return q},order(key,{ascending=true}={}){q.sort=identifier(key)+(ascending?' asc':' desc');return q},
    insert(value){mode='insert';payload=value;return q},
+   delete(){if(!['portal_sessions','app_sessions'].includes(table))throw Error('Unexpected fixture delete');mode='delete';return q},
    async execute(single=false){try{
     const columns=fields==='*'?'*':fields.split(',').map(identifier).join(',');
     let sql;
@@ -21,6 +22,7 @@ module.exports=function databaseBackedServer(pool,auth){
      const keys=Object.keys(payload);sql='insert into '+identifier(table)+' ('+keys.map(identifier).join(',')+') values ('+keys.map((_,i)=>'$'+(i+1)).join(',')+') returning '+columns;
      const r=await pool.query(sql,keys.map(key=>payload[key]));return {data:single?r.rows[0]||null:r.rows,error:null};
     }
+    if(mode==='delete'){const r=await pool.query('delete from '+identifier(table)+(predicates.length?' where '+predicates.join(' and '):'')+' returning '+columns,values);return {data:r.rows,error:null};}
     sql='select '+columns+' from '+identifier(table)+(predicates.length?' where '+predicates.join(' and '):'')+(q.sort?' order by '+q.sort:'')+' limit '+Number(limit);
     const r=await pool.query(sql,values);return {data:single?r.rows[0]||null:r.rows,error:null};
    }catch(error){return {data:null,error}}},

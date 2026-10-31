@@ -170,3 +170,5 @@ test('delivery grants, private scope, checkpoints, fencing, history, backoff and
 test('notification privacy, preferences, duplicate suppression, failure retries and scoped reports',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./notification-cases.js')(pool);});
 
 test('HTTP delivery/report/inbox boundaries deny anonymous, revoked, client, expired and invalid requests',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./delivery-http-cases.js')(pool);});
+
+test('third product uses generic sessions, adapter fallback, entitlement revocation and logout cleanup',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./product-adapter-cases.js')(pool);});

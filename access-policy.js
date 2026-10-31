@@ -11,9 +11,6 @@ function permittedContexts({user,app,organizations,subscriptions,grants,membersh
  .filter(o=>memberOrgs.has(o.id)&&userRoles.some(r=>r.organization_id===o.id))
  .map(o=>({...o,role:userRoles.find(r=>r.organization_id===o.id).role_code}));
 }
-function canCreateRecord(code,role){
- const roles={CRM:['super_admin','admin','manager','user'],MUSIC:['super_admin','admin','manager','staff','user']};
- return Boolean(roles[code]?.includes(role));
-}
+const {canCreateRecord}=require('./products/adapters');
 module.exports={validSubscription,permittedContexts,canCreateRecord};
 
