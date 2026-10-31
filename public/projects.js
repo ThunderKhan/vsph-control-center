@@ -800,6 +800,9 @@
       $("avatar").textContent = user.name.slice(0, 1).toUpperCase();
       $("adminNavContainer").hidden = user.platformRole !== "super_admin";
       $("topbarOnboard").hidden = user.platformRole !== "super_admin";
+      document.dispatchEvent(
+        new CustomEvent("vsph:identity-loaded", { detail: user }),
+      );
       navigation();
       if (projectId) await loadDetail();
       else await loadList();
