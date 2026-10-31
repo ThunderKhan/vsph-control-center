@@ -1,6 +1,6 @@
-# Windows PowerShell — Phase 2
+# Windows PowerShell — Phase 3
 
-Commands/scripts are verified in Linux Work/CI. Native Windows execution was not available; do not read this as Windows certification. Preserve personal changes before switching main.
+Commands/scripts are verified in Linux Work/CI; native Windows execution was unavailable. Preserve personal changes before switching main. Use an ordinary OS account for the disposable PostgreSQL helpers.
 
 ```powershell
 cd D:\Projects\vsph-control-center
@@ -13,16 +13,31 @@ npm run check
 npm run lint
 npm run format:check
 npm run test:coverage
+npm audit --omit=dev --audit-level=high
+npm audit --audit-level=high
 npx playwright install chromium
 npm run test:db:local
 npm run test:e2e:db
 npm run dev
 ```
 
-Use an ordinary OS user for disposable native PostgreSQL helpers. Root Work execution deliberately refuses privilege/account creation. Native PostgreSQL 17 plus authenticated Chromium evidence comes from CI. npm run test:e2e without DB mode runs public smoke and skips project acceptance; npm run test:e2e:db creates a temporary empty vsph_test cluster and runs all authenticated/public cases. Tests create synthetic SQL identities/sessions and never call real Auth/SMTP. Do not set fixture TEST_DATABASE_URL to hosted staging/production; remote/populated fixtures are refused. No typecheck/build script is invented for this vanilla JavaScript app.
+The full audit currently reports six moderate development-tool findings through minimatch, with no high/critical findings; production audit is clean. Do not run npm audit fix --force: its suggested tool downgrades are not validated. See RISK_REGISTER.md. No typecheck/build script exists for this vanilla JavaScript application. npm run test:e2e without DB mode runs public checks and skips authenticated fixture journeys; test:e2e:db creates a disposable native database and runs the full suite. Fixture URLs must be empty loopback vsph_test, never hosted staging/production. Root OS execution deliberately refuses privilege/account creation.
 
-Normal server: retain your securely configured Supabase .env, PUBLIC_ORIGIN=http://localhost:3000 and PORT=3000. Before deploying/running new backend functionality against a hosted target, reconcile history and install/verify reviewed migrations 20261031000200_durable_provisioning.sql, 20261031000300_projects.sql and 20261031000400_invitation_disable_revocation.sql in approved staging. They were NOT applied to hosted databases in this execution. Do not run bootstrap or seed on existing customer data.
+Normal server requires securely configured Supabase .env plus PUBLIC_ORIGIN=http://localhost:3000 and PORT=3000. Reconcile/install/verify missing reviewed migrations in approved isolated staging before any backend rollout. Phase 2 002/003/004 and Phase 3 005/006/007 were NOT applied hosted in these sessions. Do not bootstrap/seed an existing customer database. Refer to PHASE3_MIGRATIONS.md for order/backup/UAT gates.
 
-After migrated staging setup: sign into http://localhost:3000/login as an existing platform administrator → Projects → New project → key/name/internal or customer organization → Create. Add an existing account by exact email under Project team, select project role and team label, then create milestone/task with assignee and due date. Move task through in_progress/in_review/done, record evidence/comment, reload, inspect progress/activity. Test contributor/viewer/client and unrelated accounts separately. Complete work/milestones before project completion; archive without deleting history. See PROJECTS_GUIDE.md and MANUAL_QA.md.
+## Project and engineering acceptance
 
-Onboarding now queues durable delivery. The invitation worker remains OFF until provider/secret configuration is separately approved. Do not execute invitations:dispatch against real recipients as part of these development commands. Actual Supabase/Auth/mailbox success remains unverified. Music SSO and other later roadmap milestones remain separate; no deployment is claimed.
+1. Sign in at http://localhost:3000/login with an existing platform administrator. Open Projects, create internal/customer work, assign existing members/team roles, milestones and tasks, update statuses, add comments/evidence, reload and inspect progress/history.
+2. An operator first registers/installs an approved GitHub App with Metadata/Contents/Pull requests/Actions/Checks READ and configures server-only GITHUB_INTEGRATION_ENABLED, GITHUB_APP_ID, GITHUB_APP_PRIVATE_KEY. Optional signed webhook needs GITHUB_WEBHOOK_SECRET and approved HTTPS endpoint. These credentials/installation are not provisioned by the code or tests.
+3. Engineering → platform administrator verifies installation ID for the project → manager discovers/selects an authorized repository → connect. Synchronize next page advances one durable category/page. Inspect real source links, PR/build/release state, source versus observation time, checkpoint/error/retry time. Link a PR/release explicitly to a task or milestone and reload. Disconnect and confirm private facts/links disappear. Test unrelated/client/revoked accounts separately.
+4. Projects → Project inbox and reports: assignment/milestone/engineering notices, mark read, preferences and failed-delivery recovery. Filter reports by project/customer/owner/status/creation date; reconcile counts with persisted source work. Requested reviews do not mean approval. Retained failures do not mean latest branch failure. Vercel remains visibly unconfigured.
+5. Projects → Your active sessions: review safe session timestamps, revoke one other session or all others, confirm linked product sessions end and the current portal stays active. No device or MFA claim is made.
+
+After approved staging setup only, an operator/scheduler can invoke these finite server-owned batches:
+
+```powershell
+npm run github:sync
+npm run notifications:dispatch
+```
+
+They persist sync/notification state in the configured database. They were not run against hosted customer databases in this execution. github:sync refuses disabled/incomplete App configuration. No hidden worker or background continuation is started by npm run dev. Do not run invitations:dispatch against real recipients as a development step; invitation provider remains off/unverified. Music SSO remains separately gated. Full manual cases are in MANUAL_QA.md, GITHUB_DELIVERY.md and ACCOUNT_SESSIONS.md.

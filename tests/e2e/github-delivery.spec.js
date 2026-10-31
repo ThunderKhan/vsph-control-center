@@ -89,7 +89,32 @@ test("isolated GitHub fixture connects, syncs, links work, persists and disconne
       () => document.documentElement.scrollWidth <= innerWidth + 1,
     ),
   ).toBe(true);
-  await page.locator("#engineering").scrollIntoViewIfNeeded();
+  await page
+    .locator("#engineering")
+    .evaluate((element) =>
+      window.scrollTo({
+        top: element.getBoundingClientRect().top + scrollY,
+        behavior: "instant",
+      }),
+    );
+  const connectionScreenshot = info.outputPath("github-connection.jpg");
+  await page.screenshot({
+    path: connectionScreenshot,
+    type: "jpeg",
+    quality: 75,
+  });
+  await info.attach("Isolated GitHub connection fixture", {
+    path: connectionScreenshot,
+    contentType: "image/jpeg",
+  });
+  await page
+    .locator("#engineeringRecords")
+    .evaluate((element) =>
+      window.scrollTo({
+        top: element.getBoundingClientRect().top + scrollY,
+        behavior: "instant",
+      }),
+    );
   const screenshot = info.outputPath("github-delivery.jpg");
   await page.screenshot({ path: screenshot, type: "jpeg", quality: 75 });
   await info.attach("Isolated GitHub provider fixture", {
