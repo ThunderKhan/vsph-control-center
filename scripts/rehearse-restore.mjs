@@ -72,6 +72,9 @@ async function snapshot(pool) {
     ).rows;
     await c.query("rollback");
     const catalog = await database.inspectDatabase(c);
+    catalog.roles.sort();
+    catalog.tables.sort((a, b) => a.name.localeCompare(b.name));
+    catalog.functions.sort((a, b) => a.signature.localeCompare(b.signature));
     return { tables, constraints, sequences, catalog };
   } catch (e) {
     await c.query("rollback").catch(() => {});
@@ -147,7 +150,13 @@ export async function main(env = process.env) {
       connectionTimeoutMillis: 10000,
     });
     const after = await snapshot(restored);
-    assert.deepEqual(after, before);
+    for (const section of ["tables", "constraints", "sequences", "catalog"]) {
+      try {
+        assert.deepEqual(after[section], before[section]);
+      } catch {
+        throw Error("Restore comparison failed: " + section);
+      }
+    }
     console.log(
       JSON.stringify({
         scope: "disposable-ci-fixtures",
@@ -167,9 +176,15 @@ export async function main(env = process.env) {
   }
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href)
-  main().catch(() => {
+  main().catch((error) => {
     console.error(
       JSON.stringify({
+        comparisonSection:
+          /^Restore comparison failed: (tables|constraints|sequences|catalog)$/.test(
+            error.message,
+          )
+            ? error.message.split(": ")[1]
+            : "operation",
         restoreVerified: false,
         releaseReady: false,
         message:
