@@ -16,7 +16,7 @@ test.before(async()=>{
  create schema auth; create table auth.users(id uuid primary key);`);
  await pool.query(await readFile('supabase/schema.sql','utf8'));
  // Historical order is explicit: filenames originally share a date prefix.
- for(const file of ['20261030_music_sso_launch_codes.sql','20261030_music_staff_musician_roles.sql','20261031000100_atomic_profile_status.sql','20261031000200_durable_provisioning.sql','20261031000300_projects.sql','20261031000400_invitation_disable_revocation.sql'])
+ for(const file of ['20261030_music_sso_launch_codes.sql','20261030_music_staff_musician_roles.sql','20261031000100_atomic_profile_status.sql','20261031000200_durable_provisioning.sql','20261031000300_projects.sql','20261031000400_invitation_disable_revocation.sql','20261031000500_project_delivery.sql'])
   await pool.query(await readFile('supabase/migrations/'+file,'utf8'));
  await pool.query('insert into auth.users values ($1)',[user]);
  await pool.query("insert into profiles(id,full_name,email) values ($1,'Synthetic User','fixture@example.test')",[user]);
@@ -164,3 +164,5 @@ test('project ownership, tasks, team, optimistic concurrency, private client sco
 test('milestone completion validates its proposed dependency',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./project-cases.js').dependencyRegression(pool);});
 
 test('explicit account disable revokes in-flight enrollment even when already staged disabled',async()=>{const {createRequire}=await import('node:module');await pool.query(await readFile('supabase/migrations/20261031000400_invitation_disable_revocation.sql','utf8'));await createRequire(import.meta.url)('./provisioning-cases.js').disableRegression(pool,app);});
+
+test('delivery grants, private scope, checkpoints, fencing, history, backoff and webhook idempotency',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./delivery-cases.js')(pool);});
