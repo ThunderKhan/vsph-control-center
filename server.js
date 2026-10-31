@@ -13,6 +13,7 @@ const sharedAuthView = path.join(__dirname,'views','auth.html');
 const authViews = Object.freeze({
   // CRM: path.join(__dirname,'views','crm-special-login.html')
 });
+app.post('/api/integrations/github/webhook',rateLimit({limit:300,windowMs:60000}),express.raw({type:'application/json',limit:'1mb'}),require('./routes/delivery').webhook());
 app.use(express.json({limit:'100kb',strict:true}));app.use(express.urlencoded({extended:false,limit:'100kb',parameterLimit:50}));app.use(cookieParser());
 // Applied before credential verification and confidential SSO lookups. No body or token is a limiter key.
 app.use(['/api/auth/login','/api/auth/app-login','/api/invitations/accept','/api/invitations/inspect'],rateLimit({limit:20,windowMs:15*60*1000}));
@@ -36,6 +37,7 @@ app.use((req,res,next)=>{
 app.use('/api/auth',require('./routes/auth'));
 app.use('/api/invitations',require('./routes/invitations'));
 
+app.use('/api/projects/:projectId/delivery',require('./routes/delivery').router());
 app.use('/api/projects',require('./routes/projects').router);
 app.get(['/projects','/projects/:id'],portalSession,(req,res)=>{res.set('Cache-Control','no-store');res.sendFile(path.join(__dirname,'views','projects.html'))});
 app.use('/api/apps',require('./routes/apps'));
