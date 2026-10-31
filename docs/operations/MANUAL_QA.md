@@ -13,7 +13,7 @@ Prerequisites: reconcile schema/history; install reviewed migrations; exact PUBL
 - [ ] Cookie is HttpOnly, SameSite=Lax and Secure in production; no secret key/access token appears in JS, localStorage, console, URL or logs.
 - [ ] Concurrent failed attempts reach 429 and Retry-After. Spoofed X-Forwarded-For cannot change client identity under the actual ingress policy. Record shared-network effects. Multi-instance enforcement remains unimplemented.
 - [ ] Malformed/oversized JSON produces 400/413; unexpected failure has a request ID and generic 500.
-- [ ] Password recovery/change, MFA enrollment/step-up and device/session inventory are marked NOT IMPLEMENTED until M3 delivers and tests them.
+- [ ] Password recovery/change and MFA enrollment/step-up remain NOT IMPLEMENTED. Test the implemented own-session inventory/revocation below; it makes no device identity claim.
 
 ## Dashboard and navigation
 
@@ -59,7 +59,7 @@ Prerequisites: reconcile schema/history; install reviewed migrations; exact PUBL
 - [ ] create/depend/complete milestones, assign/update tasks, attach safe HTTPS delivery evidence, compute actual overdue health and archive a project.
 - [ ] unrelated tenant/customer cannot list/read/edit/export internal project records or assign itself; product grants do not imply project membership.
 - [ ] After M8: verify actual repo/PR/CI/release/deployment facts against the connected provider, stale/disconnected states, deduplicated webhook/poll events, environment binding and rollback evidence.
-- [ ] GitHub/Vercel tools used for engineering this change are not application-level integrations. No connected-project feature is claimed today.
+- [ ] GitHub/Vercel tools used for engineering this change are not application-level integrations. The application App workflow exists; the engineering connector identity does not prove live application acceptance.
 
 ## Music and external integrations
 
@@ -116,9 +116,18 @@ Automated isolated PostgreSQL and desktop/mobile workflows cover these core path
 - [ ] Link PR/release using explicit persisted IDs; reload and verify association. Do not infer linkage by similar titles. Compare historical failure/recovery timeline with source state.
 - [ ] Vercel displays disabled/unconfigured until exact ownership/source/project mapping is established. No Music hostname is connected by name similarity. No automatic deploy/rollback/secret operation exists.
 - [ ] Assignment, milestone completion, PR/release change and build failure/recovery enter personal in-app inbox; repeat dispatch does not duplicate. Preference opt-out suppresses new delivery. Mark read affects only own entry. Test internal dispatcher failure/backoff/attention retry.
-- [ ] Run approved finite overdue scan; daily task/user reminders dedupe. Verify overdue task completion/date and assignee/permission changes. Overdue milestone and external-channel notices remain incomplete.
+- [ ] Run approved finite overdue scan; daily task/user reminders dedupe. Verify overdue task completion/date and assignee/permission changes. Verify overdue milestone daily reminders reach only explicit managers; completion/due-date changes suppress delayed delivery, and demotion hides manager-only entries. External-channel notices remain incomplete.
 - [ ] Reconcile report task progress/assignments/overdue/milestone/open PR/requested-review/failure counts; filter project/customer/owner/lifecycle/creation dates. Reject invalid UUID/date/filter, wrong-tenant IDs and disabled sessions. Retained failed observations are not current uptime/build health.
 - [ ] Verify desktop collapse, mobile drawer, horizontal delivery/report table scrolling, keyboard labels, source link safety and no page overflow. Full accessibility/real-device/zoom certification remains pending.
 - [ ] Register isolated third sandbox product and entitlement; generic context works without code changes, denies revoked/expired/wrong-tenant access, reports unconfigured operational records and clears its cookie/session on portal logout. CRM/Music policies still hold.
 - [ ] Own session inventory shows current/other created/expiry timestamps and no hashes/cookies. Wrong-user ID cannot revoke another user, current session is preserved, other product sessions cascade, simultaneous revocations fail closed. Expired/revoked current session denies.
 - [ ] Repeat existing login/dashboard/onboarding/purpose-bound invite/subscription/product/admin/audit/logout matrix above. MFA/recovery/legacy invitations/Music live SSO require their separate remaining acceptance.
+
+## Continued readiness and restore acceptance
+
+- [ ] Record hosted target/source binding and resolve HOSTED_SCHEMA_FINDINGS.md. The existing legacy-only candidate is not approved disposable staging.
+- [ ] `check:migrations` passes all checksums/dependencies; target inspection reports missing objects/history honestly and always leaves releaseReady false. Never repair history or run bootstrap automatically.
+- [ ] GitHub verification compares persisted details as well as identities: contributor count, PR head and tag changes cannot pass as current when stale. Provider key/session values remain server-only.
+- [ ] During project mutations and refresh, editable controls remain busy until the complete detail refresh ends. Rapid mobile edits do not silently lose typed comments.
+- [ ] In isolated staging only: overdue manager reminders dedupe, opt-out suppresses, completed work does not deliver, contributor demotion and full membership revocation hide prior manager-only notices.
+- [ ] Review CI native dump/restore comparison evidence; separately rehearse approved hosted recovery before claiming hosted readiness or an RPO/RTO.
