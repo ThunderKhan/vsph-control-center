@@ -98,9 +98,11 @@
     box.append(
       el(
         "p",
-        engineering.configured
-          ? "GitHub App configured. Live provider acceptance must be verified in staging."
-          : "GitHub connector disabled. An operator must configure the server-owned App and approve its installation.",
+        engineering.providerMode === "isolated-fixture"
+          ? "Isolated provider fixture. No live GitHub verification."
+          : engineering.configured
+            ? "GitHub App configured. Live provider acceptance must be verified in staging."
+            : "GitHub connector disabled. An operator must configure the server-owned App and approve its installation.",
       ),
     );
     box.append(el("p", "Vercel: disabled — " + engineering.vercel.reason));
