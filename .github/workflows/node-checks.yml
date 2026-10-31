@@ -44,6 +44,8 @@ jobs:
           node-version: '20'
       - run: npm ci
       - run: npm run test:db
+      - name: Supabase security advisors on isolated fixture database
+        run: npx --yes supabase@2.122.0 db advisors --db-url "$TEST_DATABASE_URL" --type security --level warn --fail-on error --output-format json
       - name: Verify disposable native database helper
         run: npm run test:db:local
   browser:
