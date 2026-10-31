@@ -16,8 +16,14 @@ test.before(async()=>{
  create schema auth; create table auth.users(id uuid primary key);`);
  await pool.query(await readFile('supabase/schema.sql','utf8'));
  // Historical order is explicit: filenames originally share a date prefix.
- for(const file of ['20261030_music_sso_launch_codes.sql','20261030_music_staff_musician_roles.sql','20261031000100_atomic_profile_status.sql','20261031000200_durable_provisioning.sql','20261031000300_projects.sql','20261031000400_invitation_disable_revocation.sql','20261031000500_project_delivery.sql','20261031000600_project_notifications.sql'])
-  await pool.query(await readFile('supabase/migrations/'+file,'utf8'));
+ for(const file of ['20261030_music_sso_launch_codes.sql','20261030_music_staff_musician_roles.sql','20261031000100_atomic_profile_status.sql','20261031000200_durable_provisioning.sql','20261031000300_projects.sql','20261031000400_invitation_disable_revocation.sql','20261031000500_project_delivery.sql','20261031000600_project_notifications.sql','20261031000700_self_service_sessions.sql'])
+ {if(file==='20261031000500_project_delivery.sql'){
+  await pool.query(`insert into auth.users(id) values('eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee');
+   insert into profiles(id,full_name,email,status) values('eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee','Pre-upgrade identity','upgrade@fixture.test','disabled');
+   insert into organizations(id,name,slug) values('dddddddd-dddd-4ddd-8ddd-dddddddddddd','Pre-upgrade tenant','pre-upgrade-tenant');
+   insert into organization_memberships(organization_id,user_id,status) values('dddddddd-dddd-4ddd-8ddd-dddddddddddd','eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee','invited');
+   insert into portal_sessions(token_hash,user_id,expires_at) values('pre-upgrade-session','eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',now()+interval '1 hour');`);
+ }await pool.query(await readFile('supabase/migrations/'+file,'utf8'));}
  await pool.query('insert into auth.users values ($1)',[user]);
  await pool.query("insert into profiles(id,full_name,email) values ($1,'Synthetic User','fixture@example.test')",[user]);
  await pool.query("insert into organizations(id,name,slug) values ($1,'Synthetic Venue','synthetic-venue')",[org]);
@@ -172,3 +178,12 @@ test('notification privacy, preferences, duplicate suppression, failure retries 
 test('HTTP delivery/report/inbox boundaries deny anonymous, revoked, client, expired and invalid requests',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./delivery-http-cases.js')(pool);});
 
 test('third product uses generic sessions, adapter fallback, entitlement revocation and logout cleanup',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./product-adapter-cases.js')(pool);});
+
+test('self-service session inventory hides hashes, scopes revocation and cascades product sessions',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./session-cases.js')(pool);});
+
+test('Phase 3 upgrades preserve populated tenant, invited/disabled identity and existing session data',async()=>{
+ assert.equal((await pool.query("select status from profiles where email='upgrade@fixture.test'")).rows[0].status,'disabled');
+ assert.equal((await pool.query("select status from organization_memberships where user_id='eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee'")).rows[0].status,'invited');
+ assert.ok((await pool.query("select public_id from portal_sessions where token_hash='pre-upgrade-session'")).rows[0].public_id);
+ assert.equal((await pool.query("select name from organizations where slug='pre-upgrade-tenant'")).rows[0].name,'Pre-upgrade tenant');
+});

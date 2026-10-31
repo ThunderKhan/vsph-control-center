@@ -49,6 +49,10 @@ async function start(pool) {
       [hashToken(token), id],
     );
   }
+  await pool.query(
+    "insert into portal_sessions(token_hash,user_id,expires_at) values($1,$2,now()+interval '2 hours')",
+    [hashToken("fixture-admin-second-session"), ADMIN],
+  );
   require("./github-fixture")();
   const app = require("../database/http-fixture")(pool);
   const server = app.listen(Number(process.env.PORT || 3100), "127.0.0.1");
