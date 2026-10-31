@@ -29,7 +29,7 @@ begin
    begin
     allowed:=coalesce(public.project_permission(o.user_id,o.project_id) in ('manager','contributor','viewer'),false);
     if exists(select 1 from public.project_notification_preferences f where user_id=o.user_id and not case o.category when 'assignments' then assignments when 'delivery' then delivery else overdue end) then allowed:=false;end if;
-    if o.event_type='milestone.overdue' and (public.project_permission(o.user_id,o.project_id) is distinct from 'manager' or not exists(select 1 from public.project_milestones m join public.projects pr on pr.id=m.project_id where m.id=o.entity_id and m.project_id=o.project_id and m.status not in ('done','cancelled') and m.due_on<(now() at time zone 'UTC')::date and pr.status in ('planned','active','paused'))) then allowed:=false;end if;
+    if o.event_type='milestone.overdue' and (not exists(select 1 from public.project_memberships pm where pm.project_id=o.project_id and pm.user_id=o.user_id and pm.role='manager' and pm.status='active') or public.project_permission(o.user_id,o.project_id) is distinct from 'manager' or not exists(select 1 from public.project_milestones m join public.projects pr on pr.id=m.project_id where m.id=o.entity_id and m.project_id=o.project_id and m.status not in ('done','cancelled') and m.due_on<(now() at time zone 'UTC')::date and pr.status in ('planned','active','paused'))) then allowed:=false;end if;
     if o.event_type='task.overdue' and not exists(select 1 from public.project_tasks t join public.projects pr on pr.id=t.project_id where t.id=o.entity_id and t.project_id=o.project_id and t.assignee_id=o.user_id and t.status not in ('done','cancelled') and t.due_on<(now() at time zone 'UTC')::date and pr.status in ('planned','active','paused')) then allowed:=false;end if;
     if allowed then insert into public.project_notifications(outbox_id,user_id,project_id) values(o.id,o.user_id,o.project_id) on conflict do nothing;end if;
     update public.project_notification_outbox set state=case when allowed then 'delivered' else 'suppressed' end where id=o.id;n:=n+1;
@@ -56,6 +56,7 @@ begin
      else (select d.title from public.project_delivery_records d join public.project_repositories c on c.id=d.connection_id join public.project_github_installations g on g.project_id=c.project_id and g.installation_id=c.installation_id where d.id=notice.entity_id and c.status='active' and g.status='active') end title
    from public.project_notifications n join public.projects p on p.id=n.project_id join public.project_notification_outbox notice on notice.id=n.outbox_id
    where n.user_id=p_actor and public.project_permission(p_actor,n.project_id) in ('manager','contributor','viewer')
+    and (notice.event_type<>'milestone.overdue' or exists(select 1 from public.project_memberships pm where pm.project_id=n.project_id and pm.user_id=p_actor and pm.role='manager' and pm.status='active'))
     and (notice.event_type not like 'github.%' or exists(select 1 from public.project_delivery_records d join public.project_repositories c on c.id=d.connection_id join public.project_github_installations g on g.project_id=c.project_id and g.installation_id=c.installation_id where d.id=notice.entity_id and c.status='active' and g.status='active'))
    order by n.id desc limit 100) x),'[]'));
  end if;

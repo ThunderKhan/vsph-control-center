@@ -95,7 +95,32 @@ module.exports = async (pool) => {
   await pc("member.save", p.id, {
     version: 6,
     userId: user,
-    role: "manager",
+    role: "viewer",
+    status: "active",
+  });
+  assert.ok(
+    !(await nc("inbox")).notifications.some(
+      (n) => n.project_id === p.id && n.event_type === "milestone.overdue",
+    ),
+  );
+  await pool.query(
+    "update project_notification_outbox set state='queued',available_at=now() where entity_id=$1 and user_id=$2",
+    [muted.id, user],
+  );
+  await nc("dispatch");
+  assert.equal(
+    (
+      await pool.query(
+        "select state from project_notification_outbox where entity_id=$1 and user_id=$2",
+        [muted.id, user],
+      )
+    ).rows[0].state,
+    "suppressed",
+  );
+  await pc("member.save", p.id, {
+    version: 7,
+    userId: user,
+    role: "viewer",
     status: "revoked",
   });
   assert.ok(
