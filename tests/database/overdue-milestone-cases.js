@@ -61,6 +61,12 @@ module.exports = async (pool) => {
   await pc("milestone.update", p.id, { version: 4, id: m.id, status: "done" });
   await nc("scan", null);
   assert.equal(await count(), 2);
+  await nc("dispatch", admin);
+  assert.ok(
+    !(await nc("inbox", admin)).notifications.some(
+      (n) => n.project_id === p.id && n.event_type === "milestone.overdue",
+    ),
+  );
   await nc("preferences.save", user, {
     assignments: true,
     delivery: true,
