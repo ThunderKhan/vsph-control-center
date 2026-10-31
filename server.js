@@ -37,6 +37,8 @@ app.use((req,res,next)=>{
 app.use('/api/auth',require('./routes/auth'));
 app.use('/api/invitations',require('./routes/invitations'));
 
+app.use('/api/notifications',require('./routes/notifications').router);
+app.use('/api/project-reports',require('./routes/notifications').reports);
 app.use('/api/projects/:projectId/delivery',require('./routes/delivery').router());
 app.use('/api/projects',require('./routes/projects').router);
 app.get(['/projects','/projects/:id'],portalSession,(req,res)=>{res.set('Cache-Control','no-store');res.sendFile(path.join(__dirname,'views','projects.html'))});
