@@ -76,6 +76,13 @@ test("staging inspection refuses absent approval, mismatch and insecure remote T
     {
       STAGING_INSPECTION_APPROVED: "true",
       STAGING_DATABASE_URL:
+        "postgres://private:never-print@localhost/vsph_test?host=remote.example.test",
+      STAGING_DATABASE_HOST: "localhost",
+      STAGING_DATABASE_NAME: "vsph_test",
+    },
+    {
+      STAGING_INSPECTION_APPROVED: "true",
+      STAGING_DATABASE_URL:
         "postgres://private:never-print@localhost/vsph_test",
       STAGING_DATABASE_HOST: "wrong",
       STAGING_DATABASE_NAME: "vsph_test",
