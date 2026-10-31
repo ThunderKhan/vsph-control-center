@@ -1,0 +1,9 @@
+# Phase 3 migration readiness
+
+Reconfirmed 31 October 2026: main 25dcfed5a74f1e43c1bd49ff687a3f36cce082d7; PRs 15–19 all merged, no open PRs. Phase 2 final merge is 25dcfed5a74f1e43c1bd49ff687a3f36cce082d7.
+
+The empty test database installs schema.sql (profiles, organizations, grants, audit and sessions), then Music launch codes and Music role migrations, 001 atomic profile status, 002 durable provisioning, 003 Projects, 004 disable revocation, then 005 project delivery. 002 needs core tenancy/audit/application tables. 003 needs core profiles/organizations/audits and defines project_permission. 004 replaces 001 set_profile_status and 002 provisioning_command and needs both their schemas plus Music session/code tables. 005 depends on project_permission, projects/tasks/milestones and core identity/audit. Do not skip 004 or replay bootstrap on a populated database.
+
+No Supabase URL/service credentials or approved isolated hosted target are available in this Work environment. Hosted schema history, backup, installation and real Auth/PostgREST behavior remain unverified. Only disposable database rehearsal is authorized/performed. Before deployment: operator reconciles migration history and actual object definitions, takes/verifies an isolated staging backup, applies missing reviewed migrations in dependency order, runs Auth/PostgREST permission acceptance, and validates restore. Forward fixes and backup recovery replace destructive down migrations. All new migrations remain unapplied to hosted environments.
+
+Connected Vercel inventory returned 14 projects. The project named vsph is Next.js, has no confirmed Control Center Git binding and uses vsph-five.vercel.app; Control Center is Express. Neither that project nor the unrelated Music hostname is an authorized project mapping. Vercel connector remains disabled; no deployment, environment or credential changes were made.
