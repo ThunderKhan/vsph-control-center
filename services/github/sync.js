@@ -19,7 +19,7 @@ async function tick({ command, provider = client(), connectionId = null }) {
       await command(null, "failed", lease.id, {
         leaseToken: lease.lease_token,
         code,
-        retryAfter: error.retryAfter || 60,
+        ...(error.retryAfter ? { retryAfter: error.retryAfter } : {}),
       });
     } catch {
       /* Revoked/disconnected lease cannot change state. */

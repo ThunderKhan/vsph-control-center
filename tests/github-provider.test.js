@@ -231,3 +231,45 @@ test("sync failure is sanitized, persisted and uses the claimed fencing token", 
   assert.equal(calls[1][3].leaseToken, "lease");
   assert.equal(calls[1][3].retryAfter, 3600);
 });
+
+test("unchanged checks retain source time and transient failures delegate exponential backoff", async () => {
+  const a = normalize(
+    4,
+    {
+      id: 1,
+      name: "CI",
+      status: "completed",
+      conclusion: "success",
+      completed_at: "2026-10-01T01:02:03Z",
+    },
+    "fixture/private",
+    1000,
+  );
+  const b = normalize(
+    4,
+    {
+      id: 1,
+      name: "CI",
+      status: "completed",
+      conclusion: "success",
+      completed_at: "2026-10-01T01:02:03Z",
+    },
+    "fixture/private",
+    2000,
+  );
+  assert.equal(a.sourceAt, b.sourceAt);
+  assert.equal(a.sourceAt, "2026-10-01T01:02:03.000Z");
+  const calls = [];
+  await tick({
+    command: async (...args) => {
+      calls.push(args);
+      return args[1] === "claim" ? { id: "c", lease_token: "l" } : {};
+    },
+    provider: {
+      page: async () => {
+        throw new ProviderError("provider_unavailable");
+      },
+    },
+  });
+  assert.equal(calls[1][3].retryAfter, undefined);
+});

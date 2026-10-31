@@ -1,7 +1,7 @@
 // GitHub App only. Credentials never leave this server-side module.
 const crypto = require("node:crypto");
 class ProviderError extends Error {
-  constructor(code, retryAfter = 60) {
+  constructor(code, retryAfter) {
     super("GitHub connection unavailable.");
     this.code = code;
     this.retryAfter = retryAfter;
@@ -273,7 +273,7 @@ function normalize(kind, x, fullName, now) {
     "tag",
   ];
   const gh = "https://github.com/" + fullName;
-  const fallback = new Date(now).toISOString();
+  const fallback = "1970-01-01T00:00:00.000Z";
   const title =
     kind === 0
       ? x.commit?.message?.split("\n")[0]
@@ -290,7 +290,12 @@ function normalize(kind, x, fullName, now) {
   const safeUrl =
     typeof url === "string" && url.startsWith("https://github.com/") ? url : gh;
   const date =
-    x.updated_at || x.published_at || x.created_at || x.commit?.committer?.date;
+    x.completed_at ||
+    x.started_at ||
+    x.updated_at ||
+    x.published_at ||
+    x.created_at ||
+    x.commit?.committer?.date;
   const sourceAt =
     date && !Number.isNaN(Date.parse(date))
       ? new Date(date).toISOString()
