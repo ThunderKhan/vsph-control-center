@@ -187,3 +187,5 @@ test('Phase 3 upgrades preserve populated tenant, invited/disabled identity and 
  assert.ok((await pool.query("select public_id from portal_sessions where token_hash='pre-upgrade-session'")).rows[0].public_id);
  assert.equal((await pool.query("select name from organizations where slug='pre-upgrade-tenant'")).rows[0].name,'Pre-upgrade tenant');
 });
+
+test('staging inspector validates native catalog security without mutating application data',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./readiness-cases.js')(pool);});

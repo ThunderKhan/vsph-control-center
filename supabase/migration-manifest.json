@@ -1,0 +1,89 @@
+{
+  "format": 1,
+  "bootstrap": {
+    "path": "supabase/schema.sql",
+    "sha256": "ca1d3e44e506d9206a1bc5829924e4ca8f080d199d77517546d4751289d6fcf9"
+  },
+  "migrations": [
+    {
+      "path": "supabase/migrations/20261030_music_sso_launch_codes.sql",
+      "sha256": "dd3892ac88a2bd5406fb6d6a9b91259363fe55dd82cbd58cde86e841ed5e2441",
+      "version": "20261030",
+      "name": "music_sso_launch_codes",
+      "requires": []
+    },
+    {
+      "path": "supabase/migrations/20261030_music_staff_musician_roles.sql",
+      "sha256": "8cb84e93ef47f2b85f98327d6f961c56ef21a96268d709aeaccc6bf405f1c71a",
+      "version": "20261030",
+      "name": "music_staff_musician_roles",
+      "requires": [
+        "supabase/migrations/20261030_music_sso_launch_codes.sql"
+      ]
+    },
+    {
+      "path": "supabase/migrations/20261031000100_atomic_profile_status.sql",
+      "sha256": "a69bcdc9bc2022f5c34e0802544e14b8c5c2c223728b9711d4aa805a395eb629",
+      "version": "20261031000100",
+      "name": "atomic_profile_status",
+      "requires": [
+        "supabase/migrations/20261030_music_staff_musician_roles.sql"
+      ]
+    },
+    {
+      "path": "supabase/migrations/20261031000200_durable_provisioning.sql",
+      "sha256": "a6ef85272e00b3f5cb39ad0baa52c2d18050cbc1071627655811dffad1beb23a",
+      "version": "20261031000200",
+      "name": "durable_provisioning",
+      "requires": [
+        "supabase/migrations/20261031000100_atomic_profile_status.sql"
+      ]
+    },
+    {
+      "path": "supabase/migrations/20261031000300_projects.sql",
+      "sha256": "2fd68330abdde9b8c27811165b727b887480545713c3851354d4d5d989bd60b2",
+      "version": "20261031000300",
+      "name": "projects",
+      "requires": [
+        "supabase/migrations/20261031000200_durable_provisioning.sql"
+      ]
+    },
+    {
+      "path": "supabase/migrations/20261031000400_invitation_disable_revocation.sql",
+      "sha256": "66280039fd0c293a6f9e708304ee8d4ba011c053b34e368fbe1e1b9e41b271c5",
+      "version": "20261031000400",
+      "name": "invitation_disable_revocation",
+      "requires": [
+        "supabase/migrations/20261031000300_projects.sql"
+      ]
+    },
+    {
+      "path": "supabase/migrations/20261031000500_project_delivery.sql",
+      "sha256": "ca1f8474fc63ddbd203c6e4adf68206ec656bf986f67fdf70b0ace949e777167",
+      "version": "20261031000500",
+      "name": "project_delivery",
+      "requires": [
+        "supabase/migrations/20261031000400_invitation_disable_revocation.sql"
+      ]
+    },
+    {
+      "path": "supabase/migrations/20261031000600_project_notifications.sql",
+      "sha256": "8a9181a298eee0d44e08c5786bc8760cc5877c8db491373a92f9f79db8fd6b94",
+      "version": "20261031000600",
+      "name": "project_notifications",
+      "requires": [
+        "supabase/migrations/20261031000500_project_delivery.sql"
+      ]
+    },
+    {
+      "path": "supabase/migrations/20261031000700_self_service_sessions.sql",
+      "sha256": "190a3b888e08d622e391e159505db4754bda0cf33e037c58a237c6a9a1aff8e5",
+      "version": "20261031000700",
+      "name": "self_service_sessions",
+      "requires": [
+        "supabase/migrations/20261031000600_project_notifications.sql"
+      ]
+    }
+  ],
+  "note": "Historical Music filenames share version 20261030. Reconcile hosted ledger explicitly; do not silently rename or repair history."
+}
