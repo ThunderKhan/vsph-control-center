@@ -49,6 +49,8 @@ async function main() {
     url.searchParams.get("sslmode") !== "verify-full"
   )
     throw Error("Remote TLS hostname verification is required.");
+  if ([...url.searchParams.keys()].some((key) => key !== "sslmode"))
+    throw Error("Unapproved connection override.");
   const pool = new Pool({
     connectionString: value,
     max: 1,

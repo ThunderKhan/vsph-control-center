@@ -22,7 +22,8 @@
     "notifications:dispatch": "node scripts/dispatch-project-notifications.js",
     "check:migrations": "node scripts/staging-readiness.js --manifest-only",
     "staging:inspect": "node scripts/staging-readiness.js",
-    "github:verify": "node scripts/verify-github.js"
+    "github:verify": "node scripts/verify-github.js",
+    "test:restore:ci": "node scripts/rehearse-restore.mjs"
   },
   "engines": {
     "node": ">=20.19"
