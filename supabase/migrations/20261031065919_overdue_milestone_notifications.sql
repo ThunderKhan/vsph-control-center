@@ -1,4 +1,6 @@
 -- Add overdue milestone reminders for current project managers. In-app only.
+create index project_tasks_open_due on public.project_tasks(due_on,project_id,id) where assignee_id is not null and status not in ('done','cancelled');
+create index project_milestones_open_due on public.project_milestones(due_on,project_id,id) where status not in ('done','cancelled');
 create or replace function public.notification_command(p_actor uuid,p_action text,p_id uuid default null,p_data jsonb default '{}') returns jsonb language plpgsql security definer set search_path='' as $$
 declare o public.project_notification_outbox; allowed boolean; n integer:=0;
 begin

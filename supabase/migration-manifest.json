@@ -86,7 +86,7 @@
     },
     {
       "path": "supabase/migrations/20261031065919_overdue_milestone_notifications.sql",
-      "sha256": "8033bd49137383cc91d5dc6d66428375da06cd711e96bdd5c4b3fe1a25d4002c",
+      "sha256": "2fb4a972650a012b7822f91c12ecd2c334aaac04d82d19020bc55cdd38e7893d",
       "version": "20261031065919",
       "name": "overdue_milestone_notifications",
       "requires": [
