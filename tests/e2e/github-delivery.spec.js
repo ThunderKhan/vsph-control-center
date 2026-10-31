@@ -8,6 +8,7 @@ test("isolated GitHub fixture connects, syncs, links work, persists and disconne
     !process.env.PROJECT_E2E_DATABASE,
     "Requires isolated PostgreSQL fixture.",
   );
+  await context.setExtraHTTPHeaders({ Origin: "http://127.0.0.1:3100" });
   await context.addCookies([
     {
       name: "vsph.portal.sid",
