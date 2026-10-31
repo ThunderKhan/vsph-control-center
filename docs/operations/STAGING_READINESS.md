@@ -1,6 +1,6 @@
 # Executable staging readiness — read-only
 
-The migration manifest records exact SHA-256 hashes and explicit dependency order for bootstrap plus nine migrations. `npm run check:migrations` verifies repository content without connecting to a database. Bootstrap is never an inspection/apply command. CI runs the manifest check and a native catalog-inspection case.
+The migration manifest records exact SHA-256 hashes and explicit dependency order for bootstrap plus every registered migration. `npm run check:migrations` verifies repository content without connecting to a database. Bootstrap is never an inspection/apply command. CI runs the manifest check and a native catalog-inspection case.
 
 Important existing history issue: both historical Music migration filenames begin with version 20261030. Native tests use an explicit ordered list, but a Supabase CLI ledger keyed by version cannot be assumed to represent both files. The inspector reports this collision and missing/unknown ledger entries. Do not rename historical files, repair migration history, replay bootstrap, or assume that matching table names prove installation. A target-specific reviewed reconciliation is required after actual history/object definitions are inspected. No automatic ledger repair or migration application is implemented.
 
