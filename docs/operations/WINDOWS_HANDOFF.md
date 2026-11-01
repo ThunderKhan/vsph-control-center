@@ -24,7 +24,7 @@ npm run dev
 
 The full audit currently reports six moderate development-tool findings through minimatch, with no high/critical findings; production audit is clean. Do not run npm audit fix --force: its suggested tool downgrades are not validated. See RISK_REGISTER.md. No typecheck/build script exists for this vanilla JavaScript application. npm run test:e2e without DB mode runs public checks and skips authenticated fixture journeys; test:e2e:db creates a disposable native database and runs the full suite. Fixture URLs must be empty loopback vsph_test, never hosted staging/production. Root OS execution deliberately refuses privilege/account creation.
 
-Normal server requires securely configured Supabase .env plus PUBLIC_ORIGIN=http://localhost:3000 and PORT=3000. Reconcile/install/verify missing reviewed migrations in approved isolated staging before any backend rollout. Phase 2 002/003/004 and Phase 3 005/006/007 were NOT applied hosted in these sessions. Do not bootstrap/seed an existing customer database. Refer to PHASE3_MIGRATIONS.md for order/backup/UAT gates.
+Normal server requires securely configured Supabase .env plus PUBLIC_ORIGIN=http://localhost:3000 and PORT=3000. Reconcile/install/verify missing reviewed migrations in approved isolated staging before any backend rollout. Phase 2/3 and all Phase 4 feature migrations were NOT applied hosted in these sessions. Do not bootstrap/seed an existing customer database. Refer to PHASE3_MIGRATIONS.md for order/backup/UAT gates.
 
 ## Project and engineering acceptance
 
@@ -50,3 +50,15 @@ After approved target setup, `npm run staging:inspect` performs read-only catalo
 Migration 20261031065919_overdue_milestone_notifications.sql follows 007 and remains unapplied hosted. Create an unfinished overdue milestone with two explicit project managers in isolated staging; invoke the approved notifications dispatcher, verify one reminder per manager per UTC day, then test opt-out, completion before delivery, demotion and revocation. Product roles do not confer manager notifications.
 
 `npm run test:restore:ci` is intentionally restricted to the identified PostgreSQL 17 Docker service in GitHub CI. It is not a general PowerShell restore command. Native Windows commands above are repository-supported and verified in Linux/CI, not executed on Windows here. See RESTORE_REHEARSAL.md and HOSTED_SCHEMA_FINDINGS.md for the separate hosted recovery gate.
+
+## Phase 4 manual workflow
+
+After approved isolated migration/Auth setup, sign in with a real staged platform identity. Administration → Users → Customer workspace: select a customer, inspect terms/members/invitations/history, queue one scoped invitation and review delivery/recovery separately. Accept with the intended staged identity; no synthetic fixture cookie is a production login method. Reissue/cancel using current generations, change/revoke explicit roles, test last-owner and wrong-actor denial.
+
+Administration → Applications → Product registry: register a sandbox code and portal-only integration, save ownership/support/docs/visibility and reload. Edit with current version; exercise inactive/retired states and scoped local readiness. No metadata operation enables Music SSO, stores provider secrets or proves external health.
+
+Customer workspace → lifecycle and entitlement controls: review stored impact, suspend/reactivate, change one product's grant and terms atomically, then verify session/code/capability revocation. Concurrent/stale updates must conflict. In legacy subscription/access forms, repeated edits must preserve the selected non-first tenant/product after lookup refresh. Verify unaffected customers. Follow MANUAL_QA.md for the full negative and responsive matrix.
+
+New migration order after prior manifest: 20261101052745_member_governance.sql → 20261101053314_product_registry.sql → 20261101054139_customer_lifecycle.sql. All are unapplied hosted. These add required functions/columns/trigger; do not start a hosted backend rollout before approved installation and real Auth/PostgREST/restore acceptance. The existing legacy candidate is not approved staging. PHASE4_STAGING_GATE.md records exact remaining operator decisions.
+
+Current automated acceptance is 120 Node/25 native PostgreSQL/22 desktop/mobile Chromium cases. CI also compares restored indexes/security triggers and exercises populated duplicate-invitation rollback/forward repair. It does not certify Windows, hosted disaster recovery, real MFA/email, production load or WCAG.

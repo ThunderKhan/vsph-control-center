@@ -54,9 +54,9 @@ app.use('/api/admin-management',portalSession,requireAdmin,require('./routes/adm
 app.use('/api/admin-management/onboardings',portalSession,requireAdmin,require('./routes/onboarding').router);
 app.get('/admin/provisioning',portalSession,requireAdmin,(req,res)=>{res.set('Cache-Control','no-store');res.sendFile(path.join(__dirname,'views','provisioning.html'))});
 app.get('/api/health',async(req,res)=>{
- if(!configured())return res.status(503).json({status:'not_configured',database:false});
+ if(!configured())return res.status(503).json({status:'not_configured',database:false,releaseReady:false,scope:'database-connectivity-only'});
  try{const{error}=await db().from('applications').select('id').limit(1);if(error)throw error;
- res.json({status:'ok',database:true});}catch(e){res.status(503).json({status:'database_unavailable',database:false})}
+ res.json({status:'ok',database:true,releaseReady:false,scope:'database-connectivity-only'});}catch(e){res.status(503).json({status:'database_unavailable',database:false,releaseReady:false,scope:'database-connectivity-only'})}
 });
 app.get('/apps/:app/launch',portalSession,async(req,res,next)=>{
   try{

@@ -31,7 +31,7 @@ Prerequisites: reconcile schema/history; install reviewed migrations; exact PUBL
 - [ ] Review step matches server payload. Customer membership stays invited until acceptance; invitation alone grants no product access.
 - [ ] Approved synthetic recipient receives the email, exact redirect reaches /accept-invite, token fragment is removed promptly and no token enters logs/screenshots.
 - [ ] Recipient sets password and can access only intended tenant/products. Verify the purpose-bound capability, expiry/revocation and accept-one-membership behavior; legacy broad bearer links must fail.
-- [ ] Wrong account/email, expired/replayed/revoked link, missing token, failed SMTP, duplicate resend and Auth-success/DB-failure are exercised with reconciliation evidence. Resend/revoke/repair UI remains M2/M3 work.
+- [ ] Wrong account/email, expired/replayed/revoked link, missing token, failed SMTP, duplicate resend and Auth-success/DB-failure are exercised with reconciliation evidence. Use generation-fenced reissue/cancellation and reconciled recovery; delegated customer-admin governance remains incomplete.
 - [ ] Legacy POST /api/admin-management/users and /clients return 410, including requests for super_admin elevation. Admin UI collects no temporary password/platform role.
 
 ## Roles, status and account revocation
@@ -50,7 +50,7 @@ Prerequisites: reconcile schema/history; install reviewed migrations; exact PUBL
 - [ ] Active/trial access respects starts_at and ends_at; future start, expiry, past_due/cancelled/expired, suspended/closed organization and revoked grant deny access.
 - [ ] Re-enabling a grant never bypasses individual membership/role. One tenant's change cannot affect another's rows.
 - [ ] Subscription flags are presented as entitlements; no invoice/payment/revenue assertions appear.
-- [ ] Renewal notices, history, customer detail, customer-admin self-service, bulk confirmations, exports and notification retry gates remain unimplemented; record these as blocked/unavailable, not passes.
+- [ ] Customer detail, lifecycle/entitlement confirmation and invitation recovery now exist. Renewal notices, broader history/export, customer-admin self-service and bulk workflows remain incomplete; record those as unavailable, not passes.
 
 ## Project portfolio and delivery — current MVP and later integration gates
 
@@ -131,3 +131,27 @@ Automated isolated PostgreSQL and desktop/mobile workflows cover these core path
 - [ ] During project mutations and refresh, editable controls remain busy until the complete detail refresh ends. Rapid mobile edits do not silently lose typed comments.
 - [ ] In isolated staging only: overdue manager reminders dedupe, opt-out suppresses, completed work does not deliver, contributor demotion and full membership revocation hide prior manager-only notices.
 - [ ] Review CI native dump/restore comparison evidence; separately rehearse approved hosted recovery before claiming hosted readiness or an RPO/RTO.
+
+## Phase 4 customer, registry and lifecycle acceptance
+
+All checks below require installed/verified target migrations and approved synthetic accounts. They remain unchecked for hosted acceptance even where isolated CI passes.
+
+- [ ] Sign in as a platform administrator; reach Customers from Administration → Users, and Product registry from the application catalog. Follow an organization/product direct link and reload it.
+- [ ] Anonymous, expired/revoked portal sessions, ordinary/invited users, organization owners/admins and product super admins cannot enter platform customer/product administration. A downgraded platform actor is denied by the database despite stale UI.
+- [ ] Page product/customer directories and open IDs beyond page one. Directory reads remain bounded. A detail's bounded subcollections are not represented as full exports.
+- [ ] Invite an existing active identity to exactly one organization with explicit organization role and optional product roles. Pending membership confers no access. Existing active/suspended membership cannot be silently overwritten by invitation creation.
+- [ ] Invite a new synthetic identity only through the approved provider. Profile stays disabled until purpose-bound acceptance; unknown Auth/password/delivery results enter reconciliation. No admin-assigned password or platform elevation exists.
+- [ ] Same actor/key/payload returns one job; changed payload or duplicate live org/email conflicts. Concurrent first requests do not duplicate jobs/users/memberships. Malformed IDs, roles, unknown fields and Music-only roles on CRM fail.
+- [ ] Expired/replayed/wrong-identity capabilities fail. Reissue rotates generation/token/lease and invalidates the old URL. Stale cancellation/reissue conflicts; it must not revoke a newer reviewed generation.
+- [ ] Ordinary cancellation of staged new enrollment can be reissued. Explicit account disable remains blocked, including historical ambiguous revoked/disabled rows. Ambiguous in-flight acceptance requires reconciled recovery, not blind resend.
+- [ ] Accepted membership role/status and explicit product-role changes save/audit atomically, revoke affected product sessions/codes and persist after reload. Invited status cannot be changed to active by administration. Last active owner removal denies.
+- [ ] Organization suspension displays impact and requires confirmation; it revokes sessions/codes/pending delivery. A login or worker bind racing suspension cannot create usable access or deadlock the completed workflow. Reactivation restores no old sessions/capabilities. Closed lifecycle is terminal here.
+- [ ] Save grant and subscription terms together; reject invalid dates/plan/status, trial without future end, absent confirmation and stale version. Future/past terms still enforce actual access. No payment/invoice claim appears.
+- [ ] Edit a non-first customer/product in the legacy subscription/access form, save, adjust and save again. Selections must stay on that customer/product and refreshed version; other tenants remain unchanged.
+- [ ] Register a portal-only product and reload. Matching create retry dedupes; conflicting registration/version fails. Owner UUID must identify an active profile. Code/path is immutable/derived; retirement cannot be reversed by editing.
+- [ ] Unknown secret/config/module/table/provider URL fields are rejected; no key/token/ciphertext appears in metadata, errors, logs, HTML, localStorage or screenshots. Documentation URL rejects unsafe schemes/credentials.
+- [ ] Disable/maintenance/retire blocks product launches and revokes old product sessions. Unlisted affects catalog discovery while direct routes still require full tenant/role/term authorization. Platform admin does not inherit product roles.
+- [ ] Readiness distinguishes server configuration, scoped local adapter reachability, failure and missing integration. Explicit check persists timestamp/scope/version; external verified stays false. Music demo availability does not verify SSO.
+- [ ] Exercise audit outage and stale/concurrent forms in isolated fixtures; no partial metadata/grant/subscription/membership write should survive a failed transaction. Review native duplicate-migration rollback/repair and restored trigger/index evidence separately from hosted recovery.
+- [ ] Tab through registry fields, enter data by keyboard, confirm focus/error announcements, use all selects/buttons at mobile width, and try long unbroken product/customer names. Preserve existing Projects/sidebar/drawer/login/onboarding/logout workflows. Full WCAG/zoom/real-device sign-off remains open.
+- [ ] /api/health reports connectivity scope and releaseReady=false; it cannot certify migration/Auth/provider/worker/enterprise readiness. Test configured dependency failures without logging secrets. Operational monitoring/load and live MFA remain separate release gates.

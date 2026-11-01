@@ -46,3 +46,17 @@ R13 rollout prerequisite now includes ordered 005/006/007 as well as Phase 2 002
 All changes preserve hosted state; no staging branch/project was created or billed. Windows-native and real hosted Auth/PostgREST/provider acceptance remain unverified.
 
 Phase 4: the legacy role endpoint could implicitly create active customer membership. It now requires accepted membership and delegates role mutation/audit/session revocation to customer_command. New invitations/reissue retain the existing outbox/acceptance guarantees; MFA/step-up/platform-admin recovery and hosted acceptance remain open. See CUSTOMER_GOVERNANCE.md and PHASE4_STAGING_GATE.md.
+
+## Phase 4 current mitigations and release risks
+
+PRs #33–#35 are merged with native/browser acceptance. Current source boundaries: routes/customers.js, routes/products.js, routes/admin-management.js, migrations 20261101052745/053314/054139, and tests/database/customer-cases.js, product-registry-cases.js, customer-lifecycle-cases.js.
+
+- R3/R4: individual existing-tenant invitations/reissue/cancel now exist; generation fences, account-block flags, expiry/replay and target membership are tested. Unknown Auth/email effects still require reconciliation. Historical ambiguous revoked/disabled enrollment remains blocked conservatively; org-admin delegation and platform recovery remain open.
+- R5: membership/role/product/lifecycle/entitlement mutation+audit are atomic. Legacy bare-organization creation still writes/audits separately and needs modernization. No audit-retention/export immutability claim.
+- R10/R11: customer/product workspace pages and direct ID reads exist; details retain bounded subcollections. Global search/export, broad history pagination and customer entitlement picker beyond its registry page remain incomplete.
+- R12/R18: native restoration now compares security trigger/index definitions as well as rows/constraints/sequences/functions. Duplicate-invite upgrade rollback/repair and session/worker races pass synthetic tests. This does not close hosted restore, load, alerts/monitoring, incident operations or accessibility gates.
+- R21 (P0 privileged identity): sensitive administration still lacks MFA/step-up and governed platform-admin recovery. Existing active platform-session checks are necessary but do not satisfy enterprise privileged-access acceptance. No weaker demonstration bypass was added.
+- R22 (P0 deployment): current accessible Supabase remains legacy-only, no ledger/isolated branch; actual Express/Vercel/database binding and approved staging absent. All Phase 4 SQL unapplied hosted. A passing connectivity endpoint is not schema, Auth or release readiness.
+- R23 (P1 integration truth): readiness probes use only reviewed local adapters, persist timestamp/scope and never assert external verified. Secrets/providers/SSO still require separate ownership and staged verification; metadata changes cannot enable a provider or select dynamic tables/modules.
+
+R16 remains six moderate dev-tool findings. Rechecked official latest ESLint [10.14.0](https://github.com/eslint/eslint/releases/tag/v10.14.0) and nodemon [3.1.14](https://github.com/remy/nodemon/releases/tag/v3.1.14); no compatible published tool update was identified to remove the major-10 minimatch issue. Production dependencies are clean. Hosted event-trigger execution/password-protection warnings are proposals for approved remediation, not applied fixes or proven ordinary-RPC exploits.

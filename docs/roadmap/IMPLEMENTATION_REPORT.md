@@ -1,8 +1,39 @@
-[PR #34](https://github.com/ThunderKhan/vsph-control-center/pull/34) merged as `041a53a6891251bdce4dfd40b89100a21d8459c7` after all four checks passed. Atomic product registry, lifecycle/visibility/metadata, pagination/direct lookup and truthful persisted local readiness are implemented. External provider acceptance remains unverified.
+# Phase 4 implementation report — 1 November 2026
 
-## Phase 4 in progress — 1 November 2026
+Core customer governance, product registry and lifecycle administration are merged through `b3d2c697a8598e50e3c11256d2d090c72af352a8`. This is **merged code with passing isolated acceptance**, not verified staging or deployed production. [PROGRESS.md](PROGRESS.md) records M0–M12 and exact PR #33–#35 merge SHAs. Entry main was 08f601fd0f74221aa3e80dc10367cda602e5f72f; existing modules/audits were retained.
 
-[PR #33](https://github.com/ThunderKhan/vsph-control-center/pull/33) merged as `b80dc6a225f9699673983c137aea17bbe8fb8841` after all four checks passed: existing-organization invitations, secure reissue/cancellation, explicit versioned membership/product-role governance and a bounded customer workspace are implemented with isolated native/browser acceptance. See CUSTOMER_GOVERNANCE.md and PHASE4_STAGING_GATE.md in docs/operations. No hosted target is approved or migrated. M3/M4 remain partial; MFA/step-up and delegated customer-admin workflows remain incomplete.
+## Implemented verticals
+
+- Existing organizations can receive individual member invitations through the same durable encrypted outbox and purpose-bound acceptance. Organization/product roles are explicit; no platform/project authority is inherited. Renewal/cancellation is generation-fenced; expiry/replay/wrong identity and disable preservation remain enforced. Explicit account blocks are distinct from ordinary cancellation, with conservative fail-closed treatment of ambiguous historical revoked/disabled enrollment. Existing identities are never password-reset by invitation acceptance.
+- /admin/customers provides bounded persisted members, roles, product terms, invitation/delivery/recovery states and audited activity. Versioned membership/role mutations audit and revoke customer product sessions atomically. The legacy role endpoint cannot implicitly create an active membership. Invited users must accept. Last-owner removal is guarded.
+- /admin/products registers product/standard roles/audit atomically, edits allowlisted metadata with versions, derives immutable login paths and governs listed/unlisted visibility plus enabled/disabled/maintenance/terminal retirement. CRM/Music adapters stay code-owned. No secrets, arbitrary table/module/provider URLs or manual verification toggle are accepted. Persisted local observations distinguish configuration/reachability/degradation/unavailability; external verified remains false.
+- Customer lifecycle/entitlement changes require version and impact confirmation, atomically save/audit terms/grants and revoke affected sessions/codes. Suspension/closure also revokes pending invitation delivery. Reactivation restores no old session. A DB session-insert guard prevents suspension/login races; NO KEY UPDATE keeps in-flight membership FK checks compatible. Direct ID reads/keyset pages reach products/customers beyond the first page. Legacy form lookup refresh preserves selected tenant/product and clears stale save signals.
+
+## Validation and corrected failures
+
+**120 Node, 25 native PostgreSQL and 22 desktop/mobile Chromium cases passed** before #35 merged, plus syntax, lint, Markdown formatting, coverage, checksummed manifest, production audit and development high-severity gate. Both disposable DB/browser helpers passed. CI uses native PostgreSQL 17, synthetic persisted identities and test transport; it does not prove hosted PostgREST or Auth. Work's root environment cannot run the ordinary-user native helper, and local Chromium is unavailable; native/browser proof comes from CI. Windows-native execution was unavailable.
+
+Logical restore compared **36 tables, 186 constraints, 75 indexes, four triggers, four sequences and 12 application functions**. Populated upgrade rehearsal includes existing disabled/invited identities/sessions/default versions, deliberately failed duplicate-invitation migration with transaction rollback, and audited synthetic forward repair. Failure injections cover audit rollback, existing external Auth/delivery errors, generation/version conflicts and controlled concurrent binding/suspension. These are synthetic recovery/concurrency exercises, not hosted disaster recovery, production load evidence, a monitored incident response or RPO/RTO guarantees.
+
+Failures fixed before merge: SQL alias ambiguity; historical test downgraded the current disable function; accessible select names prevented registry browser completion. Review fixes cover cancellation/account blocking, stale cancellations, uneditable products past page one and cross-customer selection reset. Lock compatibility was identified and regression-tested; no production deadlock is claimed. Browser reports attach synthetic customer/registry screenshots. Final acceptance adds keyboard entry/tab focus, long metadata wrapping and an explicit connectivity-only health scope; its own CI must pass before merge.
+
+Production audit is clean. Full audit retains six moderate dev-only minimatch findings. Official latest releases remain ESLint 10.14.0 and nodemon 3.1.14; compatible tool upgrades have not closed the major-10 dependency issue. No forced major override or downgrade was used. Synthetic advisors retain pgcrypto-in-public WARN, no ERROR. Hosted advisor findings and safe remediation proposals remain in HOSTED_SCHEMA_FINDINGS.md; none were applied without approval.
+
+## Migration and external status
+
+CLI-generated 20261101052745, 20261101053314 and 20261101054139 follow all historical manifest dependencies; checksums are verified. **All remain unapplied hosted**, as do required earlier feature migrations on the inspected legacy-only candidate. Duplicate Music version 20261030 still requires target-specific reconciliation; no old checksummed file was renamed or rewritten.
+
+Read-only Supabase reconfirmation found one active VSPH candidate, 13 legacy tables, no ledger/development branch, no Projects/provisioning/product-health tables and absent provisioning/customer RPC. Vercel's accessible vsph deployment is CLI Next.js with no reported Git source, not an established Express/database binding. No approved isolated target exists in the available evidence. Real Auth/email/MFA/PostgREST, runtime GitHub App, Vercel/Music source/backend/SSO and hosted recovery remain unverified. There were no hosted changes, emails, purchases, new cloud resources, secrets or deployments.
+
+## Remaining decisions and requirements
+
+Establish actual deployed backend/database ownership and environment classification. Designate an existing isolated target, or explicitly approve cloud creation and its cost before proceeding. Verify backup/recovery, reconcile/install reviewed missing SQL there, then run staged real Auth/PostgREST and provider acceptance before separate production rollout approval. Never bootstrap/reset/seed the existing candidate.
+
+Independent roadmap gaps remain: MFA/privileged step-up and governed platform recovery; delegated organization-admin/self-service; broader metadata/secret-service/provider verification; global search/CSV/retention/subscription/security/external notifications; operational dependency/worker health, scheduling, monitoring, distributed limits, realistic load and incident exercises; full WCAG/zoom/real-device acceptance. Customer detail subcollections and entitlement picker retain documented bounds. Legacy bare-organization creation still needs transactional modernization. No enterprise-release completion is claimed.
+
+Operational guides: [CUSTOMER_GOVERNANCE.md](../operations/CUSTOMER_GOVERNANCE.md), [PRODUCT_REGISTRY.md](../operations/PRODUCT_REGISTRY.md), [CUSTOMER_LIFECYCLE.md](../operations/CUSTOMER_LIFECYCLE.md), [PHASE4_STAGING_GATE.md](../operations/PHASE4_STAGING_GATE.md), [WINDOWS_HANDOFF.md](../operations/WINDOWS_HANDOFF.md), [MANUAL_QA.md](../operations/MANUAL_QA.md). Earlier reports follow as historical evidence.
+
+---
 
 # Continued implementation report — 1 November 2026
 
