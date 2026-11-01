@@ -147,6 +147,30 @@ module.exports = async (pool, app) => {
     null,
   );
   await cmd("provisioning_command", "sent", ob, { lease: lease2 }, null);
+  await assert.rejects(
+    cmd("provisioning_command", "revoke", inv.id, { generation: 1 }),
+    { code: "40001" },
+  );
+  await cmd("provisioning_command", "revoke", inv.id, { generation: 2 });
+  await cmd("provisioning_command", "reissue", inv.id, { generation: 2 });
+  const lease3 = crypto.randomUUID();
+  await pool.query(
+    "update invitation_outbox set state='leased',lease_token=$1,lease_until=now()+interval '1 minute' where id=$2",
+    [lease3, ob],
+  );
+  await cmd(
+    "provisioning_command",
+    "bind",
+    ob,
+    {
+      lease: lease3,
+      userId: user,
+      tokenHash: "d".repeat(64),
+      encryptedDelivery: "fixture",
+    },
+    null,
+  );
+  await cmd("provisioning_command", "sent", ob, { lease: lease3 }, null);
   const aid = crypto.randomUUID();
   await cmd(
     "provisioning_command",

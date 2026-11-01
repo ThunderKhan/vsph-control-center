@@ -1,5 +1,63 @@
+-- After durable provisioning: explicit account disable also revokes outstanding enrollment.
+create or replace function public.set_profile_status(
+ p_actor uuid, p_target uuid, p_status text
+) returns uuid
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+ v_previous text;
+ v_role text;
+ v_sessions integer := 0;
+ v_codes integer := 0;
+ v_invites integer := 0;
+begin
+ if p_status is null or p_status not in ('active','disabled') then
+  raise exception 'Invalid account status' using errcode = '22023';
+ end if;
+ -- Recheck the actor in the same transaction as the mutation, not just HTTP middleware.
+ perform 1 from public.profiles where id=p_actor and status='active'
+  and platform_role='super_admin' for update;
+ if not found then raise exception 'Platform administrator required' using errcode='42501'; end if;
+ if p_actor=p_target and p_status='disabled' then
+  raise exception 'Self-disable is not permitted' using errcode='22023';
+ end if;
+ select status, platform_role into v_previous, v_role from public.profiles where id=p_target for update;
+ if not found then raise exception 'Account not found' using errcode='P0002'; end if;
+ if v_role='super_admin' then
+  raise exception 'Platform administrator lifecycle requires governed recovery' using errcode='VS001';
+ end if;
+ if p_status='disabled' then
+  delete from public.portal_sessions where user_id=p_target;
+  get diagnostics v_sessions = row_count;
+  -- app_sessions cascade through portal_sessions; outstanding Music codes do not have that FK.
+  delete from public.sso_launch_codes where user_id=p_target;
+  get diagnostics v_codes = row_count;
+  update public.membership_invitations set state='revoked',token_hash=null,account_blocked=true
+   where user_id=p_target and state<>'accepted' and not account_blocked;
+  get diagnostics v_invites = row_count;
+  update public.invitation_outbox set state='revoked',encrypted_delivery=null
+   where invitation_id in (select id from public.membership_invitations where user_id=p_target and state='revoked');
+  update public.provisioning_jobs set state='revoked'
+   where id in (select job_id from public.membership_invitations where user_id=p_target and state='revoked');
+ end if;
+ if v_previous=p_status and v_sessions=0 and v_codes=0 and v_invites=0 then return p_target; end if;
+ update public.profiles set status=p_status where id=p_target;
+ insert into public.audit_logs(actor_user_id,action,target_type,target_id,details)
+ values(p_actor,'user.status_changed','user',p_target::text,
+  jsonb_build_object('before_status',v_previous,'status',p_status,
+   'revoked_portal_sessions',v_sessions,'revoked_launch_codes',v_codes,'revoked_invitations',v_invites));
+ return p_target;
+end;
+$$;
+revoke all on function public.set_profile_status(uuid,uuid,text) from public,anon,authenticated;
+grant execute on function public.set_profile_status(uuid,uuid,text) to service_role;
+
+
 -- Forward-only invitation extension; historical state-machine files remain checksummed.
 alter table public.organization_memberships add column version integer not null default 1;
+alter table public.membership_invitations add column account_blocked boolean not null default false;
 -- Serialize pending invites per organization/email, including first-request races.
 create unique index membership_invitations_live_email on public.membership_invitations(organization_id,email) where state not in ('accepted','revoked');
 create or replace function public.provisioning_command(p_actor uuid,p_action text,p_id uuid default null,p_data jsonb default '{}')
@@ -79,7 +137,7 @@ begin
   insert into public.audit_logs(actor_user_id,organization_id,action,target_type,target_id) values(p_actor,v_org,'onboarding.queued','provisioning_job',j.id::text);
   return to_jsonb(j);
  elsif p_action='list' then
-  return coalesce((select jsonb_agg(x) from (select job.id,job.organization_id,job.state,job.created_at,inv.id invitation_id,inv.email,inv.state invitation_state,inv.expires_at,ob.attempts,ob.failure_code
+  return coalesce((select jsonb_agg(x) from (select job.id,job.organization_id,job.state,job.created_at,inv.id invitation_id,inv.email,inv.state invitation_state,inv.generation,inv.expires_at,ob.attempts,ob.failure_code
    from public.provisioning_jobs job join public.membership_invitations inv on inv.job_id=job.id join public.invitation_outbox ob on ob.invitation_id=inv.id
    order by job.created_at desc limit 100) x),'[]');
  elsif p_action='claim' then
@@ -103,7 +161,7 @@ begin
   select * into o from public.invitation_outbox where id=p_id for update;
   if not found or o.state<>'leased' or o.lease_token is distinct from (p_data->>'lease')::uuid or o.lease_until<=now() then raise exception 'Lease lost' using errcode='40001';end if;
   select * into i from public.membership_invitations where id=o.invitation_id for update;
-  if i.state='revoked' or i.expires_at<=now() or not exists(select 1 from public.organizations where id=i.organization_id and status='active') then raise exception 'Revoked' using errcode='42501';end if;
+  if i.state='revoked' or i.account_blocked or i.expires_at<=now() or not exists(select 1 from public.organizations where id=i.organization_id and status='active') then raise exception 'Revoked' using errcode='42501';end if;
   select * into j from public.provisioning_jobs where id=i.job_id;
   if p_action='bind' then
    v_user:=(p_data->>'userId')::uuid;
@@ -134,10 +192,11 @@ begin
  select * into i from public.membership_invitations where id=p_id for update;
  if not found then raise exception 'Invitation unavailable' using errcode='42501';end if;
  if p_action in ('retry','revoke','recover','reissue') then
+  if p_action='revoke' and (p_data->>'generation')::integer is distinct from i.generation then raise exception 'Stale cancellation' using errcode='40001';end if;
   if p_action='reissue' then
    if (p_data->>'generation')::integer is distinct from i.generation or i.state not in ('pending_delivery','sent','revoked') then raise exception 'Reload or reconcile first' using errcode='40001';end if;
    if not exists(select 1 from public.organizations where id=i.organization_id and status='active') or
-    (i.user_id is not null and exists(select 1 from public.profiles where id=i.user_id and status='disabled') and (not i.new_identity or i.state='revoked')) then
+    (i.user_id is not null and exists(select 1 from public.profiles where id=i.user_id and status='disabled') and (not i.new_identity or i.account_blocked)) then
     raise exception 'Account or organization requires review' using errcode='42501';end if;
    update public.membership_invitations set state='pending_delivery',generation=generation+1,token_hash=null,expires_at=now()+interval '24 hours',acceptance_id=null,lease_until=null where id=i.id;
    update public.invitation_outbox set state='queued',encrypted_delivery=null,attempts=0,lease_token=null,lease_until=null,available_at=now(),failure_code=null where invitation_id=i.id;

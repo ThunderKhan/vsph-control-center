@@ -29,7 +29,7 @@ module.exports=async function(pool,appId){
  await assert.rejects(cmd('reserve_accept',work.invitation.id,{tokenHash,acceptanceId:aid},null),{code:'42501'});
  const p2={...payload,slug:'revocation-fixture',adminEmail:'revoke@example.test'};const queued=await cmd('begin',crypto.randomUUID(),p2);
  const invitation=(await pool.query('select id from membership_invitations where job_id=$1',[queued.id])).rows[0].id;
- await cmd('revoke',invitation);await assert.rejects(cmd('inspect',invitation,{tokenHash},null),{code:'42501'});
+ await cmd('revoke',invitation,{generation:1});await assert.rejects(cmd('inspect',invitation,{tokenHash},null),{code:'42501'});
  await assert.rejects(cmd('retry',invitation),{code:'42501'});
 };
 

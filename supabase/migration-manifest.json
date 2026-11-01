@@ -95,7 +95,7 @@
     },
     {
       "path": "supabase/migrations/20261101052745_member_governance.sql",
-      "sha256": "68f3e728a568c619494621d7c5a671fe34b82589a4e886c51d5ac984a609f8a9",
+      "sha256": "b3b6d681ad5ea7f633a53959b51e5e9fbaa725fa9d896bda5ae8bda7ca9b0e90",
       "version": "20261101052745",
       "name": "member_governance",
       "requires": [
