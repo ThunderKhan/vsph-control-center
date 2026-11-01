@@ -126,8 +126,8 @@
     </section>
 
     <section class="section" id="section-applications" hidden>
-      <div class="panel"><h2>Add application</h2>
-        <form id="applicationForm" class="form-grid">
+      <div class="panel"><h2>Add application</h2><p><a href="/admin/products">Open governed product registry</a> — registration and editing now use atomic audited changes.</p>
+        <form id="applicationForm" hidden class="form-grid">
           <div><label for="appCode">Unique code</label><input id="appCode" required maxlength="40" pattern="[A-Za-z][A-Za-z0-9_]{1,39}" placeholder="CRM"></div>
           <div><label for="appName">Display name</label><input id="appName" required maxlength="150" placeholder="Customer Relationship Management"></div>
           <div><label for="appPath">Login path</label><input id="appPath" required pattern="/apps/[a-z0-9-]+/login" placeholder="/apps/crm/login"></div>

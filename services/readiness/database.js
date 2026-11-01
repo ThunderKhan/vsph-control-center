@@ -42,6 +42,7 @@ function verifyManifest(
   return { manifest, errors };
 }
 const tables = [
+  "product_health_observations",
   "profiles",
   "organizations",
   "organization_memberships",
@@ -87,6 +88,7 @@ const signatures = [
   "public.project_report(uuid,text,uuid,jsonb)",
   "public.session_command(uuid,text,uuid,jsonb)",
   "public.customer_command(uuid,text,uuid,jsonb)",
+  "public.product_command(uuid,text,uuid,jsonb)",
 ];
 async function inspectDatabase(client) {
   await client.query("begin read only");

@@ -6,7 +6,7 @@ const router=express.Router();
 router.use(portalSession);
 router.get('/',async(req,res,next)=>{
  try{
-  const apps=check(await db().from('applications').select('id,code,name,login_path,status').eq('status','active').order('name'));
+  const apps=check(await db().from('applications').select('id,code,name,login_path,status').eq('status','active').eq('visibility','listed').order('name'));
   const permitted=[];
   for(const app of apps){if(req.user.platform_role==='super_admin'||(await getContexts(req.user,app)).length)permitted.push(app)}
   res.json({applications:permitted});
