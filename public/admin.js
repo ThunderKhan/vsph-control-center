@@ -201,6 +201,7 @@ document.getElementById("subscriptionForm").addEventListener("submit", async e =
   const endValue = document.getElementById("subEnd").value;
   if(!confirm("Update subscription terms and revoke affected product sessions? No payment is processed."))return;
   try {
+    say("Saving subscription…");
     await api("/api/admin-management/subscriptions", {
       method: "PUT", body: JSON.stringify({
         organizationId: document.getElementById("subOrg").value,
@@ -218,6 +219,7 @@ document.getElementById("accessForm").addEventListener("submit", async e => {
   e.preventDefault();
   if(!confirm("Update customer application grant and revoke affected product sessions?"))return;
   try {
+    say("Saving application access…");
     await api("/api/admin-management/access", {
       method: "PUT", body: JSON.stringify({
         organizationId: document.getElementById("accessOrg").value,

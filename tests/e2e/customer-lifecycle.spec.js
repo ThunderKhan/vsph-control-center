@@ -79,4 +79,12 @@ test("customer lifecycle confirms impact, persists terms and revokes access safe
   await expect(page.locator("#activity")).toContainText(
     "customer.entitlement_updated",
   );
+  const screenshot = info.outputPath(
+    "customer-lifecycle-" + info.project.name + ".png",
+  );
+  await page.screenshot({ path: screenshot, fullPage: true });
+  await info.attach("Customer lifecycle", {
+    path: screenshot,
+    contentType: "image/png",
+  });
 });

@@ -44,11 +44,9 @@ test("product registry persists versioned metadata and truthful readiness", asyn
   await page.getByRole("button", { name: "Save product", exact: true }).click();
   await expect(page.locator("#message")).toContainText("atomic audit");
   await page.reload();
-  await page
-    .locator("#product")
-    .selectOption({
-      label: code + " · Registry " + info.project.name + " · maintenance",
-    });
+  await page.locator("#product").selectOption({
+    label: code + " · Registry " + info.project.name + " · maintenance",
+  });
   await expect(page.getByLabel("Lifecycle", { exact: true })).toHaveValue(
     "maintenance",
   );
@@ -57,6 +55,14 @@ test("product registry persists versioned metadata and truthful readiness", asyn
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
+  const screenshot = info.outputPath(
+    "product-registry-" + info.project.name + ".png",
+  );
+  await page.screenshot({ path: screenshot, fullPage: true });
+  await info.attach("Product registry", {
+    path: screenshot,
+    contentType: "image/png",
+  });
   await context.clearCookies();
   expect(
     (
