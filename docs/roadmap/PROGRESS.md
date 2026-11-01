@@ -1,4 +1,4 @@
-## Read-only target preflight — 1 November 2026
+## Read-only target preflight — PR #37, 1 November 2026
 
 Populated target remains explicitly unapproved for writes. Read-only inventory: 6 identities/profiles, 6 organizations/memberships, 8 subscriptions/grants/individual roles, 4 CRM contacts and 3 Music requests, with unexpired session rows. All 13 later migrations are missing by object/column evidence; no ledger exists. Windows binding is not remotely verified. Organization is Free; real backup/recovery availability is unverified and no isolated hosted target exists. See [the complete ordered plan, preservation review and authorization gates](../operations/DATABASE_PREFLIGHT_20261101.md). Independent diagnostics add config:inspect and safe schema-not-ready errors without hosted changes.
 
