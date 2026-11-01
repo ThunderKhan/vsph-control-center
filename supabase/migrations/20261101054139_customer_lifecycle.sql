@@ -16,7 +16,7 @@ declare org_row public.organizations; app_id uuid; impact jsonb; start_at timest
 begin
  perform 1 from public.profiles where id=p_actor and platform_role='super_admin' and status='active' for update;
  if not found then raise exception 'Platform administrator required' using errcode='42501';end if;
- select * into org_row from public.organizations where id=p_id for update;
+ select * into org_row from public.organizations where id=p_id for no key update;
  if not found then raise exception 'Organization missing' using errcode='P0002';end if;
  impact:=jsonb_build_object('productSessions',(select count(*) from public.app_sessions where organization_id=p_id),'activeMembers',(select count(*) from public.organization_memberships where organization_id=p_id and status='active'),'pendingInvitations',(select count(*) from public.membership_invitations where organization_id=p_id and state not in ('accepted','revoked')));
  if p_action='preview' then return jsonb_build_object('version',org_row.version,'status',org_row.status,'impact',impact);end if;

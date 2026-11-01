@@ -103,6 +103,125 @@ module.exports = async (pool, app) => {
     cmd("status", { version: 5, confirmed: true, status: "active" }),
     { code: "22023" },
   );
+  // Hold bind before its membership FK check while suspension waits for the invitation.
+  // NO KEY UPDATE must permit the FK's KEY SHARE and avoid an org/invitation deadlock.
+  const raceOrg = (
+    await pool.query(
+      "insert into organizations(name,slug) values('Enrollment suspension race','enrollment-suspension-race') returning id",
+    )
+  ).rows[0].id;
+  const job = (
+    await pool.query(
+      "select provisioning_command($1,'begin_member',$2,$3) data",
+      [
+        admin,
+        crypto.randomUUID(),
+        {
+          kind: "member",
+          organizationId: raceOrg,
+          adminName: "Race enrollment",
+          adminEmail: "suspend-enroll@fixture.test",
+          memberRole: "member",
+          products: [],
+        },
+      ],
+    )
+  ).rows[0].data;
+  const invitation = (
+    await pool.query("select * from membership_invitations where job_id=$1", [
+      job.id,
+    ])
+  ).rows[0];
+  await pool.query("insert into auth.users(id) values($1)", [
+    invitation.auth_user_id,
+  ]);
+  const outbox = (
+      await pool.query(
+        "select id from invitation_outbox where invitation_id=$1",
+        [invitation.id],
+      )
+    ).rows[0].id,
+    lease = crypto.randomUUID();
+  await pool.query(
+    "update invitation_outbox set state='leased',lease_token=$1,lease_until=now()+interval '1 minute' where id=$2",
+    [lease, outbox],
+  );
+  await pool.query(
+    "create function public.fixture_bind_gate() returns trigger language plpgsql as $$begin if new.organization_id::text=TG_ARGV[0] then perform pg_advisory_xact_lock(42424242);end if;return new;end$$",
+  );
+  await pool.query(
+    "create trigger fixture_bind_gate before insert on organization_memberships for each row execute function fixture_bind_gate('" +
+      raceOrg +
+      "')",
+  );
+  const gate = await pool.connect(),
+    binder = await pool.connect(),
+    suspender = await pool.connect();
+  async function waitFor(query, args) {
+    for (let i = 0; i < 200; i++) {
+      if ((await pool.query(query, args)).rows[0].ready) return;
+      await new Promise((r) => setTimeout(r, 10));
+    }
+    throw Error("Fixture lock gate was not reached");
+  }
+  try {
+    const bindPid = (await binder.query("select pg_backend_pid() id")).rows[0]
+        .id,
+      stopPid = (await suspender.query("select pg_backend_pid() id")).rows[0]
+        .id;
+    await gate.query("begin");
+    await gate.query("select pg_advisory_xact_lock(42424242)");
+    await binder.query("begin;set local statement_timeout='8s'");
+    const binding = binder.query(
+      "select provisioning_command(null,'bind',$1,$2)",
+      [
+        outbox,
+        {
+          lease,
+          userId: invitation.auth_user_id,
+          tokenHash: "f".repeat(64),
+          encryptedDelivery: "fixture",
+        },
+      ],
+    );
+    binding.catch(() => {});
+    await waitFor(
+      "select exists(select 1 from pg_locks where pid=$1 and locktype='advisory' and not granted) ready",
+      [bindPid],
+    );
+    await suspender.query("set statement_timeout='10s'");
+    const stopping = suspender.query(
+      "select customer_lifecycle($1,'status',$2,$3)",
+      [admin, raceOrg, { version: 1, confirmed: true, status: "suspended" }],
+    );
+    stopping.catch(() => {});
+    await waitFor(
+      "select exists(select 1 from pg_stat_activity where pid=$1 and wait_event_type='Lock') ready",
+      [stopPid],
+    );
+    await gate.query("rollback");
+    await binding;
+    await binder.query("commit");
+    await stopping;
+    assert.equal(
+      (
+        await pool.query(
+          "select state from membership_invitations where id=$1",
+          [invitation.id],
+        )
+      ).rows[0].state,
+      "revoked",
+    );
+  } finally {
+    await gate.query("rollback");
+    await binder.query("rollback");
+    gate.release();
+    binder.release();
+    suspender.release();
+    await pool.query(
+      "drop trigger fixture_bind_gate on organization_memberships;drop function fixture_bind_gate()",
+    );
+  }
   for (const role of ["anon", "authenticated"]) {
     const c = await pool.connect();
     try {

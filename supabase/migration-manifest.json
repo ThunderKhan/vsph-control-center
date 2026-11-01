@@ -113,7 +113,7 @@
     },
     {
       "path": "supabase/migrations/20261101054139_customer_lifecycle.sql",
-      "sha256": "cdf7e92dde51c5fe05d4e132e706d3e470cefdc133336f507a60a91175e5f5ff",
+      "sha256": "2c3cdab61b47c5df91119ef623318108d43539cdf232c8cd3980d90a520c02ab",
       "version": "20261101054139",
       "name": "customer_lifecycle",
       "requires": [
