@@ -70,8 +70,13 @@
     }
     form.elements.code.disabled = Boolean(current);
   }
-  async function load(id) {
-    rows = await api("");
+  async function load(id, afterCode) {
+    rows = await api(
+      afterCode ? "?afterCode=" + encodeURIComponent(afterCode) : "",
+    );
+    $("nextPage").hidden = rows.length < 100;
+    if (id && !rows.some((p) => p.id === id))
+      rows.push(await api("/item/" + id));
     select.replaceChildren();
     const blank = document.createElement("option");
     blank.value = "";
@@ -88,6 +93,8 @@
       show(rows.find((p) => p.id === id));
     }
   }
+  $("nextPage").onclick = () => run(() => load(null, rows.at(-1)?.code));
+  $("firstPage").onclick = () => run(() => load(null));
   select.onchange = () => {
     if (select.value) show(rows.find((p) => p.id === select.value));
   };

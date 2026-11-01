@@ -74,8 +74,22 @@ const cmd = (req, action, id, data = {}) =>
 router.get(
   "/",
   rpcRoute(async (req) => {
-    const rows = await cmd(req, "list", null);
+    const rows = await cmd(req, "list", null, {
+      afterCode: req.query.afterCode,
+    });
     return rows.map((p) => ({ ...p, readiness: readiness(p) }));
+  }),
+);
+router.get(
+  "/item/:id",
+  rpcRoute(async (req) => {
+    if (!uuid(req.params.id)) {
+      const e = Error("Invalid product ID");
+      e.validation = true;
+      throw e;
+    }
+    const p = await cmd(req, "read", req.params.id);
+    return { ...p, readiness: readiness(p) };
   }),
 );
 function readiness(p) {
@@ -140,14 +154,7 @@ router.post(
       e.validation = true;
       throw e;
     }
-    const product = (await cmd(req, "list", null)).find(
-      (p) => p.id === req.params.id,
-    );
-    if (!product) {
-      const e = Error("Product missing");
-      e.code = "P0002";
-      throw e;
-    }
+    const product = await cmd(req, "read", req.params.id);
     const result = readiness(product),
       selected = adapter(product.code);
     // Fixed reviewed table only: never fetch an admin-supplied URL or interpolate a product code into SQL.

@@ -104,7 +104,7 @@
     },
     {
       "path": "supabase/migrations/20261101053314_product_registry.sql",
-      "sha256": "c41efdc2fe59d805bfc93ddfa37cbc511e5f45d31e7238b368acf3cbb294d298",
+      "sha256": "4aaa63e6366ec3803007bba0aadcff3ff88f6d5f987ee01107817cf19be6f80e",
       "version": "20261101053314",
       "name": "product_registry",
       "requires": [

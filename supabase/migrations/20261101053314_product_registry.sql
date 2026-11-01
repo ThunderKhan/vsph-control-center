@@ -23,8 +23,10 @@ declare a public.applications; result jsonb; v_owner uuid; removed integer:=0;
 begin
  perform 1 from public.profiles where id=p_actor and platform_role='super_admin' and status='active' for update;
  if not found then raise exception 'Platform administrator required' using errcode='42501';end if;
- if p_action='list' then
-  return coalesce((select jsonb_agg(x) from(select prod.id,prod.code,prod.name,prod.login_path,prod.status,prod.version,prod.description,prod.owner_id,prod.support_email,prod.docs_url,prod.visibility,prod.integration_mode,p.full_name owner_name,h.observation latest_health,h.observed_at health_observed_at from public.applications prod left join public.profiles p on p.id=prod.owner_id left join public.product_health_observations h on h.application_id=prod.id order by prod.code limit 100)x),'[]');
+ if p_action in ('list','read') then
+  if p_data->>'afterCode' is not null and p_data->>'afterCode'!~'^[A-Z][A-Z0-9_]{1,39}$' then raise exception 'Invalid cursor' using errcode='22023';end if;
+  result:=coalesce((select jsonb_agg(x) from(select prod.id,prod.code,prod.name,prod.login_path,prod.status,prod.version,prod.description,prod.owner_id,prod.support_email,prod.docs_url,prod.visibility,prod.integration_mode,p.full_name owner_name,h.observation latest_health,h.observed_at health_observed_at from public.applications prod left join public.profiles p on p.id=prod.owner_id left join public.product_health_observations h on h.application_id=prod.id where (p_action='read' and prod.id=p_id) or (p_action='list' and (p_data->>'afterCode' is null or prod.code>p_data->>'afterCode')) order by prod.code limit 100)x),'[]');
+  if p_action='read' then if jsonb_array_length(result)=0 then raise exception 'Product missing' using errcode='P0002';end if;return result->0;end if;return result;
  elsif p_action='probe' then
   select * into a from public.applications where id=p_id for update;
   if not found then raise exception 'Product missing' using errcode='P0002';end if;

@@ -117,6 +117,14 @@ module.exports = async (pool) => {
     }),
     { code: "22023" },
   );
+  await pool.query(
+    "insert into applications(code,name,login_path) select 'ZP_'||lpad(n::text,3,'0'),'Page fixture','/apps/zp_'||lpad(n::text,3,'0')||'/login' from generate_series(1,105) n",
+  );
+  const first = await cmd("list", null);
+  assert.equal(first.length, 100);
+  const second = await cmd("list", null, { afterCode: first.at(-1).code });
+  assert.ok(second.length > 0);
+  assert.equal((await cmd("read", second.at(-1).id)).id, second.at(-1).id);
   for (const role of ["anon", "authenticated"]) {
     const c = await pool.connect();
     try {
