@@ -65,6 +65,16 @@ async function snapshot(pool) {
         "select n.nspname,c.relname,x.conname,pg_get_constraintdef(x.oid) definition from pg_constraint x join pg_class c on c.oid=x.conrelid join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' order by c.relname,x.conname",
       )
     ).rows;
+    const indexes = (
+      await c.query(
+        "select schemaname,tablename,indexname,indexdef from pg_indexes where schemaname='public' order by tablename,indexname",
+      )
+    ).rows;
+    const triggers = (
+      await c.query(
+        "select c.relname table_name,t.tgname,t.tgenabled,pg_get_triggerdef(t.oid) definition from pg_trigger t join pg_class c on c.oid=t.tgrelid join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and not t.tgisinternal order by c.relname,t.tgname",
+      )
+    ).rows;
     const sequences = (
       await c.query(
         "select schemaname,sequencename,start_value,min_value,max_value,increment_by,cycle,last_value from pg_sequences where schemaname='public' order by sequencename",
@@ -75,7 +85,7 @@ async function snapshot(pool) {
     catalog.roles.sort();
     catalog.tables.sort((a, b) => a.name.localeCompare(b.name));
     catalog.functions.sort((a, b) => a.signature.localeCompare(b.signature));
-    return { tables, constraints, sequences, catalog };
+    return { tables, constraints, indexes, triggers, sequences, catalog };
   } catch (e) {
     await c.query("rollback").catch(() => {});
     throw e;
@@ -150,7 +160,14 @@ export async function main(env = process.env) {
       connectionTimeoutMillis: 10000,
     });
     const after = await snapshot(restored);
-    for (const section of ["tables", "constraints", "sequences", "catalog"]) {
+    for (const section of [
+      "tables",
+      "constraints",
+      "indexes",
+      "triggers",
+      "sequences",
+      "catalog",
+    ]) {
       try {
         assert.deepEqual(after[section], before[section]);
       } catch {
@@ -162,6 +179,8 @@ export async function main(env = process.env) {
         scope: "disposable-ci-fixtures",
         tablesVerified: after.tables.length,
         constraintsVerified: after.constraints.length,
+        indexesVerified: after.indexes.length,
+        triggersVerified: after.triggers.length,
         sequencesVerified: after.sequences.length,
         functionsVerified: after.catalog.functions.length,
         restoreVerified: true,
@@ -180,7 +199,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href)
     console.error(
       JSON.stringify({
         comparisonSection:
-          /^Restore comparison failed: (tables|constraints|sequences|catalog)$/.test(
+          /^Restore comparison failed: (tables|constraints|indexes|triggers|sequences|catalog)$/.test(
             error.message,
           )
             ? error.message.split(": ")[1]

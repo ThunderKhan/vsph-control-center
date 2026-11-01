@@ -180,7 +180,7 @@ test('third product uses generic sessions, adapter fallback, entitlement revocat
 
 test('self-service session inventory hides hashes, scopes revocation and cascades product sessions',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./session-cases.js')(pool);});
 
-test('Phase 3 upgrades preserve populated tenant, invited/disabled identity and existing session data',async()=>{
+test('populated upgrades preserve tenant, invited/disabled identity, sessions and Phase 4 version defaults',async()=>{
  assert.equal((await pool.query("select status from profiles where email='upgrade@fixture.test'")).rows[0].status,'disabled');
  assert.equal((await pool.query("select status from organization_memberships where user_id='eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee'")).rows[0].status,'invited');
  assert.ok((await pool.query("select public_id from portal_sessions where token_hash='pre-upgrade-session'")).rows[0].public_id);
