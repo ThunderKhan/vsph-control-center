@@ -1,3 +1,7 @@
+## Read-only target preflight — 1 November 2026
+
+Populated target remains explicitly unapproved for writes. Read-only inventory: 6 identities/profiles, 6 organizations/memberships, 8 subscriptions/grants/individual roles, 4 CRM contacts and 3 Music requests, with unexpired session rows. All 13 later migrations are missing by object/column evidence; no ledger exists. Windows binding is not remotely verified. Organization is Free; real backup/recovery availability is unverified and no isolated hosted target exists. See [the complete ordered plan, preservation review and authorization gates](../operations/DATABASE_PREFLIGHT_20261101.md). Independent diagnostics add config:inspect and safe schema-not-ready errors without hosted changes.
+
 # Phase 4 implementation report — 1 November 2026
 
 Core customer governance, product registry and lifecycle administration are merged through `b3d2c697a8598e50e3c11256d2d090c72af352a8`. This is **merged code with passing isolated acceptance**, not verified staging or deployed production. [PROGRESS.md](PROGRESS.md) records M0–M12 and exact PR #33–#35 merge SHAs. Entry main was 08f601fd0f74221aa3e80dc10367cda602e5f72f; existing modules/audits were retained.

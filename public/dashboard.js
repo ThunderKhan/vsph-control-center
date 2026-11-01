@@ -250,7 +250,11 @@
       window.location.replace('/login');
       return null;
     }
-    if (!response.ok) throw new Error('Could not load workspace details. Please refresh and try again.');
+    if (!response.ok) {
+      const failure=await response.json().catch(()=>({}));
+      if(response.status===503&&failure.code==='SCHEMA_NOT_READY')throw new Error('This database has not been upgraded for the current portal. An operator must review the required migrations; refreshing will not resolve this.');
+      throw new Error('Could not load workspace details. Please refresh and try again.');
+    }
     return response.json();
   }
 

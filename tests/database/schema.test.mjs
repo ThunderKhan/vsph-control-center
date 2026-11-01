@@ -15,6 +15,9 @@ test.before(async()=>{
  await pool.query(`create role anon; create role authenticated; create role service_role;
  create schema auth; create table auth.users(id uuid primary key);`);
  await pool.query(await readFile('supabase/schema.sql','utf8'));
+ const captured=JSON.parse(await readFile('docs/operations/preflight/legacy-catalog-20261101.json','utf8'));
+ const actual=(await pool.query(await readFile('services/readiness/legacy-catalog.sql','utf8'))).rows[0].schema_snapshot;
+ assert.deepEqual(actual,captured,'Captured hosted core metadata must match the historical baseline used by upgrade tests; no hosted data is imported');
  // Historical order is explicit: filenames originally share a date prefix.
  for(const file of ['20261030_music_sso_launch_codes.sql','20261030_music_staff_musician_roles.sql','20261031000100_atomic_profile_status.sql','20261031000200_durable_provisioning.sql','20261031000300_projects.sql','20261031000400_invitation_disable_revocation.sql','20261031000500_project_delivery.sql','20261031000600_project_notifications.sql','20261031000700_self_service_sessions.sql','20261031065919_overdue_milestone_notifications.sql','20261101052745_member_governance.sql','20261101053314_product_registry.sql','20261101054139_customer_lifecycle.sql'])
  {if(file==='20261031000500_project_delivery.sql'){
@@ -207,3 +210,5 @@ test('existing organization invitations, renewal, role revocation and concurrent
 test('atomic product metadata, lifecycle, visibility, concurrency and secret denial',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./product-registry-cases.js')(pool);});
 
 test('customer lifecycle and entitlement concurrency, audit rollback and suspension/login fencing',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./customer-lifecycle-cases.js')(pool,app);});
+
+test('unmigrated visibility fails closed as schema-not-ready instead of exposing catalog data',async()=>{const {createRequire}=await import('node:module');const require=createRequire(import.meta.url),{hashToken}=require('../../tokens');const admin='44444444-4444-4444-8444-444444444444';await pool.query("insert into portal_sessions(token_hash,user_id,expires_at) values($1,$2,now()+interval '1 hour')",[hashToken('schema-mismatch-admin'),admin]);const server=require('./http-fixture')(pool).listen(0);await new Promise(r=>server.once('listening',r));try{await pool.query('alter table applications rename column visibility to fixture_visibility');const r=await fetch('http://127.0.0.1:'+server.address().port+'/api/apps',{headers:{Cookie:'vsph.portal.sid=schema-mismatch-admin'}});assert.equal(r.status,503);const d=await r.json();assert.equal(d.code,'SCHEMA_NOT_READY');assert.ok(d.requestId);assert.equal(d.applications,undefined);assert.doesNotMatch(JSON.stringify(d),/fixture_visibility|select |token_hash/);}finally{await pool.query('alter table applications rename column fixture_visibility to visibility');await new Promise(r=>server.close(r));}});
