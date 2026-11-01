@@ -26,6 +26,25 @@ The catalog has 13 public tables, all RLS-enabled, 50 constraints and 23 indexes
 
 No migration ledger exists and list_migrations returns empty. That is not proof no historical SQL was ever run. There are no application RPCs other than the provider event-trigger function: the 12 required runtime functions, 22 later public tables, applications.visibility, portal_sessions.public_id and membership/organization version columns are absent. The missing visibility filter explains /api/apps failures if the Windows server uses this project. Customer/project RPC absence explains those corresponding routes.
 
+The missing runtime signatures are:
+
+```text
+public.consume_sso_launch_code(text)
+public.set_profile_status(uuid,uuid,text)
+public.provisioning_command(uuid,text,uuid,jsonb)
+public.project_command(uuid,text,uuid,jsonb)
+public.delivery_command(uuid,text,uuid,jsonb)
+public.notification_command(uuid,text,uuid,jsonb)
+public.project_report(uuid,text,uuid,jsonb)
+public.session_command(uuid,text,uuid,jsonb)
+public.customer_command(uuid,text,uuid,jsonb)
+public.product_command(uuid,text,uuid,jsonb)
+public.customer_lifecycle(uuid,text,uuid,jsonb)
+public.guard_product_session_organization()
+```
+
+The last function is a trigger guard, not a callable administration RPC. The missing tables are sso_launch_codes; provisioning_jobs, membership_invitations, invitation_outbox; projects, project_memberships, project_products, project_milestones, project_tasks, project_comments, project_deliverables, project_activity; project_github_installations, project_repositories, project_delivery_records, project_delivery_events, project_delivery_links, github_webhook_receipts; project_notification_preferences, project_notification_outbox, project_notifications; and product_health_observations.
+
 ## Binding and possible production dependencies
 
 The Work checkout has no configured application Supabase URL/keys. It is not the Windows machine at D:\Projects\vsph-control-center and cannot read that machine's .env or process environment. Its supplied console output does not identify the project. Therefore Windows binding remains UNVERIFIED, not confirmed by a matching error symptom.
