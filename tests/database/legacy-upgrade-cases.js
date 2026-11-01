@@ -77,13 +77,18 @@ module.exports = async function legacyUpgrade(base, inputUrl) {
     assert.equal((await db.query('select count(distinct public_id) from portal_sessions')).rows[0].count,'6');
     assert.equal((await db.query('select count(*) from membership_invitations')).rows[0].count,'0','Never synthesize an invitation for legacy invited memberships');
     assert.equal((await db.query("select count(*) from organization_memberships where status='invited'")).rows[0].count,'1');
-    for(const role of ['anon','authenticated']) {
-      await db.query('set role '+role);
-      try {
-        await assert.rejects(db.query('select * from public.crm_contacts'),{code:'42501'});
-        await assert.rejects(db.query("select public.customer_command($1,'list',null,'{}')",[people[0]]),{code:'42501'});
-      }finally{await db.query('reset role');}
-    }
+    // Pool.query discards a connection after a rejected query: pin SET ROLE and
+    // both denial assertions to one checked-out client, preserving the boundary.
+    const denied=await db.connect();
+    try {
+      for(const role of ['anon','authenticated']) {
+        await denied.query('set role '+role);
+        try {
+          await assert.rejects(denied.query('select * from public.crm_contacts'),{code:'42501'});
+          await assert.rejects(denied.query("select public.customer_command($1,'list',null,'{}')",[people[0]]),{code:'42501'});
+        }finally{await denied.query('reset role');}
+      }
+    }finally{denied.release();}
     console.log(JSON.stringify({scope:'synthetic-populated-legacy-upgrade',migrations:timings.length,preservedTables:Object.keys(before).length,hostedVerified:false,hostedDowntimeMeasured:false,timings}));
   }finally{await db.end();}
 };

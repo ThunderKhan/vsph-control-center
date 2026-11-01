@@ -1,4 +1,4 @@
-## Free-only rehearsal continuation — 1 November 2026
+## Free-only rehearsal continuation — PR #38, 1 November 2026
 
 Entry main: 48af795ca5ea54bfa37ebef0eb5365e046cf7567 (#37). User-confirmed Windows configuration points to zbmerhexucqxazuxjmmw; production/collaborator dependencies remain unknown. The user now requests keeping the existing project on Free, with no new cloud project/branch. Hosted database, Auth, credentials and records remain unchanged. Earlier same-organization quotes were project $0/month subject to free quota, branch $0.01344/hour plus paid-plan eligibility; neither option is approved for creation.
 
