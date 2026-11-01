@@ -1,3 +1,5 @@
+[PR #34](https://github.com/ThunderKhan/vsph-control-center/pull/34) merged as `041a53a6891251bdce4dfd40b89100a21d8459c7` after all four checks passed. Atomic product registry, lifecycle/visibility/metadata, pagination/direct lookup and truthful persisted local readiness are implemented. External provider acceptance remains unverified.
+
 ## Phase 4 in progress — 1 November 2026
 
 [PR #33](https://github.com/ThunderKhan/vsph-control-center/pull/33) merged as `b80dc6a225f9699673983c137aea17bbe8fb8841` after all four checks passed: existing-organization invitations, secure reissue/cancellation, explicit versioned membership/product-role governance and a bounded customer workspace are implemented with isolated native/browser acceptance. See CUSTOMER_GOVERNANCE.md and PHASE4_STAGING_GATE.md in docs/operations. No hosted target is approved or migrated. M3/M4 remain partial; MFA/step-up and delegated customer-admin workflows remain incomplete.

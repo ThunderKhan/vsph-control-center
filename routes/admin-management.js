@@ -1,6 +1,8 @@
 const express=require('express');
 const {db,check}=require('../db');
 const router=express.Router();
+const {rpcRoute}=require('../services/rpc');
+const lifecycle=(req,action,id,data)=>db().rpc('customer_lifecycle',{p_actor:req.user.id,p_action:action,p_id:id,p_data:{...data,version:req.body.version,confirmed:req.body.confirmed}}).then(check);
 const emailPattern=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const slugPattern=/^[a-z0-9]+(-[a-z0-9]+)*$/;
 const uuidPattern=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -20,7 +22,7 @@ router.get('/overview',asyncRoute(async(req,res)=>{
  res.json({organizations,users,applications,activeSubscriptions:subs.filter(s=>['active','trial'].includes(s.status)).length,enabledAppAccess:access.filter(x=>x.status==='enabled').length});
 }));
 router.get('/lookups',asyncRoute(async(req,res)=>{
- const [organizations,applications]=await Promise.all([query('organizations','id,name,slug,status'),query('applications','id,name,code,status')]);
+ const [organizations,applications]=await Promise.all([query('organizations','id,name,slug,status,version'),query('applications','id,name,code,status')]);
  res.json({organizations:organizations.filter(o=>o.status==='active'),applications:applications.filter(a=>a.status==='active')});
 }));
 router.get('/organizations',asyncRoute(async(req,res)=>{
@@ -33,12 +35,7 @@ router.post('/organizations',asyncRoute(async(req,res)=>{
  const org=check(await db().from('organizations').insert({name,slug}).select('id').single());
  await audit(req,'organization.created','organization',org.id,{name,slug});res.status(201).json({id:org.id});
 }));
-router.patch('/organizations/:id/status',asyncRoute(async(req,res)=>{
- const status=String(req.body.status||'');if(!['active','suspended','closed'].includes(status)||!reqUuid(req.params.id))return res.status(400).json({message:'Invalid status or ID.'});
- const result=check(await db().from('organizations').update({status}).eq('id',req.params.id).select('id').maybeSingle());
- if(!result)return res.status(404).json({message:'Organization not found.'});
- await audit(req,'organization.status_changed','organization',result.id,{status});res.json({message:'Status updated.'});
-}));
+router.patch('/organizations/:id/status',rpcRoute(req=>lifecycle(req,'status',req.params.id,{status:req.body.status})));
 router.get('/users',asyncRoute(async(req,res)=>{
  const [users,memberships,organizations]=await Promise.all([query('profiles'),query('organization_memberships','user_id,organization_id'),query('organizations','id,name')]);
  const names=new Map(organizations.map(o=>[o.id,o.name]));
@@ -72,23 +69,13 @@ router.get('/subscriptions',asyncRoute(async(req,res)=>{
  const orgNames=new Map(orgs.map(o=>[o.id,o.name])),appNames=new Map(apps.map(a=>[a.id,a]));
  res.json({subscriptions:subs.map(s=>({...s,organization_name:orgNames.get(s.organization_id),application_name:appNames.get(s.application_id)?.name,application_code:appNames.get(s.application_id)?.code})).sort((a,b)=>b.created_at.localeCompare(a.created_at))});
 }));
-router.put('/subscriptions',asyncRoute(async(req,res)=>{
- const organization_id=String(req.body.organizationId||''),application_id=String(req.body.applicationId||''),status=String(req.body.status||''),plan_code=String(req.body.planCode||'prototype').slice(0,60),ends_at=timeValue(req.body.endsAt);
- if(!reqUuid(organization_id)||!reqUuid(application_id)||!['trial','active','past_due','cancelled','expired'].includes(status)||(req.body.endsAt&&!ends_at))return res.status(400).json({message:'Invalid subscription.'});
- check(await db().from('subscriptions').upsert({organization_id,application_id,status,plan_code,ends_at},{onConflict:'organization_id,application_id'}));
- await audit(req,'subscription.saved','subscription',`${organization_id}/${application_id}`,{status});res.json({message:'Subscription saved.'});
-}));
+router.put('/subscriptions',rpcRoute(req=>lifecycle(req,'subscription',req.body.organizationId,{applicationId:req.body.applicationId,planCode:req.body.planCode,subscriptionStatus:req.body.status,startsAt:req.body.startsAt,endsAt:req.body.endsAt})));
 router.get('/access',asyncRoute(async(req,res)=>{
  const [grants,orgs,apps]=await Promise.all([query('organization_app_access'),query('organizations','id,name'),query('applications','id,name,code')]);
  const orgNames=new Map(orgs.map(o=>[o.id,o.name])),appNames=new Map(apps.map(a=>[a.id,a]));
  res.json({access:grants.map(g=>({...g,organization_name:orgNames.get(g.organization_id),application_name:appNames.get(g.application_id)?.name,application_code:appNames.get(g.application_id)?.code}))});
 }));
-router.put('/access',asyncRoute(async(req,res)=>{
- const organization_id=String(req.body.organizationId||''),application_id=String(req.body.applicationId||''),status=String(req.body.status||'');
- if(!reqUuid(organization_id)||!reqUuid(application_id)||!['enabled','suspended','revoked'].includes(status))return res.status(400).json({message:'Invalid application grant.'});
- check(await db().from('organization_app_access').upsert({organization_id,application_id,status},{onConflict:'organization_id,application_id'}));
- await audit(req,'access.saved','app_grant',`${organization_id}/${application_id}`,{status});res.json({message:'Application access saved.'});
-}));
+router.put('/access',rpcRoute(req=>lifecycle(req,'access',req.body.organizationId,{applicationId:req.body.applicationId,accessStatus:req.body.status})));
 router.get('/roles',asyncRoute(async(req,res)=>{
  const [roles,orgs,apps,users]=await Promise.all([query('user_app_roles'),query('organizations','id,name'),query('applications','id,code'),query('profiles','id,email')]);
  const orgNames=new Map(orgs.map(x=>[x.id,x.name])),appCodes=new Map(apps.map(x=>[x.id,x.code])),emails=new Map(users.map(x=>[x.id,x.email]));

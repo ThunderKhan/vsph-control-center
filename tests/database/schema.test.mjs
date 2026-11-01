@@ -16,14 +16,25 @@ test.before(async()=>{
  create schema auth; create table auth.users(id uuid primary key);`);
  await pool.query(await readFile('supabase/schema.sql','utf8'));
  // Historical order is explicit: filenames originally share a date prefix.
- for(const file of ['20261030_music_sso_launch_codes.sql','20261030_music_staff_musician_roles.sql','20261031000100_atomic_profile_status.sql','20261031000200_durable_provisioning.sql','20261031000300_projects.sql','20261031000400_invitation_disable_revocation.sql','20261031000500_project_delivery.sql','20261031000600_project_notifications.sql','20261031000700_self_service_sessions.sql','20261031065919_overdue_milestone_notifications.sql','20261101052745_member_governance.sql','20261101053314_product_registry.sql'])
+ for(const file of ['20261030_music_sso_launch_codes.sql','20261030_music_staff_musician_roles.sql','20261031000100_atomic_profile_status.sql','20261031000200_durable_provisioning.sql','20261031000300_projects.sql','20261031000400_invitation_disable_revocation.sql','20261031000500_project_delivery.sql','20261031000600_project_notifications.sql','20261031000700_self_service_sessions.sql','20261031065919_overdue_milestone_notifications.sql','20261101052745_member_governance.sql','20261101053314_product_registry.sql','20261101054139_customer_lifecycle.sql'])
  {if(file==='20261031000500_project_delivery.sql'){
   await pool.query(`insert into auth.users(id) values('eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee');
    insert into profiles(id,full_name,email,status) values('eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee','Pre-upgrade identity','upgrade@fixture.test','disabled');
    insert into organizations(id,name,slug) values('dddddddd-dddd-4ddd-8ddd-dddddddddddd','Pre-upgrade tenant','pre-upgrade-tenant');
    insert into organization_memberships(organization_id,user_id,status) values('dddddddd-dddd-4ddd-8ddd-dddddddddddd','eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee','invited');
    insert into portal_sessions(token_hash,user_id,expires_at) values('pre-upgrade-session','eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',now()+interval '1 hour');`);
- }await pool.query(await readFile('supabase/migrations/'+file,'utf8'));}
+ }
+ if(file==='20261101052745_member_governance.sql'){
+  // Historical duplicate live invites must fail atomically, preserving rows for reviewed repair.
+  const operator='99999999-9999-4999-8999-999999999999',tenant='dddddddd-dddd-4ddd-8ddd-dddddddddddd';
+  await pool.query("insert into auth.users values($1)",[operator]);await pool.query("insert into profiles(id,full_name,email,platform_role) values($1,'Upgrade operator','upgrade-operator@fixture.test','super_admin')",[operator]);
+  const jobs=(await pool.query("insert into provisioning_jobs(actor_id,idempotency_key,request,organization_id) select $1,gen_random_uuid(),'{}',$2 from generate_series(1,2) returning id",[operator,tenant])).rows;
+  for(const job of jobs){const inv=(await pool.query("insert into membership_invitations(job_id,organization_id,email) values($1,$2,'duplicate-upgrade@fixture.test') returning id",[job.id,tenant])).rows[0];await pool.query('insert into invitation_outbox(invitation_id) values($1)',[inv.id]);}
+  const c=await pool.connect();try{await c.query('begin');await assert.rejects(c.query(await readFile('supabase/migrations/'+file,'utf8')),{code:'23505'});}finally{await c.query('rollback');c.release();}
+  assert.equal((await pool.query("select count(*) from membership_invitations where email='duplicate-upgrade@fixture.test'")).rows[0].count,'2');
+  for(const job of jobs){const inv=(await pool.query('select id from membership_invitations where job_id=$1',[job.id])).rows[0];await pool.query("select provisioning_command($1,'revoke',$2,$3)",[operator,inv.id,{generation:1}]);}
+ }
+ await pool.query(await readFile('supabase/migrations/'+file,'utf8'));}
  await pool.query('insert into auth.users values ($1)',[user]);
  await pool.query("insert into profiles(id,full_name,email) values ($1,'Synthetic User','fixture@example.test')",[user]);
  await pool.query("insert into organizations(id,name,slug) values ($1,'Synthetic Venue','synthetic-venue')",[org]);
@@ -180,7 +191,7 @@ test('third product uses generic sessions, adapter fallback, entitlement revocat
 
 test('self-service session inventory hides hashes, scopes revocation and cascades product sessions',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./session-cases.js')(pool);});
 
-test('Phase 3 upgrades preserve populated tenant, invited/disabled identity and existing session data',async()=>{
+test('populated upgrades preserve tenant, invited/disabled identity, sessions and Phase 4 version defaults',async()=>{
  assert.equal((await pool.query("select status from profiles where email='upgrade@fixture.test'")).rows[0].status,'disabled');
  assert.equal((await pool.query("select status from organization_memberships where user_id='eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee'")).rows[0].status,'invited');
  assert.ok((await pool.query("select public_id from portal_sessions where token_hash='pre-upgrade-session'")).rows[0].public_id);
@@ -194,3 +205,5 @@ test('overdue milestone reminders are scoped, deduplicated and preference-aware'
 test('existing organization invitations, renewal, role revocation and concurrent member governance',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./customer-cases.js')(pool,app);});
 
 test('atomic product metadata, lifecycle, visibility, concurrency and secret denial',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./product-registry-cases.js')(pool);});
+
+test('customer lifecycle and entitlement concurrency, audit rollback and suspension/login fencing',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./customer-lifecycle-cases.js')(pool,app);});

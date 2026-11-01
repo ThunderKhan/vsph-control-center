@@ -59,16 +59,17 @@ async function loadOrganizations() {
     document.getElementById("organizationsTable").innerHTML = table(
       ["ID", "Name", "Slug", "Members", "Status", "Action"],
       d.organizations.map(o => row([
-        esc(o.id), esc(o.name), `<code>${esc(o.slug)}</code>`, esc(o.member_count), esc(o.status),
-        `<button class="small" data-org-id="${esc(o.id)}" data-org-status="${o.status === "active" ? "suspended" : "active"}">${o.status === "active" ? "Suspend" : "Activate"}</button>`
+        esc(o.id), `<a href="/admin/customers?organization=${esc(o.id)}">${esc(o.name)}</a>`, `<code>${esc(o.slug)}</code>`, esc(o.member_count), esc(o.status),
+        `<button class="small" data-org-id="${esc(o.id)}" data-org-version="${o.version}" data-org-status="${o.status === "active" ? "suspended" : "active"}">${o.status === "active" ? "Suspend" : "Activate"}</button>`
       ]))
     );
     document.querySelectorAll("[data-org-id]").forEach(b => b.addEventListener("click", async () => {
       try {
+        if(!confirm("Review organization impact in the customer workspace before proceeding. Suspension revokes product sessions, codes and pending invitations; reactivation restores none of them. Continue?"))return;
         await api(`/api/admin-management/organizations/${b.dataset.orgId}/status`, {
-          method: "PATCH", body: JSON.stringify({ status: b.dataset.orgStatus })
+          method: "PATCH", body: JSON.stringify({ status: b.dataset.orgStatus,version:Number(b.dataset.orgVersion),confirmed:true })
         });
-        say("Organization status updated."); loadOrganizations();
+        await loadLookups();say("Organization status updated."); loadOrganizations();
       } catch (e) { say(e.message, true); }
     }));
   } catch (e) { say(e.message, true); }
@@ -133,14 +134,16 @@ function syncMusicRoleOptions() {
 }
 document.getElementById('roleApp').addEventListener('change',syncMusicRoleOptions);
 async function loadLookups() {
+  const ids=["subOrg","subApp","accessOrg","accessApp","roleOrg","roleApp"],selected=new Map(ids.map(id=>[id,document.getElementById(id).value]));
   try {
     lookups = await api("/api/admin-management/lookups");
     const orgOpts = selectOptions(lookups.organizations);
     const appOpts = selectOptions(lookups.applications, "id", "name");
     ["subOrg", "accessOrg", "roleOrg"].forEach(id => document.getElementById(id).innerHTML = orgOpts);
     ["subApp", "accessApp", "roleApp"].forEach(id => document.getElementById(id).innerHTML = appOpts);
+    for(const id of ids){const previous=selected.get(id);if(previous)document.getElementById(id).value=previous;}
     syncMusicRoleOptions();
-  } catch (e) { say(e.message, true); }
+  } catch (e) { say(e.message, true);throw e; }
 }
 async function loadSubscriptions() {
   try {
@@ -196,30 +199,36 @@ document.getElementById("applicationForm").addEventListener("submit", async e =>
 document.getElementById("subscriptionForm").addEventListener("submit", async e => {
   e.preventDefault();
   const endValue = document.getElementById("subEnd").value;
+  if(!confirm("Update subscription terms and revoke affected product sessions? No payment is processed."))return;
   try {
+    say("Saving subscription…");
     await api("/api/admin-management/subscriptions", {
       method: "PUT", body: JSON.stringify({
         organizationId: document.getElementById("subOrg").value,
         applicationId: document.getElementById("subApp").value,
+        version:lookups.organizations.find(o=>o.id===document.getElementById("subOrg").value)?.version,confirmed:true,
         planCode: document.getElementById("subPlan").value,
         status: document.getElementById("subStatus").value,
         endsAt: endValue ? new Date(endValue).toISOString() : null
       })
     });
-    say("Subscription saved."); loadSubscriptions(); loadOverview();
+    await loadLookups();say("Subscription saved."); loadSubscriptions(); loadOverview();
   } catch (err) { say(err.message, true); }
 });
 document.getElementById("accessForm").addEventListener("submit", async e => {
   e.preventDefault();
+  if(!confirm("Update customer application grant and revoke affected product sessions?"))return;
   try {
+    say("Saving application access…");
     await api("/api/admin-management/access", {
       method: "PUT", body: JSON.stringify({
         organizationId: document.getElementById("accessOrg").value,
         applicationId: document.getElementById("accessApp").value,
+        version:lookups.organizations.find(o=>o.id===document.getElementById("accessOrg").value)?.version,confirmed:true,
         status: document.getElementById("accessStatus").value
       })
     });
-    say("Application access saved."); loadAccess(); loadOverview();
+    await loadLookups();say("Application access saved."); loadAccess(); loadOverview();
   } catch (err) { say(err.message, true); }
 });
 document.getElementById("logoutButton").addEventListener("click", async () => {

@@ -89,6 +89,8 @@ const signatures = [
   "public.session_command(uuid,text,uuid,jsonb)",
   "public.customer_command(uuid,text,uuid,jsonb)",
   "public.product_command(uuid,text,uuid,jsonb)",
+  "public.customer_lifecycle(uuid,text,uuid,jsonb)",
+  "public.guard_product_session_organization()",
 ];
 async function inspectDatabase(client) {
   await client.query("begin read only");

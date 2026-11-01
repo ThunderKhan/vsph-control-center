@@ -67,7 +67,14 @@ const cmd = (req, action, id, data = {}) =>
     .then(check);
 router.get(
   "/",
-  rpcRoute((req) => cmd(req, "list", null)),
+  rpcRoute((req) => {
+    if (req.query.afterId && !uuid(req.query.afterId)) {
+      const e = Error("Invalid cursor");
+      e.validation = true;
+      throw e;
+    }
+    return cmd(req, "list", null, { afterId: req.query.afterId });
+  }),
 );
 router.get(
   "/:id",
@@ -132,4 +139,46 @@ for (const action of ["member", "role"])
       return cmd(req, action, req.params.id, req.body);
     }),
   );
+router.get(
+  "/:id/impact",
+  rpcRoute((req) => {
+    if (!uuid(req.params.id)) {
+      const e = Error("Invalid organization");
+      e.validation = true;
+      throw e;
+    }
+    return db()
+      .rpc("customer_lifecycle", {
+        p_actor: req.user.id,
+        p_action: "preview",
+        p_id: req.params.id,
+        p_data: {},
+      })
+      .then(check);
+  }),
+);
+router.post(
+  "/:id/lifecycle/:action",
+  rpcRoute((req) => {
+    if (
+      !uuid(req.params.id) ||
+      !["status", "entitlement", "subscription", "access"].includes(
+        req.params.action,
+      ) ||
+      !Number.isSafeInteger(req.body?.version)
+    ) {
+      const e = Error("Invalid lifecycle request");
+      e.validation = true;
+      throw e;
+    }
+    return db()
+      .rpc("customer_lifecycle", {
+        p_actor: req.user.id,
+        p_action: req.params.action,
+        p_id: req.params.id,
+        p_data: req.body,
+      })
+      .then(check);
+  }),
+);
 module.exports = { router, validateInvite };
