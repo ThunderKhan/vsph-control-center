@@ -74,6 +74,19 @@
       return;
     }
     current = await api("customers/" + id);
+    const impact = await api("customers/" + id + "/impact");
+    $("impact").textContent =
+      `Current impact: ${impact.impact.activeMembers} active members, ${impact.impact.productSessions} product sessions, ${impact.impact.pendingInvitations} pending invitations.`;
+    $("orgStatus").value = current.organization.status;
+    const catalog = await api("product-registry");
+    const appSelect = $("entitlement").elements.applicationId;
+    appSelect.replaceChildren(
+      ...catalog.map((p) => {
+        const o = node("option", p.name + " · " + p.status);
+        o.value = p.id;
+        return o;
+      }),
+    );
     $("detail").hidden = false;
     $("name").textContent = current.organization.name;
     $("state").textContent = "Organization: " + current.organization.status;
@@ -200,12 +213,77 @@
           );
       $("invitations").append(p);
     }
+    showTerms();
     $("activity").replaceChildren(
       ...current.activity.map((a) =>
         node("p", a.created_at + " · " + a.action),
       ),
     );
   }
+  async function lifecycle(action, data) {
+    await api("customers/" + choice.value + "/lifecycle/" + action, {
+      method: "POST",
+      body: JSON.stringify({
+        ...data,
+        version: current.organization.version,
+        confirmed: true,
+      }),
+    });
+    await load();
+    message.textContent =
+      "Lifecycle/entitlement saved atomically. Affected product sessions were revoked.";
+  }
+  $("saveStatus").onclick = () => {
+    if (
+      !confirm(
+        "Apply this organization lifecycle? Suspension/closure revokes product sessions, Music codes and pending invitations. Reactivation does not restore revoked access sessions.",
+      )
+    )
+      return;
+    execute(() => lifecycle("status", { status: $("orgStatus").value }));
+  };
+  function showTerms() {
+    const f = $("entitlement"),
+      p = current?.products.find(
+        (p) => p.id === f.elements.applicationId.value,
+      );
+    f.elements.planCode.value = p?.plan_code || "standard";
+    f.elements.subscriptionStatus.value = p?.subscription_status || "active";
+    f.elements.accessStatus.value = p?.access_status || "enabled";
+    for (const k of ["startsAt", "endsAt"]) {
+      const raw = p?.[k === "startsAt" ? "starts_at" : "ends_at"];
+      const date = raw ? new Date(raw) : null;
+      f.elements[k].value = date
+        ? new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+            .toISOString()
+            .slice(0, 16)
+        : "";
+    }
+  }
+  $("entitlement").elements.applicationId.onchange = showTerms;
+  $("entitlement").onsubmit = (e) => {
+    e.preventDefault();
+    const f = e.target,
+      data = {
+        applicationId: f.elements.applicationId.value,
+        planCode: f.elements.planCode.value,
+        subscriptionStatus: f.elements.subscriptionStatus.value,
+        accessStatus: f.elements.accessStatus.value,
+        startsAt: f.elements.startsAt.value
+          ? new Date(f.elements.startsAt.value).toISOString()
+          : null,
+        endsAt: f.elements.endsAt.value
+          ? new Date(f.elements.endsAt.value).toISOString()
+          : null,
+      };
+    if (
+      !confirm(
+        "Save grant and terms together? Existing product sessions will be revoked. Payment is not processed.",
+      )
+    )
+      return;
+    execute(() => lifecycle("entitlement", data));
+  };
   choice.onchange = () =>
     execute(async () => {
       key = crypto.randomUUID();
@@ -240,15 +318,39 @@
         "Invitation queued. No email delivery has been confirmed.";
     });
   };
-  execute(async () => {
-    const rows = await api("customers");
+  let customerCursor;
+  async function directory(afterId, requested) {
+    const rows = await api(
+      "customers" + (afterId ? "?afterId=" + encodeURIComponent(afterId) : ""),
+    );
+    customerCursor = rows.at(-1)?.id;
+    $("nextCustomers").hidden = rows.length < 100;
+    choice.replaceChildren();
+    const blank = node("option", "Select an organization");
+    blank.value = "";
+    choice.append(blank);
+    if (requested && !rows.some((o) => o.id === requested)) {
+      const d = await api("customers/" + requested);
+      rows.push(d.organization);
+    }
     for (const c of rows) {
       const o = node("option", c.name + " · " + c.status);
       o.value = c.id;
       choice.append(o);
     }
+    if (requested) {
+      choice.value = requested;
+      await load();
+    } else {
+      $("detail").hidden = true;
+    }
     if (!rows.length)
       message.textContent =
         "No organizations. Create one through customer onboarding.";
-  });
+  }
+  $("firstCustomers").onclick = () => execute(() => directory());
+  $("nextCustomers").onclick = () => execute(() => directory(customerCursor));
+  execute(() =>
+    directory(null, new URLSearchParams(location.search).get("organization")),
+  );
 })();
