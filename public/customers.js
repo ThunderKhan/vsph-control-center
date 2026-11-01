@@ -50,6 +50,7 @@
   }
   function labeled(text, control) {
     const l = node("label", text);
+    control.setAttribute("aria-label", text);
     l.append(control);
     return l;
   }
