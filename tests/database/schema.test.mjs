@@ -23,7 +23,18 @@ test.before(async()=>{
    insert into organizations(id,name,slug) values('dddddddd-dddd-4ddd-8ddd-dddddddddddd','Pre-upgrade tenant','pre-upgrade-tenant');
    insert into organization_memberships(organization_id,user_id,status) values('dddddddd-dddd-4ddd-8ddd-dddddddddddd','eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee','invited');
    insert into portal_sessions(token_hash,user_id,expires_at) values('pre-upgrade-session','eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',now()+interval '1 hour');`);
- }await pool.query(await readFile('supabase/migrations/'+file,'utf8'));}
+ }
+ if(file==='20261101052745_member_governance.sql'){
+  // Historical duplicate live invites must fail atomically, preserving rows for reviewed repair.
+  const operator='99999999-9999-4999-8999-999999999999',tenant='dddddddd-dddd-4ddd-8ddd-dddddddddddd';
+  await pool.query("insert into auth.users values($1)",[operator]);await pool.query("insert into profiles(id,full_name,email,platform_role) values($1,'Upgrade operator','upgrade-operator@fixture.test','super_admin')",[operator]);
+  const jobs=(await pool.query("insert into provisioning_jobs(actor_id,idempotency_key,request,organization_id) select $1,gen_random_uuid(),'{}',$2 from generate_series(1,2) returning id",[operator,tenant])).rows;
+  for(const job of jobs){const inv=(await pool.query("insert into membership_invitations(job_id,organization_id,email) values($1,$2,'duplicate-upgrade@fixture.test') returning id",[job.id,tenant])).rows[0];await pool.query('insert into invitation_outbox(invitation_id) values($1)',[inv.id]);}
+  const c=await pool.connect();try{await c.query('begin');await assert.rejects(c.query(await readFile('supabase/migrations/'+file,'utf8')),{code:'23505'});}finally{await c.query('rollback');c.release();}
+  assert.equal((await pool.query("select count(*) from membership_invitations where email='duplicate-upgrade@fixture.test'")).rows[0].count,'2');
+  for(const job of jobs){const inv=(await pool.query('select id from membership_invitations where job_id=$1',[job.id])).rows[0];await pool.query("select provisioning_command($1,'revoke',$2,$3)",[operator,inv.id,{generation:1}]);}
+ }
+ await pool.query(await readFile('supabase/migrations/'+file,'utf8'));}
  await pool.query('insert into auth.users values ($1)',[user]);
  await pool.query("insert into profiles(id,full_name,email) values ($1,'Synthetic User','fixture@example.test')",[user]);
  await pool.query("insert into organizations(id,name,slug) values ($1,'Synthetic Venue','synthetic-venue')",[org]);
