@@ -11,3 +11,5 @@ Readiness distinguishes configured, reachable (reviewed local database adapter o
 Legacy nontransactional product write endpoints return 410 pointing to the registry. The administration catalog links directly to the governed editor, and its former add form is hidden. No schema or seed rerun is used for registry operations. The manifest and fresh/populated/native restore/browser checks include the new migration; all hosted installation and real provider verification remain gated.
 
 Recovery: disable access through a reviewed lifecycle change, preserve audit/observation history and forward repair. Do not delete products with customer/project references. No automatic deployment, provider configuration, secret rotation or customer-data removal occurs. Health probes cannot mark external acceptance verified. Full secret-service integration and provider acceptance remain operational requirements.
+
+Registry listing uses code keyset pages of 100. Single-product ID lookup is independent of page position, including readiness checks and direct editor links. Page navigation keeps its own cursor when a directly opened record is added to the visible options.

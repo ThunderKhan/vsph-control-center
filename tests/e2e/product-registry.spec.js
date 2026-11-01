@@ -22,10 +22,12 @@ test("product registry persists versioned metadata and truthful readiness", asyn
     .getByRole("button", { name: "Register product", exact: true })
     .click();
   const code = "REG_" + info.project.name.toUpperCase() + "_" + info.retry;
-  await page.getByLabel("Product code", { exact: true }).fill(code);
-  await page
-    .getByLabel("Product name", { exact: true })
-    .fill("Registry " + info.project.name);
+  await page.getByLabel("Product code", { exact: true }).focus();
+  await page.keyboard.type(code);
+  await page.keyboard.press("Tab");
+  await expect(page.getByLabel("Product name", { exact: true })).toBeFocused();
+  const productName = "Registry " + info.project.name + " " + "x".repeat(100);
+  await page.getByLabel("Product name", { exact: true }).fill(productName);
   await page
     .getByLabel("Integration mode", { exact: true })
     .selectOption("portal_only");
@@ -45,7 +47,7 @@ test("product registry persists versioned metadata and truthful readiness", asyn
   await expect(page.locator("#message")).toContainText("atomic audit");
   await page.reload();
   await page.locator("#product").selectOption({
-    label: code + " · Registry " + info.project.name + " · maintenance",
+    label: code + " · " + productName + " · maintenance",
   });
   await expect(page.getByLabel("Lifecycle", { exact: true })).toHaveValue(
     "maintenance",

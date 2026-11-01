@@ -9,3 +9,5 @@ This is a real native PostgreSQL logical backup/restore rehearsal over synthetic
 The staging inspector also rejects connection query overrides: an approved URL hostname cannot be replaced by a driver-specific host query parameter. Remote inspection continues to require sslmode=verify-full. The plaintext advisors connection is confined to the isolated loopback CI Docker service; it does not change hosted TLS policy.
 
 PR #31 passed native CI after normalizing unordered catalog rows: 35 tables, 176 constraints, four sequences and eight application RPCs matched. Initial comparison failure was not merged. Hosted recovery remains unverified.
+
+Phase 4 also compares public index definitions and non-internal security trigger definitions/enabled state. Native accepted restore matched 36 tables, 186 constraints, 75 indexes, four triggers, four sequences and 12 application functions after new governance/lifecycle migrations. The controlled binding/suspension lock-gate and duplicate-migration rollback/repair are synthetic fixtures, not hosted operations.

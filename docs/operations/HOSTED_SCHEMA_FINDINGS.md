@@ -29,3 +29,5 @@ Separately, disposable CI security advisors warn that pgcrypto is installed in p
 5. Test real Supabase Auth, PostgREST service-only RPC execution/browser denial, existing data preservation, invitation failure recovery and scoped Projects/GitHub UAT before separately approving a backend rollout.
 
 Live GitHub App credentials/installation and approved Vercel project mapping remain independent gates. The ChatGPT GitHub connector's installation is not the VSPH runtime App.
+
+Phase 4 read-only reconfirmation on 1 November still found 13 public legacy tables, no ledger/Projects/provisioning/product-health tables and absent provisioning/customer RPC. Project inventory still contains no additional active VSPH staging project and its branch inventory is empty. Phase 4 code/migrations remain unapplied there.
