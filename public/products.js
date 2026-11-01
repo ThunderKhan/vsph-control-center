@@ -70,11 +70,13 @@
     }
     form.elements.code.disabled = Boolean(current);
   }
+  let nextCursor;
   async function load(id, afterCode) {
     rows = await api(
       afterCode ? "?afterCode=" + encodeURIComponent(afterCode) : "",
     );
     $("nextPage").hidden = rows.length < 100;
+    nextCursor = rows.at(-1)?.code;
     if (id && !rows.some((p) => p.id === id))
       rows.push(await api("/item/" + id));
     select.replaceChildren();
@@ -93,7 +95,7 @@
       show(rows.find((p) => p.id === id));
     }
   }
-  $("nextPage").onclick = () => run(() => load(null, rows.at(-1)?.code));
+  $("nextPage").onclick = () => run(() => load(null, nextCursor));
   $("firstPage").onclick = () => run(() => load(null));
   select.onchange = () => {
     if (select.value) show(rows.find((p) => p.id === select.value));
