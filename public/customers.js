@@ -81,6 +81,7 @@
     $("orgStatus").value = current.organization.status;
     const catalog = await api("product-registry");
     const appSelect = $("entitlement").elements.applicationId;
+    const selectedProduct = appSelect.value;
     appSelect.replaceChildren(
       ...catalog.map((p) => {
         const o = node("option", p.name + " · " + p.status);
@@ -88,6 +89,8 @@
         return o;
       }),
     );
+    if (selectedProduct && catalog.some((p) => p.id === selectedProduct))
+      appSelect.value = selectedProduct;
     $("detail").hidden = false;
     $("name").textContent = current.organization.name;
     $("state").textContent = "Organization: " + current.organization.status;
@@ -97,7 +100,7 @@
       $("products").append(
         node(
           "p",
-          `${p.name} · access ${p.access_status} · ${p.subscription_status || "No subscription"} · ${p.plan_code || "No plan"} · ends ${p.ends_at || "No end date"}`,
+          `${p.name} · product ${p.status} · access ${p.access_status} · ${p.subscription_status || "No subscription"} · ${p.plan_code || "No plan"} · ends ${p.ends_at || "No end date"}`,
         ),
       );
       if (p.access_status === "enabled" && p.status === "active") {

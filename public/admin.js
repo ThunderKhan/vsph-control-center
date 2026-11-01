@@ -69,7 +69,7 @@ async function loadOrganizations() {
         await api(`/api/admin-management/organizations/${b.dataset.orgId}/status`, {
           method: "PATCH", body: JSON.stringify({ status: b.dataset.orgStatus,version:Number(b.dataset.orgVersion),confirmed:true })
         });
-        say("Organization status updated."); loadOrganizations();
+        await loadLookups();say("Organization status updated."); loadOrganizations();
       } catch (e) { say(e.message, true); }
     }));
   } catch (e) { say(e.message, true); }
@@ -134,14 +134,16 @@ function syncMusicRoleOptions() {
 }
 document.getElementById('roleApp').addEventListener('change',syncMusicRoleOptions);
 async function loadLookups() {
+  const ids=["subOrg","subApp","accessOrg","accessApp","roleOrg","roleApp"],selected=new Map(ids.map(id=>[id,document.getElementById(id).value]));
   try {
     lookups = await api("/api/admin-management/lookups");
     const orgOpts = selectOptions(lookups.organizations);
     const appOpts = selectOptions(lookups.applications, "id", "name");
     ["subOrg", "accessOrg", "roleOrg"].forEach(id => document.getElementById(id).innerHTML = orgOpts);
     ["subApp", "accessApp", "roleApp"].forEach(id => document.getElementById(id).innerHTML = appOpts);
+    for(const id of ids){const previous=selected.get(id);if(previous)document.getElementById(id).value=previous;}
     syncMusicRoleOptions();
-  } catch (e) { say(e.message, true); }
+  } catch (e) { say(e.message, true);throw e; }
 }
 async function loadSubscriptions() {
   try {
@@ -209,7 +211,7 @@ document.getElementById("subscriptionForm").addEventListener("submit", async e =
         endsAt: endValue ? new Date(endValue).toISOString() : null
       })
     });
-    say("Subscription saved."); loadSubscriptions(); loadLookups(); loadOverview();
+    await loadLookups();say("Subscription saved."); loadSubscriptions(); loadOverview();
   } catch (err) { say(err.message, true); }
 });
 document.getElementById("accessForm").addEventListener("submit", async e => {
@@ -224,7 +226,7 @@ document.getElementById("accessForm").addEventListener("submit", async e => {
         status: document.getElementById("accessStatus").value
       })
     });
-    say("Application access saved."); loadAccess(); loadLookups(); loadOverview();
+    await loadLookups();say("Application access saved."); loadAccess(); loadOverview();
   } catch (err) { say(err.message, true); }
 });
 document.getElementById("logoutButton").addEventListener("click", async () => {
