@@ -143,8 +143,7 @@ test('atomic account disable revokes sessions/codes, audits once and cannot revi
  assert.equal((await pool.query('select * from portal_sessions where user_id=$1',[user])).rowCount,0);
  await assert.rejects(pool.query("select set_profile_status($1,$2,'disabled')",[actor,actor]),{code:'22023'});
  await assert.rejects(pool.query("select set_profile_status($1,$2,'disabled')",[user,actor]),{code:'42501'});
- // Installing the forward function again must preserve populated rows.
- await pool.query(await readFile('supabase/migrations/20261031000100_atomic_profile_status.sql','utf8'));
+ // Keep the latest security function installed; populated upgrades are rehearsed separately.
  assert.equal((await pool.query('select status from profiles where id=$1',[user])).rows[0].status,'active');
 });
 test('audit failure rolls back account status and revocation together',async()=>{
