@@ -1,6 +1,6 @@
 ## Phase 4 in progress — 1 November 2026
 
-Existing-organization invitations, secure reissue/cancellation, explicit versioned membership/product-role governance and a bounded customer workspace are under isolated acceptance. See CUSTOMER_GOVERNANCE.md and PHASE4_STAGING_GATE.md in docs/operations. No hosted target is approved or migrated. M3/M4 remain partial; MFA/step-up and delegated customer-admin workflows remain incomplete.
+[PR #33](https://github.com/ThunderKhan/vsph-control-center/pull/33) merged as `b80dc6a225f9699673983c137aea17bbe8fb8841` after all four checks passed: existing-organization invitations, secure reissue/cancellation, explicit versioned membership/product-role governance and a bounded customer workspace are implemented with isolated native/browser acceptance. See CUSTOMER_GOVERNANCE.md and PHASE4_STAGING_GATE.md in docs/operations. No hosted target is approved or migrated. M3/M4 remain partial; MFA/step-up and delegated customer-admin workflows remain incomplete.
 
 # Enterprise execution progress — continued 1 November 2026
 
