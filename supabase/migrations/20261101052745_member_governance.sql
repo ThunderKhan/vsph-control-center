@@ -58,6 +58,8 @@ grant execute on function public.set_profile_status(uuid,uuid,text) to service_r
 -- Forward-only invitation extension; historical state-machine files remain checksummed.
 alter table public.organization_memberships add column version integer not null default 1;
 alter table public.membership_invitations add column account_blocked boolean not null default false;
+-- Historical revocations cannot distinguish cancellation from explicit disable: fail closed.
+update public.membership_invitations inv set account_blocked=true where inv.state='revoked' and exists(select 1 from public.profiles p where p.id=inv.user_id and p.status='disabled');
 -- Serialize pending invites per organization/email, including first-request races.
 create unique index membership_invitations_live_email on public.membership_invitations(organization_id,email) where state not in ('accepted','revoked');
 create or replace function public.provisioning_command(p_actor uuid,p_action text,p_id uuid default null,p_data jsonb default '{}')
