@@ -48,3 +48,5 @@ test('malformed and oversized JSON return safe 400/413 without exception details
   }
  });
 });
+
+test('missing schema errors fail closed with actionable 503 and no database details',async()=>{const app=express();app.use(securityHeaders);app.get('/api/schema',(req,res,next)=>next(Object.assign(Error('private SQL and credential-like material'),{code:'42703'})));app.use(safeError);await run(app,async origin=>{const r=await fetch(origin+'/api/schema');assert.equal(r.status,503);const d=await r.json();assert.equal(d.code,'SCHEMA_NOT_READY');assert.doesNotMatch(JSON.stringify(d),/private SQL|credential-like/);assert.equal(d.requestId,r.headers.get('x-request-id'));});});

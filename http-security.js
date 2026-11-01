@@ -55,8 +55,10 @@ function rateLimit({limit, windowMs, maxKeys = 10000, now = Date.now}) {
 }
 function safeError(err, req, res, next) {
   if (res.headersSent) return next(err);
-  const status = err.type === 'entity.too.large' ? 413 : err.type === 'entity.parse.failed' ? 400 : 500;
+  const schemaMismatch=['42703','42P01','42883','PGRST202','PGRST204','PGRST205'].includes(err.code);
+  const status = schemaMismatch?503:err.type === 'entity.too.large' ? 413 : err.type === 'entity.parse.failed' ? 400 : 500;
   console.error(JSON.stringify({event: 'request.failed', requestId: req.requestId, status}));
+  if(schemaMismatch)return res.status(503).json({code:'SCHEMA_NOT_READY',message:'Database schema is not ready for this application version. The operator must review and install the required migrations in the approved target.',requestId:req.requestId});
   res.status(status).json({message: status === 413 ? 'Request body is too large.' :
     status === 400 ? 'Request body must be valid JSON.' : 'Server error. Contact support with the request ID.', requestId: req.requestId});
 }

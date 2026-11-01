@@ -23,7 +23,8 @@
     "check:migrations": "node scripts/staging-readiness.js --manifest-only",
     "staging:inspect": "node scripts/staging-readiness.js",
     "github:verify": "node scripts/verify-github.js",
-    "test:restore:ci": "node scripts/rehearse-restore.mjs"
+    "test:restore:ci": "node scripts/rehearse-restore.mjs",
+    "config:inspect": "node scripts/inspect-config.js"
   },
   "engines": {
     "node": ">=20.19"
