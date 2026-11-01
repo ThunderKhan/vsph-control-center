@@ -111,17 +111,13 @@ router.put('/roles',asyncRoute(async(req,res)=>{
  if(!reqUuid(organization_id)||!reqUuid(application_id)||!emailPattern.test(email)||
     !['super_admin','admin','manager','user','viewer','staff','musician'].includes(role_code))
     return res.status(400).json({message:'Invalid role assignment.'});
- const selectedApp=check(await db().from('applications').select('code').eq('id',application_id).maybeSingle());
- if(!selectedApp)return res.status(404).json({message:'Application not found.'});
- if(['staff','musician'].includes(role_code)&&selectedApp.code!=='MUSIC')
-    return res.status(400).json({message:'Staff and musician roles are only available for Music.'});
  const user=check(await db().from('profiles').select('id').eq('email',email).eq('status','active').maybeSingle());
- if(!user)return res.status(404).json({message:'User not found. Create the user first.'});
- const grant=check(await db().from('organization_app_access').select('status').eq('organization_id',organization_id).eq('application_id',application_id).maybeSingle());
- if(!grant)return res.status(400).json({message:'Grant the organization application access before assigning roles.'});
- check(await db().from('organization_memberships').upsert({organization_id,user_id:user.id,role:'member',status:'active'},{onConflict:'organization_id,user_id',ignoreDuplicates:true}));
- check(await db().from('user_app_roles').upsert({organization_id,application_id,user_id:user.id,role_code},{onConflict:'organization_id,user_id,application_id'}));
- await audit(req,'role.assigned','user',user.id,{role_code,application_id},organization_id);res.json({message:'Application role saved.'});
+ if(!user)return res.status(404).json({message:'User not found.'});
+ const membership=check(await db().from('organization_memberships').select('version').eq('organization_id',organization_id).eq('user_id',user.id).eq('status','active').maybeSingle());
+ if(!membership)return res.status(409).json({message:'Invite and accept this organization membership first.'});
+ const result=await db().rpc('customer_command',{p_actor:req.user.id,p_action:'role',p_id:organization_id,p_data:{userId:user.id,version:membership.version,applicationId:application_id,role:role_code}});
+ if(result.error){const status={'42501':403,'40001':409,'22023':400}[result.error.code];if(status)return res.status(status).json({message:'Role change denied or conflicted. Reload and review membership.'});throw result.error;}
+ res.json({message:'Application role saved.'});
 }));
 router.get('/audit-logs',asyncRoute(async(req,res)=>{
  const [logs,users,orgs]=await Promise.all([check(await db().from('audit_logs').select('*').order('created_at',{ascending:false}).limit(200)),query('profiles','id,full_name'),query('organizations','id,name')]);

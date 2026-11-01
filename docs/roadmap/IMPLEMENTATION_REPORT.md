@@ -1,3 +1,7 @@
+## Phase 4 in progress — 1 November 2026
+
+Existing-organization invitations, secure reissue/cancellation, explicit versioned membership/product-role governance and a bounded customer workspace are under isolated acceptance. See CUSTOMER_GOVERNANCE.md and PHASE4_STAGING_GATE.md in docs/operations. No hosted target is approved or migrated. M3/M4 remain partial; MFA/step-up and delegated customer-admin workflows remain incomplete.
+
 # Continued implementation report — 1 November 2026
 
 Readiness, overdue milestone functionality and native backup/restore rehearsal are merged through [PR #31](https://github.com/ThunderKhan/vsph-control-center/pull/31), latest feature main `5e71c18fee39879d745ceb7f2ec535514e42bafb`. [PROGRESS.md](PROGRESS.md) records every new PR and exact merge SHA. Earlier Phase 2/3 sections below are historical cutoffs.

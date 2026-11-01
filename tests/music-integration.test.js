@@ -15,12 +15,9 @@ test('Music public preview is a separate labeled destination, never an SSO redir
  assert.doesNotMatch(dashboard,/link\.href = 'https:\/\/vsph-music-system/);
 });
 test('Music role codes are available only for the Music product',()=>{
- const route=read('routes/admin-management.js');
  const admin=read('public/admin.html');
  const js=read('public/admin.js');
  const migration=read('supabase/migrations/20261030_music_staff_musician_roles.sql');
- assert.match(route,/\['staff','musician'\]\.includes\(role_code\)&&selectedApp\.code!=='MUSIC'/);
- assert.match(route,/select\('code'\)\.eq\('id',application_id\)/);
  assert.match(admin,/value="staff" data-music-only disabled hidden/);
  assert.match(admin,/value="musician" data-music-only disabled hidden/);
  assert.match(js,/function syncMusicRoleOptions/);

@@ -16,7 +16,7 @@ test.before(async()=>{
  create schema auth; create table auth.users(id uuid primary key);`);
  await pool.query(await readFile('supabase/schema.sql','utf8'));
  // Historical order is explicit: filenames originally share a date prefix.
- for(const file of ['20261030_music_sso_launch_codes.sql','20261030_music_staff_musician_roles.sql','20261031000100_atomic_profile_status.sql','20261031000200_durable_provisioning.sql','20261031000300_projects.sql','20261031000400_invitation_disable_revocation.sql','20261031000500_project_delivery.sql','20261031000600_project_notifications.sql','20261031000700_self_service_sessions.sql','20261031065919_overdue_milestone_notifications.sql'])
+ for(const file of ['20261030_music_sso_launch_codes.sql','20261030_music_staff_musician_roles.sql','20261031000100_atomic_profile_status.sql','20261031000200_durable_provisioning.sql','20261031000300_projects.sql','20261031000400_invitation_disable_revocation.sql','20261031000500_project_delivery.sql','20261031000600_project_notifications.sql','20261031000700_self_service_sessions.sql','20261031065919_overdue_milestone_notifications.sql','20261101052745_member_governance.sql'])
  {if(file==='20261031000500_project_delivery.sql'){
   await pool.query(`insert into auth.users(id) values('eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee');
    insert into profiles(id,full_name,email,status) values('eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee','Pre-upgrade identity','upgrade@fixture.test','disabled');
@@ -143,8 +143,7 @@ test('atomic account disable revokes sessions/codes, audits once and cannot revi
  assert.equal((await pool.query('select * from portal_sessions where user_id=$1',[user])).rowCount,0);
  await assert.rejects(pool.query("select set_profile_status($1,$2,'disabled')",[actor,actor]),{code:'22023'});
  await assert.rejects(pool.query("select set_profile_status($1,$2,'disabled')",[user,actor]),{code:'42501'});
- // Installing the forward function again must preserve populated rows.
- await pool.query(await readFile('supabase/migrations/20261031000100_atomic_profile_status.sql','utf8'));
+ // Keep the latest security function installed; populated upgrades are rehearsed separately.
  assert.equal((await pool.query('select status from profiles where id=$1',[user])).rows[0].status,'active');
 });
 test('audit failure rolls back account status and revocation together',async()=>{
@@ -169,7 +168,7 @@ test('project ownership, tasks, team, optimistic concurrency, private client sco
 
 test('milestone completion validates its proposed dependency',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./project-cases.js').dependencyRegression(pool);});
 
-test('explicit account disable revokes in-flight enrollment even when already staged disabled',async()=>{const {createRequire}=await import('node:module');await pool.query(await readFile('supabase/migrations/20261031000400_invitation_disable_revocation.sql','utf8'));await createRequire(import.meta.url)('./provisioning-cases.js').disableRegression(pool,app);});
+test('explicit account disable revokes in-flight enrollment even when already staged disabled',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./provisioning-cases.js').disableRegression(pool,app);});
 
 test('delivery grants, private scope, checkpoints, fencing, history, backoff and webhook idempotency',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./delivery-cases.js')(pool);});
 
@@ -191,3 +190,5 @@ test('Phase 3 upgrades preserve populated tenant, invited/disabled identity and 
 test('staging inspector validates native catalog security without mutating application data',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./readiness-cases.js')(pool);});
 
 test('overdue milestone reminders are scoped, deduplicated and preference-aware',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./overdue-milestone-cases.js')(pool);});
+
+test('existing organization invitations, renewal, role revocation and concurrent member governance',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./customer-cases.js')(pool,app);});
