@@ -231,6 +231,53 @@ module.exports = async (pool, app) => {
     { code: "42501" },
   );
 
+  const fresh = await cmd(
+    "provisioning_command",
+    "begin_member",
+    crypto.randomUUID(),
+    { ...p, adminEmail: "cancel-new-identity@fixture.test" },
+  );
+  const pending = (
+    await pool.query("select * from membership_invitations where job_id=$1", [
+      fresh.id,
+    ])
+  ).rows[0];
+  await pool.query("insert into auth.users(id) values($1)", [
+    pending.auth_user_id,
+  ]);
+  const pendingOutbox = (
+      await pool.query(
+        "select id from invitation_outbox where invitation_id=$1",
+        [pending.id],
+      )
+    ).rows[0].id,
+    pendingLease = crypto.randomUUID();
+  await pool.query(
+    "update invitation_outbox set state='leased',lease_token=$1,lease_until=now()+interval '1 minute' where id=$2",
+    [pendingLease, pendingOutbox],
+  );
+  await cmd(
+    "provisioning_command",
+    "bind",
+    pendingOutbox,
+    {
+      lease: pendingLease,
+      userId: pending.auth_user_id,
+      tokenHash: "e".repeat(64),
+      encryptedDelivery: "fixture",
+    },
+    null,
+  );
+  await cmd("provisioning_command", "revoke", pending.id, { generation: 1 });
+  await cmd("provisioning_command", "reissue", pending.id, { generation: 1 });
+  await pool.query("select set_profile_status($1,$2,'disabled')", [
+    actor,
+    pending.auth_user_id,
+  ]);
+  await assert.rejects(
+    cmd("provisioning_command", "reissue", pending.id, { generation: 2 }),
+    { code: "42501" },
+  );
   const { hashToken } = require("../../tokens");
   await pool.query(
     "insert into portal_sessions(token_hash,user_id,expires_at) values($1,$2,now()+interval '1 hour')",
