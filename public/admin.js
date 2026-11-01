@@ -80,7 +80,7 @@ async function loadApplications() {
       ["Code", "Name", "Login path", "Status", "Action"],
       d.applications.map(a => row([
         `<code>${esc(a.code)}</code>`, esc(a.name), `<code>${esc(a.login_path)}</code>`, esc(a.status),
-        `<button class="small" data-app-id="${esc(a.id)}">Edit</button>`
+        `<a href="/admin/products?product=${esc(a.id)}">Edit in product registry</a>`
       ]))
     );
     document.querySelectorAll("[data-app-id]").forEach(button => button.addEventListener("click", async () => {

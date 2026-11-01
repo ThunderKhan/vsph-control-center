@@ -65,20 +65,8 @@ router.patch('/users/:id/status',asyncRoute(async(req,res)=>{
  res.json({message:'User updated. Existing sessions were revoked when disabling the account.'});
 }));
 router.get('/applications',asyncRoute(async(req,res)=>res.json({applications:(await query('applications')).sort((a,b)=>a.name.localeCompare(b.name))})));
-router.post('/applications',asyncRoute(async(req,res)=>{
- const code=String(req.body.code||'').toUpperCase().trim(),name=String(req.body.name||'').trim(),login_path=String(req.body.loginPath||'').trim(),status=String(req.body.status||'active');
- if(!/^[A-Z][A-Z0-9_]{1,39}$/.test(code)||!name||!/^\/apps\/[a-z0-9-]+\/login$/.test(login_path)||!['active','maintenance','retired'].includes(status))return res.status(400).json({message:'Invalid application details.'});
- const app=check(await db().from('applications').insert({code,name,login_path,status}).select('id').single());
- check(await db().from('app_roles').insert(['super_admin','admin','manager','user','viewer'].map(r=>({application_id:app.id,code:r,name:r.replace('_',' ')}))));
- await audit(req,'application.created','application',app.id,{code,name});res.status(201).json({id:app.id});
-}));
-router.patch('/applications/:id',asyncRoute(async(req,res)=>{
- const name=String(req.body.name||'').trim(),login_path=String(req.body.loginPath||'').trim(),status=String(req.body.status||'');
- if(!reqUuid(req.params.id)||!name||!/^\/apps\/[a-z0-9-]+\/login$/.test(login_path)||!['active','maintenance','retired'].includes(status))return res.status(400).json({message:'Invalid application details.'});
- const item=check(await db().from('applications').update({name,login_path,status}).eq('id',req.params.id).select('id').maybeSingle());
- if(!item)return res.status(404).json({message:'Application not found.'});
- await audit(req,'application.updated','application',item.id,{name,status});res.json({message:'Application updated.'});
-}));
+router.post('/applications',(req,res)=>res.status(410).json({message:'Use the governed product registry at /admin/products.'}));
+router.patch('/applications/:id',(req,res)=>res.status(410).json({message:'Use the versioned product registry at /admin/products.'}));
 router.get('/subscriptions',asyncRoute(async(req,res)=>{
  const [subs,orgs,apps]=await Promise.all([query('subscriptions'),query('organizations','id,name'),query('applications','id,name,code')]);
  const orgNames=new Map(orgs.map(o=>[o.id,o.name])),appNames=new Map(apps.map(a=>[a.id,a]));

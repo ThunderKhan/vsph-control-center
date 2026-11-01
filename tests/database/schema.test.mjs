@@ -16,7 +16,7 @@ test.before(async()=>{
  create schema auth; create table auth.users(id uuid primary key);`);
  await pool.query(await readFile('supabase/schema.sql','utf8'));
  // Historical order is explicit: filenames originally share a date prefix.
- for(const file of ['20261030_music_sso_launch_codes.sql','20261030_music_staff_musician_roles.sql','20261031000100_atomic_profile_status.sql','20261031000200_durable_provisioning.sql','20261031000300_projects.sql','20261031000400_invitation_disable_revocation.sql','20261031000500_project_delivery.sql','20261031000600_project_notifications.sql','20261031000700_self_service_sessions.sql','20261031065919_overdue_milestone_notifications.sql','20261101052745_member_governance.sql'])
+ for(const file of ['20261030_music_sso_launch_codes.sql','20261030_music_staff_musician_roles.sql','20261031000100_atomic_profile_status.sql','20261031000200_durable_provisioning.sql','20261031000300_projects.sql','20261031000400_invitation_disable_revocation.sql','20261031000500_project_delivery.sql','20261031000600_project_notifications.sql','20261031000700_self_service_sessions.sql','20261031065919_overdue_milestone_notifications.sql','20261101052745_member_governance.sql','20261101053314_product_registry.sql'])
  {if(file==='20261031000500_project_delivery.sql'){
   await pool.query(`insert into auth.users(id) values('eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee');
    insert into profiles(id,full_name,email,status) values('eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee','Pre-upgrade identity','upgrade@fixture.test','disabled');
@@ -192,3 +192,5 @@ test('staging inspector validates native catalog security without mutating appli
 test('overdue milestone reminders are scoped, deduplicated and preference-aware',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./overdue-milestone-cases.js')(pool);});
 
 test('existing organization invitations, renewal, role revocation and concurrent member governance',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./customer-cases.js')(pool,app);});
+
+test('atomic product metadata, lifecycle, visibility, concurrency and secret denial',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./product-registry-cases.js')(pool);});
