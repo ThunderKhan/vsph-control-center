@@ -1,3 +1,7 @@
+## Phase 4 in progress — 1 November 2026
+
+Existing-organization invitations, secure reissue/cancellation, explicit versioned membership/product-role governance and a bounded customer workspace are under isolated acceptance. See CUSTOMER_GOVERNANCE.md and PHASE4_STAGING_GATE.md in docs/operations. No hosted target is approved or migrated. M3/M4 remain partial; MFA/step-up and delegated customer-admin workflows remain incomplete.
+
 # Enterprise execution progress — continued 1 November 2026
 
 Phase 2 continued from verified main `2131e3710a7cd52c4de4b3e5ebe26bad9f93c1dc`; no baseline restart. Latest verified feature main `af2abd0829b7754b8819d83b1c53325b7a7369a6`. Phase 2 acceptance PR #19 merged as `25dcfed5a74f1e43c1bd49ff687a3f36cce082d7`. No hosted migration, real email or deployment performed.

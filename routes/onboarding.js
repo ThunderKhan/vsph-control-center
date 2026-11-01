@@ -63,8 +63,8 @@ router.post('/',rpcRoute(async(req,res)=>{
  const job=check(await db().rpc('provisioning_command',{p_actor:req.user.id,p_action:'begin',p_id:key,p_data:payload}));
  res.status(202);return {...job,id:job.organization_id,organizationName:payload.organizationName,products:payload.products,message:'Customer setup queued. Delivery status is available in provisioning recovery.'};
 }));
-for(const action of ['retry','revoke','recover'])router.post('/:id/'+action,rpcRoute(async(req,res)=>{
+for(const action of ['retry','revoke','recover','reissue'])router.post('/:id/'+action,rpcRoute(async(req,res)=>{
  if(!validId(req.params.id))return res.status(400).json({message:'Invalid invitation ID.'});
- return check(await db().rpc('provisioning_command',{p_actor:req.user.id,p_action:action,p_id:req.params.id,p_data:{reconciled:req.body?.reconciled===true}}));
+ return check(await db().rpc('provisioning_command',{p_actor:req.user.id,p_action:action,p_id:req.params.id,p_data:{reconciled:req.body?.reconciled===true,generation:req.body?.generation}}));
 }));
 module.exports={router,validateOnboarding,publicInviteUrl};

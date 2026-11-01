@@ -44,3 +44,5 @@ R13 rollout prerequisite now includes ordered 005/006/007 as well as Phase 2 002
 - R20 (P1 bootstrap maintenance): disposable Supabase advisors warn pgcrypto is in public from historical bootstrap. Review dependency-safe relocation without rewriting checksummed history; this is distinct from hosted findings. No advisor ERROR was present in the synthetic fixture run.
 
 All changes preserve hosted state; no staging branch/project was created or billed. Windows-native and real hosted Auth/PostgREST/provider acceptance remain unverified.
+
+Phase 4: the legacy role endpoint could implicitly create active customer membership. It now requires accepted membership and delegates role mutation/audit/session revocation to customer_command. New invitations/reissue retain the existing outbox/acceptance guarantees; MFA/step-up/platform-admin recovery and hosted acceptance remain open. See CUSTOMER_GOVERNANCE.md and PHASE4_STAGING_GATE.md.

@@ -86,6 +86,7 @@ const signatures = [
   "public.notification_command(uuid,text,uuid,jsonb)",
   "public.project_report(uuid,text,uuid,jsonb)",
   "public.session_command(uuid,text,uuid,jsonb)",
+  "public.customer_command(uuid,text,uuid,jsonb)",
 ];
 async function inspectDatabase(client) {
   await client.query("begin read only");
