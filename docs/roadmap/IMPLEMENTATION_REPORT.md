@@ -1,4 +1,4 @@
-## Database deployment package — 2 November 2026
+## Database deployment package — PR #39, 2 November 2026
 
 Entry main 68ef212d5d956a85c6fc6c83ee5ef222ffb29a32 (#38). The current hosted candidate still lacks visibility/customer/project RPCs and a migration ledger; no backup export or recovery proof is available. No hosted changes were made. A new offline db:package command prepares guarded fresh/legacy SQL installation and an explicit canonical migration workspace, preserving original source hashes. Legacy mode verifies the captured catalog and does not replay bootstrap/product seeds. One transaction covers all feature SQL and history adoption; drift, occupied fresh databases, pre-existing history and late failures are denied/rolled back. Native tests verify both modes and history/grant checks. Full deployment instructions and remaining execution/backup gates are in [DEPLOYMENT_HANDOFF.md](../operations/DEPLOYMENT_HANDOFF.md). The user requires the existing project to stay Free, with no new cloud resources. Code preparation is not hosted migration or release verification.
 

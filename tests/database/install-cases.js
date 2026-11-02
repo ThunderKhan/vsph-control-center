@@ -71,7 +71,27 @@ module.exports = async function (base, inputUrl) {
         ).rows[0].h,
         null,
       );
-      await c.query(sql);
+      const concurrent = new pg.Client({ connectionString: u.toString() });
+      await concurrent.connect();
+      try {
+        const attempts = await Promise.allSettled([
+          c.query(sql),
+          concurrent.query(sql),
+        ]);
+        await c.query("rollback");
+        await concurrent.query("rollback");
+        assert.equal(
+          attempts.filter((a) => a.status === "fulfilled").length,
+          1,
+          "Only one concurrent installation may commit",
+        );
+        assert.match(
+          attempts.find((a) => a.status === "rejected").reason.message,
+          /Existing migration namespace/,
+        );
+      } finally {
+        await concurrent.end();
+      }
       const result = assess(
         await inspectDatabase(c),
         verifyManifest().manifest,

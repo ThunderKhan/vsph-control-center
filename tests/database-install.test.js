@@ -57,9 +57,15 @@ test("only complete canonical history with matching source markers reconciles th
       source_marker: sourceMarker(e),
     })),
     sessionPublicId: true,
+    productVisibility: true,
   };
   assert.equal(assess(s, manifest).historyReconciled, true);
   assert.equal(assess(s, manifest).releaseReady, false);
+  s.productVisibility = false;
+  assert.ok(
+    assess(s, manifest).blockers.includes("application_visibility_missing"),
+  );
+  s.productVisibility = true;
   s.history[1].source_marker = "tampered";
   assert.equal(assess(s, manifest).historyReconciled, false);
 });

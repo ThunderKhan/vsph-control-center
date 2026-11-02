@@ -21,6 +21,7 @@ const clean = () => ({
   historyExists: true,
   history: [],
   sessionPublicId: true,
+  productVisibility: true,
 });
 test("manifest hashes every ordered migration and rejects drift", () => {
   const { manifest, errors } = verifyManifest();

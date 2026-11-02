@@ -184,8 +184,14 @@ async function inspectDatabase(client) {
         "select exists(select 1 from information_schema.columns where table_schema='public' and table_name='portal_sessions' and column_name='public_id' and is_nullable='NO' and data_type='uuid') present",
       )
     ).rows[0].present;
+    const productVisibility = (
+      await client.query(
+        "select exists(select 1 from information_schema.columns where table_schema='public' and table_name='applications' and column_name='visibility' and data_type='text' and is_nullable='NO') present",
+      )
+    ).rows[0].present;
     await client.query("rollback");
     return {
+      productVisibility,
       roles,
       tables: found,
       functions,
@@ -220,6 +226,8 @@ function assess(snapshot, manifest) {
         blockers.push("function_grants:" + signature);
     }
   }
+  if (!snapshot.productVisibility)
+    blockers.push("application_visibility_missing");
   if (!snapshot.sessionPublicId) blockers.push("session_public_id_missing");
   if (!snapshot.historyExists) blockers.push("migration_history_missing");
   const canonical = installationEntries(manifest);
