@@ -2,6 +2,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const root = path.resolve(__dirname, "../..");
+const { installationEntries, sourceMarker } = require("./history");
 function verifyManifest(
   manifest = JSON.parse(
     fs.readFileSync(
@@ -166,13 +167,15 @@ async function inspectDatabase(client) {
     if (historyExists) {
       const cols = (
         await client.query(
-          "select column_name from information_schema.columns where table_schema='supabase_migrations' and table_name='schema_migrations' and column_name in ('version','name')",
+          "select column_name from information_schema.columns where table_schema='supabase_migrations' and table_name='schema_migrations' and column_name in ('version','name','statements')",
         )
       ).rows.map((x) => x.column_name);
       if (cols.includes("version") && cols.includes("name"))
         history = (
           await client.query(
-            "select version::text,name from supabase_migrations.schema_migrations order by version limit 1000",
+            "select version::text,name," +
+              (cols.includes("statements") ? "statements[1]" : "null::text") +
+              " source_marker from supabase_migrations.schema_migrations order by version limit 1000",
           )
         ).rows;
     }
@@ -219,10 +222,23 @@ function assess(snapshot, manifest) {
   }
   if (!snapshot.sessionPublicId) blockers.push("session_public_id_missing");
   if (!snapshot.historyExists) blockers.push("migration_history_missing");
-  const versions = manifest.migrations.map((m) => m.version);
+  const canonical = installationEntries(manifest);
+  const canonicalHistoryVerified =
+    snapshot.historyExists &&
+    snapshot.history.length === canonical.length &&
+    canonical.every((e) =>
+      snapshot.history.some(
+        (h) =>
+          h.version === e.version &&
+          h.name === e.name &&
+          h.source_marker === sourceMarker(e),
+      ),
+    );
+  const expected = canonicalHistoryVerified ? canonical : manifest.migrations;
+  const versions = expected.map((m) => m.version);
   if (new Set(versions).size !== versions.length)
     blockers.push("legacy_version_collision_requires_reconciliation");
-  const pending = manifest.migrations
+  const pending = expected
     .filter(
       (m) =>
         !snapshot.history.some(
@@ -238,6 +254,7 @@ function assess(snapshot, manifest) {
     catalogChecksPassed: !blockers.some(
       (b) => !b.includes("history") && !b.includes("reconciliation"),
     ),
+    canonicalHistoryVerified,
     historyReconciled: !blockers.some(
       (b) => b.includes("history") || b.includes("reconciliation"),
     ),
