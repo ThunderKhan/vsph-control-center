@@ -10,7 +10,7 @@ The user requires the existing Supabase project to remain Free, with no new proj
 
 ## Application setup
 
-Use Node >=20.19 and the committed package-lock.json. No frontend build is needed.
+Deploy on Node 24 LTS and use the committed package-lock.json; all CI jobs use Node 24. The package engine floor (>=20.19) is a compatibility declaration, not a recommendation to deploy Node 20, which is end-of-life. See the [official release schedule](https://github.com/nodejs/Release/blob/main/README.md). No frontend build is needed.
 
 ```powershell
 cd D:\Projects\vsph-control-center
