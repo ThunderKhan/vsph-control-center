@@ -1,5 +1,7 @@
 # Deployment handoff: Express application and database installation
 
+> Update — 2 November 2026: the existing candidate was migrated with explicit authorization and a restore-rehearsal waiver. See [HOSTED_INSTALL_20261102.md](HOSTED_INSTALL_20261102.md). The previous no-migration/absent-schema statements below describe the earlier inspection cutoff; do not rerun the legacy installer. Authenticated local acceptance and hosted recovery are still unverified.
+
 This repository is the deployment source for VSPH Control Center. Music is a separate product/deployment. The portal uses Express and vanilla browser assets; deploy it as a Node web service, not as a static site or an assumed Next.js project.
 
 ## Current release gate

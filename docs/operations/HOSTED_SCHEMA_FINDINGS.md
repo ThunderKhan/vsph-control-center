@@ -1,5 +1,7 @@
 # Hosted catalog inspection — 1 November 2026
 
+> Update — 2 November 2026: the existing candidate was migrated with explicit authorization and a restore-rehearsal waiver. See [HOSTED_INSTALL_20261102.md](HOSTED_INSTALL_20261102.md). The previous no-migration/absent-schema statements below describe the earlier inspection cutoff; do not rerun the legacy installer. Authenticated local acceptance and hosted recovery are still unverified.
+
 Read-only Supabase connector inspection succeeded after installation became available in this resumed session. Earlier reports of unavailable connector methods describe the earlier execution cutoff. No hosted DDL, data writes, bootstrap, seed, migration repair, Auth changes, email or deployment was performed.
 
 The accessible active project named vsph-supabase (reference zbmerhexucqxazuxjmmw, PostgreSQL 17.11) is a candidate existing VSPH environment, not an approved disposable staging target. Its branch inventory is empty. The other accessible projects are unrelated and inactive; they were not queried. No branch/project was created and no cost was incurred. A project name alone does not prove deployment/source binding or production ownership.
