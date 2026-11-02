@@ -1,12 +1,14 @@
 # Deployment handoff: Express application and database installation
 
+> Update — 2 November 2026: the existing candidate was migrated with explicit authorization and a restore-rehearsal waiver. See [HOSTED_INSTALL_20261102.md](HOSTED_INSTALL_20261102.md). The previous no-migration/absent-schema statements below describe the earlier inspection cutoff; do not rerun the legacy installer. Authenticated local acceptance and hosted recovery are still unverified.
+
 This repository is the deployment source for VSPH Control Center. Music is a separate product/deployment. The portal uses Express and vanilla browser assets; deploy it as a Node web service, not as a static site or an assumed Next.js project.
 
 ## Current release gate
 
-The user-confirmed local configuration targets zbmerhexucqxazuxjmmw. Read-only recheck on 2 November 2026 still finds six Auth users, six organizations and eight subscriptions, with no applications.visibility, customer_command, project_command or migration ledger. It is potentially live. No migration, backup export, hosted restore, credential change, plan upgrade or production deployment is recorded here. The backup/recovery gate remains mandatory. The installer is reviewed code, not permission to run it on that populated target.
+The user-confirmed local configuration targets zbmerhexucqxazuxjmmw. On 2 November 2026, after privately exporting a backup and explicitly waiving the separate restore rehearsal, the user authorized the reviewed legacy installation. All 13 feature migrations and canonical baseline history are installed; visibility/customer/project objects, table/RPC privileges, source markers and key aggregate counts are verified. Do not rerun the legacy package on this target: it now correctly refuses the existing migration namespace. The initial-install instructions below apply only to other explicitly approved targets or historical review, not as an instruction to reinstall this database.
 
-The user requires the existing Supabase project to remain Free, with no new project/branch. Continue isolated native acceptance locally/CI. Actual hosted backup recovery and Auth/PostgREST acceptance remain unverified. Do not substitute fixture results for those release gates.
+The existing project remains Free, with no new project/branch, seed, identity creation, email, credential/plan change or backend deployment. Hosted backup restoration remains unverified by explicit waiver. Auth settings endpoint reachability and anonymous PostgREST denials are verified; authenticated portal/write acceptance remains pending. See HOSTED_INSTALL_20261102.md for the exact evidence and limits. Do not substitute fixture results or the waiver for full enterprise release readiness.
 
 ## Application setup
 
