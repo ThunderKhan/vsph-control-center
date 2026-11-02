@@ -24,7 +24,8 @@
     "staging:inspect": "node scripts/staging-readiness.js",
     "github:verify": "node scripts/verify-github.js",
     "test:restore:ci": "node scripts/rehearse-restore.mjs",
-    "config:inspect": "node scripts/inspect-config.js"
+    "config:inspect": "node scripts/inspect-config.js",
+    "db:package": "node scripts/build-database-install.js"
   },
   "engines": {
     "node": ">=20.19"

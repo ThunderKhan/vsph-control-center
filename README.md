@@ -1,6 +1,6 @@
 # VSPH Control Center — Supabase edition
 
-Projects MVP, durable provisioning, read-only GitHub delivery, project inbox/reporting and own-session controls are implemented. **Target rollout requires all reviewed ordered migrations through 20261031000700 before deploying this backend. No hosted migration/deployment is implied by a Git merge.** See [Projects guide](docs/operations/PROJECTS_GUIDE.md), [provisioning operations](docs/operations/PROVISIONING_V2.md), and [current execution report](docs/roadmap/IMPLEMENTATION_REPORT.md).
+Projects MVP, durable provisioning, read-only GitHub delivery, project inbox/reporting and own-session controls are implemented. **Target rollout requires every migration in [the checked manifest](supabase/migration-manifest.json), including product visibility and customer governance. A Git merge does not install them.** Start with the [deployment handoff and guarded installer](docs/operations/DEPLOYMENT_HANDOFF.md). Existing databases require verified backup/recovery and explicit target approval; do not replay bootstrap or demo seeds. See [Projects guide](docs/operations/PROJECTS_GUIDE.md), [provisioning operations](docs/operations/PROVISIONING_V2.md), and [current execution report](docs/roadmap/IMPLEMENTATION_REPORT.md).
 
 VSPH's multi-tenant product portal (Express + vanilla HTML/JS/CSS), integrated with **Supabase Auth** and **hosted PostgreSQL**. The portal workspace dashboard and login were redesigned with the company design system while retaining the existing backend permissions. The old MySQL integration was replaced.
 
