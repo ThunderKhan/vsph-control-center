@@ -173,3 +173,17 @@ The three new self-service migrations are unapplied hosted. Use isolated fixture
 - [ ] Apply report filters, download the summary CSV and compare its project/counts to the displayed persisted report. Confirm the first-100 bound and unconfigured deployment status. No revenue/uptime/productivity figures are invented.
 - [ ] A client-only, unrelated or revoked project member cannot export internal report data; expired/anonymous sessions deny. Spreadsheet-dangerous project/owner names remain text. Store downloaded files privately; revoked permissions do not erase existing copies.
 - [ ] At mobile width and keyboard-only navigation, selects/inputs/buttons have usable names/focus, no page-width overflow occurs, conflicts/errors are announced and saved changes survive reload. Full accessibility certification remains outstanding.
+
+## MFA-aware login and owner transfer — 3 November 2026
+
+Use disposable fixtures unless a real identity/target has been approved. No hosted Auth enrollment/settings or live database changes were performed for this acceptance.
+
+- [ ] A password-only account still signs in without fabricated AAL2. An enrolled TOTP account gets no portal/product session for password alone, wrong code, unknown factor ID, stale assurance or provider failure. A valid current code reaches the same identity/AAL2 before session creation.
+- [ ] Multiple verified authenticators require selection from the server-owned list. Unsupported enrolled methods deny password fallback. Factor metadata appears only after a valid password, one-time codes clear after attempts and no provider token/password appears in localStorage, URLs, responses or logs.
+- [ ] Existing sessions are not described as retrospectively MFA-certified. Do not disable MFA or use fixture credentials on a live account to bypass the unsupported enrollment/recovery workflow.
+- [ ] In My organizations, the sole active owner selects an accepted active administrator and reviews names/impact. An admin, ordinary member, invited/suspended/disabled account, unrelated tenant or unassigned platform admin cannot transfer ownership. Multiple active owners require review.
+- [ ] Wrong password/TOTP leaves ownership unchanged and does not redirect an otherwise valid portal session to login. The owner must explicitly acknowledge becoming an administrator before transfer.
+- [ ] Fresh verification produces only a short-lived session-bound proof. Replay, changed target/organization/session/versions, expired or superseded proof, logout/revocation and permission changes deny. Concurrent requests create exactly one owner change/audit.
+- [ ] Successful transfer survives reload: successor is owner, former owner is admin, tenant product sessions/codes are invalidated, and product roles/subscriptions/project assignments remain unchanged. The successor can sign in normally without inheriting product access.
+- [ ] An isolated audit outage rolls back ownership, proof consumption and session invalidation together. A lost HTTP response requires refresh/history review rather than automatic reversal or stale retry.
+- [ ] Test both desktop/mobile layouts and keyboard focus. The password/code fields clear after step-up, the old owner no longer sees transfer controls after success, and other customer/project/registry/onboarding/sidebar/logout flows remain functional.

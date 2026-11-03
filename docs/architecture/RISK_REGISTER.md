@@ -1,3 +1,7 @@
+## Verified identity/ownership continuation — 3 November 2026
+
+#45/#46 are merged through `b49fa2ac221f55f26b0d3890692b65df62f9b031`, with all four CI jobs passing. Enrolled-TOTP credential gating and one-use session-bound owner-transfer authorization have native/browser/failure/concurrency proof. This does not implement enrollment/recovery, govern old sessions on factor changes, or step up every existing higher-trust platform administrative endpoint. The fourth forward migration remains unapplied hosted, alongside the previous three. No live-provider/hosted recovery/hosting proof is added. See `docs/roadmap/IDENTITY_CONTINUATION_20261103.md` for exact scope and remaining release risks.
+
 ## Governed owner transfer — 3 November 2026
 
 Owner transfer now has a dedicated sole-owner/active-admin boundary with fresh password/TOTP verification and durable one-use session/tenant/target/version-bound authorization. The transaction preserves one active owner, consumes proof and writes audit with session/code invalidation; unknown identity/account recovery cannot bypass it. Capability hashes are private, expire within two minutes and cascade with session removal. New migration remains unapplied hosted. See `docs/operations/ORGANIZATION_OWNERSHIP.md`, `routes/ownership.js` and native ownership cases. Universal privileged-action step-up, lost-owner/platform recovery, factor enrollment/session lifecycle and real provider acceptance remain open.
