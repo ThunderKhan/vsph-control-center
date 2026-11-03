@@ -43,6 +43,9 @@ function verifyManifest(
   return { manifest, errors };
 }
 const tables = [
+  "finance_invoices",
+  "finance_payments",
+  "finance_payment_reversals",
   "internal_employees",
   "internal_hr_managers",
   "organization_owner_transfer_grants",
@@ -83,6 +86,7 @@ const tables = [
   "project_notifications",
 ];
 const signatures = [
+  "public.finance_command(uuid,text,uuid,jsonb)",
   "public.internal_employee_command(uuid,text,uuid,jsonb)",
   "public.internal_hr_profile_disabled()",
   "public.organization_ownership(uuid,text,uuid,jsonb)",

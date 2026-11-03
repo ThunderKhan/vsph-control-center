@@ -3,7 +3,7 @@
  const $=id=>document.getElementById(id);
  const label={full_time:'Full-time',part_time:'Part-time',intern:'Intern',contract:'Contract',
   onboarding:'Onboarding',active:'Active',on_leave:'On leave',inactive:'Inactive'};
- let current=null,selected=null,cursor=null,lastCursor=null,busy=false,searchVersion=0;
+ let current=null,selected=null,cursor=null,lastCursor=null,busy=false,searchVersion=0,successNotice='';
  const text=(tag,value,cls='')=>{const el=document.createElement(tag);el.textContent=String(value??'');if(cls)el.className=cls;return el;};
  const info=message=>{$('peopleMessage').textContent=message;};
  async function api(path,body=null,extra={}){
@@ -58,7 +58,7 @@
   if(!window.confirm(question))return;
   await run(async()=>{
    await api('/'+employee.id+'/'+action,{version:employee.version,confirmed:true});
-   info('HR permission updated.');await load(cursor);
+   successNotice='HR permission updated.';await load(cursor);
   });
  }
  function drawEmployees(records,role){
@@ -114,14 +114,14 @@
     :'Employee onboarding and ordinary staff updates. HR role administration remains owner-only.';
    $('hrGovernance').hidden=!result.canManageHr;
    if(result.canManageHr)drawManagers(result.hrManagers||[]);
-   info('Showing current records from the employee database.');
+   info(successNotice||'Showing current records from the employee database.');
   }catch(error){if(currentLoad===searchVersion){info(error.message);$('employeeRows').replaceChildren();$('employeeRows').append(document.createElement('tr'));$('nextEmployeePage').disabled=true;}}
   finally{if(currentLoad===searchVersion)$('employeeRows').setAttribute('aria-busy','false');}
  }
  async function run(action){
   if(busy)return;busy=true;const controls=[...document.querySelectorAll('button')].filter(x=>!x.disabled);
   for(const control of controls)control.disabled=true;
-  try{await action();}catch(error){info(error.message);}
+  try{await action();}catch(error){successNotice='';info(error.message);}
   finally{busy=false;for(const control of controls)if(control.id!=='nextEmployeePage')control.disabled=false;}
  }
  $('employeeEditForm').addEventListener('submit',event=>{
@@ -138,15 +138,15 @@
   };
   run(async()=>{
    await api('/'+selected.id+'/update',body);
-   selected=null;$('employeeEditPanel').hidden=true;await load(cursor);info('Employee record updated.');
+   successNotice='Employee record updated.';selected=null;$('employeeEditPanel').hidden=true;await load(cursor);
   });
  });
  $('cancelEdit').addEventListener('click',()=>{selected=null;$('employeeEditPanel').hidden=true;});
- $('refreshEmployees').addEventListener('click',()=>load(cursor));
+ $('refreshEmployees').addEventListener('click',()=>{successNotice='';load(cursor);});
  $('firstEmployeePage').addEventListener('click',()=>load(null));
  $('nextEmployeePage').addEventListener('click',()=>{if(lastCursor)load(lastCursor);});
  let debounce;
- $('employeeSearch').addEventListener('input',()=>{clearTimeout(debounce);debounce=setTimeout(()=>load(null),260);});
- $('employeeStatus').addEventListener('change',()=>load(null));
+ $('employeeSearch').addEventListener('input',()=>{successNotice='';clearTimeout(debounce);debounce=setTimeout(()=>load(null),260);});
+ $('employeeStatus').addEventListener('change',()=>{successNotice='';load(null);});
  load();
 })();
