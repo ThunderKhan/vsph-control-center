@@ -196,3 +196,10 @@ Use disposable fixtures unless a real identity/target has been approved. No host
 - Revoke a membership between pages; the next request must hide that project's work. Test a client with shared/private tasks and milestones, inactive customer membership and hidden project. Organization/product administration alone must not expose project work.
 - Simulate dependency failure after results were visible; stale results must clear, retry must recover. Reload has no cached result records. Switch to an unrelated user and confirm no prior user's work appears.
 - Expired/revoked sessions and anonymous HTML/API access deny as before. Search must not mutate tasks, permissions or provider records.
+
+## Reconciled employee and finance workflows
+
+- As owner, create an internal employee roster record, activate it and grant HR only to a matching existing active ordinary portal identity. Confirm no account, email, customer/product role or project assignment is implicitly created.
+- As HR, create/update ordinary employees; deny owner/HR-target edits and HR grants. Test stale and oversized versions. Owner revocation or identity disable must block later HR calls, including pending requests after a roster lock wait. No partial audit/mutation should survive failure.
+- Owner-only finance: create a same-customer project invoice, record a real synthetic receipt, prevent overpayment, explicitly reverse with reason, then void only after receipts are reversed. Reload to verify durable totals and outsider/HR/customer-admin denial.
+- Keep executive demo labels visible; finance cash collection is not recognized revenue or subscription billing. Do not enter real payments in fixture tests. Follow FINANCE_LEDGER.md for manual journal bounds and unimplemented provider acceptance.

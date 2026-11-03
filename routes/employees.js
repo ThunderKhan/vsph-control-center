@@ -36,7 +36,7 @@ function employeeFields(body,{update=false}={}){
  };
  if(!allowedTypes.has(fields.employmentType))invalid('Choose a supported employment type.');
  if(update){
-  if(!Number.isSafeInteger(body.version)||body.version<1||!allowedStatuses.has(body.status)||body.confirmed!==true)
+  if(!Number.isSafeInteger(body.version)||body.version<1||body.version>2147483647||!allowedStatuses.has(body.status)||body.confirmed!==true)
     invalid('Reload and confirm the current employee status and version.');
   return {...fields,status:body.status,version:body.version,confirmed:true};
  }
@@ -46,7 +46,7 @@ function employeeFields(body,{update=false}={}){
 }
 function roleFields(body){
  if(!body||Array.isArray(body)||Object.keys(body).length!==2||Object.keys(body).some(k=>!['version','confirmed'].includes(k))||
-   !Number.isSafeInteger(body.version)||body.version<1||body.confirmed!==true)
+   !Number.isSafeInteger(body.version)||body.version<1||body.version>2147483647||body.confirmed!==true)
   invalid('Confirm the current employee version before changing HR authority.');
  return {version:body.version,confirmed:true};
 }

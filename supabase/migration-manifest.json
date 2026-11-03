@@ -175,6 +175,15 @@
       ]
     },
     {
+      "path": "supabase/migrations/20261103155930_internal_hr_lock_order.sql",
+      "sha256": "dff4d9f3de923161d5de2adc2055a66610cc92d663336f388bca7ce35373b9c1",
+      "version": "20261103155930",
+      "name": "internal_hr_lock_order",
+      "requires": [
+        "supabase/migrations/20261103110000_internal_employee_governance.sql"
+      ]
+    },
+    {
       "path": "supabase/migrations/20261103170000_finance_ledger.sql",
       "sha256": "7a399e4b2c95334666eeea8245af540f58f86f4f9c4090ca3c4eae0e2faaf48a",
       "version": "20261103170000",

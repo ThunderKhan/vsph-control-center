@@ -1,3 +1,7 @@
+## Reconciled HR/finance review — 3 November 2026
+
+[Targeted source review](../roadmap/READ_AUDIT_CHAT_RECONCILIATION_20261103.md) records the employee grant/roster lock inversion and forward wrapper repair, bounded employee-version validation, and remaining roster-to-identity/step-up gaps. Finance preview/live reporting separation is preserved. Extreme aggregate paise totals need safe integer/string transport, and multi-statement finance reporting needs an explicit consistency policy. Payroll, payment reconciliation and full HR onboarding remain unimplemented. Eight forward migrations are now source-only; hosting/hosted changes remain excluded.
+
 ## Project search continuation — 3 November 2026
 
 Project search adds no persisted copy/index/provider data or browser RPC grants. Current project permissions and client shared-work restrictions apply to each page. The new search migration plus the four self-service and two employee/finance migrations remain unapplied hosted. Response size is bounded; literal substring scans still require representative portfolio load measurement. Paging is a live traversal, not a snapshot. Process-local IP limiting needs a deployment-level distributed control for multiple instances. API query strings require access-log redaction; no page URL/history/localStorage persistence is added. Customer/product/provider-content search and friendly filter pickers remain outside this increment. See [the operational contract](../operations/PROJECT_WORK_SEARCH.md).
