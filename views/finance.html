@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#00255A">
+<title>Finance | VSPH Control Center</title>
+<link rel="stylesheet" href="/operations.css"><link rel="stylesheet" href="/finance.css">
+<script defer src="/finance.js"></script>
+</head>
+<body>
+<main class="finance-shell">
+<nav class="finance-nav"><a href="/dashboard">VSPH Control Center</a> / <a href="/admin">Platform administration</a> / Finance</nav>
+<header class="finance-header">
+  <div><p class="finance-eyebrow">FINANCE / OWNER CONTROL</p><h1>Financial overview<span>.</span></h1><p>Actual recorded invoices, cash receipts, outstanding balances and client/project collections.</p></div>
+  <button id="financeRefresh" type="button" class="finance-button secondary">Refresh figures</button>
+</header>
+<div class="finance-notice" role="note"><strong>Manual cash ledger — INR only.</strong> Subscription access and invoice creation are not payments. The “collected” figures count recorded, unreversed cash receipts only. This is not automatic bank reconciliation, an accounting revenue-recognition engine, or a payment gateway.</div>
+<p id="financeStatus" role="status" aria-live="polite">Loading finance records…</p>
+<section class="finance-stats" aria-label="Recorded financial totals">
+  <article><span>Total invoiced</span><strong id="finInvoiced">—</strong><small>Issued invoices, excluding voids</small></article>
+  <article><span>Cash collected</span><strong id="finCollected">—</strong><small>Recorded and unreversed payments</small></article>
+  <article><span>Outstanding</span><strong id="finOutstanding">—</strong><small>Invoiced minus cash collected</small></article>
+  <article><span>Past-due balance</span><strong id="finOverdue">—</strong><small>Unpaid balance on overdue invoices</small></article>
+</section>
+<div class="finance-grid">
+<section class="finance-panel finance-wide" aria-labelledby="financeChartTitle">
+ <div class="finance-panel-head"><h2 id="financeChartTitle">Collections over time</h2><span>Past 6 months · INR</span></div>
+ <div id="financeMonths" class="finance-chart" aria-label="Monthly collected cash"></div>
+</section>
+<section class="finance-panel" aria-labelledby="financeSummaryTitle">
+ <div class="finance-panel-head"><h2 id="financeSummaryTitle">Ledger activity</h2></div>
+ <div class="finance-statline"><span>Open invoices</span><strong id="finCount">—</strong></div>
+ <div class="finance-statline"><span>Voided invoices</span><strong id="finVoided">—</strong></div>
+ <div class="finance-statline"><span>Billed clients</span><strong id="finClients">—</strong></div>
+ <div class="finance-statline"><span>Billed projects</span><strong id="finProjects">—</strong></div>
+</section>
+<section class="finance-panel" aria-labelledby="clientCollectionsTitle">
+ <div class="finance-panel-head"><h2 id="clientCollectionsTitle">Collections by client</h2></div>
+ <div id="financeClients"></div>
+</section>
+<section class="finance-panel" aria-labelledby="projectCollectionsTitle">
+ <div class="finance-panel-head"><h2 id="projectCollectionsTitle">Collections by project</h2></div>
+ <div id="financeProjects"></div>
+</section>
+</div>
+<div class="finance-grid">
+<section class="finance-panel" aria-labelledby="newInvoiceTitle">
+ <h2 id="newInvoiceTitle">Create invoice record</h2>
+ <p class="finance-hint">An invoice creates a receivable, not cash collected. Select an existing customer and optionally its project.</p>
+ <form id="financeInvoiceForm">
+  <label>Customer <select name="organizationId" id="invoiceOrg" required><option value="">Select customer</option></select></label>
+  <label>Project (optional) <select name="projectId" id="invoiceProject"><option value="">No linked project</option></select></label>
+  <label>Invoice reference <input name="reference" required maxlength="80" pattern="[A-Za-z0-9][A-Za-z0-9/_-]{2,79}" placeholder="INV-2026-001"></label>
+  <label>Amount in INR <input name="amountRupees" required type="text" inputmode="decimal" pattern="[0-9]+(\.[0-9]{1,2})?" placeholder="10000.00"></label>
+  <div class="finance-fields"><label>Issued date <input type="date" name="issuedOn" required></label><label>Due date <input type="date" name="dueOn" required></label></div>
+  <label class="finance-ack"><input name="confirmed" type="checkbox" required> This invoice reference, amount and customer have been checked.</label>
+  <button class="finance-button" type="submit">Save invoice</button>
+ </form>
+</section>
+<section class="finance-panel" aria-labelledby="newPaymentTitle">
+ <h2 id="newPaymentTitle">Record cash receipt</h2>
+ <p class="finance-hint">Manually enter a received payment only after verifying it outside this portal. Overpayments are rejected.</p>
+ <form id="financePaymentForm">
+  <label>Open invoice <select id="paymentInvoice" name="invoiceId" required><option value="">Select invoice</option></select></label>
+  <label>Payment reference <input name="reference" required maxlength="100" pattern="[A-Za-z0-9][A-Za-z0-9/_-]{2,99}" placeholder="BANK-RECEIPT-001"></label>
+  <label>Amount received (INR) <input name="amountRupees" required type="text" inputmode="decimal" pattern="[0-9]+(\.[0-9]{1,2})?" placeholder="2500.00"></label>
+  <label>Cash received date <input name="receivedOn" required type="date"></label>
+  <label class="finance-ack"><input name="confirmed" type="checkbox" required> I verified this payment was actually received.</label>
+  <button class="finance-button" type="submit">Record receipt</button>
+ </form>
+</section>
+</div>
+<section class="finance-panel" aria-labelledby="finInvoicesTitle">
+ <div class="finance-panel-head"><h2 id="finInvoicesTitle">Recent invoices</h2><span>Latest 50 records · persisted</span></div>
+ <label class="finance-filter">Filter visible invoices by customer <select id="invoiceFilter"><option value="all">All customers</option></select></label>
+ <div class="finance-scroll"><table><thead><tr><th scope="col">Invoice</th><th scope="col">Customer / project</th><th scope="col">Invoiced</th><th scope="col">Collected</th><th scope="col">Outstanding</th><th scope="col">Due / status</th><th scope="col">Action</th></tr></thead><tbody id="financeInvoiceRows"><tr><td colspan="7">Loading…</td></tr></tbody></table></div>
+</section>
+<section class="finance-panel" aria-labelledby="finReceiptsTitle">
+ <div class="finance-panel-head"><h2 id="finReceiptsTitle">Recent receipts and corrections</h2><span>Latest 50 records · persisted</span></div>
+ <div class="finance-scroll"><table><thead><tr><th scope="col">Reference</th><th scope="col">Invoice</th><th scope="col">Amount</th><th scope="col">Received</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead><tbody id="financePaymentRows"><tr><td colspan="6">Loading…</td></tr></tbody></table></div>
+</section>
+<p class="finance-hint">All changes are owner-only, audited, and stored transactionally in PostgreSQL. Corrections are explicit reversals/voids: receipts cannot be silently edited or deleted.</p>
+</main>
+</body>
+</html>
