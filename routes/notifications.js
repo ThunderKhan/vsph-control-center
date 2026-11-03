@@ -61,10 +61,8 @@ reports.use(portalSession, (req, res, next) => {
   res.set("Cache-Control", "no-store");
   next();
 });
-reports.get(
-  "/",
-  rpcRoute((req) => {
-    const q = req.query;
+function reportQuery(q) {
+    if(Object.values(q).some(value=>typeof value!=='string'))invalid();
     if (
       Object.keys(q).some(
         (k) =>
@@ -100,14 +98,26 @@ reports.get(
     const data = {};
     for (const key of ["organizationId", "ownerId", "status", "from", "to"])
       if (q[key]) data[key] = q[key];
-    return db()
+    return {projectId:q.projectId||null,data};
+}
+function fetchReport(req){
+ const {projectId,data}=reportQuery(req.query);
+ return db()
       .rpc("project_report", {
         p_actor: req.user.id,
         p_action: "list",
-        p_id: q.projectId || null,
+        p_id: projectId,
         p_data: data,
       })
       .then(check);
-  }),
-);
-module.exports = { router: r, reports };
+}
+reports.get('/',rpcRoute(fetchReport));
+reports.get('/export.csv',rpcRoute(async(req,res)=>{
+ const report=await fetchReport(req),{projectCsv}=require('../services/report-csv');
+ const csv=projectCsv(report);
+ res.set('Content-Type','text/csv; charset=utf-8');
+ res.set('Content-Disposition','attachment; filename="vsph-project-report.csv"');
+ res.set('X-VSPH-Export-Scope','first-100-authorized-matching-projects');
+ res.send(csv);
+}));
+module.exports = { router: r, reports, reportQuery };

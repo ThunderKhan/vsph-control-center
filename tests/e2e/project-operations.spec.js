@@ -60,6 +60,11 @@ test("project inbox preferences and reports persist with scoped assignments", as
   await expect(page.locator("#reportFreshness")).toContainText(
     "Deployment status: unconfigured",
   );
+  await expect(page.locator('#exportProjectReport')).toHaveAttribute('href','/api/project-reports/export.csv?projectId='+p.id);
+  const downloadPromise=page.waitForEvent('download');await page.locator('#exportProjectReport').click();const download=await downloadPromise;
+  expect(download.suggestedFilename()).toBe('vsph-project-report.csv');
+  const csv=await require('node:fs/promises').readFile(await download.path(),'utf8');
+  expect(csv).toContain('Inbox fixture '+info.project.name);expect(csv).toContain('First 100 authorized matching projects');expect(csv).toContain('unconfigured');
   await page.reload();
   await page.locator("#projectOperations summary").click();
   await expect(

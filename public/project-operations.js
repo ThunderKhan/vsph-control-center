@@ -83,6 +83,7 @@
       qs = new URLSearchParams();
     for (const [key, value] of new FormData(f)) if (value) qs.set(key, value);
     const d = await api("/api/project-reports?" + qs);
+    $("exportProjectReport").href="/api/project-reports/export.csv?"+qs;
     $("reportFreshness").textContent =
       "Generated " +
       new Date(d.generatedAt).toLocaleString() +
