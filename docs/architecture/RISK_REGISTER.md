@@ -1,3 +1,7 @@
+## Exact money/snapshot repair — 3 November 2026
+
+The finance report precision and multi-section snapshot gap is repaired in source by a STABLE service-only owner report returning integer decimal-string money; API/legacy read callers share it. Source-only migration needs separate approved installation. Direct JSON-number monetary consumers must migrate to BigInt/decimal; UI labels/balances already do. Same-statement MVCC authorization is explicit, with revocations applied on the next read. The ledger remains manual INR cash recording, not payments/recognized revenue/client financial dashboards. Native large-value/concurrent-receipt and browser acceptance are required before merge. Six moderate development dependency findings remain unchanged.
+
 ## Employee consent increment — 3 November 2026
 
 Existing-account links are purpose/candidate/session/roster/issuer bound, use fresh provider verification and grant no implicit role. New HR grants now need accepted consent; legacy grants are preserved and must be reviewed. New-account email enrollment, full offboarding impact across independent memberships, global step-up/recovery, retention and live Auth/target acceptance remain incomplete. Four migration identities are missing by the last recorded ledger, including this new source-only migration; no hosted writes occurred. See [EMPLOYEE_ACCOUNT_LINKS.md](../operations/EMPLOYEE_ACCOUNT_LINKS.md).

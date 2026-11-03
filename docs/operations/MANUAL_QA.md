@@ -1,3 +1,7 @@
+## Exact owner finance acceptance
+
+After reviewed migration installation on a separately approved target, open Finance as the owner; record an invoice and partial receipt, reload and reconcile every summary/group/month/row with persisted records. Money in `/api/finance` must be decimal-string paise; counts/versions stay numbers. A concurrent receipt must appear consistently across all sections of the next report. Customer/HR/product roles and stale/revoked/expired sessions cannot read owner finance. An absent read RPC must show schema-not-ready rather than use the historical numeric response. Use disposable fixtures for maximum amounts and failure/concurrency tests; do not create demonstration financial records on a customer database. Validate desktop/mobile layout, keyboard forms, confirmation, reversal/void conflicts and no localStorage credentials. Full journal pagination/export/client dashboards remain separate.
+
 # Manual QA and staging UAT checklist
 
 Use only a confirmed isolated staging Supabase project and synthetic identities. Never send test invitations to real customers. Record tester, date, main SHA, environment, expected result, actual result and evidence for each step. Untested cases remain unchecked. Passing a source assertion is not a manual pass.

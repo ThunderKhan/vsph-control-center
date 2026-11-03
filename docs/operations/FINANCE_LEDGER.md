@@ -1,3 +1,17 @@
+## Exact report repair — 3 November 2026
+
+The additive `20261103171835_finance_exact_snapshot_report.sql` requires the existing finance-ledger migration. `GET /api/finance` now requires `finance_report`; an older target fails with `SCHEMA_NOT_READY`, with no imprecise fallback. The legacy service-only `finance_command` dashboard action delegates to the same report. Invoice/payment/reversal mutation code and rows remain intact. Installation is not authorized by this source change.
+
+Every monetary field in summary, client/project groups, months, invoices and receipts is an **integer decimal string in paise**, including zero. Counts/versions remain JSON numbers. Consumers must use BigInt/decimal arithmetic, never parseFloat/Number for amounts. The existing UI uses BigInt for labels and balances; only decorative bar ratios use approximate Number arithmetic. Monetary aggregations stay PostgreSQL numeric and are converted to text before JSON transport, avoiding JS safe-integer loss and aggregate bigint overflow. Per-invoice amounts remain bounded bigint.
+
+The read function is STABLE, fixed-search-path and service-only. Its active platform-owner check and all report sections share the caller statement snapshot. A revocation committed before the read starts denies; a change during the read applies on the next statement, as with ordinary MVCC reads. It holds no profile/ledger row locks and writes no data. Different sections do not mix pre/post-receipt snapshots. Dates retain the existing database-session calendar behavior. No cross-request/cross-page snapshot guarantee is claimed.
+
+Native acceptance uses 9,009 isolated synthetic invoices to produce `9008000000000001` paise, verifies exact strings through SQL and actual Express HTTP, and blocks the project section while a receipt commits to prove within-report consistency. Browser tests verify persisted small amounts and explicit large-value transport fixtures on desktop/mobile. These fixtures do not prove hosted PostgREST/provider/Windows behavior. Source-only migration remains unapplied hosted.
+
+Rollback/repair: retain the additive read RPC and exact DTO when rolling back UI. Do not roll clients back to numeric money or modify historical checksums. A reviewed forward migration repairs prerequisite drift; the migration aborts if the original dashboard body is not the expected finance-ledger version. Back up/rehearse/reconcile before any separately approved hosted installation. Full finance pagination/filters/exports, client dashboards, recognized revenue and payment-provider integration remain incomplete.
+
+---
+
 # Owner Finance Ledger — Phase 1
 
 ## Purpose and accounting boundary
@@ -17,7 +31,7 @@ tax engine, or accrued/recognized revenue accounting module.
   six consecutive calendar months including zero-collection months.
 
 All calculations happen inside the server-owned PostgreSQL
-`finance_command` function, not from cosmetic frontend figures. An active
+`finance_report` read function and `finance_command` mutations, not from cosmetic frontend figures. An active
 subscription, an issued invoice, or an unpaid project milestone does **not**
 automatically count as collected cash or realized revenue.
 

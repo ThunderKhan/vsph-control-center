@@ -88,6 +88,7 @@ const tables = [
   "project_notifications",
 ];
 const signatures = [
+  "public.finance_report(uuid,text,uuid,jsonb)",
   "public.internal_employee_identity(uuid,text,uuid,jsonb)",
   "public.internal_workforce_authority(uuid)",
   "public.internal_employee_identity_lifecycle()",

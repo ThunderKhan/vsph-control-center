@@ -1,3 +1,9 @@
+## Exact financial reporting continuation — 3 November 2026
+
+PR [#58](https://github.com/ThunderKhan/vsph-control-center/pull/58) merged as `cabcefe542ee276f9b2e9c71898d8c3c0f8ef4a0` after all four PR CI jobs passed: 148 Node, 37 native PostgreSQL and 42 active Chromium cases (two intentional skipped variants), plus quality/security/restore/helper gates. New consent workflows are source/isolated acceptance only.
+
+Finance reads now use a service-only STABLE owner report, exact decimal-string paise in every monetary field, and a legacy dashboard delegation; existing mutation data/semantics are preserved. The additive `20261103171835_finance_exact_snapshot_report.sql` depends on the finance ledger and remains unapplied hosted. 23 source migrations plus baseline = 24 canonical entries. Five missing identities are inferred from the last recorded 19-entry ledger; no fresh hosted inspection/write occurred. Exact-head native/browser CI must pass before merge. See [FINANCE_LEDGER.md](../operations/FINANCE_LEDGER.md) for DTO, consistency and repair boundaries. The enterprise roadmap remains incomplete.
+
 ## Employee account-consent continuation — 3 November 2026
 
 Entry main `aa5b768e5fae620ee2e68dd79aa9f0ff5ed23e7b` was reconfirmed with no open PRs. Existing-account employee consent adds purpose-bound durable requests, personal employment view, fresh password/enrolled-TOTP acceptance, current issuer/session/roster checks and atomic audit/revocation. New/regranted HR authority requires accepted consent; prior HR grants are preserved for owner review. No customer/product/project role is inherited or altered. New-identity Auth/email invitations remain unimplemented.
