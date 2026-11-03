@@ -55,3 +55,7 @@ Test owner onboarding and persisted counts, filtering, employee updates, HR gran
 ## Future Work
 
 Governed identity invitations, internal account linking, employee project assignment, staffing capacity, leave and attendance approvals, secure compensation and payroll permissions, notifications, and production provider acceptance are separate projects. This release makes no claim to implement them.
+
+## Lock ordering repair
+
+Forward migration `20261103155930_internal_hr_lock_order.sql` wraps the original command with profiles → employee UUIDs → HR mapping locks, then retains all original current-authority, version, protected-target and audit checks. Direct EXECUTE on the retained core is revoked, including from service_role. Pending HR mutations cannot hold an HR mapping while waiting on an owner-locked employee row; a completed revocation denies subsequent work after the wait. Reads serialize on the HR caller's own roster. Versions must fit positive PostgreSQL integers. The migration changes no rows and remains unapplied hosted. Use a reviewed forward repair rather than regranting the core or editing historical checksums.

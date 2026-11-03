@@ -24,6 +24,8 @@ test('employee onboarding validates and normalizes only supported fields',()=>{
  assert.equal(employeeFields(edit,{update:true}).status,'on_leave');
  assert.throws(()=>employeeFields({...edit,email:'changed@example.test'},{update:true}));
  assert.throws(()=>employeeFields({...edit,version:1.2},{update:true}));
+ assert.throws(()=>employeeFields({...edit,version:2147483648},{update:true}));
+ assert.throws(()=>roleFields({version:2147483648,confirmed:true}));
  assert.throws(()=>employeeFields({...edit,confirmed:false},{update:true}));
  assert.deepEqual(roleFields({version:7,confirmed:true}),{version:7,confirmed:true});
  assert.throws(()=>roleFields({version:7,confirmed:true,role:'super_admin'}));
