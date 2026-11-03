@@ -43,6 +43,12 @@
             </button>
           </div>
 
+          <div id="mfaField" class="organization-field" hidden>
+            <label for="totpCode">Authenticator code</label>
+            <input id="totpCode" name="totpCode" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" aria-describedby="mfaDescription">
+            <p id="mfaDescription" class="form-description">Use the current six-digit code from your enrolled authenticator.</p>
+            <div id="mfaFactorField" class="organization-field" hidden><label for="totpFactorId">Authenticator</label><select id="totpFactorId" name="totpFactorId"></select></div>
+          </div>
           <p id="authError" class="form-error" role="alert" aria-live="polite" hidden></p>
           <button id="authSubmit" class="auth-submit" type="submit"><span class="submit-label">Sign in</span></button>
         </form>

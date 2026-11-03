@@ -1,7 +1,7 @@
 // Test-only Supabase query transport adapter. Queries execute against native PostgreSQL.
 // This verifies Express/middleware with durable rows, NOT the PostgREST or Auth service.
 const {createRequire}=require('node:module');
-module.exports=function databaseBackedServer(pool,auth){
+module.exports=function databaseBackedServer(pool,auth,credentialFactory){
  const allowedTables=new Set(['portal_sessions','app_sessions','profiles','applications','organizations',
   'subscriptions','organization_app_access','organization_memberships','user_app_roles','music_requests','crm_contacts']);
  const identifier=value=>{if(!/^[a-z_]+$/.test(value))throw Error('Invalid test identifier');return '"'+value+'"'};
@@ -35,7 +35,7 @@ module.exports=function databaseBackedServer(pool,auth){
  if(!['provisioning_command','project_command','delivery_command','notification_command','project_report','session_command','customer_command','product_command','customer_lifecycle','organization_command','organization_invitation'].includes(name))throw Error('Unexpected fixture RPC');
  try{const r=await pool.query('select public.'+name+'($1::uuid,$2::text,$3::uuid,$4::jsonb) data',[args.p_actor,args.p_action,args.p_id||null,args.p_data||{}]);return {data:r.rows[0].data,error:null}}catch(error){return {data:null,error}}
  }}),configured:()=>true,
-  check:({data,error})=>{if(error)throw error;return data},publicAuth:()=>{throw Error('Real Supabase Auth not available in fixture')}}};
- for(const file of ['../../security','../../routes/apps','../../server'])delete require.cache[require.resolve(file)];
+  check:({data,error})=>{if(error)throw error;return data},publicAuth:credentialFactory||(()=>{throw Error('Real Supabase Auth not available in fixture')})}};
+ for(const file of ['../../security','../../routes/apps','../../routes/auth','../../services/verify-identity','../../server'])delete require.cache[require.resolve(file)];
  return require('../../server');
 };

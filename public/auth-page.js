@@ -12,6 +12,7 @@
   const form = byId('authForm');
   const email = byId('email');
   const password = byId('password');
+  const totpCode=byId('totpCode'),totpFactor=byId('totpFactorId');
   const organizationField = byId('organizationField');
   const organizationSelect = byId('organizationId');
   const submit = byId('authSubmit');
@@ -87,7 +88,7 @@
       body: JSON.stringify(payload)
     });
     const body = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(body.message || 'Unable to sign in. Please try again.');
+    if (!response.ok){const error=new Error(body.message || 'Unable to sign in. Please try again.');error.code=body.code;error.factors=body.factors;throw error;}
     return body;
   }
 
@@ -159,6 +160,7 @@
           app: appCode,
           email: email.value,
           password: password.value,
+          ...(totpCode.value?{totpCode:totpCode.value,totpFactorId:totpFactor.value}:{}),
           organizationId: organizationSelect.value
         });
         // Only the backend chooses the destination after a valid app-scoped login.
@@ -166,13 +168,21 @@
       } else {
         await request('/api/auth/login', {
           email: email.value.trim(),
-          password: password.value
+          password: password.value,
+          ...(totpCode.value?{totpCode:totpCode.value,totpFactorId:totpFactor.value}:{})
         });
         window.location.assign('/dashboard');
       }
     } catch (error) {
+      if(error.code==='MFA_REQUIRED'&&Array.isArray(error.factors)){
+        totpFactor.replaceChildren();
+        for(const factor of error.factors){const option=document.createElement('option');option.value=factor.id;option.textContent=factor.name;totpFactor.append(option);}
+        byId('mfaFactorField').hidden=error.factors.length<=1;byId('mfaField').hidden=false;totpCode.required=true;totpCode.focus();
+      }
       showError(error.message || 'Cannot connect. Please try again.');
       setBusy(false);
+    } finally {
+      totpCode.value='';
     }
   });
 })();
