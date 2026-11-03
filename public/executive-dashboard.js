@@ -29,15 +29,15 @@
       ' L ' + points[0][0] + ' ' + (height-pad) + ' Z';
     const grid = [0.25,0.5,0.75].map(f => {
       const y = (height * f).toFixed(1);
-      return '<path d="M '+pad+' '+y+' H '+(width-pad)+'" stroke="#373d32" stroke-dasharray="2 7" fill="none"/>';
+      return '<path d="M '+pad+' '+y+' H '+(width-pad)+'" stroke="#DDE5EF" stroke-dasharray="2 7" fill="none"/>';
     }).join('');
     const dots = points.map((p,index) => '<circle cx="'+p[0]+'" cy="'+p[1]+
-      '" r="'+(index===points.length-1?6:3.5)+'" fill="#b4f34b" stroke="#191b1a" stroke-width="2"/>').join('');
+      '" r="'+(index===points.length-1?6:3.5)+'" fill="#0069C8" stroke="#FFFFFF" stroke-width="2"/>').join('');
     chart.innerHTML = '<defs><linearGradient id="execRevenueFill" x1="0" y1="0" x2="0" y2="1">'+
-      '<stop offset="0" stop-color="#b4f34b" stop-opacity=".33"/>'+
-      '<stop offset="1" stop-color="#b4f34b" stop-opacity="0"/></linearGradient></defs>'+
+      '<stop offset="0" stop-color="#0069C8" stop-opacity=".20"/>'+
+      '<stop offset="1" stop-color="#0069C8" stop-opacity="0"/></linearGradient></defs>'+
       grid+'<path d="'+area+'" fill="url(#execRevenueFill)"/>'+
-      '<path d="'+line+'" fill="none" stroke="#b4f34b" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>'+dots;
+      '<path d="'+line+'" fill="none" stroke="#0069C8" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>'+dots;
     chart.setAttribute('role','img');
     chart.setAttribute('aria-label','Illustrative revenue trend for '+range+': '+data.labels.map((x,i)=>x+' '+formatMoney(data.values[i])).join(', '));
     label.replaceChildren();
