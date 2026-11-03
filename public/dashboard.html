@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#00255A">
   <title>Workspace | VSPH Control Center</title>
   <link rel="stylesheet" href="/dashboard.css">
+  <link rel="stylesheet" href="/executive-dashboard.css">
   <script>
     document.documentElement.dataset.workspaceView = ['/applications','/applications/'].includes(location.pathname) ? 'applications' : 'overview';
     // Apply the previous desktop preference before paint so the layout does not jump.
@@ -100,6 +101,158 @@
       </header>
 
       <main class="workspace-content">
+        <!-- Deliberately fictional executive preview. Verified platform admins only.
+             No invoices, revenue, employee records or client names are read from the database. -->
+        <section id="executiveDashboard" class="executive-dashboard" aria-labelledby="executiveTitle" hidden>
+          <header class="exec-head">
+            <div>
+              <p class="exec-eyebrow">VSPH / EXECUTIVE OVERVIEW</p>
+              <h1 id="executiveTitle"><span id="executiveGreeting">Welcome back,</span> <em>VSPH.</em></h1>
+              <p class="exec-sub">Your business, your clients, and your team — at a glance.</p>
+            </div>
+            <div class="exec-meta">
+              <span class="exec-pill">DEMO PREVIEW</span>
+              <span class="exec-date" id="executiveDate">November 2026</span>
+            </div>
+          </header>
+          <div class="exec-demo-notice" role="note"><strong>Illustrative data only.</strong> All financial figures, client names, employee statistics, activity and project metrics on this preview are fictional; no real financial or HR records are connected.</div>
+
+          <div class="exec-metrics" aria-label="Illustrative executive key metrics">
+            <article class="exec-mini"><span class="exec-mini-label">Total revenue</span><strong>₹28.45L</strong><span class="exec-mini-foot"><b>+18.2%</b> vs prior period</span></article>
+            <article class="exec-mini"><span class="exec-mini-label">Monthly recurring</span><strong>₹3.82L</strong><span class="exec-mini-foot">Sample subscription estimate</span></article>
+            <article class="exec-mini"><span class="exec-mini-label">Active clients</span><strong>18</strong><span class="exec-mini-foot"><b>+3</b> this quarter</span></article>
+            <article class="exec-mini"><span class="exec-mini-label">Active projects</span><strong>27</strong><span class="exec-mini-foot">2 marked delayed</span></article>
+            <article class="exec-mini"><span class="exec-mini-label">Team members</span><strong>34</strong><span class="exec-mini-foot">29 assigned to projects</span></article>
+            <article class="exec-mini"><span class="exec-mini-label">Utilization</span><strong>82%</strong><span class="exec-mini-foot">Illustrative capacity index</span></article>
+          </div>
+
+          <div class="exec-grid">
+            <article class="exec-tile exec-hero" aria-labelledby="execHeroTitle">
+              <div class="exec-hero-row">
+                <div><p class="exec-eyebrow">BUSINESS PERFORMANCE</p><h2 id="execHeroTitle" class="exec-hero-title">Growth looks <span>good.</span></h2><p class="exec-muted">A sample 12-period revenue pulse.</p></div>
+                <div class="exec-hero-value"><span class="exec-muted">October revenue</span><div><strong>₹5,24,000</strong></div><p class="exec-change">↗ +7.8% vs September · sample</p></div>
+              </div>
+              <div class="exec-spark" role="img" aria-label="Fictional revenue pulse across twelve periods">
+                <span style="height:31%"></span><span style="height:44%"></span><span style="height:63%"></span><span style="height:77%"></span><span style="height:65%"></span><span style="height:81%"></span><span style="height:56%"></span><span style="height:69%"></span><span style="height:88%"></span><span style="height:76%"></span><span style="height:92%"></span><span style="height:100%"></span>
+              </div>
+              <div class="exec-spark-labels"><span>Earlier</span><span>REVENUE PULSE · DEMO</span><span>October</span></div>
+            </article>
+
+            <article class="exec-tile" aria-labelledby="execClientTitle">
+              <header class="exec-tile-title"><h2 id="execClientTitle">Client portfolio</h2><span class="exec-tile-tag">24 total</span></header>
+              <p class="exec-card-stat">18 <span class="exec-muted">active</span></p>
+              <div class="exec-client-stack" aria-hidden="true"><span style="height:100%"></span><span style="height:50%"></span><span style="height:35%"></span><span style="height:22%"></span></div>
+              <ul class="exec-legend">
+                <li><span><i class="exec-dot" style="--dot:#b4f34b"></i>Active</span><b>18</b></li>
+                <li><span><i class="exec-dot" style="--dot:#a68ada"></i>Trial</span><b>3</b></li>
+                <li><span><i class="exec-dot" style="--dot:#efaa88"></i>At risk</span><b>2</b></li>
+                <li><span><i class="exec-dot" style="--dot:#5d625c"></i>Suspended</span><b>1</b></li>
+              </ul>
+            </article>
+
+            <article class="exec-tile" aria-labelledby="execCapacityTitle">
+              <header class="exec-tile-title"><h2 id="execCapacityTitle">Team capacity</h2><span class="exec-tile-tag">34 active</span></header>
+              <div class="exec-gauge" role="img" aria-label="Fictional employee utilization 82 percent"><strong>82<span>%</span></strong></div>
+              <p class="exec-center exec-muted">Sample utilization across project teams</p>
+              <div class="exec-divider"></div>
+              <ul class="exec-legend">
+                <li><span>Assigned to projects</span><b>29</b></li>
+                <li><span>Available</span><b>5</b></li>
+                <li><span>Invitations pending</span><b>3</b></li>
+              </ul>
+            </article>
+
+            <article class="exec-tile exec-full" aria-labelledby="execTrendTitle">
+              <header class="exec-tile-title">
+                <h2 id="execTrendTitle">Revenue performance</h2>
+                <div class="exec-switch" role="group" aria-label="Revenue chart period">
+                  <button type="button" data-exec-range="1M" aria-pressed="false">1M</button>
+                  <button type="button" data-exec-range="3M" aria-pressed="false">3M</button>
+                  <button type="button" data-exec-range="6M" aria-pressed="true">6M</button>
+                </div>
+              </header>
+              <div class="exec-chart-top">
+                <div><div class="exec-chart-title">₹5,24,000</div><p class="exec-chart-sub">↗ +7.8% from last month</p></div>
+                <div class="exec-muted" id="executiveChartSummary">Monthly revenue · sample</div>
+              </div>
+              <svg id="executiveRevenueChart" class="exec-chart" viewBox="0 0 640 238" preserveAspectRatio="xMidYMid meet" aria-label="Demo revenue chart" role="img"></svg>
+              <div id="executiveChartLabels" class="exec-chart-labels" aria-hidden="true"></div>
+            </article>
+
+            <article class="exec-tile" aria-labelledby="execMixTitle">
+              <header class="exec-tile-title"><h2 id="execMixTitle">Revenue by project</h2><span class="exec-tile-tag">Illustrative</span></header>
+              <div class="exec-tile-value">₹21.6L</div><p class="exec-muted">Selected sample project earnings · lifetime</p>
+              <div class="exec-alloc-bar" aria-label="Fictional allocation by product" role="img">
+                <span style="flex:33.3"></span><span style="flex:22.2"></span><span style="flex:18.3"></span><span style="flex:12.5"></span><span style="flex:13.7"></span>
+              </div>
+              <ul class="exec-legend">
+                <li><span><i class="exec-dot" style="--dot:#b4f34b"></i>CRM Enterprise</span><b>₹7.20L</b></li>
+                <li><span><i class="exec-dot" style="--dot:#a68ada"></i>Guest platform</span><b>₹4.80L</b></li>
+                <li><span><i class="exec-dot" style="--dot:#a9b2c7"></i>Healthcare portal</span><b>₹3.95L</b></li>
+                <li><span><i class="exec-dot" style="--dot:#657063"></i>Education portal</span><b>₹2.70L</b></li>
+                <li><span><i class="exec-dot" style="--dot:#3c403c"></i>Other projects</span><b>₹2.95L</b></li>
+              </ul>
+            </article>
+
+            <article class="exec-tile exec-highlight" aria-labelledby="execDeliveryTitle">
+              <header class="exec-tile-title"><h2 id="execDeliveryTitle">Project delivery</h2><span class="exec-tile-tag">Sample pipeline</span></header>
+              <div class="exec-tile-value">27</div><p class="exec-muted">Active projects in the pipeline</p>
+              <div class="exec-divider"></div>
+              <ul class="exec-legend">
+                <li><span>Completed</span><b>5</b></li>
+                <li><span>Delayed</span><b>2</b></li>
+                <li><span>Upcoming milestones</span><b>8</b></li>
+                <li><span>Overdue tasks</span><b>13</b></li>
+              </ul>
+              <div class="exec-divider"></div>
+              <p style="font-size:12px;font-weight:700;margin:0 0 14px">Delivery progress</p>
+              <div class="exec-project-list">
+                <div class="exec-project"><div class="exec-project-name"><span>CRM Enterprise</span><small>84%</small></div><div class="exec-progress"><span style="width:84%"></span></div></div>
+                <div class="exec-project"><div class="exec-project-name"><span>Guest experience</span><small>71%</small></div><div class="exec-progress"><span style="width:71%"></span></div></div>
+                <div class="exec-project"><div class="exec-project-name"><span>Education portal</span><small>56%</small></div><div class="exec-progress"><span style="width:56%"></span></div></div>
+              </div>
+            </article>
+
+            <article class="exec-tile" aria-labelledby="execTopClientsTitle">
+              <header class="exec-tile-title"><h2 id="execTopClientsTitle">Top client accounts</h2><span class="exec-tile-tag">Revenue · sample</span></header>
+              <div class="exec-list">
+                <div><div class="exec-list-item"><strong>Aster Commerce</strong><b class="exec-list-value">₹6.12L</b></div><div class="exec-bar-track"><span style="width:94%"></span></div></div>
+                <div><div class="exec-list-item"><strong>Northstar Hotels</strong><b class="exec-list-value">₹4.28L</b></div><div class="exec-bar-track"><span style="width:66%"></span></div></div>
+                <div><div class="exec-list-item"><strong>Helio Learning</strong><b class="exec-list-value">₹3.64L</b></div><div class="exec-bar-track"><span style="width:56%"></span></div></div>
+                <div><div class="exec-list-item"><strong>Cedar Health</strong><b class="exec-list-value">₹3.17L</b></div><div class="exec-bar-track"><span style="width:49%"></span></div></div>
+              </div>
+              <p class="exec-muted" style="margin:18px 0 0">These names are fictional placeholders, not VSPH clients.</p>
+            </article>
+
+            <article class="exec-tile exec-people" aria-labelledby="execPeopleTitle">
+              <header class="exec-tile-title"><h2 id="execPeopleTitle">People &amp; allocation</h2><span class="exec-tile-tag">Team overview</span></header>
+              <div class="exec-avatars" aria-label="Illustrative team avatars">
+                <span class="exec-avatar">DV</span><span class="exec-avatar">PM</span><span class="exec-avatar">QA</span><span class="exec-avatar">AI</span><span class="exec-avatar">UX</span><span class="exec-avatar-rest">+29 team members · sample</span>
+              </div>
+              <div class="exec-people-stats">
+                <div><strong>14</strong><span>Developers</span></div>
+                <div><strong>5</strong><span>Quality assurance</span></div>
+                <div><strong>4</strong><span>Designers</span></div>
+                <div><strong>4</strong><span>Project managers</span></div>
+                <div><strong>3</strong><span>AI / ML</span></div>
+                <div><strong>4</strong><span>Operations</span></div>
+              </div>
+              <p class="exec-muted" style="margin:16px 0 0">Headcount, roles and utilization are preview figures. Employee onboarding remains a separate feature.</p>
+            </article>
+
+            <article class="exec-tile exec-activity" aria-labelledby="execActivityTitle">
+              <header class="exec-tile-title"><h2 id="execActivityTitle">Recent activity &amp; next milestones</h2><span class="exec-tile-tag">Sample updates</span></header>
+              <ul class="exec-feed">
+                <li><span class="exec-feed-icon">✓</span><div><strong>CRM Enterprise · UX review</strong><p>Milestone completed in the preview timeline</p></div><span class="exec-feed-time">2h</span></li>
+                <li><span class="exec-feed-icon">↗</span><div><strong>Guest platform · Release candidate</strong><p>Illustrative delivery update</p></div><span class="exec-feed-time">1d</span></li>
+                <li><span class="exec-feed-icon">◎</span><div><strong>Education portal · Sprint planning</strong><p>Upcoming sample milestone</p></div><span class="exec-feed-time">3d</span></li>
+              </ul>
+              <div class="exec-divider"></div>
+              <a class="exec-link" href="/projects">Open actual projects</a>
+            </article>
+          </div>
+        </section>
+
         <section class="page-intro" id="overview" aria-labelledby="pageTitle" data-view="overview">
           <p class="section-kicker">WORKSPACE / OVERVIEW</p>
           <div class="page-intro-row">
@@ -217,6 +370,7 @@
       </footer>
     </div>
   </div>
+  <script defer src="/executive-dashboard.js"></script>
   <script defer src="/dashboard.js"></script>
 </body>
 </html>

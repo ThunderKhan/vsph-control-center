@@ -276,6 +276,9 @@
       byId('adminNavContainer').hidden = !isPlatformAdmin;
       byId('adminOverviewPanel').hidden = !isPlatformAdmin;
       byId('topbarOnboard').hidden = !isPlatformAdmin;
+      // Only a verified platform administrator gets the isolated fictional
+      // executive preview. Avoid unnecessary application/schema reads for it.
+      if (isPlatformAdmin && !isApplicationsView && window.VSPHExecutiveDashboard?.activate?.()) return;
 
       const result = await responseJson('/api/apps');
       if (!result) return;
