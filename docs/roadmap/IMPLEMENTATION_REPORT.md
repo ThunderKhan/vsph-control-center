@@ -1,3 +1,11 @@
+# Verified employee consent and exact-finance handoff — 3 November 2026
+
+**Code merge baseline: `8704d6b051117dd7bbe2967dcf382751b1ea94fb`.** [#58](https://github.com/ThunderKhan/vsph-control-center/pull/58) merged as `cabcefe542ee276f9b2e9c71898d8c3c0f8ef4a0`; [#59](https://github.com/ThunderKhan/vsph-control-center/pull/59) merged as `8704d6b051117dd7bbe2967dcf382751b1ea94fb`, each after all four exact-head PR checks passed. Final code acceptance: **148 Node / 38 native PostgreSQL / 44 active Chromium cases**, two intentional skipped variants, both disposable helpers, advisors/restore and quality/security gates. Five pending source identities are inferred from the last recorded 19-entry hosted ledger; no hosted operation was performed in this continuation. New existing-account consent and exact-finance migrations are unapplied hosted.
+
+[Full current M0–M12 status, exact merges, failures/fixes, migration order, live-versus-fixture evidence and next work](CONTINUATION_HANDOFF_20261103.md). [Windows commands](../operations/WINDOWS_HANDOFF.md) and [manual QA](../operations/MANUAL_QA.md). New-identity internal email enrollment, broader MFA/recovery/offboarding, executive/customer finance wiring, providers/retention/operations and release gates remain incomplete. Historical pending-state entries below are superseded by this cutoff; no complete enterprise or deployed acceptance is claimed.
+
+---
+
 ## Exact financial reporting continuation — 3 November 2026
 
 PR [#58](https://github.com/ThunderKhan/vsph-control-center/pull/58) merged as `cabcefe542ee276f9b2e9c71898d8c3c0f8ef4a0` after all four PR CI jobs passed: 148 Node, 37 native PostgreSQL and 42 active Chromium cases (two intentional skipped variants), plus quality/security/restore/helper gates. New consent workflows are source/isolated acceptance only.

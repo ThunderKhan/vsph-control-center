@@ -1,3 +1,7 @@
+# Verified continuation cutoff — 3 November 2026
+
+Employee consent/new-HR grants and exact consistent finance reads merged in #58/#59, code baseline `8704d6b051117dd7bbe2967dcf382751b1ea94fb`, after full isolated CI. [Current evidence, limitations and M0–M12 gaps](../roadmap/CONTINUATION_HANDOFF_20261103.md) supersede historical pending counts below. Two new migrations remain unapplied hosted; five missing identities are inferred from the prior 19-entry ledger, without a new target inspection. No hosted data/Auth/provider/deployment/resource changes occurred. The six moderate development findings remain unchanged. New-identity enrollment, broad recovery/step-up/offboarding, reporting/retention and real provider/backup/monitoring/accessibility acceptance remain release risks.
+
 ## Exact money/snapshot repair — 3 November 2026
 
 The finance report precision and multi-section snapshot gap is repaired in source by a STABLE service-only owner report returning integer decimal-string money; API/legacy read callers share it. Source-only migration needs separate approved installation. Direct JSON-number monetary consumers must migrate to BigInt/decimal; UI labels/balances already do. Same-statement MVCC authorization is explicit, with revocations applied on the next read. The ledger remains manual INR cash recording, not payments/recognized revenue/client financial dashboards. Native large-value/concurrent-receipt and browser acceptance are required before merge. Six moderate development dependency findings remain unchanged.
