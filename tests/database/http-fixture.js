@@ -32,7 +32,7 @@ module.exports=function databaseBackedServer(pool,auth,credentialFactory){
  }
  const dbPath=require.resolve('../../db');
  require.cache[dbPath]={id:dbPath,filename:dbPath,loaded:true,exports:{db:()=>({from,auth,rpc:async(name,args)=>{
- if(!['provisioning_command','project_command','delivery_command','notification_command','project_report','session_command','customer_command','product_command','customer_lifecycle','organization_command','organization_invitation','organization_ownership','internal_employee_command'].includes(name))throw Error('Unexpected fixture RPC');
+ if(!['provisioning_command','project_command','delivery_command','notification_command','project_report','session_command','customer_command','product_command','customer_lifecycle','organization_command','organization_invitation','organization_ownership','internal_employee_command','finance_command'].includes(name))throw Error('Unexpected fixture RPC');
  try{const r=await pool.query('select public.'+name+'($1::uuid,$2::text,$3::uuid,$4::jsonb) data',[args.p_actor,args.p_action,args.p_id||null,args.p_data||{}]);return {data:r.rows[0].data,error:null}}catch(error){return {data:null,error}}
  }}),configured:()=>true,
   check:({data,error})=>{if(error)throw error;return data},publicAuth:credentialFactory||(()=>{throw Error('Real Supabase Auth not available in fixture')})}};
