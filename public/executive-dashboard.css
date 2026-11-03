@@ -45,7 +45,7 @@ html[data-workspace-view="applications"] #executiveDashboard{display:none!import
 .exec-tile-title h2{margin:0;color:#53667E;font-size:12px;font-weight:600;letter-spacing:0}
 .exec-tile-tag{color:#0069C8;font-size:10px;border-radius:30px;padding:5px 8px;background:#EAF3FA;white-space:nowrap}
 .exec-tile-value{font:700 clamp(27px,3vw,39px)/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:-.06em;color:#00255A}
-.exec-muted{color:#979f94;font-size:11px;line-height:1.5}
+.exec-muted{color:#5A6D82;font-size:11px;line-height:1.5}
 .exec-hero{grid-column:span 2;min-height:265px;display:flex;flex-direction:column;background:radial-gradient(ellipse at 90% 2%,#154B8D 0,transparent 46%),#FFFFFF}
 .exec-hero-row{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:flex-start}
 .exec-hero-title{font-size:clamp(25px,3vw,36px);letter-spacing:-.045em;margin:0;color:#00255A}
@@ -81,7 +81,7 @@ html[data-workspace-view="applications"] #executiveDashboard{display:none!import
 .exec-chart-sub{font-size:11px;color:#0069C8;margin-top:7px}
 .exec-switch{display:flex;gap:3px;border:1px solid #B8CDDF;border-radius:30px;padding:3px}
 .exec-switch button{border:0;border-radius:30px;padding:7px 10px;cursor:pointer;background:transparent;color:#53667E;font-size:11px}
-.exec-switch button[aria-pressed="true"]{background:#00255A;color:#15200b;font-weight:700}
+.exec-switch button[aria-pressed="true"]{background:#00255A;color:#FFFFFF;font-weight:700}
 .exec-switch button:focus-visible{outline:2px solid #0069C8;outline-offset:2px}
 .exec-chart{width:100%;height:auto;min-height:160px;overflow:visible;display:block;margin-top:auto}
 .exec-chart-labels{display:flex;justify-content:space-between;color:#6E7E91;font:10px ui-monospace,Consolas,monospace;margin-top:10px}
@@ -109,7 +109,7 @@ html[data-workspace-view="applications"] #executiveDashboard{display:none!import
 .exec-list{display:grid;gap:14px}
 .exec-list-item{display:flex;justify-content:space-between;gap:14px;align-items:center}
 .exec-list-item strong{font-size:12px;font-weight:600;display:block}
-.exec-list-item span{color:#979f94;font-size:11px}
+.exec-list-item span{color:#5A6D82;font-size:11px}
 .exec-list-value{color:#00255A;font:600 12px ui-monospace,Consolas,monospace;white-space:nowrap}
 .exec-bar-track{height:6px;border-radius:8px;background:#E5EDF5;margin-top:7px;overflow:hidden}
 .exec-bar-track span{display:block;background:#0069C8;height:100%;border-radius:inherit}
