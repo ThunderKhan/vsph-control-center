@@ -1,3 +1,7 @@
+## MFA-aware sign-in continuation — 3 November 2026
+
+Entry main `27c3317858bdc37ac0e7e3c3983ab933dca32958` (#44), no open PRs. M3 now adds a shared server-owned password/TOTP verifier to portal and product login: enrolled factors require verified AAL2, public factor selection is server-validated, provider failures deny access and temporary provider sessions are cleaned up with local scope. Real Auth enrollment/settings and hosting are unchanged. No migration is added. Existing portal sessions are not retroactively MFA-certified; enrollment/recovery/session governance and privileged-action step-up remain separate work. See [MFA_SIGN_IN.md](../operations/MFA_SIGN_IN.md) for the exact boundary and isolated acceptance.
+
 ## Verified implementation handoff — 3 November 2026
 
 Feature main is `8d434217f76f6a0781b21ec4d17080a7f15e528e`: PR #41 organization workspace (`0b94bbf1e4aa2b2f3d57957b84cb260f53d12495`), #42 delegated invitations (`095486d62b4b253617e0c29b6baebf10032df936`) and #43 authorized report CSV (`8d434217f76f6a0781b21ec4d17080a7f15e528e`) passed all four CI jobs before merge. Final feature acceptance: **129 Node / 30 native PostgreSQL / 24 Chromium cases**, plus synthetic restore, disposable helpers and all existing quality/security gates. The three new self-service migrations are unapplied hosted. Hosting and hosted writes are explicitly excluded. See [the complete evidence, M0–M12 status and boss-architecture comparison](CONTINUATION_20261103.md); this current record supersedes historical pending-scope labels below.

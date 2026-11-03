@@ -1,3 +1,7 @@
+## MFA-aware sign-in — 3 November 2026
+
+The portal/product password gate previously ignored enrolled-factor assurance. Server-side current identity/factor/AAL verification now denies incomplete MFA before opaque-session issuance. Verified TOTP is supported; unsupported enrolled methods and provider/cleanup outages fail closed. No provider token reaches browser storage or responses. Existing four-hour portal sessions are not retroactively AAL2-certified; enrollment/recovery must govern their revocation. Privileged-action step-up, recovery and real provider acceptance remain open. Source/negative-test evidence is in `services/verify-identity.js`, `tests/verify-identity.test.js`, `tests/database/identity-cases.js` and `docs/operations/MFA_SIGN_IN.md`. No hosted settings were changed.
+
 ## Verified continuation — 3 November 2026
 
 PRs #41–#43 are merged through `8d434217f76f6a0781b21ec4d17080a7f15e528e`, with isolated customer self-service/delegated-invitation/export acceptance. The three new migrations remain unapplied hosted. No provider credential, hosted schema/data, cloud plan, email or deployment changed. Full evidence and remaining M0–M12 risks are in `docs/roadmap/CONTINUATION_20261103.md`. Historical deployment findings below retain their original cutoff and do not negate the separately recorded 2 November installation.

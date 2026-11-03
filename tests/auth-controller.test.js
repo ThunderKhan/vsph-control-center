@@ -27,6 +27,7 @@ function harness(pathname) {
       this.classes = [];
     }
     addEventListener(type, callback) { this.handlers[type] = callback; }
+    focus() { this.focused = true; }
     fire(type, event = {}) { return this.handlers[type]?.(event); }
     setAttribute(name, value) { this.attributes[name] = value; }
     removeAttribute(name) { delete this.attributes[name]; }
@@ -39,7 +40,7 @@ function harness(pathname) {
   }
   const elements = {};
   for (const id of [
-    'authForm', 'email', 'password', 'organizationField', 'organizationId',
+    'authForm', 'email', 'password', 'organizationField', 'organizationId','totpCode','totpFactorId','mfaField','mfaFactorField',
     'authSubmit', 'authError', 'backLink', 'inviteEntry', 'heroKicker', 'heroLineOne',
     'heroLineTwo', 'heroDescription', 'cardKicker', 'authHeading', 'formDescription'
   ]) elements[id] = new Element(id);
@@ -56,6 +57,7 @@ function harness(pathname) {
     replace(url) { this.replaced = url; }
   };
   const calls = [];
+  let authResponse={ok:true,status:200,json:async()=>({message:'Signed in'})};
   let contexts = {
     application: { code: 'CRM', name: 'Customer Relationship Management' },
     email: 'crm@vsph.test',
@@ -66,7 +68,7 @@ function harness(pathname) {
 
     if (url.endsWith('/contexts')) return { ok: true, status: 200, json: async () => contexts };
     if (url === '/api/auth/app-login') return { ok: true, status: 200, json: async () => ({ redirect: '/apps/crm/home' }) };
-    if (url === '/api/auth/login') return { ok: true, status: 200, json: async () => ({ message: 'Signed in' }) };
+    if (url === '/api/auth/login') return authResponse;
     throw new Error('Unexpected endpoint ' + url);
   };
   const document = {
@@ -80,7 +82,7 @@ function harness(pathname) {
   const context = vm.createContext({ window, document, fetch, console });
   vm.runInContext(read('public/auth-config.js'), context);
   vm.runInContext(read('public/auth-page.js'), context);
-  return { elements, location, calls, setContexts: data => { contexts = data; } };
+  return { elements, location, calls, setContexts: data => { contexts = data; },setAuthResponse:value=>{authResponse=value;} };
 }
 
 test('portal login uses shared form, password-eye and portal endpoint', async () => {
@@ -145,4 +147,12 @@ test('portal form does not issue a late session probe or redirect after renderin
   assert.ok(!h.calls.some(call => call.url === '/api/auth/me'));
   assert.equal(h.location.replaced, null);
   assert.equal(h.elements.authSubmit.disabled, false);
+});
+
+test('MFA prompt submits only the server-listed factor and clears the one-time code',async()=>{
+ const h=harness('/login'),id='eeeeeeee-3333-4333-8333-333333333333';h.elements.email.value='mfa@fixture.test';h.elements.password.value='fixture password';
+ h.setAuthResponse({ok:false,status:401,json:async()=>({code:'MFA_REQUIRED',message:'Authenticator required',factors:[{id,name:'Authenticator'}]})});
+ await h.elements.authForm.fire('submit',{preventDefault(){}});assert.equal(h.elements.mfaField.hidden,false);assert.equal(h.elements.totpCode.required,true);assert.equal(h.elements.totpCode.focused,true);assert.equal(h.elements.totpFactorId.value,id);assert.equal(h.location.assigned,null);
+ h.elements.totpCode.value='123456';h.setAuthResponse({ok:true,status:200,json:async()=>({})});await h.elements.authForm.fire('submit',{preventDefault(){}});
+ const data=JSON.parse(h.calls.at(-1).options.body);assert.equal(data.totpCode,'123456');assert.equal(data.totpFactorId,id);assert.equal(h.elements.totpCode.value,'');assert.equal(h.location.assigned,'/dashboard');
 });

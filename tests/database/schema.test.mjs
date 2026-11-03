@@ -220,3 +220,5 @@ test('guarded fresh and legacy deployment packages reconcile history and roll ba
 test('organization self-service scopes customer governance, rejects escalation and serializes stale updates',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./organization-cases.js')(pool,app);});
 
 test('delegated invitations preserve durable delivery, replay protection and current issuer authority',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./delegated-invitation-cases.js')(pool,app);});
+
+test('MFA-aware login refuses incomplete verification before durable session creation',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./identity-cases.js')(pool);});
