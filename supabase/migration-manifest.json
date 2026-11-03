@@ -158,7 +158,7 @@
     },
     {
       "path": "supabase/migrations/20261103110000_internal_employee_governance.sql",
-      "sha256": "db5d731201f6bb0a522585e106335907385b5706d80462b7f3f44167bab08d05",
+      "sha256": "eddacca0f7f18384cf0d122962834dc552d7a87051a8ae7e2ad72b991640737f",
       "version": "20261103110000",
       "name": "internal_employee_governance",
       "requires": [
