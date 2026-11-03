@@ -122,7 +122,7 @@
   if(busy)return;busy=true;const controls=[...document.querySelectorAll('button')].filter(x=>!x.disabled);
   for(const control of controls)control.disabled=true;
   try{await action();}catch(error){info(error.message);}
-  finally{busy=false;for(const control of controls)control.disabled=false;}
+  finally{busy=false;for(const control of controls)if(control.id!=='nextEmployeePage')control.disabled=false;}
  }
  $('employeeEditForm').addEventListener('submit',event=>{
   event.preventDefault();
