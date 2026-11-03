@@ -5,7 +5,7 @@ module.exports=async pool=>{
   await pool.query('insert into auth.users values($1)',[id]);await pool.query("insert into profiles(id,full_name,email) values($1,$2,$2||'@fixture.test')",[id,email]);
  }
  for(const id of [org,other])await pool.query("insert into organizations(id,name,slug) values($1,'Search tenant',$1::text)",[id]);
- for(const id of [client,outsider])await pool.query("insert into organization_memberships(organization_id,user_id,member_role,status) values($1,$2,'admin','active')",[org,id]);
+ for(const id of [client,outsider])await pool.query("insert into organization_memberships(organization_id,user_id,role,status) values($1,$2,'admin','active')",[org,id]);
  const command=async(action,id,data)=>(await pool.query('select project_command($1,$2,$3,$4) data',[admin,action,id,data])).rows[0].data;
  const p=await command('create',null,{key:'SEARCHFIX',name:'Searchfix delivery',kind:'customer',customerOrganizationId:org,ownerId:manager,clientVisible:true});
  const foreign=await command('create',null,{key:'SEARCHFOREIGN',name:'Searchfix foreign',kind:'customer',customerOrganizationId:other});
