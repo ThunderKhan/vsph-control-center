@@ -140,8 +140,14 @@ begin
     join public.organizations o on o.id=i.organization_id
     left join public.projects pr on pr.id=i.project_id
     order by i.created_at desc,i.id desc limit 50) x;
+  select coalesce(jsonb_agg(to_jsonb(x) order by x.recorded_at desc,x.id desc),'[]'::jsonb) into result
+  from (select p.id,p.invoice_id,i.reference invoice_reference,p.reference payment_reference,
+   p.amount_paise,p.received_on,p.recorded_at,
+   exists(select 1 from public.finance_payment_reversals r where r.payment_id=p.id) reversed
+   from public.finance_payments p join public.finance_invoices i on i.id=p.invoice_id
+   order by p.recorded_at desc,p.id desc limit 50) x;
   return jsonb_build_object('summary',summary,'byClient',clients,'byProject',projects,
-    'monthly',months,'invoices',invoices,'currency','INR','basis','manual_cash_receipts',
+    'monthly',months,'invoices',invoices,'payments',result,'currency','INR','basis','manual_cash_receipts',
     'asOf',current_date);
  end if;
 
