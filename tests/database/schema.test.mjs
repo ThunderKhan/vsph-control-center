@@ -19,7 +19,7 @@ test.before(async()=>{
  const actual=(await pool.query(await readFile('services/readiness/legacy-catalog.sql','utf8'))).rows[0].schema_snapshot;
  assert.deepEqual(actual,captured,'Captured hosted core metadata must match the historical baseline used by upgrade tests; no hosted data is imported');
  // Historical order is explicit: filenames originally share a date prefix.
- for(const file of ['20261030_music_sso_launch_codes.sql','20261030_music_staff_musician_roles.sql','20261031000100_atomic_profile_status.sql','20261031000200_durable_provisioning.sql','20261031000300_projects.sql','20261031000400_invitation_disable_revocation.sql','20261031000500_project_delivery.sql','20261031000600_project_notifications.sql','20261031000700_self_service_sessions.sql','20261031065919_overdue_milestone_notifications.sql','20261101052745_member_governance.sql','20261101053314_product_registry.sql','20261101054139_customer_lifecycle.sql','20261103050509_organization_workspace.sql','20261103051256_delegated_organization_invitations.sql','20261103053129_delegated_invitation_profile_locks.sql','20261103062727_organization_owner_transfer.sql','20261103110000_internal_employee_governance.sql','20261103170000_finance_ledger.sql'])
+ for(const file of ['20261030_music_sso_launch_codes.sql','20261030_music_staff_musician_roles.sql','20261031000100_atomic_profile_status.sql','20261031000200_durable_provisioning.sql','20261031000300_projects.sql','20261031000400_invitation_disable_revocation.sql','20261031000500_project_delivery.sql','20261031000600_project_notifications.sql','20261031000700_self_service_sessions.sql','20261031065919_overdue_milestone_notifications.sql','20261101052745_member_governance.sql','20261101053314_product_registry.sql','20261101054139_customer_lifecycle.sql','20261103050509_organization_workspace.sql','20261103051256_delegated_organization_invitations.sql','20261103053129_delegated_invitation_profile_locks.sql','20261103062727_organization_owner_transfer.sql','20261103072229_project_work_search.sql','20261103110000_internal_employee_governance.sql','20261103170000_finance_ledger.sql'])
  {if(file==='20261031000500_project_delivery.sql'){
   await pool.query(`insert into auth.users(id) values('eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee');
    insert into profiles(id,full_name,email,status) values('eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee','Pre-upgrade identity','upgrade@fixture.test','disabled');
@@ -236,3 +236,5 @@ test('financial ledger enforces owner-only cash accounting, idempotency, and aud
  const {createRequire}=await import('node:module');
  await createRequire(import.meta.url)('./finance-cases.js')(pool);
 });
+
+test('project work search paginates current authorized rows and hides private client work',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./search-cases.js')(pool);});

@@ -7,7 +7,7 @@ test('public login renders and protected navigation returns to login',async({pag
  const screenshot=testInfo.outputPath('login.jpg');
  await page.screenshot({path:screenshot,fullPage:true,type:'jpeg',quality:80});
  await testInfo.attach('Public login',{path:screenshot,contentType:'image/jpeg'});
- for(const route of ['/dashboard','/applications','/admin','/admin/onboarding','/projects','/apps/music/home']){
+ for(const route of ['/dashboard','/applications','/admin','/admin/onboarding','/projects','/search','/apps/music/home']){
   await page.goto(route); await expect(page).toHaveURL(/\/login$/);
  }
  const denied=await request.get('/api/auth/me');expect(denied.status()).toBe(401);

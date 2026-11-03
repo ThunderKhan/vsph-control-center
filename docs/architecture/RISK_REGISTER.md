@@ -1,3 +1,7 @@
+## Project search continuation — 3 November 2026
+
+Project search adds no persisted copy/index/provider data or browser RPC grants. Current project permissions and client shared-work restrictions apply to each page. The new search migration plus the four self-service and two employee/finance migrations remain unapplied hosted. Response size is bounded; literal substring scans still require representative portfolio load measurement. Paging is a live traversal, not a snapshot. Process-local IP limiting needs a deployment-level distributed control for multiple instances. API query strings require access-log redaction; no page URL/history/localStorage persistence is added. Customer/product/provider-content search and friendly filter pickers remain outside this increment. See [the operational contract](../operations/PROJECT_WORK_SEARCH.md).
+
 ## Verified identity/ownership continuation — 3 November 2026
 
 #45/#46 are merged through `b49fa2ac221f55f26b0d3890692b65df62f9b031`, with all four CI jobs passing. Enrolled-TOTP credential gating and one-use session-bound owner-transfer authorization have native/browser/failure/concurrency proof. This does not implement enrollment/recovery, govern old sessions on factor changes, or step up every existing higher-trust platform administrative endpoint. The fourth forward migration remains unapplied hosted, alongside the previous three. No live-provider/hosted recovery/hosting proof is added. See `docs/roadmap/IDENTITY_CONTINUATION_20261103.md` for exact scope and remaining release risks.

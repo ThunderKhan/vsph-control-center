@@ -157,6 +157,15 @@
       ]
     },
     {
+      "path": "supabase/migrations/20261103072229_project_work_search.sql",
+      "sha256": "dfc44ac57217109ae27305f96c4a77a0f0c3750b16861369090bb980431b5b10",
+      "version": "20261103072229",
+      "name": "project_work_search",
+      "requires": [
+        "supabase/migrations/20261103062727_organization_owner_transfer.sql"
+      ]
+    },
+    {
       "path": "supabase/migrations/20261103110000_internal_employee_governance.sql",
       "sha256": "eddacca0f7f18384cf0d122962834dc552d7a87051a8ae7e2ad72b991640737f",
       "version": "20261103110000",

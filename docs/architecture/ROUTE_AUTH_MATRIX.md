@@ -66,3 +66,7 @@ Service-only claim/ingest/failed/dispatch/scan commands are not exposed as actor
 | POST ownership/transfer                      | Explicit confirmation and X-VSPH-Step-Up capability, with fresh database permission/version/expiry checks; atomic consume/member changes/session invalidation/audit.                                                                                          |
 
 The grant table and organization_ownership RPC are service-only/RLS protected. This customer-owner path does not replace existing higher-trust platform governance or implement lost-owner recovery. Existing opaque sessions are not retroactively AAL2-certified. See MFA_SIGN_IN.md and ORGANIZATION_OWNERSHIP.md.
+
+## Authorized project work search
+
+`GET /search` requires a current portal session. `GET /api/search` validates bounded typed query fields and passes only the session actor to service-only `project_search`; current `project_permission` governs each matched row. Clients see only shared work in visible projects with active customer membership. Filter IDs/cursors confer no access. No mutation or new public database grant is introduced.

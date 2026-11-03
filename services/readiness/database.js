@@ -86,6 +86,7 @@ const tables = [
   "project_notifications",
 ];
 const signatures = [
+  "public.project_search(uuid,text,uuid,jsonb)",
   "public.finance_command(uuid,text,uuid,jsonb)",
   "public.internal_employee_command(uuid,text,uuid,jsonb)",
   "public.internal_hr_profile_disabled()",
