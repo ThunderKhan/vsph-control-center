@@ -7,7 +7,7 @@ const {rateLimit}=require('../http-security');
 const router=express.Router({mergeParams:true});
 function validate(body,reauth=false){
  const fields=['targetUserId','organizationVersion','ownerVersion','targetVersion',...(reauth?['password','totpCode','totpFactorId']:['confirmed'])];
- if(!body||Array.isArray(body)||Object.keys(body).some(k=>!fields.includes(k))||!uuid(body.targetUserId)||!['organizationVersion','ownerVersion','targetVersion'].every(k=>Number.isSafeInteger(body[k])&&body[k]>0)||(!reauth&&body.confirmed!==true))throw Error('Review and confirm the current owner and target administrator.');
+ if(!body||Array.isArray(body)||Object.keys(body).some(k=>!fields.includes(k))||!uuid(body.targetUserId)||!['organizationVersion','ownerVersion','targetVersion'].every(k=>Number.isSafeInteger(body[k])&&body[k]>0&&body[k]<=2147483647)||(!reauth&&body.confirmed!==true))throw Error('Review and confirm the current owner and target administrator.');
  return {targetUserId:body.targetUserId,organizationVersion:body.organizationVersion,ownerVersion:body.ownerVersion,targetVersion:body.targetVersion};
 }
 const command=(req,action,data={})=>db().rpc('organization_ownership',{p_actor:req.user.id,p_action:action,p_id:req.params.id,p_data:{...data,currentHash:req.portalSession.token_hash}}).then(check);
