@@ -27,9 +27,9 @@ app.use(validateOrigin);
 // browser/proxy caches; navigating Back after logout should trigger a fresh check.
 app.use((req,res,next)=>{
  const url=(String(req.originalUrl||'').split('?')[0].replace(/\/+$/, '') || '/');
- if(url.startsWith('/api/sso/') || url.startsWith('/api/invitations/') || url.startsWith('/api/admin-management/') || url.startsWith('/api/auth/') || url==='/api/apps' || url.startsWith('/api/apps/') ||
+ if(url.startsWith('/api/sso/') || url.startsWith('/api/invitations/') || url.startsWith('/api/admin-management/') || url.startsWith('/api/auth/') || url==='/api/apps' || url.startsWith('/api/apps/') || url.startsWith('/api/employees') ||
     url.startsWith('/apps/') || ['/', '/login', '/login.html', '/index.html',
-    '/dashboard','/applications','/admin','/admin/onboarding','/accept-invite','/dashboard.html','/applications.html','/admin.html'].includes(url)) {
+    '/dashboard','/applications','/employees','/employees/onboarding','/admin','/admin/onboarding','/accept-invite','/dashboard.html','/applications.html','/admin.html'].includes(url)) {
    res.set('Cache-Control','no-store');
  }
  next();
@@ -47,6 +47,9 @@ app.use('/api/apps',require('./routes/apps'));
 app.use('/api/sso',musicSso.router);
 app.use('/api/workspaces',require('./routes/workspaces'));
 app.use('/api/organizations',require('./routes/organizations').router);
+// Internal VSPH employees, separate from customer organizations and products.
+app.use('/api/employees',require('./routes/employees').router);
+app.get(['/employees','/employees/','/employees/onboarding','/employees/onboarding/'],portalSession,require('./routes/employees').employeePage);
 app.get('/organizations',portalSession,(req,res)=>{res.set('Cache-Control','no-store');res.sendFile(path.join(__dirname,'views','organizations.html'))});
 app.use('/api/admin-management/product-registry',portalSession,requireAdmin,require('./routes/products').router);
 app.get('/admin/products',portalSession,requireAdmin,(req,res)=>{res.set('Cache-Control','no-store');res.sendFile(path.join(__dirname,'views','products.html'))});
