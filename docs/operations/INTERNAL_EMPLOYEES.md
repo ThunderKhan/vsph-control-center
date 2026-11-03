@@ -19,6 +19,8 @@ Capture full name, unique work email, department, job title, employment type, an
 
 **Creating a roster record does not create a login account, send an email, grant project or product access, or appoint an HR manager.** Changing the roster status also does not disable the employee's existing portal account. Setting an HR manager to `inactive` revokes their internal HR assignment. An HR manager on leave temporarily loses HR authority until returned to `active`.
 
+If a portal identity is disabled, its HR assignment is deleted in the same database transaction. Re-enabling that identity does not restore HR authority; the platform owner must grant it again.
+
 ## Security
 
 - Server requests derive actor identity from validated portal sessions, never from browser-supplied roles.
