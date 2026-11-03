@@ -10,6 +10,22 @@ Platform administrators use the five-step `/admin/onboarding` wizard. Submission
 
 Invitations are purpose-bound, expiring, single-use capabilities for one membership. Newly provisioned identities stay disabled until enrollment completes. Existing accounts must sign in and their passwords are not reset by acceptance. Explicit account disable revokes pending enrollment. Legacy broad bearer invitation links are rejected and must be reconciled before rollout. See [current customer onboarding](docs/CUSTOMER_ONBOARDING.md).
 
+## VSPH internal employees (source-only implementation)
+
+The VSPH platform owner can open **/employees** to see the persisted internal
+staff directory, departments, counts, employee statuses, and owner-governed HR
+assignments. **/employees/onboarding** provides a three-step employee roster
+wizard. Existing, explicitly authorized HR managers can onboard and update
+ordinary employee records but cannot grant HR access or change platform roles.
+
+This is a VSPH **internal roster**, not a customer organization membership or
+automatic employee login invitation. New staff entries do not create Supabase
+Auth accounts or send email. The additive forward migration
+`20261103110000_internal_employee_governance.sql` is **not installed on the
+hosted database**. It must be reviewed and installed after its dependencies
+before this feature can run with real data. See
+[internal workforce operations](docs/operations/INTERNAL_EMPLOYEES.md).
+
 ## Internal project delivery
 
 Open `/projects` to create internal/customer engagements, assign accountable owners and project teams, manage milestones/dependencies/tasks/priorities/dates, collect comments/HTTPS deliverables and inspect activity/progress. Project membership is separate from product roles and entitlements. Managers govern work; contributors update assigned task status; viewers and explicitly shared customer viewers are read-only. Mutations validate current access and project version in PostgreSQL with atomic audit. See [usage and API contract](docs/operations/PROJECTS_GUIDE.md).
