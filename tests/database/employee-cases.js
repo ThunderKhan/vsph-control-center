@@ -94,7 +94,16 @@ module.exports = async pool => {
  const regranted=await cmd(owner,'grant_hr',initial.id,{version:4,confirmed:true});
  assert.equal(regranted.version,5);
  assert.equal((await cmd(hr,'access')).role,'hr');
- await cmd(owner,'update',initial.id,edit(5,'inactive'));
+ // A disabled portal identity must lose its HR grant permanently, even if
+ // platform identity is reactivated later. Owner reapproval is mandatory.
+ await pool.query("update profiles set status='disabled' where id=$1",[hr]);
+ assert.equal((await cmd(owner,'list')).counts.hrManagers,0);
+ await pool.query("update profiles set status='active' where id=$1",[hr]);
+ await assert.rejects(cmd(hr,'access'),{code:'42501'});
+ const approvedAgain=await cmd(owner,'grant_hr',initial.id,{version:5,confirmed:true});
+ assert.equal(approvedAgain.version,6);
+ assert.equal((await cmd(hr,'access')).role,'hr');
+ await cmd(owner,'update',initial.id,edit(6,'inactive'));
  assert.equal((await cmd(owner,'list')).counts.hrManagers,0);
  await assert.rejects(cmd(hr,'list'),{code:'42501'});
 };
