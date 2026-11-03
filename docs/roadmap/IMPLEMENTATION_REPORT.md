@@ -165,3 +165,7 @@ The public login/invite-help pages still boot without keys. Anonymous protected 
 - Production release needs separate approval after migration verification and real UAT. No background work is claimed.
 
 Use [WINDOWS_HANDOFF.md](../operations/WINDOWS_HANDOFF.md) for exact commands and [MANUAL_QA.md](../operations/MANUAL_QA.md) for current acceptance checks. The requested core Projects workflow is implemented and tested in isolation; deployment into the user's live environment is the outstanding operational gate.
+
+## Customer self-service continuation — 3 November 2026
+
+Starting main: `6a95f3335d870419d7b271266af011455b147680`. Hosting is outside the user's requested scope. A dedicated organization workspace/API adds delegated owner/admin governance without changing platform-admin APIs: organization/profile and scoped members/product roles, current entitlement checks, transactional audit, optimistic concurrency and durable session invalidation. New migration `20261103050509_organization_workspace.sql` is source-only and unapplied hosted. See [authorization, acceptance and remaining scope](../operations/ORGANIZATION_WORKSPACE.md). Do not interpret the earlier completed hosted installation as including this new migration. No customer data, real email, hosted schema, plan or deployment changed in this continuation.
