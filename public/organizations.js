@@ -1,13 +1,14 @@
 (() => {
  'use strict';
  const $=id=>document.getElementById(id);
- let workspace=null,orgCursor=null,orgs=[],members=[],busy=false,pendingInvite=null;
+ let workspace=null,orgCursor=null,orgs=[],members=[],busy=false,pendingInvite=null,ownershipReview=null;
  function node(tag,text){const el=document.createElement(tag);if(text!==undefined)el.textContent=text;return el;}
  function message(text){$('message').textContent=text;}
  async function api(path,body,headers={}){
   const response=await fetch('/api/organizations'+path,{credentials:'same-origin',cache:'no-store',...(body?{method:'POST',headers:{'Content-Type':'application/json',...headers},body:JSON.stringify(body)}:{})});
-  if(response.status===401){location.assign('/login');throw Error('Your session expired. Sign in again.');}
-  const data=await response.json();if(!response.ok)throw Error(data.message||'Unable to load this organization.');return data;
+  const data=await response.json();
+  if(response.status===401&&!['MFA_REQUIRED','MFA_INVALID','INVALID_CREDENTIALS','IDENTITY_MISMATCH'].includes(data.code)){location.assign('/login');throw Error('Your session expired. Sign in again.');}
+  if(!response.ok){const error=Error(data.message||'Unable to load this organization.');error.code=data.code;error.factors=data.factors;throw error;}return data;
  }
  function select(labelText,values,current){
   const label=node('label',labelText),input=node('select');input.setAttribute('aria-label',labelText);
@@ -43,6 +44,10 @@
    row.append(node('p',assigned.length?assigned.join(' · '):'No individual product roles.'));$('members').append(row);
   }
   if(!members.length)$('members').append(node('p','No members on this page.'));
+  ownershipReview=null;$('ownershipReview').hidden=true;$('ownershipTransfer').reset();$('ownershipMfa').hidden=true;$('ownershipCode').required=false;
+  $('ownershipPanel').hidden=workspace.actorRole!=='owner';$('ownershipTarget').replaceChildren();
+  for(const member of members.filter(m=>m.manageable&&m.role==='admin'&&m.status==='active'&&m.account_status==='active')){const option=node('option',member.full_name+' · '+member.email);option.value=member.user_id;$('ownershipTarget').append(option);}
+  $('ownershipEmpty').hidden=$('ownershipTarget').options.length>0;$('reviewOwnership').hidden=!$('ownershipTarget').options.length;
  }
  async function loadMembers(cursor=null){members=await api('/'+$('organization').value+'/members'+(cursor?'?afterId='+encodeURIComponent(cursor):''));renderMembers();}
  async function loadWorkspace(){
@@ -98,6 +103,29 @@
   const key=pendingInvite.key;run(async()=>{await api('/'+id+'/invitations',body,{'Idempotency-Key':key});pendingInvite=null;form.reset();await loadWorkspace();message('Invitation queued. Delivery is not confirmed.');});
  });
  $('profile').addEventListener('submit',event=>{event.preventDefault();if(!workspace)return;mutate('profile',{version:workspace.organization.version,name:$('profile').elements.name.value},'Save this organization display name?');});
+ $('ownershipTarget').addEventListener('change',()=>{ownershipReview=null;$('ownershipReview').hidden=true;$('ownershipTransfer').reset();});
+ $('reviewOwnership').addEventListener('click',()=>run(async()=>{
+  if(!workspace||!$('ownershipTarget').value)return;
+  ownershipReview=await api('/'+$('organization').value+'/ownership/preview?targetUserId='+encodeURIComponent($('ownershipTarget').value));
+  $('ownershipImpact').textContent=`Transfer ownership to ${ownershipReview.targetName} (${ownershipReview.targetEmail}). You will become an administrator. Both members' existing product sessions will be revoked. No product role or project access is granted.`;
+  $('ownershipReview').hidden=false;
+ }));
+ $('ownershipTransfer').addEventListener('submit',event=>{
+  event.preventDefault();if(busy||!ownershipReview||!$('ownershipConfirmed').checked)return;
+  const intent={targetUserId:ownershipReview.targetUserId,organizationVersion:ownershipReview.organizationVersion,ownerVersion:ownershipReview.ownerVersion,targetVersion:ownershipReview.targetVersion},id=$('organization').value;
+  const credentials={password:$('ownershipPassword').value,...($('ownershipCode').value?{totpCode:$('ownershipCode').value,totpFactorId:$('ownershipFactor').value}:{})};
+  run(async()=>{try{
+   const grant=await api('/'+id+'/ownership/reauthenticate',{...intent,...credentials});
+   await api('/'+id+'/ownership/transfer',{...intent,confirmed:true},{'X-VSPH-Step-Up':grant.proof});
+   await loadWorkspace();message('Ownership transferred. Your organization role is now administrator.');
+  }catch(error){
+   if(error.code==='MFA_REQUIRED'&&Array.isArray(error.factors)){
+    $('ownershipFactor').replaceChildren();for(const f of error.factors){const option=node('option',f.name);option.value=f.id;$('ownershipFactor').append(option);}
+    $('ownershipMfa').hidden=false;$('ownershipCode').required=true;
+   }
+   throw error;
+  }finally{$('ownershipPassword').value='';$('ownershipCode').value='';}});
+ });
  $('organization').addEventListener('change',()=>run(loadWorkspace));$('refresh').addEventListener('click',()=>run(()=>loadOrganizations(orgCursor)));
  $('firstOrganizations').addEventListener('click',()=>run(()=>loadOrganizations()));$('nextOrganizations').addEventListener('click',()=>run(()=>loadOrganizations(orgs.at(-1)?.id)));
  $('firstMembers').addEventListener('click',()=>run(()=>loadMembers()));$('nextMembers').addEventListener('click',()=>run(()=>loadMembers(members.at(-1)?.user_id)));

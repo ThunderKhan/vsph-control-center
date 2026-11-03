@@ -58,7 +58,7 @@ async function start(pool) {
   const mfaId='ffffffff-3333-4333-8333-333333333333';
   await pool.query('insert into auth.users values($1)',[mfaId]);
   await pool.query("insert into profiles(id,full_name,email) values($1,'MFA fixture','mfa@fixture.test')",[mfaId]);
-  const identity=require('../fixtures/identity-provider')(async email=>(await pool.query('select id,email from profiles where email=$1',[email])).rows[0],{mfaEmails:['mfa@fixture.test']});
+  const identity=require('../fixtures/identity-provider')(async email=>(await pool.query('select id,email from profiles where email=$1',[email])).rows[0],{mfaEmails:['mfa@fixture.test','customer-owner@fixture.test']});
   const app = require("../database/http-fixture")(pool,undefined,identity);
   const server = app.listen(Number(process.env.PORT || 3100), "127.0.0.1");
   return { server, pool };

@@ -1,3 +1,7 @@
+## Governed owner transfer — 3 November 2026
+
+Owner transfer now has a dedicated sole-owner/active-admin boundary with fresh password/TOTP verification and durable one-use session/tenant/target/version-bound authorization. The transaction preserves one active owner, consumes proof and writes audit with session/code invalidation; unknown identity/account recovery cannot bypass it. Capability hashes are private, expire within two minutes and cascade with session removal. New migration remains unapplied hosted. See `docs/operations/ORGANIZATION_OWNERSHIP.md`, `routes/ownership.js` and native ownership cases. Universal privileged-action step-up, lost-owner/platform recovery, factor enrollment/session lifecycle and real provider acceptance remain open.
+
 ## MFA-aware sign-in — 3 November 2026
 
 The portal/product password gate previously ignored enrolled-factor assurance. Server-side current identity/factor/AAL verification now denies incomplete MFA before opaque-session issuance. Verified TOTP is supported; unsupported enrolled methods and provider/cleanup outages fail closed. No provider token reaches browser storage or responses. Existing four-hour portal sessions are not retroactively AAL2-certified; enrollment/recovery must govern their revocation. Privileged-action step-up, recovery and real provider acceptance remain open. Source/negative-test evidence is in `services/verify-identity.js`, `tests/verify-identity.test.js`, `tests/database/identity-cases.js` and `docs/operations/MFA_SIGN_IN.md`. No hosted settings were changed.

@@ -22,6 +22,7 @@ router.get('/',rpcRoute(req=>{
  return command(req,'list',null,req.query.afterId?{afterId:req.query.afterId}:{});
 }));
 router.use('/:id',(req,res,next)=>{if(!uuid(req.params.id))return res.status(400).json({message:'Invalid organization.'});next();});
+router.use('/:id/ownership',require('./ownership').router);
 router.get('/:id',rpcRoute(req=>command(req,'read',req.params.id)));
 router.get('/:id/members',rpcRoute(req=>{
  if(req.query.afterId&&!uuid(req.query.afterId)){const e=Error('Invalid cursor.');e.validation=true;throw e;}
