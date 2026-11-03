@@ -4,6 +4,12 @@ Projects MVP, durable provisioning, read-only GitHub delivery, project inbox/rep
 
 VSPH's multi-tenant product portal (Express + vanilla HTML/JS/CSS), integrated with **Supabase Auth** and **hosted PostgreSQL**. The portal workspace dashboard and login were redesigned with the company design system while retaining the existing backend permissions. The old MySQL integration was replaced.
 
+## Owner financial ledger (source-only Phase 1)
+
+Platform owners can open **/admin/finance** to enter audited INR invoices and independently verified manual cash receipts, view real balances by client/project and month, reverse incorrect receipts, and void unpaid invoices. The owner-only PostgreSQL ledger uses integer paise, transactionally enforced receipt caps, explicit corrections, idempotent writes and RLS-denied browser access. It does **not** treat active subscriptions or invoices as collected cash, and it is **not** payment-provider reconciliation or revenue recognition.
+
+The forward migration `20261103170000_finance_ledger.sql` is committed and checksum-registered but **not installed on hosted Supabase**. Apply it only through an approved backed-up target with the preceding migration history reconciled. Existing owner executive dashboard cards remain fictional until the separate data-binding milestone. See [finance operations](docs/operations/FINANCE_LEDGER.md).
+
 ## Guided customer onboarding — PR #7
 
 Platform administrators use the five-step `/admin/onboarding` wizard. Submission commits a durable idempotent job/tenant/grants/outbox transaction; it does not send email synchronously. `/admin/provisioning` shows delivery/acceptance/failure state and audited retry, revoke and reconciled recovery. A separately invoked worker requires an approved authenticated HTTPS delivery provider, idempotency contract and server-only outbox encryption key. It is disabled by default.
