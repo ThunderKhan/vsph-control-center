@@ -62,5 +62,20 @@ module.exports=async(pool,app)=>{
  const second=await cmd('queue',{key:crypto.randomUUID(),request:{...request,adminEmail:crypto.randomUUID()+'@fixture.test',products:[]}});
  const secondInv=(await pool.query('select id from membership_invitations where job_id=$1',[second.id])).rows[0].id;
  await cmd('cancel',{invitationId:secondInv,generation:1,confirmed:true});assert.equal((await pool.query('select state from membership_invitations where id=$1',[secondInv])).rows[0].state,'revoked');
- for(const role of ['anon','authenticated']){const c=await pool.connect();try{await c.query('set role '+role);await assert.rejects(c.query("select organization_invitation($1,'list',$2,'{}')",[owner,org]),{code:'42501'});await assert.rejects(c.query("select provisioning_core_command(null,'inspect',$1,'{}')",[inv.id]),{code:'42501'});}finally{await c.query('reset role');c.release();}}
+ // Existing identities can own separate tenants and be invited into each other.
+ // Before worker bind, invitation.user_id is NULL; cancellation must still lock
+ // both real recipient profiles in one consistent global order.
+ const otherOrg=(await pool.query("insert into organizations(name,slug) values('Cross-invitation tenant','cross-invitation-tenant') returning id")).rows[0].id;
+ await pool.query("insert into organization_memberships(organization_id,user_id,role) values($1,$2,'owner')",[otherOrg,outsider]);
+ const crossRequest={...request,products:[],adminEmail:outsider+'@fixture.test'};
+ const firstCross=await cmd('queue',{key:crypto.randomUUID(),request:crossRequest});
+ const secondCross=await cmd('queue',{key:crypto.randomUUID(),request:{...request,products:[],organizationId:otherOrg,adminEmail:owner+'@fixture.test'}},outsider,otherOrg);
+ const crossInvites=(await pool.query('select id,job_id,user_id from membership_invitations where job_id=any($1::uuid[])',[[firstCross.id,secondCross.id]])).rows;
+ assert.ok(crossInvites.every(i=>i.user_id===null));
+ const crossResults=await Promise.allSettled([
+  cmd('cancel',{invitationId:crossInvites.find(i=>i.job_id===firstCross.id).id,generation:1,confirmed:true}),
+  cmd('cancel',{invitationId:crossInvites.find(i=>i.job_id===secondCross.id).id,generation:1,confirmed:true},outsider,otherOrg),
+ ]);
+ assert.ok(crossResults.every(r=>r.status==='fulfilled'),JSON.stringify(crossResults.map(r=>r.reason?.code)));
+ for(const role of ['anon','authenticated']){const c=await pool.connect();try{await c.query('set role '+role);await assert.rejects(c.query("select organization_invitation($1,'list',$2,'{}')",[owner,org]),{code:'42501'});await assert.rejects(c.query("select organization_invitation_core($1,'list',$2,'{}')",[owner,org]),{code:'42501'});await assert.rejects(c.query("select provisioning_core_command(null,'inspect',$1,'{}')",[inv.id]),{code:'42501'});}finally{await c.query('reset role');c.release();}}
 };

@@ -17,8 +17,8 @@ test("deployment package aliases history without modifying source files and pres
       projectRef: "zbmerhexucqxazuxjmmw",
     }),
     fresh = buildInstall({ mode: "fresh", projectRef: "a".repeat(20) });
-  assert.equal(legacy.entries.length, 16);
-  assert.equal(new Set(legacy.entries.map((e) => e.version)).size, 16);
+  assert.equal(legacy.entries.length, 17);
+  assert.equal(new Set(legacy.entries.map((e) => e.version)).size, 17);
   assert.equal(legacy.entries[1].sourceVersion, "20261030");
   assert.equal(legacy.entries[1].version, "20261030000100");
   assert.match(legacy.sql, /Legacy catalog drift/);

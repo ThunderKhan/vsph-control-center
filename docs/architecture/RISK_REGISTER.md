@@ -1,3 +1,7 @@
+## Verified continuation — 3 November 2026
+
+PRs #41–#43 are merged through `8d434217f76f6a0781b21ec4d17080a7f15e528e`, with isolated customer self-service/delegated-invitation/export acceptance. The three new migrations remain unapplied hosted. No provider credential, hosted schema/data, cloud plan, email or deployment changed. Full evidence and remaining M0–M12 risks are in `docs/roadmap/CONTINUATION_20261103.md`. Historical deployment findings below retain their original cutoff and do not negate the separately recorded 2 November installation.
+
 ## Scoped project exports — 3 November 2026
 
 The project report now has a bounded CSV download, using the same server-owned actor, strict filters and database permission checks as the existing JSON report. Explicit column mapping excludes raw provider objects/secrets; quoted cells additionally neutralize spreadsheet formula prefixes. Download names are fixed, responses are no-store, and the first-100-project scope is visible. A downloaded copy cannot be revoked by later permission changes; users must keep files private. This is not a full data export, retention policy, revenue report or global search. No additional migration or hosted change is needed for this increment.

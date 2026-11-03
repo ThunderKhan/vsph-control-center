@@ -1,3 +1,7 @@
+## Verified implementation handoff — 3 November 2026
+
+Feature main is `8d434217f76f6a0781b21ec4d17080a7f15e528e`: PR #41 organization workspace (`0b94bbf1e4aa2b2f3d57957b84cb260f53d12495`), #42 delegated invitations (`095486d62b4b253617e0c29b6baebf10032df936`) and #43 authorized report CSV (`8d434217f76f6a0781b21ec4d17080a7f15e528e`) passed all four CI jobs before merge. Final feature acceptance: **129 Node / 30 native PostgreSQL / 24 Chromium cases**, plus synthetic restore, disposable helpers and all existing quality/security gates. The three new self-service migrations are unapplied hosted. Hosting and hosted writes are explicitly excluded. See [the complete evidence, M0–M12 status and boss-architecture comparison](CONTINUATION_20261103.md); this current record supersedes historical pending-scope labels below.
+
 ## Scoped reporting continuation — 3 November 2026
 
 Customer invitations PR [#42](https://github.com/ThunderKhan/vsph-control-center/pull/42) merged as `095486d62b4b253617e0c29b6baebf10032df936`; all four checks and automated review passed, with 126 Node / 30 native PostgreSQL / 24 desktop/mobile Chromium cases, synthetic restore and disposable helpers. Customer-admin queue/status/renew/cancel is implemented with current issuer-authority checks; live email/Auth acceptance is unverified.
@@ -8,7 +12,7 @@ M9 now adds a bounded CSV export of the existing authorized project report, shar
 
 Organization self-service PR [#41](https://github.com/ThunderKhan/vsph-control-center/pull/41) merged as `0b94bbf1e4aa2b2f3d57957b84cb260f53d12495` after all four checks passed: 125 Node, 29 native PostgreSQL and 24 desktop/mobile Chromium cases, including disposable helpers, synthetic restore, checksums, coverage and dependency gates. Review fixed cross-organization profile-lock ordering; browser acceptance fixed explicit accessible select names.
 
-The next increment adds customer-issued member invitations, owned-invitation status, generation-fenced reissue/cancel and current-issuer authority checks in the existing worker/acceptance entry point. It reuses encrypted outbox delivery and the purpose-bound saga; no platform impersonation or password shortcut. New `20261103051256_delegated_organization_invitations.sql` follows organization_workspace; both new migrations are unapplied hosted. No hosting, real email, cloud mutation or credential change is included. The original 13 feature migrations remain installed as recorded on 2 November; do not rerun the historical installer.
+The next increment adds customer-issued member invitations, owned-invitation status, generation-fenced reissue/cancel and current-issuer authority checks in the existing worker/acceptance entry point. It reuses encrypted outbox delivery and the purpose-bound saga; no platform impersonation or password shortcut. New `20261103051256_delegated_organization_invitations.sql` follows organization_workspace; all three new migrations are unapplied hosted. No hosting, real email, cloud mutation or credential change is included. The original 13 feature migrations remain installed as recorded on 2 November; do not rerun the historical installer.
 
 ## Customer self-service continuation — 3 November 2026
 
