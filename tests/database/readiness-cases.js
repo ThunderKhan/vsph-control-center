@@ -49,6 +49,22 @@ module.exports = async (pool) => {
     } finally {
       await client.query("revoke select on public.music_requests from anon");
     }
+    // This namespace is created ONLY in the already empty synthetic fixture.
+    // Rehearse a valid installed canonical subset with three forward gaps.
+    const {installationEntries,sourceMarker}=require('../../services/readiness/history');
+    const entries=installationEntries(verifyManifest().manifest),missing=['project_work_search','internal_hr_lock_order','finance_ledger'];
+    await client.query('create schema supabase_migrations;create table supabase_migrations.schema_migrations(version text primary key,name text,statements text[])');
+    try {
+      for(const entry of entries.filter(e=>!missing.includes(e.name)))await client.query('insert into supabase_migrations.schema_migrations values($1,$2,$3)',[entry.version,entry.name,[sourceMarker(entry)]]);
+      const partial=await inspectDatabase(client),assessment=assess(partial,verifyManifest().manifest);
+      assert.equal(partial.history.length,19);assert.equal(assessment.canonicalHistoryRecognized,true);assert.equal(assessment.canonicalHistoryVerified,false);
+      assert.deepEqual(assessment.blockers,['migration_history_incomplete']);
+      assert.deepEqual(assessment.pending,entries.filter(e=>missing.includes(e.name)).map(e=>e.path));
+      assert.equal((await client.query('select count(*) from supabase_migrations.schema_migrations')).rows[0].count,'19');
+      await client.query("update supabase_migrations.schema_migrations set statements=array['tampered'] where version=$1",[entries[1].version]);
+      const drift=assess(await inspectDatabase(client),verifyManifest().manifest);
+      assert.ok(drift.blockers.includes('migration_history_source_marker_mismatch'));assert.equal(drift.historyReconciled,false);
+    } finally { await client.query('drop schema supabase_migrations cascade'); }
     await client.query("begin read only");
     try {
       await assert.rejects(

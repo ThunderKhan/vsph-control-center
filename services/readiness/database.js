@@ -247,18 +247,27 @@ function assess(snapshot, manifest) {
   if (!snapshot.sessionPublicId) blockers.push("session_public_id_missing");
   if (!snapshot.historyExists) blockers.push("migration_history_missing");
   const canonical = installationEntries(manifest);
-  const canonicalHistoryVerified =
-    snapshot.historyExists &&
-    snapshot.history.length === canonical.length &&
-    canonical.every((e) =>
-      snapshot.history.some(
-        (h) =>
-          h.version === e.version &&
-          h.name === e.name &&
-          h.source_marker === sourceMarker(e),
-      ),
-    );
-  const expected = canonicalHistoryVerified ? canonical : manifest.migrations;
+  const canonicalByVersion = new Map(canonical.map(entry => [entry.version, entry]));
+  const canonicalNamespace = snapshot.historyExists && snapshot.history.some(
+    row => row.version === canonical[0].version && row.name === canonical[0].name,
+  );
+  const duplicateHistory = new Set(snapshot.history.map(row => row.version)).size !== snapshot.history.length;
+  const canonicalHistoryRecognized = canonicalNamespace && !duplicateHistory && snapshot.history.every(
+    row => { const entry = canonicalByVersion.get(row.version); return Boolean(entry && entry.name === row.name); },
+  );
+  const canonicalMarkersVerified = canonicalHistoryRecognized && snapshot.history.every(
+    row => row.source_marker === sourceMarker(canonicalByVersion.get(row.version)),
+  );
+  const canonicalHistoryVerified = canonicalMarkersVerified && snapshot.history.length === canonical.length;
+  // A valid older canonical journal stays canonical when new source migrations
+  // are added. Missing entries (including lower-version gaps) remain pending.
+  // Recognizing its namespace never authorizes marker drift or unknown rows.
+  const expected = canonicalNamespace ? canonical : manifest.migrations;
+  if (duplicateHistory) blockers.push("migration_history_duplicate_version");
+  if (canonicalNamespace && snapshot.history.some(row => {
+    const entry = canonicalByVersion.get(row.version);
+    return entry && entry.name === row.name && row.source_marker !== sourceMarker(entry);
+  })) blockers.push("migration_history_source_marker_mismatch");
   const versions = expected.map((m) => m.version);
   if (new Set(versions).size !== versions.length)
     blockers.push("legacy_version_collision_requires_reconciliation");
@@ -271,13 +280,13 @@ function assess(snapshot, manifest) {
     )
     .map((m) => m.path);
   if (pending.length) blockers.push("migration_history_incomplete");
-  const known = new Set(versions);
-  if (snapshot.history.some((h) => !known.has(h.version)))
+  if (snapshot.history.some(row => !expected.some(entry => entry.version === row.version && entry.name === row.name)))
     blockers.push("unrecognized_migration_history");
   return {
     catalogChecksPassed: !blockers.some(
       (b) => !b.includes("history") && !b.includes("reconciliation"),
     ),
+    canonicalHistoryRecognized,
     canonicalHistoryVerified,
     historyReconciled: !blockers.some(
       (b) => b.includes("history") || b.includes("reconciliation"),

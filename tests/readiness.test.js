@@ -124,3 +124,23 @@ test("CRM and Music tenant tables are mandatory security inspection targets", ()
     assert.ok(assess(s, manifest).blockers.includes("rls_disabled:" + name));
   }
 });
+
+
+test("partial canonical history reports only new gaps and denies marker drift, duplicate versions and unknown identities",()=>{
+ const {installationEntries,sourceMarker}=require('../services/readiness/history');
+ const manifest=verifyManifest().manifest,entries=installationEntries(manifest);
+ const missing=['project_work_search','internal_hr_lock_order','finance_ledger'];
+ const s=clean();s.history=entries.filter(entry=>!missing.includes(entry.name)).map(entry=>({version:entry.version,name:entry.name,source_marker:sourceMarker(entry)}));
+ const before=structuredClone(s),r=assess(s,manifest);
+ assert.equal(s.history.length,19);
+ assert.equal(r.canonicalHistoryRecognized,true);assert.equal(r.canonicalHistoryVerified,false);
+ assert.equal(r.catalogChecksPassed,true);assert.equal(r.historyReconciled,false);assert.equal(r.releaseReady,false);
+ assert.deepEqual(r.pending,entries.filter(entry=>missing.includes(entry.name)).map(entry=>entry.path));
+ assert.deepEqual(r.blockers,['migration_history_incomplete']);assert.deepEqual(s,before,'Inspection must not repair or mutate the journal');
+ for(const mutate of [
+  value=>{value.history[1].source_marker='tampered';},
+  value=>{value.history[2].name='unreviewed-name';},
+  value=>{value.history.push({...value.history[3]});},
+  value=>{value.history.push({version:'20990101000000',name:'unknown',source_marker:'unknown'});},
+ ]){const broken=structuredClone(s);mutate(broken);const result=assess(broken,manifest);assert.equal(result.historyReconciled,false);assert.equal(result.releaseReady,false);assert.ok(result.blockers.some(b=>/source_marker|unrecognized|duplicate/.test(b)));}
+});
