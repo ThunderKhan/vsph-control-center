@@ -24,7 +24,7 @@ function dateField(value){
 }
 function employeeFields(body,{update=false}={}){
  if(!body||typeof body!=='object'||Array.isArray(body))invalid('Invalid employee form.');
- const allowed=['fullName','email','department','jobTitle','employmentType','startDate',...(update?['version','status','confirmed']:[])];
+ const allowed=['fullName',...(!update?['email']:[]),'department','jobTitle','employmentType','startDate',...(update?['version','status','confirmed']:[])];
  if(Object.keys(body).length!==allowed.length||Object.keys(body).some(k=>!allowed.includes(k)))
    invalid('Only the documented employee fields are allowed.');
  const fields={
