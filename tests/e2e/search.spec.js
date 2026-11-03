@@ -1,0 +1,32 @@
+const {test,expect}=require('@playwright/test');
+test('search finds durable project work with filters, pagination, failure recovery and scoped navigation',async({page,context},info)=>{
+ test.skip(!process.env.PROJECT_E2E_DATABASE,'Requires isolated native database');
+ await context.setExtraHTTPHeaders({Origin:'http://127.0.0.1:3100'});
+ await context.addCookies([{name:'vsph.portal.sid',value:'fixture-admin-session',url:'http://127.0.0.1:3100'}]);
+ const unique='Finder '+info.project.name;
+ const r=await context.request.post('/api/projects',{data:{key:'FIND-'+info.project.name.toUpperCase(),name:unique,kind:'internal'}});expect(r.status()).toBe(201);const project=await r.json();let version=1;
+ for(let n=1;n<=27;n++){expect((await context.request.post('/api/projects/'+project.id+'/tasks',{data:{version:version++,title:unique+' task '+n}})).status()).toBe(200);}
+ await page.goto('/dashboard');
+ if(info.project.name.includes('mobile'))await page.locator('#openMenu').click();
+ await page.getByRole('link',{name:'Search work',exact:true}).click();
+ await expect(page).toHaveURL(/\/search$/);
+ await page.getByLabel('Search text',{exact:true}).fill(unique);
+ await page.getByLabel('Record type').selectOption('task');
+ await page.getByRole('button',{name:'Search work',exact:true}).click();
+ await expect(page.locator('#searchMessage')).toHaveText('25 matches on this page; more results are available.');
+ expect(await page.locator('#searchResults li').count()).toBe(25);
+ await page.getByRole('button',{name:'Next results page'}).click();await expect(page.locator('#searchMessage')).toHaveText('2 matches on this page.');
+ await page.getByRole('button',{name:'First results page'}).click();await expect(page.locator('#searchResults li')).toHaveCount(25);
+ await page.getByLabel('Status',{exact:true}).selectOption('blocked');await expect(page.locator('#searchResults li')).toHaveCount(0);await expect(page.getByRole('button',{name:'Next results page'})).toBeHidden();
+ await page.getByRole('button',{name:'Search work',exact:true}).click();await expect(page.locator('#searchMessage')).toHaveText('No authorized matching work found.');
+ await page.getByLabel('Status',{exact:true}).selectOption('');
+ await page.route('**/api/search?**',route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({message:'Synthetic search dependency unavailable'})}));
+ await page.getByRole('button',{name:'Search work',exact:true}).click();await expect(page.locator('#searchMessage')).toHaveText('Synthetic search dependency unavailable');await expect(page.locator('#searchResults li')).toHaveCount(0);
+ await page.unroute('**/api/search?**');await page.getByRole('button',{name:'Search work',exact:true}).click();await expect(page.locator('#searchResults li')).toHaveCount(25);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await info.attach('search-'+info.project.name+'-isolated-fixture',{body:await page.screenshot({fullPage:true}),contentType:'image/png'});
+ await page.locator('#searchResults a').first().click();await expect(page).toHaveURL('/projects/'+project.id);await expect(page.locator('#projectTitle')).toHaveText(unique);
+ await page.goto('/search');await expect(page.locator('#searchResults li')).toHaveCount(0);await page.getByLabel('Search text',{exact:true}).fill(unique);await page.getByRole('button',{name:'Search work',exact:true}).click();await expect(page.locator('#searchResults li')).toHaveCount(25);
+ await context.clearCookies();await context.addCookies([{name:'vsph.portal.sid',value:'fixture-outsider-session',url:'http://127.0.0.1:3100'}]);
+ await page.getByRole('button',{name:'Search work',exact:true}).click();await expect(page.locator('#searchMessage')).toHaveText('No authorized matching work found.');
+});

@@ -81,6 +81,7 @@ const tables = [
   "project_notifications",
 ];
 const signatures = [
+  "public.project_search(uuid,text,uuid,jsonb)",
   "public.organization_ownership(uuid,text,uuid,jsonb)",
   "public.consume_sso_launch_code(text)",
   "public.set_profile_status(uuid,uuid,text)",

@@ -1,3 +1,7 @@
+## Project work search continuation — 3 November 2026
+
+Entry main `d5b0b62fdb83a98dc3704c58ba57b94bc4f375e4` is unchanged upstream, with no open PRs at start. A new `/search` workspace/API adds current authorized project/task/milestone title search, explicit narrowing filters and 25-record keyset pages. Existing project/client permissions govern every request; no product/customer-admin authority is inherited. No hosted changes or hosting work is included. New `20261103072229_project_work_search.sql` is a fifth unapplied forward migration. Local Node acceptance is 140 passing cases; full native/browser/quality evidence and merge SHA must be recorded after CI. See [PROJECT_WORK_SEARCH.md](../operations/PROJECT_WORK_SEARCH.md). M9 advances for this bounded project-work scope; universal search, retention and fleet-scale load remain incomplete.
+
 ## Verified identity/ownership handoff — 3 November 2026
 
 PR #45 merged as `ab44748f6f55cf73a79a601f82e33f46bceaecc4`; #46 merged as `b49fa2ac221f55f26b0d3890692b65df62f9b031`. All four CI jobs passed before both merges. Latest acceptance: **139 Node / 32 native PostgreSQL / 28 Chromium cases**, plus disposable helpers, synthetic restore and existing quality/security gates. MFA-aware enrolled-TOTP login and session-bound owner-transfer step-up are implemented; full enrollment/recovery/universal step-up remain open. Four forward migrations are unapplied hosted. Hosting and hosted state remain untouched. See [the exact status/evidence/resume report](IDENTITY_CONTINUATION_20261103.md).

@@ -1,0 +1,25 @@
+# Authorized project work search
+
+`/search` and `GET /api/search` search current persisted project names/keys, task titles and milestone titles. Dashboard/Projects navigation exposes Search work. No hosted service, search index, third-party provider or generated production record is required. The feature requires the new forward migration in its runtime target; isolated test helpers install it only into disposable loopback databases.
+
+## Authorization and data ownership
+
+The backend supplies the authenticated actor; client actor/limit/unknown fields are rejected. The service-only `project_search(uuid,text,uuid,jsonb)` uses the existing `project_permission` rules for every request. Platform portfolio administrators retain their existing project authority. Other users require active explicit project membership; organization administration, subscriptions and product roles grant no project permission. Client memberships additionally require active organization membership/organization and client-visible project; only shared task/milestone titles appear. Revocation removes subsequent results, including requests using old cursors. Inaccessible and nonexistent filter IDs both produce an empty result, without revealing a private project/customer name.
+
+No descriptions, comments, email addresses, membership directory, provider payloads, credentials, repository contents or task assignee identity are returned. Results contain only record/project IDs, type, title, project key/name, status and due date. Project links reauthorize the existing detail view. This is the first cross-project search vertical, not search across customers, products or private GitHub contents.
+
+## Query and pagination contract
+
+Search uses a literal case-insensitive substring of 2–100 characters. `%`, `_`, quotes and backslashes are ordinary search characters, never a wildcard or SQL fragment. Exact filters: record type (`all`, `project`, `task`, `milestone`), project UUID, customer organization UUID, record status, inclusive due date bounds. Task assignee UUID requires record type `task`; it narrows results without returning profile details. Missing due dates do not match a due date bound. UUID fields are available to operators from existing authorized project/report workflows; a friendly authorized directory picker remains future work.
+
+Pages return at most 25 records and a next cursor only when a 26th authorized match exists. Ordering is project, milestone, task, then immutable UUID within each type. Cursors are positions, not capabilities, and may be reused only with the same filters; the UI clears results/cursor on any filter edit. Each page queries current rows, not a transaction spanning pages: edits/inserts may change membership in the result set; restart from the first page for a fresh traversal. No total count or unsupported relevance score is invented. Response size is bounded; substring scanning across a large authorized portfolio still needs representative load measurement before fleet-scale claims.
+
+API requests are session-protected, `no-store`, and throttled at 60 requests/IP/minute using existing bounded process-local controls. This is not a distributed rate limiter. Search text is not persisted in page URL/history/localStorage; GET API query strings should be redacted by deployment access logging. UI renders text with DOM textContent, clears stale results on errors/filter changes, aborts obsolete requests and allows retry after dependency failure. No offline search cache is added.
+
+## Migration, repair and acceptance
+
+`20261103072229_project_work_search.sql` follows the owner-transfer migration in the checksummed manifest. It adds one stable read-only definer function with fixed empty search path and explicit browser-role EXECUTE revocation/service-role grant. It changes no existing business rows or historical migration. There are now 18 source migrations plus canonical baseline (19 canonical journal entries); this new migration and the preceding four forward migrations are unapplied hosted. Do not replay bootstrap, seeds or the legacy installer on an existing journaled database.
+
+For rollback, revert the search routes/navigation/UI code; unused additive SQL may safely remain. Repair SQL through a reviewed forward migration rather than altering an applied checksum. No destructive rollback is necessary. No hosted migration or deployment is authorized by this implementation.
+
+Automated acceptance includes native PostgreSQL permission/negative-filter/client-private-work/pagination/literal-match/revocation/browser-grant tests and database-backed Express session tests. Authenticated desktop/mobile Chromium tests exercise navigation, multi-page search, filters, dependency failure/retry, durable project links, reload, wrong-user access and overflow. These fixtures prove isolated application behavior, not hosted Supabase Auth/PostgREST, production load or real provider acceptance. Execute all existing CI checks before merging.

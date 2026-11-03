@@ -187,3 +187,12 @@ Use disposable fixtures unless a real identity/target has been approved. No host
 - [ ] Successful transfer survives reload: successor is owner, former owner is admin, tenant product sessions/codes are invalidated, and product roles/subscriptions/project assignments remain unchanged. The successor can sign in normally without inheriting product access.
 - [ ] An isolated audit outage rolls back ownership, proof consumption and session invalidation together. A lost HTTP response requires refresh/history review rather than automatic reversal or stale retry.
 - [ ] Test both desktop/mobile layouts and keyboard focus. The password/code fields clear after step-up, the old owner no longer sees transfer controls after success, and other customer/project/registry/onboarding/sidebar/logout flows remain functional.
+
+## Cross-project work search
+
+- From the desktop sidebar/mobile drawer, open Search work. Search a persisted project name/key and task/milestone titles; use keyboard labels, submit, result focus and a project link. Confirm no mobile overflow.
+- Create more than 25 matches in an isolated fixture only. Traverse next/first pages with no duplicates. Change a filter and confirm stale records/paging disappear until a new search.
+- Test exact type/status/project/customer/task-assignee/due date filters, literal `%_`, invalid dates/UUIDs and short/oversized searches. Confirm empty versus unavailable states are clear.
+- Revoke a membership between pages; the next request must hide that project's work. Test a client with shared/private tasks and milestones, inactive customer membership and hidden project. Organization/product administration alone must not expose project work.
+- Simulate dependency failure after results were visible; stale results must clear, retry must recover. Reload has no cached result records. Switch to an unrelated user and confirm no prior user's work appears.
+- Expired/revoked sessions and anonymous HTML/API access deny as before. Search must not mutate tasks, permissions or provider records.

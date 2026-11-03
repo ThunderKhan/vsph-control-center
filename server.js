@@ -41,6 +41,8 @@ app.use('/api/account/sessions',require('./routes/sessions'));
 app.use('/api/notifications',require('./routes/notifications').router);
 app.use('/api/project-reports',require('./routes/notifications').reports);
 app.use('/api/projects/:projectId/delivery',require('./routes/delivery').router());
+app.use('/api/search',require('./routes/search').router);
+app.get('/search',portalSession,(req,res)=>{res.set('Cache-Control','no-store');res.sendFile(path.join(__dirname,'views','search.html'))});
 app.use('/api/projects',require('./routes/projects').router);
 app.get(['/projects','/projects/:id'],portalSession,(req,res)=>{res.set('Cache-Control','no-store');res.sendFile(path.join(__dirname,'views','projects.html'))});
 app.use('/api/apps',require('./routes/apps'));
