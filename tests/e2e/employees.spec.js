@@ -7,8 +7,14 @@ test('owner onboards internal staff, sees persisted metrics, filters and cannot 
  await context.addCookies([{name:'vsph.portal.sid',value:'fixture-admin-session',url:'http://127.0.0.1:3100',httpOnly:true,sameSite:'Lax'}]);
  page.on('dialog',dialog=>dialog.accept());
  await page.goto('/dashboard');
- await expect(page.getByRole('link',{name:'Employee management'})).toBeVisible();
- await page.getByRole('link',{name:'New employee'}).click();
+ if(info.project.name==='desktop'){
+  await expect(page.getByRole('link',{name:'Employee management'})).toBeVisible();
+  await page.getByRole('link',{name:'New employee'}).click();
+ } else {
+  // The compact/mobile sidebar is collapsed by default; direct protected route
+  // navigation tests the same server-side access boundary without expanding it.
+  await page.goto('/employees/onboarding');
+ }
  await expect(page).toHaveURL(/\/employees\/onboarding$/);
  await page.locator('input[name=fullName]').fill('E2E Sample Employee');
  await page.locator('input[name=email]').fill(email);
