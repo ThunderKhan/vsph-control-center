@@ -21,7 +21,7 @@ test('finance validates integer paise, customer linkage and strict mutation fiel
  assert.throws(()=>validate('payment.record',{...payment,actor:'owner'}));
  assert.deepEqual(validate('invoice.void',{version:2,reason:'Incorrect invoice',confirmed:true}),
   {version:2,reason:'Incorrect invoice',confirmed:true});
- assert.throws(()=>validate('invoice.void',{version:2,reason:'too short',confirmed:true}));
+ assert.throws(()=>validate('invoice.void',{version:2,reason:'short',confirmed:true}));
  assert.throws(()=>validate('invoice.void',{version:2,reason:'Incorrect invoice',confirmed:false}));
  assert.throws(()=>validate('payment.reverse',{reason:'Incorrect receipt',confirmed:false}));
  assert.deepEqual(validate('payment.reverse',{reason:'Incorrect receipt',confirmed:true}),
