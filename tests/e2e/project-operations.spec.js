@@ -93,3 +93,31 @@ test('initial inbox outage can recover through Refresh without losing authorized
  await page.getByRole('button',{name:'Refresh inbox',exact:true}).click();await expect(page.locator('#operationsMessage')).toHaveText('Synthetic later outage');await expect(page.locator('#notificationList')).toBeEmpty();
  await page.unroute('**/api/notifications');await page.getByRole('button',{name:'Refresh inbox',exact:true}).click();await expect(page.locator('#operationsMessage')).toHaveText('Inbox refreshed.');
 });
+
+test('report recovery preserves preference drafts and late inbox replies cannot duplicate or resurrect unread rows',async({page,context},info)=>{
+ test.skip(!process.env.PROJECT_E2E_DATABASE,'Requires isolated database');
+ await context.setExtraHTTPHeaders({Origin:'http://127.0.0.1:3100'});
+ await context.addCookies([{name:'vsph.portal.sid',value:'fixture-admin-session',url:'http://127.0.0.1:3100'}]);
+ const title='Inbox race '+info.project.name+' '+info.retry;
+ const created=await context.request.post('/api/projects',{data:{key:'REC-'+info.project.name.toUpperCase()+'-'+info.retry,name:title,kind:'internal'}});expect(created.status()).toBe(201);const p=await created.json();
+ expect((await context.request.post('/api/projects/'+p.id+'/tasks',{data:{version:1,title,assigneeId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'}})).status()).toBe(200);
+ await page.route('**/api/project-reports**',route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({message:'Synthetic report unavailable'})}));
+ await page.goto('/projects');await page.locator('#projectOperations summary').click();
+ await expect(page.locator('#operationsMessage')).toHaveText('Synthetic report unavailable');
+ const preference=page.locator('#notificationPreferences input[name=delivery]');await expect(preference).toBeEnabled();const draft=!(await preference.isChecked());await preference.setChecked(draft);
+ await page.unroute('**/api/project-reports**');await page.getByRole('button',{name:'Refresh inbox',exact:true}).click();await expect(page.locator('#operationsMessage')).toHaveText('Inbox refreshed.');await expect(preference).toBeChecked({checked:draft});
+ const oldData=await (await context.request.get('/api/notifications')).json();
+ let release,seen;const held=new Promise(resolve=>{release=resolve;}),firstRequest=new Promise(resolve=>{seen=resolve;});let calls=0;
+ await page.route('**/api/notifications',async route=>{
+  if(++calls===1){seen();await held;await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(oldData)});}
+  else await route.continue();
+ });
+ const row=page.locator('#notificationList li').filter({hasText:title});await row.getByRole('button',{name:'Mark read',exact:true}).click();await firstRequest;
+ await page.getByRole('button',{name:'Refresh inbox',exact:true}).click();await expect(page.locator('#operationsMessage')).toHaveText('Inbox refreshed.');
+ await expect(page.locator('#notificationList li').filter({hasText:title})).toContainText('Read');
+ await expect(page.locator('#notificationList li').filter({hasText:title}).getByRole('button',{name:'Mark read',exact:true})).toHaveCount(0);
+ const count=await page.locator('#notificationList li').count();const response=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/notifications');release();await (await response).finished();
+ await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+ await expect(page.locator('#notificationList li')).toHaveCount(count);await expect(page.locator('#notificationList li').filter({hasText:title})).toHaveCount(1);
+ await expect(page.locator('#notificationList li').filter({hasText:title}).getByRole('button',{name:'Mark read',exact:true})).toHaveCount(0);
+});

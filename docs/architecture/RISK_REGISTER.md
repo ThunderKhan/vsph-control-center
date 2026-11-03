@@ -1,3 +1,7 @@
+## Latest ledger and inbox race correction — 3 November 2026
+
+Read-only version/name metadata reports 19 installed entries through internal employees. Search, HR lock repair and finance alone lack entries (three pending, superseding earlier eight-pending counts). No hosted writes occurred; source markers/catalog/provider behavior remain unverified. The merged recovery UI had two review findings (obsolete overlapping inbox replies and loaded preference drafts reset after report failure); the follow-up adds request generations, replace-on-success and independent preference readiness with native-backed browser interleaving coverage. See [current evidence and remaining scope](../roadmap/READ_AUDIT_CHAT_RECONCILIATION_20261103.md).
+
 ## Verified source review and operational recovery — 3 November 2026
 
 Search #48 and HR lock repair #53 are merged with passing PR checks. The latest [targeted review](../roadmap/READ_AUDIT_CHAT_RECONCILIATION_20261103.md) records exact source evidence and remaining identity/finance/operational scope. A post-merge disposable-browser inbox timeout exposed missing initial-outage recovery; the follow-up wires Refresh before requests, bounds waiting and clears stale inbox data. That does not establish the original latency cause or production availability. Eight unapplied forward migrations and real hosted/provider/recovery gates remain; no hosted change occurred.

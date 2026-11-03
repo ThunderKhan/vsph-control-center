@@ -1,3 +1,9 @@
+## Current reconciliation and recovery races — 3 November 2026
+
+Verified feature main `0247cfb15567e365eb5cf5fa71390a1a429f3b21` includes #48 search (`74e507c11c8926d9bedf520d8521f85b03ba89f0`), #53 HR locks (`459a1e24ab008432ffedc559e9ab4673bffaf25b`) and #54 inbox recovery (`0247cfb15567e365eb5cf5fa71390a1a429f3b21`), each merged after all four PR checks passed. Latest completed acceptance is 146 Node / 36 native PostgreSQL / 38 active Chromium cases (two intentional mobile skips). The follow-up adds deterministic delayed-response/read-state and unsaved-preference recovery tests (40 active browser cases) and corrects both review findings.
+
+A fresh read-only Supabase version/name listing reports 19 installed canonical entries through internal employees; only search, HR repair and finance lack ledger entries. **Three pending replaces the earlier eight-pending claims below.** No target writes occurred; marker/catalog/Auth/provider equivalence remains unverified. [Exact evidence, source review, M0–M12 status and ordered gap cautions](READ_AUDIT_CHAT_RECONCILIATION_20261103.md) govern this handoff.
+
 ## Verified reconciliation and inbox recovery — 3 November 2026
 
 Verified feature main `459a1e24ab008432ffedc559e9ab4673bffaf25b` includes search #48 (`74e507c11c8926d9bedf520d8521f85b03ba89f0`) and HR repair #53 (`459a1e24ab008432ffedc559e9ab4673bffaf25b`), each merged after all four CI checks passed. Latest completed feature acceptance: 146 Node / 36 native PostgreSQL / 36 Chromium cases, synthetic restore (42 tables, 242 constraints, 96 indexes, five triggers, four sequences, 22 required functions), advisors and disposable helpers. The [reconciled source review and full M0–M12 status](READ_AUDIT_CHAT_RECONCILIATION_20261103.md) preserves other-chat #49–#52 and lists concrete remaining gaps. Eight forward migrations remain source-only/unapplied hosted; no hosted/hosting change occurred.

@@ -1,6 +1,6 @@
 ## Reconciled development handoff — 3 November 2026
 
-Feature main `459a1e24ab008432ffedc559e9ab4673bffaf25b` includes search and the reviewed HR lock-order repair alongside the other chat's employee/finance modules. [Exact merges, tests, scope and M0–M12 gaps](../roadmap/READ_AUDIT_CHAT_RECONCILIATION_20261103.md) supersede historical cutoffs below. Eight forward migrations remain unapplied according to last recorded target evidence; hosted state was not re-inspected. Hosting is deferred.
+Feature main `459a1e24ab008432ffedc559e9ab4673bffaf25b` includes search and the reviewed HR lock-order repair alongside the other chat's employee/finance modules. [Exact merges, tests, scope and M0–M12 gaps](../roadmap/READ_AUDIT_CHAT_RECONCILIATION_20261103.md) supersede historical cutoffs below. Read-only Supabase metadata now records 19 installed entries through internal employees. Only search, HR lock repair and finance lack ledger entries (three pending). Marker/catalog/Auth equivalence remains unverified; no hosted writes occurred. Hosting is deferred.
 
 ```powershell
 cd D:\Projects\vsph-control-center
