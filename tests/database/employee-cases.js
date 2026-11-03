@@ -36,6 +36,7 @@ module.exports = async pool => {
  assert.equal(changed.version,2);
  await assert.rejects(cmd(owner,'update',initial.id,edit(1)),{code:'40001'});
  await assert.rejects(cmd(hr,'grant_hr',initial.id,{version:2,confirmed:true}),{code:'42501'});
+ await require('./employee-link-fixture')(pool,owner,hr,initial.id);
  const granted=await cmd(owner,'grant_hr',initial.id,{version:2,confirmed:true});
  assert.equal(granted.version,3);
  assert.equal((await cmd(hr,'access')).role,'hr');
@@ -100,6 +101,7 @@ module.exports = async pool => {
  assert.equal((await cmd(owner,'list')).counts.hrManagers,0);
  await pool.query("update profiles set status='active' where id=$1",[hr]);
  await assert.rejects(cmd(hr,'access'),{code:'42501'});
+ await require('./employee-link-fixture')(pool,owner,hr,initial.id);
  const approvedAgain=await cmd(owner,'grant_hr',initial.id,{version:5,confirmed:true});
  assert.equal(approvedAgain.version,6);
  assert.equal((await cmd(hr,'access')).role,'hr');

@@ -43,6 +43,8 @@ function verifyManifest(
   return { manifest, errors };
 }
 const tables = [
+  "internal_employee_link_requests",
+  "internal_employee_identity_links",
   "finance_invoices",
   "finance_payments",
   "finance_payment_reversals",
@@ -86,6 +88,9 @@ const tables = [
   "project_notifications",
 ];
 const signatures = [
+  "public.internal_employee_identity(uuid,text,uuid,jsonb)",
+  "public.internal_workforce_authority(uuid)",
+  "public.internal_employee_identity_lifecycle()",
   "public.project_search(uuid,text,uuid,jsonb)",
   "public.finance_command(uuid,text,uuid,jsonb)",
   "public.internal_employee_command(uuid,text,uuid,jsonb)",

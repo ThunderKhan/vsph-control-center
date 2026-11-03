@@ -58,7 +58,12 @@ async function start(pool) {
   const mfaId='ffffffff-3333-4333-8333-333333333333';
   await pool.query('insert into auth.users values($1)',[mfaId]);
   await pool.query("insert into profiles(id,full_name,email) values($1,'MFA fixture','mfa@fixture.test')",[mfaId]);
-  const identity=require('../fixtures/identity-provider')(async email=>(await pool.query('select id,email from profiles where email=$1',[email])).rows[0],{mfaEmails:['mfa@fixture.test','customer-owner@fixture.test']});
+  for(const [suffix,layout] of [['1','desktop'],['2','mobile']]){
+   const id='fafafafa-1111-4111-8111-11111111111'+suffix;
+   await pool.query('insert into auth.users values($1)',[id]);await pool.query("insert into profiles(id,full_name,email) values($1,'Consent fixture',$2)",[id,'link-'+layout+'@fixture.test']);
+   await pool.query("insert into portal_sessions(token_hash,user_id,expires_at) values($1,$2,now()+interval '2 hours')",[hashToken('fixture-link-'+layout),id]);
+  }
+  const identity=require('../fixtures/identity-provider')(async email=>(await pool.query('select id,email from profiles where email=$1',[email])).rows[0],{mfaEmails:['mfa@fixture.test','customer-owner@fixture.test','link-desktop@fixture.test','link-mobile@fixture.test']});
   const app = require("../database/http-fixture")(pool,undefined,identity);
   const server = app.listen(Number(process.env.PORT || 3100), "127.0.0.1");
   return { server, pool };

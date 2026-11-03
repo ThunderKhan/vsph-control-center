@@ -27,9 +27,9 @@ app.use(validateOrigin);
 // browser/proxy caches; navigating Back after logout should trigger a fresh check.
 app.use((req,res,next)=>{
  const url=(String(req.originalUrl||'').split('?')[0].replace(/\/+$/, '') || '/');
- if(url.startsWith('/api/sso/') || url.startsWith('/api/invitations/') || url.startsWith('/api/admin-management/') || url.startsWith('/api/auth/') || url==='/api/apps' || url.startsWith('/api/apps/') || url.startsWith('/api/employees') || url.startsWith('/api/finance') ||
+ if(url.startsWith('/api/sso/') || url.startsWith('/api/invitations/') || url.startsWith('/api/admin-management/') || url.startsWith('/api/auth/') || url==='/api/apps' || url.startsWith('/api/apps/') || url.startsWith('/api/employee-identity') || url.startsWith('/api/employees') || url.startsWith('/api/finance') ||
     url.startsWith('/apps/') || ['/', '/login', '/login.html', '/index.html',
-    '/dashboard','/applications','/employees','/employees/onboarding','/admin','/admin/onboarding','/admin/finance','/accept-invite','/dashboard.html','/applications.html','/admin.html'].includes(url)) {
+    '/dashboard','/applications','/employment','/employees','/employees/onboarding','/admin','/admin/onboarding','/admin/finance','/accept-invite','/dashboard.html','/applications.html','/admin.html'].includes(url)) {
    res.set('Cache-Control','no-store');
  }
  next();
@@ -51,6 +51,9 @@ app.use('/api/workspaces',require('./routes/workspaces'));
 app.use('/api/organizations',require('./routes/organizations').router);
 // Internal VSPH employees, separate from customer organizations and products.
 app.use('/api/employees',require('./routes/employees').router);
+app.use('/api/employee-identity',require('./routes/employee-identity').router);
+app.get('/employees/:id/account-link',portalSession,require('./routes/employee-identity').managerPage);
+app.get('/employment',portalSession,(req,res)=>{res.set('Cache-Control','no-store');res.sendFile(path.join(__dirname,'views','employee-identity.html'))});
 // Owner-only finance; never infer payment from an active subscription.
 app.use('/api/finance',require('./routes/finance').router);
 app.get('/admin/finance',portalSession,requireAdmin,(req,res)=>{res.set('Cache-Control','no-store');res.sendFile(path.join(__dirname,'views','finance.html'));});

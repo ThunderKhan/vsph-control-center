@@ -1,3 +1,7 @@
+## Employee consent increment — 3 November 2026
+
+Existing-account links are purpose/candidate/session/roster/issuer bound, use fresh provider verification and grant no implicit role. New HR grants now need accepted consent; legacy grants are preserved and must be reviewed. New-account email enrollment, full offboarding impact across independent memberships, global step-up/recovery, retention and live Auth/target acceptance remain incomplete. Four migration identities are missing by the last recorded ledger, including this new source-only migration; no hosted writes occurred. See [EMPLOYEE_ACCOUNT_LINKS.md](../operations/EMPLOYEE_ACCOUNT_LINKS.md).
+
 ## Partial canonical journal diagnostics — 3 November 2026
 
 The assessor no longer treats an older, valid canonical journal as raw legacy history merely because new source migrations exist. Namespace recognition remains distinct from full source-marker/history verification; wrong names, duplicate versions and source-marker drift deny readiness. Existing staging/TLS/approval guards remain unchanged, and no history repair/migration is performed. Native synthetic tests prove the read-only inspector's behavior; current target version/name metadata alone does not prove checksum/catalog or Auth equivalence. See [PARTIAL_MIGRATION_HISTORY.md](../operations/PARTIAL_MIGRATION_HISTORY.md).

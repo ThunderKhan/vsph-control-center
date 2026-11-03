@@ -26,7 +26,7 @@ const clean = () => ({
 test("manifest hashes every ordered migration and rejects drift", () => {
   const { manifest, errors } = verifyManifest();
   assert.deepEqual(errors, []);
-  assert.equal(manifest.migrations.length, 21);
+  assert.equal(manifest.migrations.length, 22);
   const changed = structuredClone(manifest);
   changed.migrations[0].sha256 = "0".repeat(64);
   assert.ok(
@@ -129,7 +129,7 @@ test("CRM and Music tenant tables are mandatory security inspection targets", ()
 test("partial canonical history reports only new gaps and denies marker drift, duplicate versions and unknown identities",()=>{
  const {installationEntries,sourceMarker}=require('../services/readiness/history');
  const manifest=verifyManifest().manifest,entries=installationEntries(manifest);
- const missing=['project_work_search','internal_hr_lock_order','finance_ledger'];
+ const missing=['project_work_search','internal_hr_lock_order','internal_employee_identity_links','finance_ledger'];
  const s=clean();s.history=entries.filter(entry=>!missing.includes(entry.name)).map(entry=>({version:entry.version,name:entry.name,source_marker:sourceMarker(entry)}));
  const before=structuredClone(s),r=assess(s,manifest);
  assert.equal(s.history.length,19);

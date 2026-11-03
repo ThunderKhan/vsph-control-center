@@ -214,3 +214,10 @@ Use disposable fixtures unless a real identity/target has been approved. No host
 
 - Mark a notice read while its response is delayed, then refresh. Release the older unread response last: the current row must remain Read with no duplicate. A late success after a newer failure must not repopulate stale records.
 - Fail the first project report after preferences loaded. Change a preference without saving, recover the report using Refresh and confirm that draft is preserved. No preferences may be saved before their initial read succeeds.
+
+## Existing employee account consent
+
+- Create a roster for an existing ordinary account, request its link as owner/current HR, then sign in as the intended employee and open My employment. Verify only that employee's minimal records/requests appear. No real email or account is created.
+- Accept with wrong password, missing/wrong TOTP and then valid credentials. Failed attempts must create no link; a successful link survives reload and grants no HR/customer/product/project role. Owner must separately grant HR to an Active linked employee.
+- Test cancellation, expiry, renewal/stale versions, changed roster, another identity, lost issuer authority, disabled account and revoked/expired sessions. Concurrent acceptance must have one effect/audit. Audit failure rolls back acceptance.
+- Revoke the link as owner: HR access disappears, ordinary portal/customer/product/project assignments stay independently governed. Inactivation/identity disable/email change must invalidate links; reactivation restores none. Check mobile, keyboard/form labels and no credentials in URL/localStorage.

@@ -1,3 +1,9 @@
+## Employee account-consent continuation — 3 November 2026
+
+Entry main `aa5b768e5fae620ee2e68dd79aa9f0ff5ed23e7b` was reconfirmed with no open PRs. Existing-account employee consent adds purpose-bound durable requests, personal employment view, fresh password/enrolled-TOTP acceptance, current issuer/session/roster checks and atomic audit/revocation. New/regranted HR authority requires accepted consent; prior HR grants are preserved for owner review. No customer/product/project role is inherited or altered. New-identity Auth/email invitations remain unimplemented.
+
+Local Node suite: 148 passing cases; native/browser exact-head CI must pass before merge. New migration `20261103165522_internal_employee_identity_links.sql` is unapplied hosted. The source manifest has 22 entries plus canonical baseline; four identities are pending by last recorded ledger evidence, without a new hosted inspection or write. See [the operational contract, authorization and repair](../operations/EMPLOYEE_ACCOUNT_LINKS.md).
+
 # Verified development and other-chat reconciliation — 3 November 2026
 
 **Verified source acceptance baseline: `a4f80ae1e458740171b266834a8a5de81b661760`.** The latest source tree preserves the other chat's #49–#52 executive preview, internal HR roster and manual INR ledger. The full enterprise roadmap is still incomplete; no hosting or production-readiness completion is claimed. This handoff records the five code PRs below; the final handoff PR changes documentation only.

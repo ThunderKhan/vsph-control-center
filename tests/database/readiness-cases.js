@@ -52,7 +52,7 @@ module.exports = async (pool) => {
     // This namespace is created ONLY in the already empty synthetic fixture.
     // Rehearse a valid installed canonical subset with three forward gaps.
     const {installationEntries,sourceMarker}=require('../../services/readiness/history');
-    const entries=installationEntries(verifyManifest().manifest),missing=['project_work_search','internal_hr_lock_order','finance_ledger'];
+    const entries=installationEntries(verifyManifest().manifest),missing=['project_work_search','internal_hr_lock_order','internal_employee_identity_links','finance_ledger'];
     await client.query('create schema supabase_migrations;create table supabase_migrations.schema_migrations(version text primary key,name text,statements text[])');
     try {
       for(const entry of entries.filter(e=>!missing.includes(e.name)))await client.query('insert into supabase_migrations.schema_migrations values($1,$2,$3)',[entry.version,entry.name,[sourceMarker(entry)]]);

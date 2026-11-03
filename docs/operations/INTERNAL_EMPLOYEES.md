@@ -59,3 +59,7 @@ Governed identity invitations, internal account linking, employee project assign
 ## Lock ordering repair
 
 Forward migration `20261103155930_internal_hr_lock_order.sql` wraps the original command with profiles → employee UUIDs → HR mapping locks, then retains all original current-authority, version, protected-target and audit checks. Direct EXECUTE on the retained core is revoked, including from service_role. Pending HR mutations cannot hold an HR mapping while waiting on an owner-locked employee row; a completed revocation denies subsequent work after the wait. Reads serialize on the HR caller's own roster. Versions must fit positive PostgreSQL integers. The migration changes no rows and remains unapplied hosted. Use a reviewed forward repair rather than regranting the core or editing historical checksums.
+
+## Existing-account identity consent
+
+The [account-link workflow](EMPLOYEE_ACCOUNT_LINKS.md) now connects existing active ordinary identities to roster records after purpose-bound manager request and employee credential/TOTP consent. New HR grants require this accepted link; legacy HR assignments are preserved for review. Roster creation still creates no login or email. New-identity invitations, broader staffing/offboarding and payroll remain incomplete. The new migration is source-only/unapplied hosted.

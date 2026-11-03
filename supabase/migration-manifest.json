@@ -184,6 +184,15 @@
       ]
     },
     {
+      "path": "supabase/migrations/20261103165522_internal_employee_identity_links.sql",
+      "sha256": "0ce3d6ffe8f3c94d931efd02f6dcdd99fc6e147787035b74d8a75147994f1386",
+      "version": "20261103165522",
+      "name": "internal_employee_identity_links",
+      "requires": [
+        "supabase/migrations/20261103155930_internal_hr_lock_order.sql"
+      ]
+    },
+    {
       "path": "supabase/migrations/20261103170000_finance_ledger.sql",
       "sha256": "7a399e4b2c95334666eeea8245af540f58f86f4f9c4090ca3c4eae0e2faaf48a",
       "version": "20261103170000",
