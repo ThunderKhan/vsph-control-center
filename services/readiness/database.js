@@ -84,6 +84,7 @@ const tables = [
 ];
 const signatures = [
   "public.internal_employee_command(uuid,text,uuid,jsonb)",
+  "public.internal_hr_profile_disabled()",
   "public.organization_ownership(uuid,text,uuid,jsonb)",
   "public.consume_sso_launch_code(text)",
   "public.set_profile_status(uuid,uuid,text)",
