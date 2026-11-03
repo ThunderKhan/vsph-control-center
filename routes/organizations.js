@@ -32,3 +32,21 @@ for(const action of ['profile','member','role'])router.post('/:id/'+action,rpcRo
  return command(req,action,req.params.id,data);
 }));
 module.exports={router,validate};
+const {validateInvite}=require('./customers');
+function validateInvitation(body,organizationId){
+ const request=validateInvite(body,organizationId);
+ if(/[\u0000-\u001f\u007f]/.test(request.adminName)||request.products.some(p=>p.role==='super_admin'))throw Error('Invalid delegated invitation roles or name.');
+ return {...request,delegated:true};
+}
+const invitation=(req,action,data={})=>db().rpc('organization_invitation',{p_actor:req.user.id,p_action:action,p_id:req.params.id,p_data:data}).then(check);
+router.get('/:id/invitations',rpcRoute(req=>invitation(req,'list')));
+router.post('/:id/invitations',rpcRoute(async(req,res)=>{
+ let request;try{request=validateInvitation(req.body,req.params.id);}catch(e){e.validation=true;throw e;}
+ const key=req.get('Idempotency-Key');if(!uuid(key))return res.status(400).json({message:'A UUID Idempotency-Key is required.'});
+ const result=await invitation(req,'queue',{key,request});res.status(202);return {...result,message:'Invitation queued. Delivery is not confirmed.'};
+}));
+for(const action of ['cancel','reissue'])router.post('/:id/invitations/:invitationId/'+action,rpcRoute(req=>{
+ if(!uuid(req.params.invitationId)||!Number.isSafeInteger(req.body?.generation)||req.body.generation<1||req.body.confirmed!==true||Object.keys(req.body).some(k=>!['generation','confirmed'].includes(k))){const e=Error('Review and confirm the current invitation generation.');e.validation=true;throw e;}
+ return invitation(req,action,{invitationId:req.params.invitationId,generation:req.body.generation,confirmed:true});
+}));
+module.exports.validateInvitation=validateInvitation;

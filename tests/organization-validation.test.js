@@ -1,5 +1,6 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const {validate}=require('../routes/organizations');
+const {validateInvitation}=require('../routes/organizations');
 const id='11111111-1111-4111-8111-111111111111';
 test('organization updates require explicit allowlisted fields and confirmation',()=>{
  const member={userId:id,version:1,role:'member',status:'suspended',confirmed:true};
@@ -11,4 +12,9 @@ test('organization updates require explicit allowlisted fields and confirmation'
   ['role',{userId:id,version:1,applicationId:id,role:'super_admin',confirmed:true}],
  ])assert.throws(()=>validate(action,data));
  assert.equal(validate('role',{userId:id,version:2,applicationId:id,role:'',confirmed:true}).role,'');
+});
+test('delegated invitations cannot supply platform authority or product super admin',()=>{
+ const data={name:'Employee',email:'employee@example.test',memberRole:'member',products:[]};
+ assert.equal(validateInvitation(data,id).delegated,true);
+ for(const bad of [{...data,delegated:false},{...data,platformRole:'super_admin'},{...data,memberRole:'owner'},{...data,products:[{applicationId:id,role:'super_admin'}]},{...data,name:'Line\nBreak'}])assert.throws(()=>validateInvitation(bad,id));
 });

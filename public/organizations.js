@@ -1,11 +1,11 @@
 (() => {
  'use strict';
  const $=id=>document.getElementById(id);
- let workspace=null,orgCursor=null,orgs=[],members=[],busy=false;
+ let workspace=null,orgCursor=null,orgs=[],members=[],busy=false,pendingInvite=null;
  function node(tag,text){const el=document.createElement(tag);if(text!==undefined)el.textContent=text;return el;}
  function message(text){$('message').textContent=text;}
- async function api(path,body){
-  const response=await fetch('/api/organizations'+path,{credentials:'same-origin',cache:'no-store',...(body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{})});
+ async function api(path,body,headers={}){
+  const response=await fetch('/api/organizations'+path,{credentials:'same-origin',cache:'no-store',...(body?{method:'POST',headers:{'Content-Type':'application/json',...headers},body:JSON.stringify(body)}:{})});
   if(response.status===401){location.assign('/login');throw Error('Your session expired. Sign in again.');}
   const data=await response.json();if(!response.ok)throw Error(data.message||'Unable to load this organization.');return data;
  }
@@ -53,7 +53,7 @@
   $('profile').elements.name.value=next.organization.name;products();$('activity').replaceChildren();
   for(const entry of next.activity)$('activity').append(node('p',new Date(entry.created_at).toLocaleString()+' · '+entry.action));
   if(!next.activity.length)$('activity').append(node('p','No organization workspace changes recorded.'));
-  await loadMembers();$('detail').hidden=false;
+  await loadMembers();await loadInvitations();$('detail').hidden=false;
  }
  async function loadOrganizations(cursor=null){
   const selected=$('organization').value;orgs=await api(cursor?'?afterId='+encodeURIComponent(cursor):'');orgCursor=cursor;
@@ -70,6 +70,33 @@
   if(busy||!workspace||!window.confirm(confirmation))return;
   const id=$('organization').value;await run(async()=>{await api('/'+id+'/'+action,data);await loadWorkspace();message('Organization updated.');});
  }
+ async function loadInvitations(){
+  const form=$('invite'),role=form.elements.memberRole;role.replaceChildren();
+  for(const value of workspace.actorRole==='owner'?['member','viewer','admin']:['member','viewer']){const option=node('option',value);option.value=value;role.append(option);}
+  $('inviteProducts').replaceChildren();
+  for(const product of workspace.products.filter(p=>p.effective&&p.can_assign)){
+   const field=select('Invitation '+product.name+' role',['',...(product.roles||[])],'');field.input.dataset.product=product.id;$('inviteProducts').append(field.label);
+  }
+  const invitations=await api('/'+$('organization').value+'/invitations');$('invitations').replaceChildren();
+  for(const invite of invitations){
+   const row=node('article');row.append(node('h3',invite.email),node('p',`${invite.state}${invite.expired?' (expired)':''} · delivery ${invite.delivery_state} · attempts ${invite.attempts} · expires ${new Date(invite.expires_at).toLocaleString()}`));
+   if(invite.failure_code)row.append(node('p','Delivery requires review: '+invite.failure_code));
+   if(!['accepted','accepting','requires_attention'].includes(invite.state))for(const action of ['reissue','cancel']){
+    const button=node('button',(action==='reissue'?'Reissue ':'Cancel ')+invite.email);button.addEventListener('click',()=>{
+     if(busy||!window.confirm(`${action==='reissue'?'Replace the invitation link':'Cancel this invitation'} for ${invite.email}? Previous links will stop working.`))return;
+     run(async()=>{await api('/'+$('organization').value+'/invitations/'+invite.id+'/'+action,{generation:invite.generation,confirmed:true});await loadWorkspace();message('Invitation updated.');});
+    });row.append(button);
+   }else row.append(node('p','Accepted or ambiguous invitations cannot be changed here. Contact VSPH for recovery.'));
+   $('invitations').append(row);
+  }
+  if(!invitations.length)$('invitations').append(node('p','No invitations issued by you for this organization.'));
+ }
+ $('invite').addEventListener('submit',event=>{
+  event.preventDefault();if(busy||!workspace)return;
+  const form=$('invite'),body={name:form.elements.name.value,email:form.elements.email.value,memberRole:form.elements.memberRole.value,products:[...$('inviteProducts').querySelectorAll('select')].filter(el=>el.value).map(el=>({applicationId:el.dataset.product,role:el.value}))},id=$('organization').value,signature=JSON.stringify({id,body});
+  if(pendingInvite?.signature!==signature)pendingInvite={signature,key:crypto.randomUUID()};
+  const key=pendingInvite.key;run(async()=>{await api('/'+id+'/invitations',body,{'Idempotency-Key':key});pendingInvite=null;form.reset();await loadWorkspace();message('Invitation queued. Delivery is not confirmed.');});
+ });
  $('profile').addEventListener('submit',event=>{event.preventDefault();if(!workspace)return;mutate('profile',{version:workspace.organization.version,name:$('profile').elements.name.value},'Save this organization display name?');});
  $('organization').addEventListener('change',()=>run(loadWorkspace));$('refresh').addEventListener('click',()=>run(()=>loadOrganizations(orgCursor)));
  $('firstOrganizations').addEventListener('click',()=>run(()=>loadOrganizations()));$('nextOrganizations').addEventListener('click',()=>run(()=>loadOrganizations(orgs.at(-1)?.id)));
