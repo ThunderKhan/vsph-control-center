@@ -10,9 +10,9 @@
   if(response.status===401&&!['MFA_REQUIRED','MFA_INVALID','INVALID_CREDENTIALS','IDENTITY_MISMATCH'].includes(data.code)){location.assign('/login');throw Error('Your session expired. Sign in again.');}
   if(!response.ok){const error=Error(data.message||'Unable to load this organization.');error.code=data.code;error.factors=data.factors;throw error;}return data;
  }
- function select(labelText,values,current){
+ function select(labelText,values,current,emptyText='Remove product access'){
   const label=node('label',labelText),input=node('select');input.setAttribute('aria-label',labelText);
-  for(const value of values){const option=node('option',value===''?'Remove product access':value);option.value=value;input.append(option);}
+  for(const value of values){const option=node('option',value===''?emptyText:value);option.value=value;input.append(option);}
   input.value=current;label.append(input);return {label,input};
  }
  function products(){
@@ -80,7 +80,7 @@
   for(const value of workspace.actorRole==='owner'?['member','viewer','admin']:['member','viewer']){const option=node('option',value);option.value=value;role.append(option);}
   $('inviteProducts').replaceChildren();
   for(const product of workspace.products.filter(p=>p.effective&&p.can_assign)){
-   const field=select('Invitation '+product.name+' role',['',...(product.roles||[])],'');field.input.dataset.product=product.id;$('inviteProducts').append(field.label);
+   const field=select('Invitation '+product.name+' role',['',...(product.roles||[])],'','No product role');field.input.dataset.product=product.id;$('inviteProducts').append(field.label);
   }
   const invitations=await api('/'+$('organization').value+'/invitations');$('invitations').replaceChildren();
   for(const invite of invitations){
