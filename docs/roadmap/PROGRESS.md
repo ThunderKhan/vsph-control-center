@@ -1,3 +1,9 @@
+## Scoped reporting continuation — 3 November 2026
+
+Customer invitations PR [#42](https://github.com/ThunderKhan/vsph-control-center/pull/42) merged as `095486d62b4b253617e0c29b6baebf10032df936`; all four checks and automated review passed, with 126 Node / 30 native PostgreSQL / 24 desktop/mobile Chromium cases, synthetic restore and disposable helpers. Customer-admin queue/status/renew/cancel is implemented with current issuer-authority checks; live email/Auth acceptance is unverified.
+
+M9 now adds a bounded CSV export of the existing authorized project report, sharing strict filters and current database permission checks. The UI states the first-100 limit; exports use explicit columns, fixed download names, no-store responses and spreadsheet formula neutralization. No additional migration is required for CSV. Global search, full report pagination, retention and financial/revenue accounting remain open. No hosting or hosted data/schema/provider change is part of this continuation.
+
 ## Customer-admin invitations — 3 November 2026
 
 Organization self-service PR [#41](https://github.com/ThunderKhan/vsph-control-center/pull/41) merged as `0b94bbf1e4aa2b2f3d57957b84cb260f53d12495` after all four checks passed: 125 Node, 29 native PostgreSQL and 24 desktop/mobile Chromium cases, including disposable helpers, synthetic restore, checksums, coverage and dependency gates. Review fixed cross-organization profile-lock ordering; browser acceptance fixed explicit accessible select names.
