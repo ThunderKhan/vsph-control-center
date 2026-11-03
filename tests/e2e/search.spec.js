@@ -3,8 +3,8 @@ test('search finds durable project work with filters, pagination, failure recove
  test.skip(!process.env.PROJECT_E2E_DATABASE,'Requires isolated native database');
  await context.setExtraHTTPHeaders({Origin:'http://127.0.0.1:3100'});
  await context.addCookies([{name:'vsph.portal.sid',value:'fixture-admin-session',url:'http://127.0.0.1:3100'}]);
- const unique='Finder '+info.project.name;
- const r=await context.request.post('/api/projects',{data:{key:'FIND-'+info.project.name.toUpperCase(),name:unique,kind:'internal'}});expect(r.status()).toBe(201);const project=await r.json();let version=1;
+ const unique='Finder '+info.project.name+' retry '+info.retry;
+ const r=await context.request.post('/api/projects',{data:{key:'FIND-'+info.project.name.toUpperCase()+'-'+info.retry,name:unique,kind:'internal'}});expect(r.status()).toBe(201);const project=await r.json();let version=1;
  for(let n=1;n<=27;n++){expect((await context.request.post('/api/projects/'+project.id+'/tasks',{data:{version:version++,title:unique+' task '+n}})).status()).toBe(200);}
  await page.goto('/dashboard');
  if(info.project.name.includes('mobile'))await page.locator('#openMenu').click();

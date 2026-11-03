@@ -4,11 +4,33 @@ Projects MVP, durable provisioning, read-only GitHub delivery, project inbox/rep
 
 VSPH's multi-tenant product portal (Express + vanilla HTML/JS/CSS), integrated with **Supabase Auth** and **hosted PostgreSQL**. The portal workspace dashboard and login were redesigned with the company design system while retaining the existing backend permissions. The old MySQL integration was replaced.
 
+## Owner financial ledger (source-only Phase 1)
+
+Platform owners can open **/admin/finance** to enter audited INR invoices and independently verified manual cash receipts, view real balances by client/project and month, reverse incorrect receipts, and void unpaid invoices. The owner-only PostgreSQL ledger uses integer paise, transactionally enforced receipt caps, explicit corrections, idempotent writes and RLS-denied browser access. It does **not** treat active subscriptions or invoices as collected cash, and it is **not** payment-provider reconciliation or revenue recognition.
+
+The forward migration `20261103170000_finance_ledger.sql` is committed and checksum-registered but **not installed on hosted Supabase**. Apply it only through an approved backed-up target with the preceding migration history reconciled. Existing owner executive dashboard cards remain fictional until the separate data-binding milestone. See [finance operations](docs/operations/FINANCE_LEDGER.md).
+
 ## Guided customer onboarding — PR #7
 
 Platform administrators use the five-step `/admin/onboarding` wizard. Submission commits a durable idempotent job/tenant/grants/outbox transaction; it does not send email synchronously. `/admin/provisioning` shows delivery/acceptance/failure state and audited retry, revoke and reconciled recovery. A separately invoked worker requires an approved authenticated HTTPS delivery provider, idempotency contract and server-only outbox encryption key. It is disabled by default.
 
 Invitations are purpose-bound, expiring, single-use capabilities for one membership. Newly provisioned identities stay disabled until enrollment completes. Existing accounts must sign in and their passwords are not reset by acceptance. Explicit account disable revokes pending enrollment. Legacy broad bearer invitation links are rejected and must be reconciled before rollout. See [current customer onboarding](docs/CUSTOMER_ONBOARDING.md).
+
+## VSPH internal employees (source-only implementation)
+
+The VSPH platform owner can open **/employees** to see the persisted internal
+staff directory, departments, counts, employee statuses, and owner-governed HR
+assignments. **/employees/onboarding** provides a three-step employee roster
+wizard. Existing, explicitly authorized HR managers can onboard and update
+ordinary employee records but cannot grant HR access or change platform roles.
+
+This is a VSPH **internal roster**, not a customer organization membership or
+automatic employee login invitation. New staff entries do not create Supabase
+Auth accounts or send email. The additive forward migration
+`20261103110000_internal_employee_governance.sql` is **not installed on the
+hosted database**. It must be reviewed and installed after its dependencies
+before this feature can run with real data. See
+[internal workforce operations](docs/operations/INTERNAL_EMPLOYEES.md).
 
 ## Internal project delivery
 

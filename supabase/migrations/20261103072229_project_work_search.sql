@@ -49,10 +49,10 @@ begin
    and (nullif(p_data->>'from','') is null or e.due_on>=(p_data->>'from')::date)
    and (nullif(p_data->>'to','') is null or e.due_on<=(p_data->>'to')::date)
   order by e.rank,e.id limit 26
- ), numbered as (select *,row_number() over(order by rank,id) n from page)
- select coalesce(jsonb_agg(to_jsonb(n)-'rank'-'n' order by rank,id) filter(where n.n<=25),'[]'),
-  case when count(*)>25 then max(rank::text||':'||id::text) filter(where n.n=25) end
- into matches,next_cursor from numbered n;
+ ), numbered as (select *,row_number() over(order by rank,id) row_number from page)
+ select coalesce(jsonb_agg(to_jsonb(item)-'rank'-'row_number' order by rank,id) filter(where item.row_number<=25),'[]'),
+  case when count(*)>25 then max(rank::text||':'||id::text) filter(where item.row_number=25) end
+ into matches,next_cursor from numbered item;
  return jsonb_build_object('results',matches,'nextCursor',next_cursor,'pageSize',25,'scope','authorized-project-work');
 end$$;
 revoke all on function public.project_search(uuid,text,uuid,jsonb) from public,anon,authenticated;

@@ -158,11 +158,29 @@
     },
     {
       "path": "supabase/migrations/20261103072229_project_work_search.sql",
-      "sha256": "a384c6b2c52770142e879084e2d37f62afb1fee68c79cbf75803f46200e3c136",
+      "sha256": "dfc44ac57217109ae27305f96c4a77a0f0c3750b16861369090bb980431b5b10",
       "version": "20261103072229",
       "name": "project_work_search",
       "requires": [
         "supabase/migrations/20261103062727_organization_owner_transfer.sql"
+      ]
+    },
+    {
+      "path": "supabase/migrations/20261103110000_internal_employee_governance.sql",
+      "sha256": "eddacca0f7f18384cf0d122962834dc552d7a87051a8ae7e2ad72b991640737f",
+      "version": "20261103110000",
+      "name": "internal_employee_governance",
+      "requires": [
+        "supabase/migrations/20261103062727_organization_owner_transfer.sql"
+      ]
+    },
+    {
+      "path": "supabase/migrations/20261103170000_finance_ledger.sql",
+      "sha256": "7a399e4b2c95334666eeea8245af540f58f86f4f9c4090ca3c4eae0e2faaf48a",
+      "version": "20261103170000",
+      "name": "finance_ledger",
+      "requires": [
+        "supabase/migrations/20261103110000_internal_employee_governance.sql"
       ]
     }
   ],

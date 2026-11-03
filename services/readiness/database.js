@@ -43,6 +43,11 @@ function verifyManifest(
   return { manifest, errors };
 }
 const tables = [
+  "finance_invoices",
+  "finance_payments",
+  "finance_payment_reversals",
+  "internal_employees",
+  "internal_hr_managers",
   "organization_owner_transfer_grants",
   "product_health_observations",
   "profiles",
@@ -82,6 +87,9 @@ const tables = [
 ];
 const signatures = [
   "public.project_search(uuid,text,uuid,jsonb)",
+  "public.finance_command(uuid,text,uuid,jsonb)",
+  "public.internal_employee_command(uuid,text,uuid,jsonb)",
+  "public.internal_hr_profile_disabled()",
   "public.organization_ownership(uuid,text,uuid,jsonb)",
   "public.consume_sso_launch_code(text)",
   "public.set_profile_status(uuid,uuid,text)",

@@ -276,6 +276,18 @@
       byId('adminNavContainer').hidden = !isPlatformAdmin;
       byId('adminOverviewPanel').hidden = !isPlatformAdmin;
       byId('topbarOnboard').hidden = !isPlatformAdmin;
+      // The platform owner always has employee administration. Other users
+      // only see its navigation after the current database grants explicit HR access.
+      byId('employeeNavContainer').hidden = !isPlatformAdmin;
+      if (!isPlatformAdmin) {
+        try {
+          const workforce = await fetch('/api/employees/access', {credentials:'same-origin',cache:'no-store'});
+          if (workforce.ok) byId('employeeNavContainer').hidden = false;
+        } catch { /* Unmigrated or unavailable HR module must not break workspace. */ }
+      }
+      // Only a verified platform administrator gets the isolated fictional
+      // executive preview. Avoid unnecessary application/schema reads for it.
+      if (isPlatformAdmin && !isApplicationsView && window.VSPHExecutiveDashboard?.activate?.()) return;
 
       const result = await responseJson('/api/apps');
       if (!result) return;

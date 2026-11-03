@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#00255A">
+<title>New employee | VSPH Control Center</title>
+<link rel="stylesheet" href="/operations.css"><link rel="stylesheet" href="/employees.css">
+<script defer src="/employee-onboarding.js"></script>
+</head>
+<body>
+<div class="people-shell">
+ <nav class="people-nav" aria-label="Breadcrumb"><a href="/dashboard">VSPH Control Center</a><span>/</span><a href="/employees">Employees</a><span>/</span> New employee <a href="/employees" class="people-nav-return">Back to employees</a></nav>
+ <header class="people-header">
+  <div><p class="eyebrow">PEOPLE / INTERNAL ONBOARDING</p><h1>Onboard an employee<span class="brand-dot">.</span></h1><p class="muted">Add a real staff roster record with a reviewable, auditable workflow.</p></div>
+ </header>
+ <div class="people-info" role="note"><strong>Internal record only.</strong> Adding a new employee stores their information as <strong>Onboarding</strong>. It does not create a portal identity, grant product/project access, send an email, or assign HR permissions.</div>
+ <div class="people-wizard">
+  <aside class="people-steps" aria-label="Onboarding progress">
+   <p class="eyebrow">SETUP CHECKLIST</p>
+   <ol>
+    <li data-staff-step="0" class="current"><span>01</span><div><strong>Identity</strong><small>Name and work email</small></div></li>
+    <li data-staff-step="1"><span>02</span><div><strong>Position</strong><small>Team and employment details</small></div></li>
+    <li data-staff-step="2"><span>03</span><div><strong>Review</strong><small>Confirm and save</small></div></li>
+   </ol>
+   <div class="people-wizard-note">Only platform owners and explicitly authorized HR managers can onboard VSPH staff. HR cannot grant HR or owner access.</div>
+  </aside>
+  <section class="people-panel people-wizard-panel" aria-labelledby="wizardTitle">
+   <div class="people-wizard-top"><span id="staffStep">STEP 1 OF 3</span><span id="staffProgress">33% COMPLETE</span></div>
+   <div class="people-wizard-track"><span id="staffProgressFill" style="width:33%"></span></div>
+   <form id="employeeOnboardForm" novalidate>
+    <fieldset class="people-wizard-step" data-staff-panel="0">
+     <legend id="wizardTitle">Employee identity</legend>
+     <p class="muted">Use the employee's own professional identity. Their email is a unique roster identifier.</p>
+     <div class="people-form-grid">
+      <label>Full name <em>*</em><input name="fullName" maxlength="150" placeholder="e.g. Avery Shah" autocomplete="name" required></label>
+      <label>Work email <em>*</em><input type="email" name="email" maxlength="190" placeholder="avery@company.example" autocomplete="email" required></label>
+     </div>
+    </fieldset>
+    <fieldset class="people-wizard-step" data-staff-panel="1" hidden>
+     <legend>Employment details</legend><p class="muted">These details power the actual employee directory and workforce counts.</p>
+     <div class="people-form-grid">
+      <label>Department <em>*</em><input name="department" maxlength="100" placeholder="e.g. Engineering" required></label>
+      <label>Job title <em>*</em><input name="jobTitle" maxlength="120" placeholder="e.g. Software Developer" required></label>
+      <label>Employment type<select name="employmentType" required><option value="full_time">Full-time</option><option value="part_time">Part-time</option><option value="intern">Intern</option><option value="contract">Contract</option></select></label>
+      <label>Start date <em>*</em><input type="date" name="startDate" required></label>
+     </div>
+    </fieldset>
+    <fieldset class="people-wizard-step" data-staff-panel="2" hidden>
+     <legend>Review employee onboarding</legend>
+     <p class="muted">Please verify the identity and role before storing this record.</p>
+     <dl id="employeeReview" class="people-review"></dl>
+     <label class="people-confirm"><input id="employeeConfirmed" type="checkbox" required> I confirm these VSPH internal staff details are correct.</label>
+    </fieldset>
+    <p id="onboardError" class="people-message people-error" role="alert" aria-live="assertive" hidden></p>
+    <div class="people-wizard-actions">
+      <button type="button" id="staffPrevious" class="people-secondary" disabled>Previous</button>
+      <span class="people-small">Nothing is saved until you confirm.</span>
+      <button type="button" id="staffNext" class="people-primary">Continue</button>
+    </div>
+   </form>
+   <section id="onboardComplete" class="people-complete" hidden aria-live="polite">
+    <span class="people-complete-icon" aria-hidden="true">✓</span>
+    <h2>Employee recorded.</h2>
+    <p id="onboardCompleteMessage">The staff record was saved as Onboarding.</p>
+    <p class="people-small">Portal access, formal invitations, project assignments and HR privileges are separate controlled workflows. This employee does not gain them automatically.</p>
+    <div class="people-wizard-actions"><a class="people-primary" href="/employees">View employee dashboard</a><button type="button" id="onboardAnother" class="people-secondary">Onboard another</button></div>
+   </section>
+  </section>
+ </div>
+</div>
+</body>
+</html>
