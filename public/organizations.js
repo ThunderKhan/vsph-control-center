@@ -10,7 +10,7 @@
   const data=await response.json();if(!response.ok)throw Error(data.message||'Unable to load this organization.');return data;
  }
  function select(labelText,values,current){
-  const label=node('label',labelText),input=node('select');
+  const label=node('label',labelText),input=node('select');input.setAttribute('aria-label',labelText);
   for(const value of values){const option=node('option',value===''?'Remove product access':value);option.value=value;input.append(option);}
   input.value=current;label.append(input);return {label,input};
  }
