@@ -6,7 +6,7 @@ module.exports=async pool=>{
   await pool.query("insert into profiles(id,full_name,email,platform_role) values($1,'Exact finance fixture',$2,$3)",[id,id+'@fixture.test',role]);
  }
  await pool.query("insert into organizations(id,name,slug) values($1,'Exact fixture customer',$2)",[client,'exact-'+client]);
- await pool.query("insert into organization_memberships(organization_id,user_id,role,status) values($1,$2,'customer_admin','active')",[client,outsider]);
+ await pool.query("insert into organization_memberships(organization_id,user_id,role,status) values($1,$2,'admin','active')",[client,outsider]);
  await pool.query("insert into projects(id,key,name,kind,customer_organization_id,owner_id,created_by) values($1,'EXACT-FINANCE','Exact fixture project','customer',$2,$3,$3)",[project,client,owner]);
  // 9,008 maximum-size invoices and one paise exceed JS safe integers. Test-only
  // data stays in the disposable loopback DB; no production seeding pathway.
@@ -61,7 +61,13 @@ module.exports=async pool=>{
   assert.equal((await response.json()).summary.collectedPaise,'9008000000000002');
   assert.equal((await fetch(base+'/api/finance')).status,401);
   assert.equal((await fetch(base+'/api/finance',{headers:{Cookie:'vsph.portal.sid='+raw+'-other'}})).status,403);
+  await pool.query("update portal_sessions set expires_at=clock_timestamp()-interval '1 second' where token_hash=$1",[hashToken(raw)]);
+  assert.equal((await fetch(base+'/api/finance',{headers:{Cookie:'vsph.portal.sid='+raw}})).status,401);
+  await pool.query("update portal_sessions set expires_at=clock_timestamp()+interval '1 hour' where token_hash=$1",[hashToken(raw)]);
   await pool.query("update profiles set platform_role='user' where id=$1",[owner]);await assert.rejects(report(),{code:'42501'});
   assert.equal((await fetch(base+'/api/finance',{headers:{Cookie:'vsph.portal.sid='+raw}})).status,403);
+  await pool.query("update profiles set platform_role='super_admin',status='disabled' where id=$1",[owner]);await assert.rejects(report(),{code:'42501'});
+  await pool.query('delete from portal_sessions where token_hash=$1',[hashToken(raw)]);
+  assert.equal((await fetch(base+'/api/finance',{headers:{Cookie:'vsph.portal.sid='+raw}})).status,401);
  }finally{await new Promise(r=>server.close(r));}
 };
