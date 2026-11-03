@@ -137,6 +137,15 @@
       "requires": [
         "supabase/migrations/20261103050509_organization_workspace.sql"
       ]
+    },
+    {
+      "path": "supabase/migrations/20261103053129_delegated_invitation_profile_locks.sql",
+      "sha256": "4784f486e000b0073f3a9e6296bd0cd0d768ee9e45bba5c27f26cd942b776083",
+      "version": "20261103053129",
+      "name": "delegated_invitation_profile_locks",
+      "requires": [
+        "supabase/migrations/20261103051256_delegated_organization_invitations.sql"
+      ]
     }
   ],
   "note": "Historical Music filenames share version 20261030. Reconcile hosted ledger explicitly; do not silently rename or repair history."
