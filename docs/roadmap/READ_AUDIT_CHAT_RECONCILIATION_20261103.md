@@ -39,3 +39,7 @@ Rollback of the repair is a code revert plus a separately reviewed forward SQL d
 Reconciled local Node suite: 146 passing cases; syntax/lint/checksum/documentation gates run. Full CI must pass on the exact final PR heads before merge. Native/browser fixtures are synthetic, provider sessions are substitutes, and the native transport is not live PostgREST. Record exact final native/browser counts and merge SHAs in PROGRESS.md / IMPLEMENTATION_REPORT.md after validation.
 
 Continue with governed internal identity invitations/linking and offboarding impact review, live owner finance/dashboard filtering, broader session/step-up/recovery, scoped retention/notification/reporting and operational load/failure/accessibility acceptance. CRM remains basic and HRM/HMS remain separate unfinished products. Deployment is the operator's separate work, not a reason to stop independent implementation.
+
+## CI tooling correction
+
+One reconciled-head database job passed all 36 native cases, then failed before running advisors: npm omitted the optional Supabase CLI Linux binary (`No matching Supabase CLI binary package found for linux-x64`). The Ubuntu CI command now explicitly installs both pinned official `supabase@2.122.0` and `@supabase/cli-linux-x64@2.122.0` packages. It still runs the same security advisors with `--fail-on error`; no security gate or dependency-audit policy was weakened, and the application lockfile is unchanged. Full jobs must pass on the corrected head.
