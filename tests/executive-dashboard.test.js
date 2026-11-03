@@ -30,7 +30,7 @@ test('executive bento is explicitly demo-only, separated from regular users and 
   for (const hex of ['#00255A','#0069C8','#50C0E8','#F1F2F2']) {
     assert.ok(css.includes(hex), 'executive stylesheet uses approved brand color ' + hex);
   }
-  assert.doesNotMatch(css + js + html, /#(?:b4f34b|a9f14b|a68ada|0c0d0d|111312)\\b/i);
+  assert.doesNotMatch(css + js + html, /#(?:b4f34b|a9f14b|a68ada|0c0d0d|111312)\b/i);
   assert.match(css, /\.exec-hero\{background:radial-gradient/);
   assert.match(css, /\.exec-highlight\{background:#EAF3FA/);
   assert.doesNotThrow(() => new Function(js));
