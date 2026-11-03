@@ -82,7 +82,11 @@ router.post('/:id/update',rpcRoute(req=>{
 for(const action of ['grant_hr','revoke_hr']){
  router.post('/:id/'+action,rpcRoute(req=>{
   if(!uuid(req.params.id))invalid('Invalid employee identifier.');
-  return command(req,action,req.params.id,roleFields(req.body));
+  const fields=roleFields(req.body);
+  // Fail closed on an older target: no fallback to the historical email-only
+  // HR grant RPC when consent/schema is missing. Revocation stays available.
+  if(action==='grant_hr')return db().rpc('internal_employee_identity',{p_actor:req.user.id,p_action:'grant_hr',p_id:req.params.id,p_data:{rosterVersion:fields.version,confirmed:true,currentHash:req.portalSession.token_hash}}).then(check);
+  return command(req,action,req.params.id,fields);
  }));
 }
 // Server-side page guard: sharing a URL does not expose the HR interface to other users.

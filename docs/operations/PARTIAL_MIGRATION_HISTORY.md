@@ -17,13 +17,14 @@ The existing `staging:inspect` target/TLS/explicit-isolated-approval guards are 
 
 ## Latest metadata evidence and operator boundary
 
-A read-only Supabase `list_migrations` call on 3 November 2026 reported 19 canonical entries through internal employees. This is version/name evidence only: no source markers, function/catalog equivalence or user data were read. It supersedes the earlier eight-pending source-report cutoff. Three entries are missing:
+A read-only Supabase `list_migrations` call on 3 November 2026 reported 19 canonical entries through internal employees. This is version/name evidence only: no source markers, function/catalog equivalence or user data were read. It supersedes the earlier eight-pending source-report cutoff. A subsequent source-only account-consent increment adds a fourth gap; these four identities are missing by that last recorded ledger:
 
 1. `20261103072229_project_work_search.sql`
 2. `20261103155930_internal_hr_lock_order.sql`
-3. `20261103170000_finance_ledger.sql`
+3. `20261103165522_internal_employee_identity_links.sql`
+4. `20261103170000_finance_ledger.sql`
 
-The search gap sorts before installed employee governance. Preserve its merged version/checksum. Before separately approved target writes, compare existing canonical source markers and catalog, verify backups/recovery, prepare the three reviewed forward SQL/history entries in the canonical workspace, inspect impact and validate the resulting target. Do not rerun bootstrap/seeds/legacy installer or blanket-push the original duplicate-Music-version folder. This diagnostic change installs nothing and does not change the user's Free plan, credentials, Auth settings or records.
+The search gap sorts before installed employee governance. Preserve its merged version/checksum. Before separately approved target writes, compare existing canonical source markers and catalog, verify backups/recovery, prepare only the reviewed forward SQL/history entries in the canonical workspace, inspect impact and validate the resulting target. Do not rerun bootstrap/seeds/legacy installer or blanket-push the original duplicate-Music-version folder. This diagnostic change installs nothing and does not change the user's Free plan, credentials, Auth settings or records.
 
 ## Verification
 

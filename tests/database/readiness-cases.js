@@ -50,7 +50,7 @@ module.exports = async (pool) => {
       await client.query("revoke select on public.music_requests from anon");
     }
     // This namespace is created ONLY in the already empty synthetic fixture.
-    // Rehearse a valid installed canonical subset with three forward gaps.
+    // Rehearse a valid installed canonical subset with four forward gaps.
     const {installationEntries,sourceMarker}=require('../../services/readiness/history');
     const entries=installationEntries(verifyManifest().manifest),missing=['project_work_search','internal_hr_lock_order','internal_employee_identity_links','finance_ledger'];
     await client.query('create schema supabase_migrations;create table supabase_migrations.schema_migrations(version text primary key,name text,statements text[])');

@@ -8,7 +8,7 @@ The employee roster now supports a durable request/accept/revoke workflow for **
 2. Open Account link from the employee row. Review the current roster version, then request consent. The UUID idempotency key prevents duplicate request retries; another pending request conflicts. No email or bearer link is sent.
 3. The employee signs into that existing account and opens My employment from navigation. Only their eligible pending requests and minimal linked employment record are returned.
 4. Accept with fresh password and any enrolled supported TOTP. Credentials and provider tokens never persist in the browser or link tables. Existing server-side verification uses a fresh provider client and explicit local-scope cleanup; it does not revoke other provider sessions.
-5. Link acceptance alone grants no access roles. An owner can separately grant HR to an Active employee only after accepted consent. Existing HR assignments predating this migration are preserved for explicit owner review; after revocation/regrant the new consent requirement applies.
+5. Link acceptance alone grants no access roles. The HTTP grant path uses the new consent RPC and fails closed on an older/missing schema; it never falls back to the historical email-only grant. An owner can separately grant HR to an Active employee only after accepted consent. Existing HR assignments predating this migration are preserved for explicit owner review; after revocation/regrant the new consent requirement applies.
 
 ## Authorization and lifecycle
 

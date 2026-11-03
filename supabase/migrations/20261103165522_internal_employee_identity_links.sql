@@ -48,7 +48,7 @@ declare
  linked public.internal_employee_identity_links; target_id uuid; candidate uuid; issuer uuid; authority text;
  checked_key text; response jsonb; existing_request public.internal_employee_link_requests; removed integer;
 begin
- if p_action is null or p_action not in ('inbox','manage','request','renew','cancel','accept','revoke') or jsonb_typeof(p_data) is distinct from 'object' then raise exception 'Invalid identity command' using errcode='22023';end if;
+ if p_action is null or p_action not in ('inbox','manage','request','renew','cancel','accept','revoke','grant_hr') or jsonb_typeof(p_data) is distinct from 'object' then raise exception 'Invalid identity command' using errcode='22023';end if;
  if exists(select 1 from jsonb_object_keys(p_data) k where k not in ('currentHash','key','rosterVersion','requestId','requestVersion','linkVersion','confirmed','verifiedAt','assurance')) then raise exception 'Invalid identity fields' using errcode='22023';end if;
  foreach checked_key in array array['rosterVersion','requestVersion','linkVersion'] loop
   if p_data?checked_key then
@@ -115,6 +115,12 @@ begin
     where r.employee_id=employee.id and (authority='owner' or r.issuer_id=p_actor) order by (r.state='pending') desc,r.created_at desc,r.id limit 20)x),'[]'));
  end if;
  if p_data->'confirmed' is distinct from 'true'::jsonb or employee.version is distinct from (p_data->>'rosterVersion')::integer then raise exception 'Review current roster version' using errcode='40001';end if;
+ if p_action='grant_hr' then
+  if authority<>'owner' or linked.status is distinct from 'linked' or not exists(select 1 from public.profiles where id=linked.user_id and email=employee.email and status='active' and platform_role='user') then
+   raise exception 'Owner approval and accepted active account link required' using errcode='42501';
+  end if;
+  return public.internal_employee_core_command(p_actor,'grant_hr',employee.id,jsonb_build_object('version',employee.version,'confirmed',true));
+ end if;
  if p_action='revoke' then
   if linked.status is distinct from 'linked' or linked.version is distinct from (p_data->>'linkVersion')::integer then raise exception 'Link changed' using errcode='40001';end if;
   update public.internal_employee_identity_links set status='revoked',version=version+1,revoked_at=now() where employee_id=employee.id;
