@@ -11,7 +11,7 @@ The separate chat's relevant context was retrieved, then checked against GitHub 
 | [#51](https://github.com/ThunderKhan/vsph-control-center/pull/51) | `b425632fa7e23e1740e3d62d07b9ddefb9a6bf8e` | Persisted internal roster/onboarding, explicit owner-governed HR mapping, private API/UI, atomic audits |
 | [#52](https://github.com/ThunderKhan/vsph-control-center/pull/52) | `14f48c9a62074ca8021477f63c175e7e93650741` | Owner-only manual INR invoice/receipt/reversal/void ledger and source-backed finance reports            |
 
-All four main CI jobs for #52's main SHA were successful when inspected. PR #48 adds authorized project-work search and has been reconciled with this entire source tree, including overlapping manifests, readiness signatures, fixtures and counts. No employee, finance or executive module was recreated or discarded.
+All four main CI jobs for #52's main SHA were successful when inspected. PR #48 merged as `74e507c11c8926d9bedf520d8521f85b03ba89f0` after 146 Node / 35 native PostgreSQL / 36 Chromium cases and all four CI jobs passed. It adds authorized project-work search and has been reconciled with this entire source tree, including overlapping manifests, readiness signatures, fixtures and counts. No employee, finance or executive module was recreated or discarded.
 
 ## Findings and action
 
