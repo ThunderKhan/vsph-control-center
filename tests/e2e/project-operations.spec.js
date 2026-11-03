@@ -35,6 +35,7 @@ test("project inbox preferences and reports persist with scoped assignments", as
   await page.locator("#projectOperations summary").click();
   await expect(page.locator("#notificationList")).toContainText(
     "Assignment notification " + info.project.name,
+    { timeout: 15000 }, // Above the API's 12-second deadline; still requires real delivery.
   );
   const notice = page
     .locator("#notificationList li")
