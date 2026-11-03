@@ -6,7 +6,7 @@
       if (text !== undefined) n.textContent = String(text);
       return n;
     };
-  let identity;
+  let identity, inboxGeneration = 0;
   async function api(path, body) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 12000);
@@ -48,12 +48,19 @@
     return b;
   }
   async function inbox() {
-    const box = $("notificationList");
+    const box = $("notificationList"), generation = ++inboxGeneration;
     box.replaceChildren();
+    $("notificationDelivery").textContent = "Loading current delivery status…";
     box.setAttribute("aria-busy", "true");
     let data;
     try { data = await api("/api/notifications"); }
-    finally { box.setAttribute("aria-busy", "false"); }
+    catch (error) {
+      if (generation !== inboxGeneration) return;
+      $("notificationDelivery").textContent = "Delivery status unavailable.";
+      throw error;
+    } finally { if (generation === inboxGeneration) box.setAttribute("aria-busy", "false"); }
+    if (generation !== inboxGeneration) return;
+    box.replaceChildren();
     $("notificationDelivery").textContent =
       data.queued +
       " queued · " +
@@ -174,11 +181,13 @@
     async function initializeCore() {
       await inbox();
       if (initialized) return;
-      const prefs = await api("/api/notifications/preferences");
-      for (const [name, value] of Object.entries(prefs))
-        if (f.elements[name]) f.elements[name].checked = value;
-      preferencesReady = true;
-      preferenceControls.forEach(control => { control.disabled = false; });
+      if (!preferencesReady) {
+        const prefs = await api("/api/notifications/preferences");
+        for (const [name, value] of Object.entries(prefs))
+          if (f.elements[name]) f.elements[name].checked = value;
+        preferencesReady = true;
+        preferenceControls.forEach(control => { control.disabled = false; });
+      }
       await reports(true);
       initialized = true;
     }

@@ -18,7 +18,7 @@ API requests are session-protected, `no-store`, and throttled at 60 requests/IP/
 
 ## Migration, repair and acceptance
 
-`20261103072229_project_work_search.sql` follows the owner-transfer migration in the checksummed manifest. It adds one stable read-only definer function with fixed empty search path and explicit browser-role EXECUTE revocation/service-role grant. It changes no existing business rows or historical migration. There are now 20 source migrations plus canonical baseline (21 canonical journal entries); this new migration and the four self-service plus two employee/finance forward migrations are unapplied hosted. Do not replay bootstrap, seeds or the legacy installer on an existing journaled database.
+`20261103072229_project_work_search.sql` follows the owner-transfer migration in the checksummed manifest. It adds one stable read-only definer function with fixed empty search path and explicit browser-role EXECUTE revocation/service-role grant. It changes no existing business rows or historical migration. There are now 21 source migrations plus canonical baseline (22 canonical journal entries); the read-only target ledger now records the self-service and employee migrations; search, HR lock repair and finance lack entries (three pending). Source-marker/catalog equivalence remains unverified. Do not replay bootstrap, seeds or the legacy installer on an existing journaled database.
 
 For rollback, revert the search routes/navigation/UI code; unused additive SQL may safely remain. Repair SQL through a reviewed forward migration rather than altering an applied checksum. No destructive rollback is necessary. No hosted migration or deployment is authorized by this implementation.
 

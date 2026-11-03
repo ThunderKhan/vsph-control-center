@@ -209,3 +209,8 @@ Use disposable fixtures unless a real identity/target has been approved. No host
 - In disposable fixtures, fail the first `/api/notifications` request. An error must appear; unread notification preferences must remain disabled. Refresh inbox must be wired and usable without a page reload.
 - Restore the endpoint and refresh. Preferences load, reports generate and inbox content returns. An outage during a later refresh must clear stale inbox records and remain retryable.
 - A stalled request must end after the 12-second deadline with a clear retry message. Multiple refresh clicks must share one initialization, and ordinary successful refresh must preserve unsaved preference edits. Server authorization still applies to every request.
+
+## Recovery concurrency and drafts
+
+- Mark a notice read while its response is delayed, then refresh. Release the older unread response last: the current row must remain Read with no duplicate. A late success after a newer failure must not repopulate stale records.
+- Fail the first project report after preferences loaded. Change a preference without saving, recover the report using Refresh and confirm that draft is preserved. No preferences may be saved before their initial read succeeds.
