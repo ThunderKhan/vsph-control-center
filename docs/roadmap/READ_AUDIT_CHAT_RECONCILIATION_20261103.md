@@ -43,3 +43,34 @@ Continue with governed internal identity invitations/linking and offboarding imp
 ## CI tooling correction
 
 One reconciled-head database job passed all 36 native cases, then failed before running advisors: npm omitted the optional Supabase CLI Linux binary (`No matching Supabase CLI binary package found for linux-x64`). The Ubuntu CI command now explicitly installs both pinned official `supabase@2.122.0` and `@supabase/cli-linux-x64@2.122.0` packages. It still runs the same security advisors with `--fail-on error`; no security gate or dependency-audit policy was weakened, and the application lockfile is unchanged. Full jobs must pass on the corrected head.
+
+## Verified merges and follow-up recovery
+
+- [#48](https://github.com/ThunderKhan/vsph-control-center/pull/48): `74e507c11c8926d9bedf520d8521f85b03ba89f0` — authorized project-work search. Exact PR head `c58cd4e5a93802a298777a88aa74d6bb98803753` passed all four jobs: 146 Node, 35 native PostgreSQL and 36 Chromium cases, including disposable helpers.
+- [#53](https://github.com/ThunderKhan/vsph-control-center/pull/53): `459a1e24ab008432ffedc559e9ab4673bffaf25b` — HR lock repair, version bounds and explicit pinned CI binary. Exact PR head `545015b60ab87fcd8966b5fa050c2dfbfac07726` passed all four jobs: 146 Node, 36 native PostgreSQL and 36 Chromium cases, advisors/restore/disposable helpers. No required review was bypassed.
+
+Synthetic restore verifies 42 tables, 242 constraints, 96 indexes, five triggers, four sequences and 22 required functions; it is not hosted recovery proof. Production dependency audit is clean, and the same six moderate development findings remain without overrides or forced fixes. The current Work shell is UID 0; native PostgreSQL ordinary-user refusal remains intact. Native/browser results are CI evidence, not a claim to have executed them on the user's Windows machine.
+
+[Search screenshot/report artifact](https://github.com/ThunderKhan/vsph-control-center/actions/runs/41669885750/artifacts/13247702249) contains reviewed desktop/mobile synthetic screenshots, retained for seven days. No real customer records or secrets were captured. Forms/results fit both layouts.
+
+Failures corrected: migration-count expectations, fixture SQL UUID/text parameter inference, a JSON aggregation alias that resolved to its scalar row number, explicit accessible filter names, and the optional CLI binary installation. A later main disposable-browser run timed out waiting for the inbox's first request, while its first browser run and PR suites passed; its retry also reused a fixture project key. Source review found that Refresh was wired only after initial inbox success, leaving no recovery on an initial failure. The follow-up wires recovery first, applies a 12-second request deadline, clears stale inbox records on failed refresh, prevents preference saves before loading their values, and uses unique retry fixture keys. A new desktop/mobile test injects initial/later 503 failures and verifies recovery, reports and preference readiness. This repairs the recovery path, not a claim that the original slow CI request's root cause or realistic production latency has been proved.
+
+## Current M0–M12 status
+
+| Milestone | Implemented code and isolated evidence                                                                    | Still incomplete                                                                                   |
+| --------- | --------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| M0        | Architecture, migration manifest, checks, historical target evidence                                      | Deployment/environment acceptance deferred                                                         |
+| M1        | Tenant/product/project separation, durable session checks, one-use owner transfer                         | Universal step-up, distributed controls, real target acceptance                                    |
+| M2        | Durable idempotent provisioning/outbox and purpose-bound tenant invitations                               | Real Auth/email/recovery acceptance                                                                |
+| M3        | Current-session controls, enrolled TOTP verification, delegated membership governance, internal HR roster | Internal identity invitation/linking, MFA enrollment/recovery and privileged administration policy |
+| M4        | Customer workspace, explicit entitlements and lifecycle/version/audit controls                            | Broader settings, commercial/billing integration, governance recovery                              |
+| M5        | Product registry/lifecycle, adapters, readiness observations                                              | Verified provider configuration/secrets lifecycle and production Music SSO                         |
+| M6        | Separate Music portal/receiver and product-launch boundaries retained                                     | Full separately deployed product acceptance; HRM/HMS not built                                     |
+| M7        | Real projects, membership, milestones, tasks, evidence/history                                            | Global staffing/capacity, larger journal pagination, uploads/retention                             |
+| M8        | Server-side GitHub delivery ingestion/checkpoints/webhooks and links                                      | Live App installation/provider acceptance; verified Vercel ownership/status                        |
+| M9        | Project inbox/reports/CSV/search, manual owner INR cash ledger                                            | Live executive finance wiring, broader search, retention, full finance journal/filtering/export    |
+| M10       | Negative authorization tests, revocation, replay and concurrency checks                                   | Universal step-up/recovery, fleet controls, full accessibility/security release review             |
+| M11       | Synthetic native upgrade/restore and failure exercises                                                    | Hosted recovery, monitoring/alerts, realistic load and incident-response acceptance                |
+| M12       | Node/PostgreSQL/Chromium/quality/security/checksum gates for completed verticals                          | Real target/provider/backup/operations release evidence                                            |
+
+No hosting action, hosted schema inspection/mutation, real email, credential change or billable resource creation was performed. No new approval is required to continue source and isolated test work. The eight forward migrations, staged Auth/provider acceptance and separate rollout remain the operator's gated work.

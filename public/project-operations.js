@@ -8,7 +8,12 @@
     };
   let identity;
   async function api(path, body) {
-    const r = await fetch(path, {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12000);
+    let r;
+    try {
+     r = await fetch(path, {
+      signal: controller.signal,
       credentials: "same-origin",
       cache: "no-store",
       ...(body
@@ -19,9 +24,13 @@
           }
         : {}),
     });
-    const d = await r.json();
-    if (!r.ok) throw Error(d.message || "Operations request failed.");
-    return d;
+     const d = await r.json();
+     if (!r.ok) throw Error(d.message || "Operations request failed.");
+     return d;
+    } catch (error) {
+     if (error.name === "AbortError") throw Error("Operations request timed out. Use Refresh inbox to retry.");
+     throw error;
+    } finally { clearTimeout(timeout); }
   }
   function button(label, fn) {
     const b = el("button", label);
@@ -39,9 +48,12 @@
     return b;
   }
   async function inbox() {
-    const data = await api("/api/notifications"),
-      box = $("notificationList");
+    const box = $("notificationList");
     box.replaceChildren();
+    box.setAttribute("aria-busy", "true");
+    let data;
+    try { data = await api("/api/notifications"); }
+    finally { box.setAttribute("aria-busy", "false"); }
     $("notificationDelivery").textContent =
       data.queued +
       " queued · " +
@@ -156,46 +168,52 @@
   document.addEventListener("vsph:identity-loaded", async (e) => {
     identity = e.detail;
     $("projectOperations").hidden = false;
-    try {
+    let initialized = false, initializePromise, preferencesReady = false;
+    const f = $("notificationPreferences"), preferenceControls = [...f.elements];
+    preferenceControls.forEach(control => { control.disabled = true; });
+    async function initializeCore() {
       await inbox();
-      const prefs = await api("/api/notifications/preferences"),
-        f = $("notificationPreferences");
+      if (initialized) return;
+      const prefs = await api("/api/notifications/preferences");
       for (const [name, value] of Object.entries(prefs))
         if (f.elements[name]) f.elements[name].checked = value;
-      f.onsubmit = async (event) => {
-        event.preventDefault();
-        const d = {};
-        for (const name of ["assignments", "delivery", "overdue"])
-          d[name] = f.elements[name].checked;
-        try {
-          await api("/api/notifications/preferences", d);
-          $("operationsMessage").textContent =
-            "Notification preferences saved.";
-        } catch (e) {
-          $("operationsMessage").textContent = e.message;
-        }
-      };
-      $("refreshNotifications").onclick = () =>
-        inbox().catch((e) => {
-          $("operationsMessage").textContent = e.message;
-        });
-      $("retryNotifications").onclick = async () => {
-        try {
-          await api("/api/notifications/retry", {});
-          await inbox();
-        } catch (e) {
-          $("operationsMessage").textContent = e.message;
-        }
-      };
-      $("reportFilters").onsubmit = (e) => {
-        e.preventDefault();
-        reports().catch((e) => {
-          $("operationsMessage").textContent = e.message;
-        });
-      };
+      preferencesReady = true;
+      preferenceControls.forEach(control => { control.disabled = false; });
       await reports(true);
-    } catch (error) {
-      $("operationsMessage").textContent = error.message;
+      initialized = true;
     }
+    function initialize() {
+      if (!initializePromise) initializePromise = initializeCore().finally(() => { initializePromise = null; });
+      return initializePromise;
+    }
+    // Wire every recovery/control handler before the first dependency request.
+    // A failed read must never submit the unchecked form defaults as preferences.
+    f.onsubmit = async event => {
+      event.preventDefault();
+      if (!preferencesReady) return;
+      const data = {};
+      for (const name of ["assignments", "delivery", "overdue"]) data[name] = f.elements[name].checked;
+      try { await api("/api/notifications/preferences", data); $("operationsMessage").textContent = "Notification preferences saved."; }
+      catch (error) { $("operationsMessage").textContent = error.message; }
+    };
+    $("reportFilters").onsubmit = event => {
+      event.preventDefault();
+      reports().catch(error => { $("operationsMessage").textContent = error.message; });
+    };
+    const refresh = $("refreshNotifications"), retry = $("retryNotifications");
+    refresh.onclick = async () => {
+      refresh.disabled = true;
+      try { await initialize(); $("operationsMessage").textContent = "Inbox refreshed."; }
+      catch (error) { $("operationsMessage").textContent = error.message; }
+      finally { refresh.disabled = false; }
+    };
+    retry.onclick = async () => {
+      retry.disabled = true;
+      try { await api("/api/notifications/retry", {}); await initialize(); $("operationsMessage").textContent = "In-app delivery retry requested."; }
+      catch (error) { $("operationsMessage").textContent = error.message; }
+      finally { retry.disabled = false; }
+    };
+    try { await initialize(); }
+    catch (error) { $("operationsMessage").textContent = error.message; }
   });
 })();
