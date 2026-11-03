@@ -203,3 +203,9 @@ Use disposable fixtures unless a real identity/target has been approved. No host
 - As HR, create/update ordinary employees; deny owner/HR-target edits and HR grants. Test stale and oversized versions. Owner revocation or identity disable must block later HR calls, including pending requests after a roster lock wait. No partial audit/mutation should survive failure.
 - Owner-only finance: create a same-customer project invoice, record a real synthetic receipt, prevent overpayment, explicitly reverse with reason, then void only after receipts are reversed. Reload to verify durable totals and outsider/HR/customer-admin denial.
 - Keep executive demo labels visible; finance cash collection is not recognized revenue or subscription billing. Do not enter real payments in fixture tests. Follow FINANCE_LEDGER.md for manual journal bounds and unimplemented provider acceptance.
+
+## Inbox failure recovery
+
+- In disposable fixtures, fail the first `/api/notifications` request. An error must appear; unread notification preferences must remain disabled. Refresh inbox must be wired and usable without a page reload.
+- Restore the endpoint and refresh. Preferences load, reports generate and inbox content returns. An outage during a later refresh must clear stale inbox records and remain retryable.
+- A stalled request must end after the 12-second deadline with a clear retry message. Multiple refresh clicks must share one initialization, and ordinary successful refresh must preserve unsaved preference edits. Server authorization still applies to every request.

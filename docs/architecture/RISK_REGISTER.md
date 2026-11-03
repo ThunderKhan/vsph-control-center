@@ -1,3 +1,7 @@
+## Verified source review and operational recovery — 3 November 2026
+
+Search #48 and HR lock repair #53 are merged with passing PR checks. The latest [targeted review](../roadmap/READ_AUDIT_CHAT_RECONCILIATION_20261103.md) records exact source evidence and remaining identity/finance/operational scope. A post-merge disposable-browser inbox timeout exposed missing initial-outage recovery; the follow-up wires Refresh before requests, bounds waiting and clears stale inbox data. That does not establish the original latency cause or production availability. Eight unapplied forward migrations and real hosted/provider/recovery gates remain; no hosted change occurred.
+
 ## Reconciled HR/finance review — 3 November 2026
 
 [Targeted source review](../roadmap/READ_AUDIT_CHAT_RECONCILIATION_20261103.md) records the employee grant/roster lock inversion and forward wrapper repair, bounded employee-version validation, and remaining roster-to-identity/step-up gaps. Finance preview/live reporting separation is preserved. Extreme aggregate paise totals need safe integer/string transport, and multi-statement finance reporting needs an explicit consistency policy. Payroll, payment reconciliation and full HR onboarding remain unimplemented. Eight forward migrations are now source-only; hosting/hosted changes remain excluded.
