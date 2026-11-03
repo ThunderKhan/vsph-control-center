@@ -246,3 +246,22 @@ end;
 $$;
 revoke all on function public.internal_employee_command(uuid,text,uuid,jsonb) from public,anon,authenticated;
 grant execute on function public.internal_employee_command(uuid,text,uuid,jsonb) to service_role;
+
+-- Deactivating a portal identity must permanently revoke its internal HR grant.
+-- Re-enabling that identity later needs a fresh owner-approved HR assignment.
+-- This trigger executes in the same transaction as profile status governance.
+create function public.internal_hr_profile_disabled() returns trigger
+language plpgsql security definer set search_path='' as $$
+begin
+ if new.status='disabled' and old.status is distinct from new.status then
+  delete from public.internal_hr_managers where user_id=new.id;
+ end if;
+ return new;
+end;
+$$;
+revoke all on function public.internal_hr_profile_disabled() from public,anon,authenticated;
+grant execute on function public.internal_hr_profile_disabled() to service_role;
+create trigger internal_hr_revoke_on_profile_disable
+ after update of status on public.profiles
+ for each row when (new.status='disabled' and old.status is distinct from new.status)
+ execute function public.internal_hr_profile_disabled();
