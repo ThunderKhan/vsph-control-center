@@ -65,6 +65,7 @@ test("project inbox preferences and reports persist with scoped assignments", as
   expect(download.suggestedFilename()).toBe('vsph-project-report.csv');
   const csv=await require('node:fs/promises').readFile(await download.path(),'utf8');
   expect(csv).toContain('Inbox fixture '+info.project.name);expect(csv).toContain('First 100 authorized matching projects');expect(csv).toContain('unconfigured');
+  await info.attach('project-report-'+info.project.name+'-isolated-fixture',{body:await page.screenshot({fullPage:true}),contentType:'image/png'});
   await page.reload();
   await page.locator("#projectOperations summary").click();
   await expect(
