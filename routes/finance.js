@@ -53,7 +53,7 @@ function validate(action,body){
 const command=(req,action,id=null,data={})=>db().rpc('finance_command',{
  p_actor:req.user.id,p_action:action,p_id:id,p_data:data
 }).then(check);
-router.get('/',rpcRoute(req=>command(req,'dashboard')));
+router.get('/',rpcRoute(req=>db().rpc('finance_report',{p_actor:req.user.id,p_action:'dashboard',p_id:null,p_data:{}}).then(check)));
 router.get('/options',rpcRoute(async(req)=>{
  const [orgs,projects]=await Promise.all([
    db().from('organizations').select('id,name').eq('status','active').order('name').limit(251),

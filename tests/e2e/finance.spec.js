@@ -30,6 +30,9 @@ test('owner records INR invoice, receipt and persistent real totals; outsider is
  await expect(page.locator('#financeStatus')).toContainText('Receipt recorded');
  await expect(page.locator('#finCollected')).toHaveText('₹30.00');
  await expect(page.locator('#finOutstanding')).toHaveText('₹70.00');
+ const persisted=await (await context.request.get('/api/finance')).json();
+ expect(persisted.summary.collectedPaise).toBe('3000');
+ expect(persisted.invoices.find(x=>x.id===invoiceId).amount_paise).toBe('10000');
  await page.reload();
  await expect(page.locator('#financeStatus')).toContainText('Live ledger loaded');
  await expect(page.locator('#finCollected')).toHaveText('₹30.00');
@@ -39,4 +42,21 @@ test('owner records INR invoice, receipt and persistent real totals; outsider is
  await context.addCookies([{name:'vsph.portal.sid',value:'fixture-outsider-session',url:'http://127.0.0.1:3100'}]);
  expect((await context.request.get('/api/finance')).status()).toBe(403);
  expect((await context.request.get('/admin/finance')).status()).toBe(403);
+});
+
+test('exact decimal money renders beyond JS safe integers on desktop and mobile',async({page,context},info)=>{
+ test.skip(!process.env.PROJECT_E2E_DATABASE,'Requires the isolated authenticated fixture');
+ await context.addCookies([{name:'vsph.portal.sid',value:'fixture-admin-session',url:'http://127.0.0.1:3100',httpOnly:true,sameSite:'Lax'}]);
+ // Explicit transport fixture for presentation only; native tests prove the real
+ // HTTP/SQL report returns these exact string values, including concurrent writes.
+ await page.route('**/api/finance/',route=>route.fulfill({json:{
+  summary:{invoicedPaise:'9008000000000001',collectedPaise:'9008000000000001',outstandingPaise:'0',pastDuePaise:'0',issuedInvoices:9009,voidInvoices:0,clients:1,projects:0},
+  byClient:[],byProject:[],monthly:[],invoices:[],payments:[],currency:'INR',basis:'manual_cash_receipts'
+ }}));
+ await page.goto('/admin/finance');
+ await expect(page.locator('#financeStatus')).toContainText('Live ledger loaded');
+ await expect(page.locator('#finInvoiced')).toHaveText('₹9,00,80,00,00,00,000.01');
+ await expect(page.locator('#finCollected')).toHaveText('₹9,00,80,00,00,00,000.01');
+ await expect(page.locator('#finOutstanding')).toHaveText('₹0.00');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });
