@@ -70,3 +70,7 @@ The grant table and organization_ownership RPC are service-only/RLS protected. T
 ## Authorized project work search
 
 `GET /search` requires a current portal session. `GET /api/search` validates bounded typed query fields and passes only the session actor to service-only `project_search`; current `project_permission` governs each matched row. Clients see only shared work in visible projects with active customer membership. Filter IDs/cursors confer no access. No mutation or new public database grant is introduced.
+
+## Employee account consent
+
+`/employment` and `/api/employee-identity/mine` require a current active portal session and expose only that actor's eligible requests/minimal linked employment. `/employees/:id/account-link` and manager identity endpoints enforce current workforce authority/protected-target checks in SQL. Acceptance requires the immutable candidate, current session, reviewed versions and fresh credential/TOTP proof from the backend; client metadata is allowlisted and cannot supply verification state. All database roles used by browsers are denied direct table/RPC access. Linking grants no tenant/product/project/HR role.

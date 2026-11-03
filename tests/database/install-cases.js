@@ -113,7 +113,7 @@ module.exports = async function (base, inputUrl) {
             "select count(*) from supabase_migrations.schema_migrations",
           )
         ).rows[0].count,
-        "22",
+        "23",
       );
       if (mode === "legacy") {
         assert.equal(
@@ -138,7 +138,7 @@ module.exports = async function (base, inputUrl) {
             "select count(*) from supabase_migrations.schema_migrations",
           )
         ).rows[0].count,
-        "22",
+        "23",
       );
     } finally {
       c.release();

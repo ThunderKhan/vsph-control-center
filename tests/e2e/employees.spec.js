@@ -74,6 +74,10 @@ test('owner can appoint HR only for a matching existing employee identity; HR ca
   data:{fullName:payload.fullName,department:payload.department,jobTitle:payload.jobTitle,
    employmentType:payload.employmentType,startDate:payload.startDate,status:'active',version:1,confirmed:true}});
  expect(activated.status()).toBe(200);
+ const linkRequest=await context.request.post('/api/employee-identity/employees/'+person.id+'/request',{headers:{Origin:'http://127.0.0.1:3100','Idempotency-Key':crypto.randomUUID()},data:{rosterVersion:2,confirmed:true}});expect(linkRequest.status()).toBe(200);const link=await linkRequest.json();
+ await context.clearCookies();await context.addCookies([{name:'vsph.portal.sid',value:'fixture-developer-session',url:'http://127.0.0.1:3100'}]);
+ const consent=await context.request.post('/api/employee-identity/requests/'+link.id+'/accept',{headers:{Origin:'http://127.0.0.1:3100'},data:{rosterVersion:2,requestVersion:1,confirmed:true,password:'fixture-password-only'}});expect(consent.status()).toBe(200);
+ await context.clearCookies();await context.addCookies([{name:'vsph.portal.sid',value:'fixture-admin-session',url:'http://127.0.0.1:3100'}]);
  const granted=await context.request.post('/api/employees/'+person.id+'/grant_hr',{headers:{Origin:'http://127.0.0.1:3100'},data:{version:2,confirmed:true}});
  expect(granted.status()).toBe(200);
  await context.clearCookies();

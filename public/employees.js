@@ -77,7 +77,7 @@
    const access=text('td',employee.is_hr?'HR manager':'Roster only');
    const actions=document.createElement('td');
    const canEdit=role==='owner'||!employee.is_hr;
-   if(canEdit)actions.append(makeButton('Edit',()=>edit(employee)));
+   if(canEdit){actions.append(makeButton('Edit',()=>edit(employee)));const a=text('a','Account link');a.href='/employees/'+employee.id+'/account-link';actions.append(a);}
    if(role==='owner'&&employee.status==='active')actions.append(makeButton(employee.is_hr?'Revoke HR':'Grant HR',()=>changeHR(employee,employee.is_hr?'revoke_hr':'grant_hr')));
    if(!canEdit)actions.append(text('span','Owner managed','muted'));
    row.append(name,position,type,status,access,actions);parent.append(row);

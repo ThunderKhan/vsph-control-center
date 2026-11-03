@@ -8,7 +8,7 @@ module.exports=async pool=>{
  const sql='select internal_employee_command($1,$2,$3,$4) data';
  const call=async(who,action,id=null,data={})=>(await pool.query(sql,[who,action,id,data])).rows[0].data;
  const employee=await call(owner,'create',randomUUID(),args),edit={...args,status:'active',version:1,confirmed:true};delete edit.email;
- await call(owner,'update',employee.id,edit);await call(owner,'grant_hr',employee.id,{version:2,confirmed:true});
+ await call(owner,'update',employee.id,edit);await require('./employee-link-fixture')(pool,owner,hr,employee.id);await call(owner,'grant_hr',employee.id,{version:2,confirmed:true});
  // Hold the same roster lock an owner mutation takes, pause HR behind it,
  // then revoke. HR must not hold a grant lock while waiting for that roster.
  // The historical function's grant -> roster order deadlocks this schedule.
