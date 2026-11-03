@@ -23,6 +23,16 @@ test('executive bento is explicitly demo-only, separated from regular users and 
   assert.doesNotMatch(js, /\bfetch\s*\(|Math\.random|setInterval/);
   assert.match(css, /html\[data-executive="true"\] \[data-view="overview"\]/);
   assert.match(css, /prefers-reduced-motion:reduce/);
+  const brand = read('DESIGN.md');
+  assert.match(brand, /brand-navy.*#00255A/);
+  assert.match(brand, /brand-core-blue.*#0069C8/);
+  assert.match(brand, /brand-light-blue.*#50C0E8/);
+  for (const hex of ['#00255A','#0069C8','#50C0E8','#F1F2F2']) {
+    assert.ok(css.includes(hex), 'executive stylesheet uses approved brand color ' + hex);
+  }
+  assert.doesNotMatch(css + js + html, /#(?:b4f34b|a9f14b|a68ada|0c0d0d|111312)\b/i);
+  assert.match(css, /\.exec-hero\{background:radial-gradient/);
+  assert.match(css, /\.exec-highlight\{background:#EAF3FA/);
   assert.doesNotThrow(() => new Function(js));
 });
 
