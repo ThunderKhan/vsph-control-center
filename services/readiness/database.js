@@ -43,6 +43,7 @@ function verifyManifest(
   return { manifest, errors };
 }
 const tables = [
+  "organization_owner_transfer_grants",
   "product_health_observations",
   "profiles",
   "organizations",
@@ -80,6 +81,7 @@ const tables = [
   "project_notifications",
 ];
 const signatures = [
+  "public.organization_ownership(uuid,text,uuid,jsonb)",
   "public.consume_sso_launch_code(text)",
   "public.set_profile_status(uuid,uuid,text)",
   "public.provisioning_command(uuid,text,uuid,jsonb)",

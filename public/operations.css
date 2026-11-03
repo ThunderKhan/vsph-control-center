@@ -5,3 +5,5 @@
 .project-page{overflow-wrap:anywhere}.form-grid>*{min-width:0}fieldset{min-width:0}
 
 .project-page input,.project-page select,.project-page textarea{min-width:0;max-width:100%}
+
+#ownershipConfirmed{width:20px;height:20px;min-height:20px;justify-self:start}
