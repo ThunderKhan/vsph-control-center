@@ -1,3 +1,41 @@
+# Current development handoff — employee consent and finance
+
+Code baseline `8704d6b051117dd7bbe2967dcf382751b1ea94fb` includes merged #58/#59. [Current merges, M0–M12 gaps, test evidence and migration boundary](../roadmap/CONTINUATION_HANDOFF_20261103.md) supersede the historical cutoffs below. Latest code PR passed 148 Node, 38 native PostgreSQL and 44 active Chromium cases (two intentional skips). Commands below are actual package scripts tested on Linux CI; this increment has not been executed on native Windows. Use an ordinary Windows account. No local Docker/AWS/Supabase CLI is required by the disposable helpers.
+
+```powershell
+cd D:\Projects\vsph-control-center
+git status --short
+git switch main
+git pull --ff-only origin main
+npm ci
+npm test
+npm run check
+npm run lint
+npm run format:check
+npm run check:migrations
+npm run test:coverage
+npm audit --omit=dev --audit-level=high
+npm audit --audit-level=high
+npx playwright install chromium
+npm run test:db:local
+npm run test:e2e:db
+npm run dev
+```
+
+Keep the six moderate development dependency findings unchanged; no forced audit fix. No typecheck/build script exists. Test helpers create only empty loopback `vsph_test`; never use a hosted URL or run seeds/reset/bootstrap. Normal runtime still needs private Supabase configuration, PUBLIC_ORIGIN=http://localhost:3000 and PORT=3000, plus approved schema installation. By the last recorded 19-entry ledger, search, HR lock repair, employee consent, finance ledger and exact finance report lack installed identities. This continuation installs none of them. Hosting remains deferred; see PARTIAL_MIGRATION_HISTORY.md before any separately approved target write.
+
+For safe immediate acceptance, run `npm run test:e2e:db`: it creates/disposes its own native fixture database, tests existing login/onboarding/products/sidebar/admin/organizations/Projects and the new employee/finance workflows, with explicit fake Auth and no real emails. It does not install migrations on the normal runtime target.
+
+After reviewed target installation, validate the new flow with approved identities:
+
+1. Owner/current HR opens Employees, creates/reviews an ordinary employee roster entry matching an existing active portal account, then opens Account link and explicitly requests consent. This does not send email or create an Auth user.
+2. That employee signs in normally, opens My employment, reviews only their own request, confirms with fresh password and enrolled TOTP where required, accepts, reloads and sees only minimal personal employment details. It grants no customer/product/project/HR access.
+3. Owner separately grants HR only if needed; revoke the employee link and verify HR is removed while independently assigned customer/product/project access and ordinary portal login remain. Renew/cancel/expired/stale/disabled/revoked/changed-issuer cases must deny safely. Use fixtures for races and audit/provider failures.
+4. Owner opens Finance, records a real authorized invoice and partial receipt, reloads and reconciles exact amounts, monthly/client/project totals and rows. API monetary values are decimal strings in paise. Reversal/void require reasons and current state. Ordinary/client/HR users and stale sessions deny. Use fixtures for maximum-value/concurrent cases; never enter demo financial records on a customer database.
+5. Run the full [manual checklist](MANUAL_QA.md), including Projects create/member/milestone/task/comment/deliverable/history persistence, organizational/product boundaries, GitHub disconnection/privacy, Music verification gating, audit/session/logout, keyboard and mobile drawer/sidebar behavior.
+
+---
+
 ## Reconciled development handoff — 3 November 2026
 
 Source acceptance main `a4f80ae1e458740171b266834a8a5de81b661760` includes search, HR lock repair, inbox recovery/response ordering and partial-ledger diagnostics alongside the other chat's employee/finance modules. [Exact merges, tests, scope and M0–M12 gaps](../roadmap/READ_AUDIT_CHAT_RECONCILIATION_20261103.md) supersede historical cutoffs below. Read-only Supabase metadata now records 19 installed entries through internal employees. Only search, HR lock repair and finance lack ledger entries (three pending). Marker/catalog/Auth equivalence remains unverified; no hosted writes occurred. Hosting is deferred.
