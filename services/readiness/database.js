@@ -92,6 +92,9 @@ const signatures = [
   "public.product_command(uuid,text,uuid,jsonb)",
   "public.customer_lifecycle(uuid,text,uuid,jsonb)",
   "public.organization_command(uuid,text,uuid,jsonb)",
+  "public.organization_invitation(uuid,text,uuid,jsonb)",
+  "public.delegated_invitation_authority(uuid,uuid,jsonb)",
+  "public.provisioning_core_command(uuid,text,uuid,jsonb)",
   "public.guard_product_session_organization()",
 ];
 async function inspectDatabase(client) {
