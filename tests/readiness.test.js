@@ -26,7 +26,7 @@ const clean = () => ({
 test("manifest hashes every ordered migration and rejects drift", () => {
   const { manifest, errors } = verifyManifest();
   assert.deepEqual(errors, []);
-  assert.equal(manifest.migrations.length, 18);
+  assert.equal(manifest.migrations.length, 19);
   const changed = structuredClone(manifest);
   changed.migrations[0].sha256 = "0".repeat(64);
   assert.ok(
