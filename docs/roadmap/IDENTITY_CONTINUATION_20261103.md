@@ -9,7 +9,7 @@ Started from verified main `27c3317858bdc37ac0e7e3c3983ab933dca32958` (#44) with
 | [#45](https://github.com/ThunderKhan/vsph-control-center/pull/45) | Server-owned enrolled-TOTP verification for portal and product sign-in, provider assurance/identity checks and local verification-session cleanup   | `ab44748f6f55cf73a79a601f82e33f46bceaecc4` |
 | [#46](https://github.com/ThunderKhan/vsph-control-center/pull/46) | Governed sole-owner transfer, fresh password/TOTP, two-minute session/tenant/target/version-bound proofs and atomic ownership/audit/session changes | `b49fa2ac221f55f26b0d3890692b65df62f9b031` |
 
-Feature main was re-read after each merge. Both PRs passed all four CI jobs before squash merge, with automated review reporting no findings. There were no failed checks in these two PRs. A later acceptance/handoff-only merge records its own exact SHA in GitHub metadata rather than inventing a self-referential value here.
+Feature main was re-read after each merge. Both PRs passed all four CI jobs before squash merge, with automated review reporting no findings. There were no failed checks in these two PRs. Final input review also bounds ownership versions to PostgreSQL integer range, so oversized client versions are rejected before a database cast rather than becoming a server error. A later validation/acceptance handoff merge records its own exact SHA in GitHub metadata rather than inventing a self-referential value here.
 
 ## Verification
 
