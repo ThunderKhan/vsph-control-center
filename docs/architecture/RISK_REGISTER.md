@@ -1,3 +1,7 @@
+## Partial canonical journal diagnostics — 3 November 2026
+
+The assessor no longer treats an older, valid canonical journal as raw legacy history merely because new source migrations exist. Namespace recognition remains distinct from full source-marker/history verification; wrong names, duplicate versions and source-marker drift deny readiness. Existing staging/TLS/approval guards remain unchanged, and no history repair/migration is performed. Native synthetic tests prove the read-only inspector's behavior; current target version/name metadata alone does not prove checksum/catalog or Auth equivalence. See [PARTIAL_MIGRATION_HISTORY.md](../operations/PARTIAL_MIGRATION_HISTORY.md).
+
 ## Latest ledger and inbox race correction — 3 November 2026
 
 Read-only version/name metadata reports 19 installed entries through internal employees. Search, HR lock repair and finance alone lack entries (three pending, superseding earlier eight-pending counts). No hosted writes occurred; source markers/catalog/provider behavior remain unverified. The merged recovery UI had two review findings (obsolete overlapping inbox replies and loaded preference drafts reset after report failure); the follow-up adds request generations, replace-on-success and independent preference readiness with native-backed browser interleaving coverage. See [current evidence and remaining scope](../roadmap/READ_AUDIT_CHAT_RECONCILIATION_20261103.md).

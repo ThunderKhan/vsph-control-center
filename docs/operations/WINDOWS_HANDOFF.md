@@ -107,3 +107,7 @@ Read MFA_SIGN_IN.md, ORGANIZATION_OWNERSHIP.md and the identity/ownership sectio
 ## Project work search continuation
 
 The same install/Node/native-PostgreSQL/Chromium/lint/coverage/checksum/security commands above cover `/search`. The additional unapplied hosted forward migration is `20261103072229_project_work_search.sql`; no hosted application upgrade is implied. In the isolated browser helper, open the authenticated fixture dashboard drawer/sidebar → Search work, find project/task/milestone titles, filter and traverse 25-record pages, follow a project link, then retry as an unrelated fixture user. Normal `npm run dev` needs the reviewed migrations in its configured target; do not point disposable test commands at Supabase or customer data.
+
+## Partial canonical history
+
+`npm run check:migrations` still checks only local source/checksum registration. The read-only readiness assessor now reports genuine pending canonical gaps without spuriously reclassifying existing aliases as legacy, while blocking marker drift/unknown/duplicate entries. [Read the target inspection/installation boundary](PARTIAL_MIGRATION_HISTORY.md); `staging:inspect` still requires an explicitly approved isolated target and TLS verification. Do not point it at a potentially live candidate by weakening its guards. The new logic is covered by Node and disposable native tests, with no new SQL migration.
