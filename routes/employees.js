@@ -90,7 +90,7 @@ async function employeePage(req,res,next){
  try{
   check(await db().rpc('internal_employee_command',{p_actor:req.user.id,p_action:'access',p_id:null,p_data:{}}));
   res.set('Cache-Control','no-store');
-  res.sendFile(path.join(__dirname,'..','views',req.path.endsWith('/onboarding')?'employee-onboarding.html':'employees.html'));
+  res.sendFile(path.join(__dirname,'..','views',/\/onboarding\/?$/.test(req.path)?'employee-onboarding.html':'employees.html'));
  }catch(error){
   if(error.code==='42501')return res.status(403).send('VSPH employee management requires owner or HR permission.');
   next(error);
