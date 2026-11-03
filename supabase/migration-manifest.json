@@ -122,7 +122,7 @@
     },
     {
       "path": "supabase/migrations/20261103050509_organization_workspace.sql",
-      "sha256": "60128d1c062e29e2652e374e1dcbac3f1300dad2964a66e3d8ad7dae005c1ab3",
+      "sha256": "be936045d4890072e949007bb56e3e939ccf255de6e459a07336f49bf539ebef",
       "version": "20261103050509",
       "name": "organization_workspace",
       "requires": [

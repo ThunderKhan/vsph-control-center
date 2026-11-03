@@ -7,14 +7,24 @@ declare org public.organizations; actor_member public.organization_memberships;
  result jsonb; target_role text; desired_role text; desired_status text;
 begin
  if jsonb_typeof(p_data) is distinct from 'object' then raise exception 'Object required' using errcode='22023';end if;
- perform 1 from public.profiles where id=p_actor and status='active' for update;
+ if p_action in ('member','role') then
+  target_user:=(p_data->>'userId')::uuid;
+  if target_user is null or target_user=p_actor then raise exception 'Self changes unavailable' using errcode='42501';end if;
+  -- Global ordering across customer organizations, not merely within one tenant.
+  -- Platform actors precede ordinary profiles, matching platform governance;
+  -- ordinary actor/target profiles are locked in UUID order.
+  perform 1 from public.profiles where id=p_actor or (id=target_user and platform_role='user')
+   order by (platform_role='super_admin') desc,id for update;
+ else
+  perform 1 from public.profiles where id=p_actor for update;
+ end if;
+ perform 1 from public.profiles where id=p_actor and status='active';
  if not found then raise exception 'Active identity required' using errcode='42501';end if;
  if p_action='list' then
   if exists(select 1 from jsonb_object_keys(p_data) k where k<>'afterId') then raise exception 'Invalid fields' using errcode='22023';end if;
   return coalesce((select jsonb_agg(x) from(select o.id,o.name,o.slug,m.role from public.organizations o join public.organization_memberships m on m.organization_id=o.id where m.user_id=p_actor and m.status='active' and m.role in ('owner','admin') and o.status='active' and (p_data->>'afterId' is null or o.id>(p_data->>'afterId')::uuid) order by o.id limit 100)x),'[]');
  end if;
- -- Reject peer/owner/self changes BEFORE waiting on a target profile. This also
- -- prevents two delegated admins taking each other's actor/target locks.
+ -- Check scoped role authority after acquiring consistently ordered profiles.
  if p_action in ('member','role') then
   target_user:=(p_data->>'userId')::uuid;
   if target_user is null or target_user=p_actor then raise exception 'Self changes unavailable' using errcode='42501';end if;
@@ -25,7 +35,7 @@ begin
   perform 1 from public.profiles where id=target_user and platform_role='user' for update;
   if not found then raise exception 'Platform identities require platform governance' using errcode='42501';end if;
  end if;
- -- Same order as existing governance: actor profile, target profile, organization,
+ -- Profiles precede the organization, then memberships, as in platform governance:
  -- membership. NO KEY UPDATE remains compatible with enrollment's FK KEY SHARE.
  select * into org from public.organizations where id=p_id and status='active' for no key update;
  if not found then raise exception 'Organization unavailable' using errcode='42501';end if;

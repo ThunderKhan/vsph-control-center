@@ -48,6 +48,14 @@ module.exports=async(pool,app)=>{
  try{await assert.rejects(cmd('profile',{version:2,name:'Must rollback'}),{code:'P0001'});}finally{await pool.query('drop trigger organization_audit_outage on audit_logs;drop function organization_audit_outage()');}
  assert.notEqual((await cmd('read')).organization.name,'Must rollback');
  assert.equal((await cmd('read')).organization.version,2);
+ // Cross-tenant owners may target each other as ordinary members. Their profile
+ // locks must have a global order even though the organizations differ.
+ await pool.query("insert into organization_memberships(organization_id,user_id,role) values($1,$2,'member'),($3,$4,'member')",[org,otherOwner,other,owner]);
+ const cross=await Promise.allSettled([
+  cmd('member',{userId:otherOwner,version:1,role:'viewer',status:'active',confirmed:true},owner,org),
+  cmd('member',{userId:owner,version:1,role:'viewer',status:'active',confirmed:true},otherOwner,other),
+ ]);
+ assert.ok(cross.every(r=>r.status==='fulfilled'),JSON.stringify(cross.map(r=>r.reason?.code)));
  // A committed revocation must be observed by a request that waited for the org lock.
  const c=await pool.connect();try{
   await c.query('begin');await c.query('select id from organizations where id=$1 for no key update',[org]);
