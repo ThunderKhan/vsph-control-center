@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My organizations | VSPH</title><link rel="stylesheet" href="/operations.css"></head>
+<body><main class="project-page">
+ <nav aria-label="Workspace"><a href="/dashboard">Dashboard</a> / My organizations · <a href="/applications">Applications</a> · <a href="/projects">Projects</a></nav>
+ <header><div><p class="eyebrow">CUSTOMER ADMINISTRATION</p><h1>My organizations</h1><p>Manage your organization and your team's assigned access.</p></div><button id="refresh">Refresh</button></header>
+ <p id="message" role="status" aria-live="polite"></p>
+ <label>Organization<select id="organization"><option value="">Select an organization</option></select></label>
+ <button id="firstOrganizations">First organizations page</button><button id="nextOrganizations" hidden>Next organizations page</button>
+ <p id="empty" hidden>No active organization administrator memberships are available. Ask your platform administrator to review your membership.</p>
+ <section id="detail" hidden aria-busy="false">
+  <div class="panel"><h2 id="organizationName"></h2><p id="summary"></p><p id="counts"></p>
+   <form id="profile"><label>Organization display name<input name="name" required maxlength="150" autocomplete="organization"></label><button type="submit">Save organization name</button></form>
+   <p>The organization identifier and subscription terms are managed by VSPH. Project assignments do not grant product access.</p>
+  </div>
+  <div class="panel"><h2>Subscribed products</h2><p>Subscription terms describe access, not payments or revenue. Product access requires an explicit assigned role.</p><div id="products"></div><p id="productLimit" hidden>Showing the first 100 products. Contact VSPH for the complete entitlement directory.</p></div>
+  <div class="panel"><h2>Members and access</h2><p>Owners manage administrators and ordinary members. Administrators manage ordinary members. Owner, self and platform account changes require VSPH governance. Invited members must accept their invitation.</p><div id="members"></div><button id="firstMembers">First members page</button><button id="nextMembers" hidden>Next members page</button></div>
+  <div class="panel"><h2>Recent organization changes</h2><p>Latest 50 changes made through this organization workspace.</p><div id="activity"></div></div>
+ </section>
+</main><script src="/organizations.js" defer></script></body></html>

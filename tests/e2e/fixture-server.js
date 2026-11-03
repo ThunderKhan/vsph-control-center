@@ -54,6 +54,7 @@ async function start(pool) {
     [hashToken("fixture-admin-second-session"), ADMIN],
   );
   require("./github-fixture")();
+  await require('./organization-fixture')(pool);
   const app = require("../database/http-fixture")(pool);
   const server = app.listen(Number(process.env.PORT || 3100), "127.0.0.1");
   return { server, pool };
