@@ -1,78 +1,55 @@
-# VSPH internal employees — owner and HR workflow
+# VSPH Internal Employees — Owner and HR Workflow
 
 ## Purpose
 
-The Employees dashboard at /employees and onboarding wizard at /employees/onboarding
-manage VSPH **internal staff**, not customer employees, organization roles or product access.
-All directory rows, counts and departments come from persistent PostgreSQL records.
-No sample employee or analytics values are fabricated.
+The `/employees` dashboard and `/employees/onboarding` wizard manage VSPH **internal staff**, not client organizations, customer employees, or product access. Directory counts and department statistics come from persisted PostgreSQL rows, not sample analytics.
 
-## Permission hierarchy
+## Permission Hierarchy
 
-| Operation | Platform owner | Authorized HR | Regular member |
-| --- | --- | --- | --- |
-| View staff, departments and status counts | Yes | Yes | No |
-| Create an internal roster entry | Yes | Yes | No |
-| Update ordinary staff fields and roster status | Yes | Yes | No |
-| Update HR/owner record | Yes | No | No |
-| Grant/revoke HR authority | Yes | No | No |
-| Manage customer organizations / products | Existing separate permissions | No implied access | No |
+- **Platform owner (platform `super_admin`):** View, create, and edit employees; govern HR assignments.
+- **Authorized HR manager:** View, create, and edit ordinary employees, but not HR managers or platform-owner records. Cannot assign or revoke HR.
+- **Ordinary user:** No internal workforce access.
+- **Customer and product administrators:** Their customer-level roles do not grant internal HR privileges.
 
-Only active platform super administrators may grant HR to an **already active portal
-identity** with an email matching an active internal employee record. HR permission
-is a dedicated table, not a platform role. HR cannot grant additional HR access
-or mutate the current HR/owner employee record.
+To grant HR authority, the owner selects an active internal employee whose normalized email exactly matches an existing active VSPH portal account. HR permissions are stored separately from `platform_role` and customer/product memberships. All actions check current authorization in PostgreSQL.
 
-## Onboarding flow
+## Employee Onboarding
 
-Capture name, unique work email, department, job title, employment type and start
-date. Review, explicitly confirm and persist through an idempotent server command.
-The initial state is Onboarding. Email is immutable after creation. An employee
-can later be marked Active, On leave, or Inactive via versioned updates.
+Capture full name, unique work email, department, job title, employment type, and start date. Review and confirm the details. The server creates an auditable record with initial status `onboarding`; an idempotency key protects retries. The work email is immutable in ordinary updates.
 
-**Creating a roster record does NOT create a Supabase Auth account, send an email,
-grant customer or product access, assign a project, or enable an HR login.**
-Changing roster status does not disable an otherwise authorized portal account.
-Marking an HR manager Inactive revokes the internal HR assignment atomically.
-On leave temporarily suspends effective HR authority pending reactivation.
+**Creating a roster record does not create a login account, send an email, grant project or product access, or appoint an HR manager.** Changing the roster status also does not disable the employee's existing portal account. Setting an HR manager to `inactive` revokes their internal HR assignment. An HR manager on leave temporarily loses HR authority until returned to `active`.
 
-## Security and operation
+## Security
 
-- The server derives actor IDs from the existing session cookie; neither body
-  roles nor browser controls can elevate authority.
-- Postgres checks owner/HR authorization on every operation, including after
-  revocation, using RLS-enabled service-only tables and a fixed-search-path
-  command. Browser anon/authenticated roles have no direct execute/table grants.
-- Employee edits use current optimistic versions, row locks and atomic audit
-  inserts. Failed audit inserts roll back both changes and version increments.
-- Employee list is bounded to 50 records per page using UUID keyset cursors;
-  search is literal case-insensitive, and counts reflect all persisted records.
-- Only ordinary staff are manageable by HR; owner controls HR authority.
-- No salary, personal identity numbers, bank details or private health data
-  are stored in this initial implementation.
+- Server requests derive actor identity from validated portal sessions, never from browser-supplied roles.
+- The RLS-enabled `internal_employees` and `internal_hr_managers` tables are inaccessible to browser database roles.
+- The service-only `internal_employee_command` uses a fixed search path and database authorization checks.
+- Mutations use allowlisted fields, optimistic versions, row locks, and atomic audit entries; audit failures roll back the change.
+- The directory uses bounded 50-row keyset pages, literal case-insensitive search, and real database counts.
+- The initial version stores no compensation, bank details, national ID numbers, or private health records.
 
-## Database installation
+## Database Installation
 
-The new forward migration is
-supabase/migrations/20261103110000_internal_employee_governance.sql.
-It depends on 20261103062727_organization_owner_transfer.sql and is recorded
-in the checksummed source manifest. **No hosted database was changed.**
-The live pages will require an approved target with reviewed prior migrations
-and this migration applied in order. Do not replay bootstrap, demo seeds or
-legacy installer against a populated project. Validate backup/restore first.
+The new forward migration is `supabase/migrations/20261103110000_internal_employee_governance.sql`, after `20261103062727_organization_owner_transfer.sql`. It is included in the checksummed migration manifest.
 
-## Test and review
+**No hosted Supabase database was changed by this feature branch.** Live pages require an explicitly approved deployment target, verified backups, and reviewed forward migrations applied in order. Do not rerun the bootstrap script, demo seeds, or legacy installer on a populated project.
 
-Run npm ci, npm test, npm run check, npm run check:migrations, npm run lint,
-npm run test:db:local and npm run test:e2e:db in the repository.
-Native and browser fixture tests never send actual invitations or alter hosted
-Supabase Auth. Browser/manual checks: owner roster onboarding, saved metrics,
-directory filtering, edit conflict, owner HR grant to existing matching account,
-HR mutation of ordinary staff, HR escalation denied, HR revoke and outsider denied.
+## Verification
 
-## Next milestones
+Run the following commands in the project repository:
 
-Governed internal account invitations and acceptance; employee-to-portal linking;
-project staffing/capacity, leave and attendance approvals, payroll with distinct
-confidential permissions, notifications and real provider/hosted acceptance.
-These are not claimed complete by the roster and HR permissions release.
+```powershell
+npm ci
+npm test
+npm run check
+npm run check:migrations
+npm run lint
+npm run test:db:local
+npm run test:e2e:db
+```
+
+Test owner onboarding and persisted counts, filtering, employee updates, HR grants to matching existing accounts, HR restriction from owner-only actions, role revocation, outsider rejection, and mobile/keyboard navigation. CI database fixtures must never touch hosted records.
+
+## Future Work
+
+Governed identity invitations, internal account linking, employee project assignment, staffing capacity, leave and attendance approvals, secure compensation and payroll permissions, notifications, and production provider acceptance are separate projects. This release makes no claim to implement them.
