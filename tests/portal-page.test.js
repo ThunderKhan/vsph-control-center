@@ -15,3 +15,7 @@ test('identity replacement tokens stay literal on both existing and newly wrappe
   assert.ok(h.includes("$&amp; $&#39; $`"));assert.equal((h.match(/id="workspaceSidebar"/g)||[]).length,1);
  }
 });
+test('newly wrapped pages restore preferences without introducing unapproved inline scripts',async()=>{
+ const h=await render(await fs.readFile('views/hr-workspace.html','utf8'),{full_name:'HR',platform_role:'user'});
+ assert.match(h,/<script src="\/portal-prepaint.js"><\/script>/);assert.doesNotMatch(h,/<script>/);
+});

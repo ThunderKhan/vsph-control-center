@@ -2,7 +2,7 @@ const fs=require('node:fs/promises'),path=require('node:path');
 const root=path.resolve(__dirname,'..');
 const allowed=new Set(['dashboard.html','admin.html','app-home.html'].map(f=>path.join(root,'public',f)).concat(['auth','account-profile','customers','employee-identity','employee-onboarding','employees','finance-journal','finance','hr-access','hr-workspace','my-work','onboarding','organizations','products','projects','provisioning','search','sso-launch'].map(f=>path.join(root,'views',f+'.html'))));
 const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const prepaint=`<script>try{document.documentElement.dataset.sidebarState=localStorage.getItem('vsph.sidebar.collapsed')==='true'?'collapsed':'expanded'}catch{document.documentElement.dataset.sidebarState='expanded'}</script>`;
+const prepaint='<script src="/portal-prepaint.js"></script>';
 let template;
 async function render(html,user,notice){
  template??=await fs.readFile(path.join(root,'views/partials/portal-sidebar.html'),'utf8');
