@@ -216,6 +216,7 @@ test('unmigrated visibility fails closed as schema-not-ready instead of exposing
 test('all thirteen migrations preserve populated legacy records before any feature installation',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./legacy-upgrade-cases.js')(pool,url);});
 
 test('guarded fresh and legacy deployment packages reconcile history and roll back late failures',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./install-cases.js')(pool,url);});
+test('forward upgrade preserves populated canonical history, rejects drift, races and rolls back late failures',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./forward-cases.js')(pool,url);});
 
 test('organization self-service scopes customer governance, rejects escalation and serializes stale updates',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./organization-cases.js')(pool,app);});
 
