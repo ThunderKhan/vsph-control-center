@@ -39,7 +39,8 @@
    bar.style.width=(maximum?Number(BigInt(entry.collected_paise)*10000n/maximum)/100:0)+'%';
    track.append(bar);row.append(label,track,value);list.append(row);
   }
-  $('ownerOverviewCounts').textContent=summary.issuedInvoices.toLocaleString('en-IN')+' issued invoices · '+summary.voidInvoices.toLocaleString('en-IN')+' void invoices · '+summary.clients.toLocaleString('en-IN')+' customers with issued invoices · '+summary.projects.toLocaleString('en-IN')+' projects with issued invoices';
+  const count=(n,label)=>n.toLocaleString('en-IN')+' '+label+(n===1?'':'s');
+  $('ownerOverviewCounts').textContent=count(summary.issuedInvoices,'issued invoice')+' · '+count(summary.voidInvoices,'void invoice')+' · '+count(summary.clients,'customer')+' with issued invoices · '+count(summary.projects,'project')+' with issued invoices';
   $('ownerOverviewObserved').textContent='Ledger date '+report.asOf+' · Retrieved '+new Intl.DateTimeFormat('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(new Date());
   $('ownerOverviewFacts').hidden=false;
  }
