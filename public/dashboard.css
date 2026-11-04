@@ -431,3 +431,5 @@ html[data-workspace-view="applications"] [data-view="overview"]{display:none!imp
 @media(prefers-reduced-motion:reduce){
   .workspace-shell,.sidebar-collapse-toggle{transition:none!important}
 }
+
+.account-identity[href]{color:inherit;text-decoration:none;border-radius:8px;min-height:44px}.account-identity[href]:focus-visible{outline:3px solid #50C0E8;outline-offset:4px}

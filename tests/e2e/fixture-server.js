@@ -53,6 +53,11 @@ async function start(pool) {
     "insert into portal_sessions(token_hash,user_id,expires_at) values($1,$2,now()+interval '2 hours')",
     [hashToken("fixture-admin-second-session"), ADMIN],
   );
+  for(const [suffix,label] of [['1','desktop'],['2','mobile']]){
+   const id='c0c0c0c0-1111-4111-8111-11111111111'+suffix;
+   await pool.query('insert into auth.users values($1)',[id]);await pool.query("insert into profiles(id,full_name,email) values($1,$2,$3)",[id,'Profile '+label,'profile-'+label+'@fixture.test']);
+   await pool.query("insert into portal_sessions(token_hash,user_id,expires_at) values($1,$2,now()+interval '2 hours')",[hashToken('fixture-profile-'+label),id]);
+  }
   require("./github-fixture")();
   await require('./organization-fixture')(pool);
   await require('./finance-journal-fixture')(pool,ADMIN);

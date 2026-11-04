@@ -39,10 +39,10 @@ module.exports=function databaseBackedServer(pool,auth,credentialFactory){
  }
  const dbPath=require.resolve('../../db');
  require.cache[dbPath]={id:dbPath,filename:dbPath,loaded:true,exports:{db:()=>({from,auth,rpc:async(name,args)=>{
- if(!['provisioning_command','project_command','project_search','delivery_command','notification_command','project_report','session_command','customer_command','product_command','customer_lifecycle','organization_command','organization_invitation','organization_ownership','internal_employee_command','internal_employee_identity','finance_command','finance_report','finance_journal'].includes(name))throw Error('Unexpected fixture RPC');
+ if(!['provisioning_command','project_command','project_search','delivery_command','notification_command','project_report','session_command','customer_command','product_command','customer_lifecycle','organization_command','organization_invitation','organization_ownership','internal_employee_command','internal_employee_identity','finance_command','finance_report','finance_journal','account_profile'].includes(name))throw Error('Unexpected fixture RPC');
  try{const r=await pool.query('select public.'+name+'($1::uuid,$2::text,$3::uuid,$4::jsonb) data',[args.p_actor,args.p_action,args.p_id||null,args.p_data||{}]);return {data:r.rows[0].data,error:null}}catch(error){return {data:null,error}}
  }}),configured:()=>true,
   check:({data,error})=>{if(error)throw error;return data},publicAuth:credentialFactory||(()=>{throw Error('Real Supabase Auth not available in fixture')})}};
- for(const file of ['../../security','../../routes/employee-identity','../../routes/search','../../routes/apps','../../routes/auth','../../routes/organizations','../../routes/ownership','../../services/verify-identity','../../server'])delete require.cache[require.resolve(file)];
+ for(const file of ['../../security','../../routes/profile','../../routes/employee-identity','../../routes/search','../../routes/apps','../../routes/auth','../../routes/organizations','../../routes/ownership','../../services/verify-identity','../../server'])delete require.cache[require.resolve(file)];
  return require('../../server');
 };
