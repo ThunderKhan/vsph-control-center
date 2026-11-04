@@ -1,9 +1,19 @@
 // Forward-only canonical upgrades. Generation has no network or database side effects.
 const fs = require('node:fs');
 const path = require('node:path');
+const crypto = require('node:crypto');
 const {verifyManifest} = require('./database');
 const {installationEntries,sourceMarker,separateReceipts} = require('./history');
 const literal = value => "'" + String(value).replaceAll("'", "''") + "'";
+// Compare fixed-size digests: receipt SQL may contain our dollar delimiters,
+// and must never be interpolated inside the PL/pgSQL guard body.
+function historyGuard(history) {
+ const expected=history.map(({version,name,source_marker})=>({version,name,source_sha256:crypto.createHash('sha256').update(source_marker).digest('hex')})).sort((a,b)=>a.version.localeCompare(b.version));
+ return `do $vsph_forward$ begin
+ if (select jsonb_agg(jsonb_build_object('version',version,'name',name,'source_sha256',pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(statements[1],'UTF8')),'hex')) order by version) from supabase_migrations.schema_migrations)
+ is distinct from ${literal(JSON.stringify(expected))}::jsonb then raise exception 'Migration history changed; fresh preflight required';end if;
+end $vsph_forward$;`;
+}
 function buildForward(history) {
  const checked=verifyManifest();
  if(checked.errors.length)throw Error('Migration source verification failed');
@@ -17,16 +27,12 @@ function buildForward(history) {
  if(!history.some(h=>h.version===entries[0].version))throw Error('Baseline reconciliation required');
  const pending=entries.filter(e=>!history.some(h=>h.version===e.version));
  if(!pending.length)throw Error('No pending migrations');
- const expected=history.map(({version,name,source_marker})=>({version,name,source_marker})).sort((a,b)=>a.version.localeCompare(b.version));
  const chunks=[`begin;
 set local lock_timeout='2s';
 set local statement_timeout='60s';
 select pg_advisory_xact_lock(867530901);
 lock table supabase_migrations.schema_migrations in share row exclusive mode;
-do $vsph_forward$ begin
- if (select jsonb_agg(jsonb_build_object('version',version,'name',name,'source_marker',statements[1]) order by version) from supabase_migrations.schema_migrations)
- is distinct from ${literal(JSON.stringify(expected))}::jsonb then raise exception 'Migration history changed; fresh preflight required';end if;
-end $vsph_forward$;`];
+${historyGuard(history)}`];
  for(const entry of pending){
   const sql=fs.readFileSync(path.resolve(__dirname,'../..',entry.path),'utf8');
   chunks.push(sql);
@@ -35,4 +41,4 @@ end $vsph_forward$;`];
  chunks.push("notify pgrst,'reload schema';\ncommit;");
  return {sql:chunks.join('\n\n')+'\n',pending};
 }
-module.exports={buildForward};
+module.exports={buildForward,historyGuard};
