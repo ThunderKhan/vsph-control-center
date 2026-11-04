@@ -251,3 +251,5 @@ test('finance journal paginates microsecond cursors, filters current owner scope
 test('personal profiles preserve identity permissions and reject cross-user, expired and concurrent mutations',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./profile-cases')(pool)});
 
 test('internal HRMS enforces own records, owner governance, workflow integrity and concurrency',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./hrms-cases')(pool)});
+
+test('single-statement session reads retain live disable, expiry, role and revoke checks',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./session-performance-cases')(pool)});

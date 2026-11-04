@@ -15,7 +15,7 @@ function withSecurity(rows = {}) {
     return result.data;
   };
   const makeQuery = table => {
-    const filters = [];
+    const filters = [];let fields;
     const result = () => {
       const records = rows[table];
       if (records == null) return [];
@@ -23,11 +23,11 @@ function withSecurity(rows = {}) {
         .filter(record => filters.every(([column, value]) => Array.isArray(value) ? value.includes(record[column]) : record[column] === value));
     };
     return {
-      select() { return this; },
+      select(value) { fields=value;return this; },
       limit() { return this; },
       in(column, value) { filters.push([column, value]); return this; },
       eq(column, value) { filters.push([column, value]); return this; },
-      maybeSingle() { return Promise.resolve({data: result()[0] ?? null, error: null}); },
+      maybeSingle() { let data=result()[0]??null;if(data&&table==='portal_sessions'&&fields===require('../services/portal-session-fields').PORTAL_SESSION_FIELDS){const profile=[rows.profiles].flat().find(p=>p?.id===data.user_id);data=profile?{...data,profile}:null;}return Promise.resolve({data,error:null}); },
       then(fulfill, reject) {
         return Promise.resolve({data: result(), error: null}).then(fulfill, reject);
       }

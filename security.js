@@ -1,4 +1,6 @@
 const {db,check} = require('./db');
+const {performance}=require('node:perf_hooks');
+const {PORTAL_SESSION_FIELDS}=require('./services/portal-session-fields');
 const {permittedContexts}=require('./access-policy');
 const {newToken,hashToken,cookieOptions,appCookie,SESSION_HOURS}=require('./tokens');
 function isFuture(iso) {return new Date(iso).getTime()>Date.now();}
@@ -21,26 +23,31 @@ function appDenied(req,res,message,code) {
 async function resolvePortalSession(req) {
   const raw=req.cookies?.['vsph.portal.sid'];
   if(!raw)return 'Please log in.';
-  const session=check(await db().from('portal_sessions').select('token_hash,user_id,expires_at').eq('token_hash',hashToken(raw)).maybeSingle());
-  if(!session||!isFuture(session.expires_at))return 'Portal session expired. Please log in.';
-  const user=check(await db().from('profiles').select('id,full_name,email,status,platform_role').eq('id',session.user_id).maybeSingle());
-  if(!user||user.status!=='active')return 'Account is disabled or unavailable.';
-  req.portalSession=session;req.user=user;
+  const row=check(await db().from('portal_sessions').select(PORTAL_SESSION_FIELDS).eq('token_hash',hashToken(raw)).maybeSingle());
+  if(!row||!isFuture(row.expires_at))return 'Portal session expired. Please log in.';
+  const user=row.profile;
+  if(!user||Array.isArray(user)||user.id!==row.user_id||user.status!=='active')return 'Account is disabled or unavailable.';
+  req.portalSession={token_hash:row.token_hash,user_id:row.user_id,expires_at:row.expires_at};req.user=user;
   return null;
 }
+function authTiming(res,start){if(typeof res.append==='function'&&!res.headersSent)res.append('Server-Timing','auth;dur='+Math.max(0,performance.now()-start).toFixed(1));}
 async function portalSession(req,res,next){
+  const start=performance.now();
   try{
     const denial=await resolvePortalSession(req);
+    authTiming(res,start);
     if(denial)return portalDenied(req,res,denial);
     next();
-  }catch(err){next(err)}
+  }catch(err){authTiming(res,start);next(err)}
 }
 async function optionalPortal(req,res,next){
+  const start=performance.now();
   try{
     // A stale/disabled session must not redirect /login back into itself.
     await resolvePortalSession(req);
+    authTiming(res,start);
     next();
-  }catch(err){next(err)}
+  }catch(err){authTiming(res,start);next(err)}
 }
 function requireAdmin(req,res,next){if(req.user?.platform_role!=='super_admin')return res.status(403).json({message:'Platform Super Admin required.'});next()}
 async function getApp(code){return check(await db().from('applications').select('id,code,name,login_path,status').eq('code',String(code||'').toUpperCase()).maybeSingle())}
