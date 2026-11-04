@@ -43,7 +43,7 @@ document.getElementById('recordForm').addEventListener('submit',async e=>{
  const payload=code==='CRM'?{name:one,email:two,company:three}:{song_title:one,artist:two};
  try{await api(`/api/apps/${code}/records`,{method:'POST',body:JSON.stringify(payload)});e.target.reset();message.textContent='Record added.';await loadRecords()}catch(err){message.textContent=err.message}
 });
-document.getElementById('logoutButton').addEventListener('click',async()=>{
+document.getElementById('appLogoutButton').addEventListener('click',async()=>{
  await fetch('/api/auth/app-logout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({app:code})});
  location.href='/dashboard';
 });

@@ -68,7 +68,7 @@
  }
  async function run(fn){
   if(busy)return;busy=true;$('detail').setAttribute('aria-busy','true');message('');
-  const disabled=[...document.querySelectorAll('button,input,select')].filter(el=>!el.disabled);for(const el of disabled)el.disabled=true;
+  const disabled=[...document.querySelectorAll('main button, main input, main select')].filter(el=>!el.disabled);for(const el of disabled)el.disabled=true;
   try{await fn();}catch(error){message(error.message);}finally{for(const el of disabled)el.disabled=false;busy=false;$('detail').setAttribute('aria-busy','false');}
  }
  async function mutate(action,data,confirmation){

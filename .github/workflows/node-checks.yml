@@ -62,6 +62,8 @@ jobs:
         env:
           VSPH_RESTORE_REHEARSAL: 'true'
           VSPH_CI_POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+      - name: Verify interactive isolated role workspace
+        run: npm run test:demo
       - name: Verify disposable native database helper
         run: npm run test:db:local
   browser:

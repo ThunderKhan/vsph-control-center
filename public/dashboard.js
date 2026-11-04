@@ -23,7 +23,6 @@
   const search = byId('appSearch');
   const error = byId('errorMessage');
   const empty = byId('emptyMessage');
-  const logout = byId('logoutButton');
   let authorizedApps = [];
   let loaded = false;
 
@@ -167,80 +166,6 @@
     }, { passive: true });
   }
 
-  function closeNavigation(restoreFocus = false) {
-    document.body.classList.remove('nav-open');
-    byId('navBackdrop').hidden = true;
-    byId('openMenu').setAttribute('aria-expanded', 'false');
-    if (restoreFocus) byId('openMenu').focus();
-  }
-
-  function openNavigation() {
-    document.body.classList.add('nav-open');
-    byId('navBackdrop').hidden = false;
-    byId('openMenu').setAttribute('aria-expanded', 'true');
-    byId('closeMenu').focus();
-  }
-
-  // Compact desktop navigation is independent of the mobile off-canvas menu.
-  // The early head script restores the preference before the layout is painted.
-  function setupDesktopSidebar() {
-    const button = byId('sidebarToggle');
-    const root = document.documentElement;
-    const storageKey = 'vsph.sidebar.collapsed';
-
-    function setCollapsed(collapsed, save) {
-      root.dataset.sidebarState = collapsed ? 'collapsed' : 'expanded';
-      const label = collapsed ? 'Expand sidebar' : 'Collapse sidebar';
-      button.setAttribute('aria-expanded', String(!collapsed));
-      button.setAttribute('aria-label', label);
-      button.setAttribute('title', label);
-      if (save) {
-        try { window.localStorage.setItem(storageKey, String(collapsed)); }
-        catch { /* Private browsing or blocked storage must not break navigation. */ }
-      }
-    }
-
-    setCollapsed(root.dataset.sidebarState === 'collapsed', false);
-    button.addEventListener('click', () => {
-      setCollapsed(root.dataset.sidebarState !== 'collapsed', true);
-    });
-  }
-
-  function setupMobileNavigation() {
-    byId('openMenu').addEventListener('click', openNavigation);
-    byId('closeMenu').addEventListener('click', () => closeNavigation(true));
-    byId('navBackdrop').addEventListener('click', () => closeNavigation(true));
-    byId('workspaceSidebar').addEventListener('click', event => {
-      if (event.target.closest('a') && window.innerWidth <= 950) closeNavigation();
-    });
-    document.addEventListener('keydown', event => {
-      if (!document.body.classList.contains('nav-open')) return;
-      if (event.key === 'Escape') {
-        closeNavigation(true);
-      } else if (event.key === 'Tab') {
-        const focusable = [...byId('workspaceSidebar').querySelectorAll('a, button:not([disabled])')].filter(node => !node.hidden && node.getClientRects().length);
-        const first = focusable[0], last = focusable[focusable.length - 1];
-        if (!first || !last) return;
-        if (event.shiftKey && document.activeElement === first) {
-          event.preventDefault(); last.focus();
-        } else if (!event.shiftKey && document.activeElement === last) {
-          event.preventDefault(); first.focus();
-        }
-      }
-    });
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 950) closeNavigation();
-    });
-
-    for (const link of document.querySelectorAll('.sidebar-link')) {
-      const href = link.getAttribute('href');
-      const active = href === (isApplicationsView ? '/applications' : '/dashboard');
-      link.classList.toggle('is-active', active);
-      if (active) link.setAttribute('aria-current', 'page');
-      else link.removeAttribute('aria-current');
-    }
-  }
-
   async function responseJson(url) {
     const response = await fetch(url, {
       credentials: 'same-origin',
@@ -273,18 +198,8 @@
       byId('topAccount').textContent = name;
       byId('welcomeMessage').textContent = 'Welcome back, ' + firstName + '. Your applications are ready when you are.';
       const isPlatformAdmin = user.platformRole === 'super_admin';
-      byId('adminNavContainer').hidden = !isPlatformAdmin;
       byId('adminOverviewPanel').hidden = !isPlatformAdmin;
       byId('topbarOnboard').hidden = !isPlatformAdmin;
-      // The platform owner always has employee administration. Other users
-      // only see its navigation after the current database grants explicit HR access.
-      byId('employeeNavContainer').hidden = !isPlatformAdmin;
-      byId('hrGovernanceNav').hidden = !isPlatformAdmin;
-      // Navigation capabilities must never hold up the workspace's main data.
-      void (async () => {try {
-        const response = await fetch('/api/hrms/access', {credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(8000)});
-        if(response.ok){const flags=await response.json();byId('employeeNavContainer').hidden=!flags.management;byId('hrGovernanceNav').hidden=!flags.governHr;byId('myWorkNav').hidden=!flags.employee;}
-      } catch { /* Authorization is rechecked by each protected page/API. */ }})();
       // Owner defaults to persisted facts. The preserved fictional preview is
       // opt-in, and neither owner view borrows customer-product permissions.
       if (isPlatformAdmin && !isApplicationsView) {
@@ -324,32 +239,11 @@
     }
   }
 
-  function setupLogout() {
-    logout.addEventListener('click', async () => {
-      logout.disabled = true;
-      showError('');
-      try {
-        const response = await fetch('/api/auth/logout', {
-          method: 'POST',
-          credentials: 'same-origin'
-        });
-        if (!response.ok) throw new Error('Could not sign out. Please try again.');
-        window.location.replace('/login');
-      } catch (failure) {
-        showError(failure.message || 'Could not sign out. Please try again.');
-        logout.disabled = false;
-      }
-    });
-  }
-
   // A shared page shell, two different route-specific views.
   document.title = (isApplicationsView ? 'Applications' : 'Overview') + ' | VSPH Control Center';
   for (const section of document.querySelectorAll('[data-view]')) {
     section.hidden = section.getAttribute('data-view') !== (isApplicationsView ? 'applications' : 'overview');
   }
-  setupDesktopSidebar();
-  setupMobileNavigation();
-  setupLogout();
   addSpotlight(byId('spotlightPanel'));
   search.addEventListener('input', renderApps);
   loadDashboard();
