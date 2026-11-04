@@ -1,6 +1,7 @@
 const assert=require('node:assert/strict');
 module.exports=async(pool)=>{
- const admin='44444444-4444-4444-8444-444444444444',user='11111111-1111-4111-8111-111111111111';
+ const admin='44444444-4444-4444-8444-444444444444',user='12121212-1111-4111-8111-111111111111';
+ await pool.query("insert into auth.users values($1)",[user]);await pool.query("insert into profiles(id,full_name,email) values($1,'Internal contractor','internal-contractor@fixture.test')",[user]);
  const call=async(action,id,data={},actor=admin)=>(await pool.query('select project_command($1,$2,$3,$4) data',[actor,action,id,data])).rows[0].data;
  const created=await call('create',null,{key:'P2-TEST',name:'Real fixture project',kind:'internal'});const id=created.id;let version=created.version;
  await assert.rejects(call('detail',id,{},user),{code:'42501'});
@@ -23,16 +24,17 @@ module.exports=async(pool)=>{
  const detail=await call('detail',id);assert.equal(detail.tasks[0].status,'done');assert.ok(detail.activity.length>=10);assert.equal(detail.comments.length,1);assert.equal(detail.deliverables.length,1);
  await call('update',id,{version,status:'active'});version++;await call('update',id,{version,status:'completed'});version++;await assert.rejects(call('task.create',id,{version,title:'Must reopen'}),{code:'22023'});await call('update',id,{version,status:'archived'});version++;
  await assert.rejects(call('task.create',id,{version,title:'No'}),{code:'22023'});
- const org='22222222-2222-4222-8222-222222222222';await pool.query("update organization_memberships set status='active' where user_id=$1 and organization_id=$2",[user,org]);
+ const client='11111111-1111-4111-8111-111111111111';
+ const org='22222222-2222-4222-8222-222222222222';await pool.query("update organization_memberships set status='active' where user_id=$1 and organization_id=$2",[client,org]);
  const customer=await call('create',null,{key:'CLIENT',name:'Shared fixture',kind:'customer',customerOrganizationId:org,clientVisible:true});
- await call('member.save',customer.id,{version:1,userId:user,role:'client',status:'active'});
+ await call('member.save',customer.id,{version:1,userId:client,role:'client',status:'active'});
  const privateTask=await call('task.create',customer.id,{version:2,title:'Private work'});
  await call('task.create',customer.id,{version:3,title:'Shared delivery',shared:true});
  await call('deliverable.create',customer.id,{version:4,title:'Private evidence metadata',url:'https://example.test/private',taskId:privateTask.id,shared:true});
- const visible=await call('detail',customer.id,{},user);assert.equal(visible.deliverables.length,0);assert.ok(!visible.activity.some(x=>x.summary==='Private evidence metadata'));
+ const visible=await call('detail',customer.id,{},client);assert.equal(visible.deliverables.length,0);assert.ok(!visible.activity.some(x=>x.summary==='Private evidence metadata'));
 assert.deepEqual(visible.tasks.map(t=>t.title),['Shared delivery']);
- await assert.rejects(call('task.create',customer.id,{version:4,title:'Forbidden'},user),{code:'42501'});
- await pool.query("update organization_memberships set status='suspended' where user_id=$1 and organization_id=$2",[user,org]);await assert.rejects(call('detail',customer.id,{},user),{code:'42501'});
+ await assert.rejects(call('task.create',customer.id,{version:4,title:'Forbidden'},client),{code:'42501'});
+ await pool.query("update organization_memberships set status='suspended' where user_id=$1 and organization_id=$2",[client,org]);await assert.rejects(call('detail',customer.id,{},client),{code:'42501'});
 };
 
 module.exports.dependencyRegression=async pool=>{const actor='44444444-4444-4444-8444-444444444444';const call=async(a,id,d)=>(await pool.query('select project_command($1,$2,$3,$4) data',[actor,a,id,d])).rows[0].data;const p=await call('create',null,{key:'DEPENDENCY',name:'Dependency fixture',kind:'internal'});const a=await call('milestone.create',p.id,{version:1,title:'First'});const b=await call('milestone.create',p.id,{version:2,title:'Second'});await call('milestone.update',p.id,{version:3,id:a.id,status:'active'});await assert.rejects(call('milestone.update',p.id,{version:4,id:a.id,status:'done',dependsOn:b.id}),{code:'22023'});};

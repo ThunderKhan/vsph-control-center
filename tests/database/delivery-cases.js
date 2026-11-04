@@ -1,7 +1,7 @@
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 module.exports = async pool => {
- const admin='44444444-4444-4444-8444-444444444444', user='11111111-1111-4111-8111-111111111111';
+ const admin='44444444-4444-4444-8444-444444444444', user='12121212-1111-4111-8111-111111111111';
  const call=async(a,id,d={},actor=admin)=>(await pool.query('select delivery_command($1,$2,$3,$4) data',[actor,a,id,d])).rows[0].data;
  const pc=async(a,id,d)=>(await pool.query('select project_command($1,$2,$3,$4) data',[admin,a,id,d])).rows[0].data;
  const p=await pc('create',null,{key:'DELIVERY',name:'Engineering',kind:'internal'});
