@@ -1,3 +1,35 @@
+# Latest owner overview handoff — 4 November 2026
+
+Code baseline `9638eeb5b66e5e55d42fe00cfdb7849b47b25aad` (#61) passes 148 Node, 38 native PostgreSQL and 48 active Chromium tests, plus existing quality/security/restore/helper gates. [Current merges, M0–M12 status and five pending migrations](../roadmap/CONTINUATION_HANDOFF_20261104.md) supersede older cutoffs below. This increment adds no migration. Hosting remains deferred; existing report/ledger migrations are required on the normal runtime target. These commands are verified on Linux CI; this increment was not run on native Windows.
+
+```powershell
+cd D:\Projects\vsph-control-center
+git status --short
+git switch main
+git pull --ff-only origin main
+npm ci
+npm test
+npm run check
+npm run lint
+npm run format:check
+npm run check:migrations
+npm run test:coverage
+npm audit --omit=dev --audit-level=high
+npm audit --audit-level=high
+npx playwright install chromium
+npm run test:db:local
+npm run test:e2e:db
+npm run dev
+```
+
+Use an ordinary OS account for the disposable native helpers. They need no Docker/AWS/hosted URL and never install hosted migrations. Preserve six moderate dev findings; no audit fix --force. No typecheck/build script exists. Existing private Supabase environment, PUBLIC_ORIGIN=http://localhost:3000 and PORT=3000 are required for normal runtime. Do not run reset/seeds/bootstrap against customer data.
+
+For new acceptance on an approved prepared target: sign in as owner, open Dashboard, reconcile four balances and six months with Finance, record an authorized invoice/receipt and refresh/reload to verify persistence. Open the illustrative preview explicitly and return to recorded data. As an ordinary/customer user, confirm your original scoped workspace and denied `/api/finance/overview`. Use disposable fixtures for unknown/missing schema, revoked/expired permissions, numeric/invalid DTO, large exact money and twelve-second timeout/retry cases; prior facts must clear when refresh fails. Validate keyboard navigation, desktop sidebar collapse, mobile drawer and overflow. Then run the full [manual checklist](MANUAL_QA.md) for login, onboarding, invitations, roles/subscriptions, employee consent/HR, Projects/team/milestones/tasks/history, GitHub/private data, Music gating, auditing and logout.
+
+A target missing the finance RPC shows an upgrade message rather than sample balances. Use `npm run test:e2e:db` for immediate isolated acceptance without changing the hosted database. Read [OWNER_OVERVIEW.md](OWNER_OVERVIEW.md) for data/snapshot/authorization limits. Hosting and real provider/identity acceptance remain separate gates.
+
+---
+
 # Current development handoff — employee consent and finance
 
 Code baseline `8704d6b051117dd7bbe2967dcf382751b1ea94fb` includes merged #58/#59. [Current merges, M0–M12 gaps, test evidence and migration boundary](../roadmap/CONTINUATION_HANDOFF_20261103.md) supersede the historical cutoffs below. Latest code PR passed 148 Node, 38 native PostgreSQL and 44 active Chromium cases (two intentional skips). Commands below are actual package scripts tested on Linux CI; this increment has not been executed on native Windows. Use an ordinary Windows account. No local Docker/AWS/Supabase CLI is required by the disposable helpers.
