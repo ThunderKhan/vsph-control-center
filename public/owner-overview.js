@@ -92,7 +92,10 @@
    if(response.status===401){accessLost=true;clear();window.location.replace('/login');throw Error('denied');}
    if(response.status===403){accessLost=true;clear();throw Error('denied');}
    if(!response.ok||accessLost)throw Error('unavailable');
-   const report=await response.json();validateOperations(report);renderOperations(report);
+   const report=await response.json();
+   if(epoch!==operationEpoch)return;
+   if(accessLost)throw Error('denied');
+   validateOperations(report);renderOperations(report);
   }catch{if(epoch!==operationEpoch)return;clearOperations();$('ownerOperationsStatus').textContent=accessLost?'Owner access is no longer available. Sign in again.':'Operating records are unavailable. Use Refresh overview to retry; finance is loaded separately.';}
   finally{clearTimeout(timer);}
  }

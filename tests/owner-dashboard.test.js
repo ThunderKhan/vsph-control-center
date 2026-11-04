@@ -2,7 +2,7 @@ const test=require('node:test'),assert=require('node:assert/strict');
 const {ownerDashboard}=require('../services/owner-dashboard');
 function client(failed){
  const reads=[];
- return {reads,from(table){const entry={table};reads.push(entry);const q={select(fields,options){entry.fields=fields;entry.options=options;return q;},eq(key,value){entry.filter=[key,value];return q;},order(){return q;},limit(n){entry.limit=n;return q;},then(resolve,reject){return Promise.resolve(table===failed?{error:{message:'private provider details'}}:entry.options?.head?{count:3}:{data:[{id:'11111111-1111-4111-8111-111111111111',name:'Real project',status:'active',kind:'internal',created_at:'x',private:'secret'}]}).then(resolve,reject);}};return q;}};
+ return {reads,from(table){const entry={table};reads.push(entry);const q={select(fields,options){entry.fields=fields;entry.options=options;return q;},eq(key,value){entry.filter=[key,value];return q;},order(){return q;},limit(n){entry.limit=n;return q;},then(resolve,reject){return Promise.resolve(table===failed?{error:{message:'private provider details'}}:entry.options?.head?{count:table==='project_tasks'&&entry.filter?1:3}:{data:[{id:'11111111-1111-4111-8111-111111111111',name:'Real project',status:'active',kind:'internal',created_at:'x',private:'secret'}]}).then(resolve,reject);}};return q;}};
 }
 test('owner dashboard uses exact aggregate counts and bounded project allowlists',async()=>{
  const db=client(),result=await ownerDashboard(db);
@@ -10,6 +10,14 @@ test('owner dashboard uses exact aggregate counts and bounded project allowlists
  assert.deepEqual(Object.keys(result.delivery.recent[0]).sort(),['id','kind','name','status']);
  assert.equal(db.reads.find(r=>r.limit).limit,6);
  assert.ok(db.reads.filter(r=>!r.limit).every(r=>r.options.count==='exact'&&r.options.head));
+});
+test('conflicting task observations clear only delivery, preserving other module counts',async()=>{
+ const db=client(),original=db.from;db.from=table=>{
+  if(table!=='project_tasks')return original(table);
+  const q={select(){return q;},eq(){return q;},then(resolve,reject){return Promise.resolve({count:3}).then(resolve,reject);}};return q;
+ };
+ const report=await ownerDashboard(db);
+ assert.deepEqual(report.delivery,{status:'unavailable'});assert.equal(report.customers.active,3);assert.equal(report.workforce.total,3);
 });
 test('a missing module never invents zero counts or hides other operating sections',async()=>{
  const result=await ownerDashboard(client('project_tasks'));
