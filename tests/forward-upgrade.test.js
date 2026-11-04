@@ -1,5 +1,5 @@
 const test=require('node:test'),assert=require('node:assert/strict');
-const {buildForward}=require('../services/readiness/forward');
+const {buildForward,historyGuard}=require('../services/readiness/forward');
 const {verifyManifest}=require('../services/readiness/database');
 const {installationEntries,sourceMarker}=require('../services/readiness/history');
 test('forward upgrade detects lower-version gaps and never replays the baseline or installed migrations',()=>{
@@ -18,4 +18,11 @@ test('forward upgrade detects lower-version gaps and never replays the baseline 
  assert.throws(()=>buildForward(history.slice(1)));
  assert.throws(()=>buildForward([...history,{version:'unknown',name:'unknown',source_marker:'x'}]));
  assert.throws(()=>buildForward(entries.map(e=>({version:e.version,name:e.name,source_marker:sourceMarker(e)}))));
+});
+
+test('history guards hash receipt SQL instead of nesting executable delimiters',()=>{
+ const source="do $vsph_forward$ begin raise notice 'nested'; end $vsph_forward$; -- $$";
+ const sql=historyGuard([{version:'20990101000000',name:'synthetic_receipt',source_marker:source}]);
+ assert.ok(sql.includes(require('node:crypto').createHash('sha256').update(source).digest('hex')));
+ assert.ok(!sql.includes(source));assert.match(sql,/pg_catalog.sha256/);assert.equal((sql.match(/\$vsph_forward\$/g)||[]).length,2);
 });

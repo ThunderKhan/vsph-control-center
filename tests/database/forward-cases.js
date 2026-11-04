@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict'),pg=require('pg'),fs=require('node:fs');
-const {buildForward}=require('../../services/readiness/forward');
+const {buildForward,historyGuard}=require('../../services/readiness/forward');
 const {verifyManifest,inspectDatabase,assess}=require('../../services/readiness/database');
 const {installationEntries,sourceMarker}=require('../../services/readiness/history');
 module.exports=async(base,inputUrl)=>{
@@ -15,6 +15,12 @@ module.exports=async(base,inputUrl)=>{
   for(const e of installed){await a.query(fs.readFileSync(e.path,'utf8'));await a.query('insert into supabase_migrations.schema_migrations values($1,$2,$3)',[e.version,e.name,[sourceMarker(e)]]);}
   await a.query("insert into auth.users values('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa');insert into profiles(id,email,full_name) values('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','preserved@fixture.test','Preserved');insert into organizations(name,slug) values('Preserved customer','preserved-customer');update applications set name='Custom '||code;");
   const before=(await a.query('select row_to_json(p) row from profiles p order by id')).rows;
+  const receipt={version:'20990101000000',name:'synthetic_receipt',source_marker:"do $vsph_forward$ begin raise notice 'nested';end $vsph_forward$; -- $$"};
+  await a.query('insert into supabase_migrations.schema_migrations values($1,$2,$3)',[receipt.version,receipt.name,[receipt.source_marker]]);
+  const guard=historyGuard([...history,receipt]);await a.query(guard);
+  await a.query('update supabase_migrations.schema_migrations set statements=array[$1] where version=$2',[receipt.source_marker+'-- drift',receipt.version]);await assert.rejects(a.query(guard),/history changed/);
+  await a.query('update supabase_migrations.schema_migrations set statements=array[$1] where version=$2',[receipt.source_marker,receipt.version]);await a.query(guard);
+  assert.throws(()=>buildForward([...history,receipt]),/history drift/,'Hashing never bypasses receipt classification');await a.query('delete from supabase_migrations.schema_migrations where version=$1',[receipt.version]);
   const pack=buildForward(history);
   await assert.rejects(a.query(pack.sql.replace("notify pgrst,'reload schema';",'select 1/0;')),{code:'22012'});await a.query('rollback');
   assert.equal((await a.query("select to_regclass('public.finance_invoices') t")).rows[0].t,null);

@@ -262,3 +262,9 @@ Added a separate `/account/profile` page, reachable from the dashboard account i
 
 - PR #70 merged at `89910c9715ed5547c3b21bbe16dc71814a74b177`: own profile customization, no role/email changes; Node, native PostgreSQL, Chromium and production dependency jobs passed.
 - HRMS development adds separate owner HR governance, manager leave/attendance review and own assigned-work/leave/attendance workspaces. New migrations remain unapplied hosted until explicitly recorded otherwise. No payroll, leave-balance or new-identity invitation completion is claimed. See `HRMS_WORKSPACES.md` for scope, privacy and migration implications.
+
+## 4 November 2026 — HRMS merge and installation guard correction
+
+- HRMS PR #71 merged as `81dd696dffc50887232cf459e529e1ce300be212`. All four CI jobs passed: 161 Node tests, 42 native PostgreSQL cases, 60 Chromium tests (two intentional skips) through both database launchers, isolated security advisors and backup/restore rehearsal.
+- The hosted forward package stopped with a SQL delimiter collision in its history guard. Read-only verification confirmed no profile/HRMS tables and the original 26 ledger rows; existing data was not migrated. Source migrations remain unapplied at this point.
+- A focused generator correction hashes full receipt text instead of embedding it inside a dollar-quoted guard. Canonical/registered receipt validation remains mandatory; native tests cover delimiter-bearing receipts, exact digest comparison, drift denial and rejection of unregistered receipts. See the implementation report for subsequent installation evidence.
