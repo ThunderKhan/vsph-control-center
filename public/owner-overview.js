@@ -23,6 +23,7 @@
   if(report.monthly.at(-1).month_start.slice(0,7)!==report.asOf.slice(0,7))throw Error('invalid');
  }
  function clear(){
+  window.VSPHOwnerBento?.clearFinance();
   $('ownerOverviewFacts').hidden=true;
   for(const id of ['ownerInvoiced','ownerCollected','ownerOutstanding','ownerPastDue'])$(id).textContent='—';
   $('ownerOverviewMonths').replaceChildren();$('ownerOverviewCounts').textContent='';$('ownerOverviewObserved').textContent='';
@@ -43,9 +44,11 @@
   $('ownerOverviewCounts').textContent=count(summary.issuedInvoices,'issued invoice')+' · '+count(summary.voidInvoices,'void invoice')+' · '+count(summary.clients,'customer')+' with issued invoices · '+count(summary.projects,'project')+' with issued invoices';
   $('ownerOverviewObserved').textContent='Ledger date '+report.asOf+' · Retrieved '+new Intl.DateTimeFormat('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(new Date());
   $('ownerOverviewFacts').hidden=false;
+  window.VSPHOwnerBento?.finance(report);
  }
  const operationIds=['ownerActiveCustomers','ownerActiveProjects','ownerActiveEmployees','ownerActiveProducts','ownerCustomerTotal','ownerCustomerActive','ownerCustomerSuspended','ownerEmployeeTotal','ownerEmployeeOnboarding','ownerProductTotal'];
  function clearOperations(){
+  window.VSPHOwnerBento?.clearOperations();
   for(const id of operationIds)$(id).textContent='—';
   $('ownerRecentProjects').replaceChildren();$('ownerTaskProgress').hidden=true;
   $('ownerDeliverySummary').textContent='Project records are unavailable.';
@@ -59,7 +62,7 @@
   }
   if(report.delivery.status==='ready'){
    const d=report.delivery;
-   if(d.done+d.cancelled>d.tasks||d.blocked>d.tasks||!Array.isArray(d.recent)||d.recent.length>6)throw Error('invalid');
+   if(d.done+d.cancelled+d.blocked>d.tasks||!Array.isArray(d.recent)||d.recent.length>6)throw Error('invalid');
    for(const p of d.recent)if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(p.id)||typeof p.name!=='string'||p.name.length>200||!['internal','customer'].includes(p.kind)||p.status!=='active')throw Error('invalid');
   }
  }
@@ -76,12 +79,13 @@
    $('ownerDeliverySummary').textContent=d.done.toLocaleString('en-IN')+' of '+total.toLocaleString('en-IN')+' noncancelled tasks completed · '+d.blocked.toLocaleString('en-IN')+' blocked · '+d.completed.toLocaleString('en-IN')+' completed projects.';
    if(total){$('ownerTaskProgress').value=100*d.done/total;$('ownerTaskProgress').hidden=false;}
    for(const p of d.recent){const row=document.createElement('li'),link=document.createElement('a'),kind=document.createElement('small');link.href='/projects/'+p.id;link.textContent=p.name;kind.textContent=p.kind==='internal'?'Internal':'Customer';row.append(link,kind);$('ownerRecentProjects').append(row);}
-   if(!d.recent.length){const row=document.createElement('li');row.textContent='No active projects recorded. Create a project to start tracking delivery.';$('ownerRecentProjects').append(row);}
+   if(!d.recent.length){const row=document.createElement('li');row.className='owner-empty';const title=document.createElement('strong');title.textContent='Room for what’s next.';const detail=document.createElement('span');detail.textContent='Create a project to give your next delivery a home.';row.append(title,detail);$('ownerRecentProjects').append(row);}
   }
   if(w.status==='ready'){set('ownerActiveEmployees',w.active);set('ownerEmployeeTotal',w.total);set('ownerEmployeeOnboarding',w.onboarding);}
   if(p.status==='ready'){set('ownerActiveProducts',p.active);set('ownerProductTotal',p.total);}
   $('ownerPeopleStatus').textContent=w.status==='ready'&&p.status==='ready'?'Counts from the internal employee roster and product registry.':w.status==='ready'?'Employee records loaded; product registry is unavailable.':p.status==='ready'?'Product registry loaded; employee records are unavailable.':'Workforce and product records are unavailable.';
-  $('ownerOperationsStatus').textContent=[c,d,w,p].every(x=>x.status==='ready')?'Operating records loaded. Each section is read independently.':'Some operating sections are unavailable. Available records remain visible.';
+  window.VSPHOwnerBento?.operations(report);
+  $('ownerOperationsStatus').textContent=[c,d,w,p,report.attention,report.activity].filter(Boolean).every(x=>x.status==='ready')?'Operating records loaded. Each section is read independently.':'Some operating sections are unavailable. Available records remain visible.';
  }
  async function refreshOperations(epoch){
   clearOperations();$('ownerOperationsStatus').textContent='Loading operating records…';
