@@ -19,4 +19,6 @@ test('HR, employees and Music customers receive distinct menus with enforced ser
   expect((await context.request.get('/hr/access')).status()).toBe(403);expect((await context.request.get('/admin')).status()).toBe(403);
  }
  await expect(page.locator('#appGrid .app-card')).toHaveCount(1);await expect(page.locator('#appGrid')).toContainText('Music');expect((await context.request.get('/hr')).status()).toBe(403);expect((await context.request.get('/my-work')).status()).toBe(403);expect((await context.request.get('/apps/crm/login')).status()).toBe(403);
+ await page.goto('/apps/music/login');await expect(page.locator('#workspaceSidebar')).toHaveCount(1);await expect(page.locator('#authForm')).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);if(info.project.name==='mobile'){await page.getByRole('button',{name:'Open navigation',exact:true}).click();await expect(page.locator('#workspaceSidebar')).toBeVisible();await page.keyboard.press('Escape');await expect(page.locator('#openMenu')).toBeFocused();}
+
 });

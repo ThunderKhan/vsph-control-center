@@ -187,3 +187,6 @@ body[data-portal-shell]{display:block!important;margin:0!important;padding:0!imp
 .portal-environment-notice{padding:12px 24px;background:#E5F2FA;color:#00255A;font:500 14px/1.5 Inter,Arial,sans-serif;border-bottom:1px solid #C2D5E8}
 
 body[data-portal-shell]{overflow:auto!important}.workspace-main>.workspace-topbar{margin:0;flex-direction:row;gap:16px;align-items:center}#workspaceSidebar{min-width:0;overflow-x:hidden}#workspaceSidebar .sidebar-collapse-toggle,.workspace-topbar .icon-button,#workspaceSidebar .icon-button{padding:0}@media(max-width:950px){body[data-portal-shell].nav-open{overflow:hidden!important}}@media(min-width:951px){:root[data-sidebar-state="collapsed"] .portal-nav-message,:root[data-sidebar-state="collapsed"] #workspaceSidebar .sidebar-navigation>.sidebar-logout{display:none}}
+
+/* Product sign-in backgrounds stay below the shared portal header. */
+body[data-portal-shell].auth-page .workspace-main>.workspace-topbar{position:relative;z-index:3}
