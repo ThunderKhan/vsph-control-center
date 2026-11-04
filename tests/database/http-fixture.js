@@ -3,7 +3,7 @@
 const {createRequire}=require('node:module');
 module.exports=function databaseBackedServer(pool,auth,credentialFactory){
  const allowedTables=new Set(['portal_sessions','app_sessions','profiles','applications','organizations',
-  'subscriptions','organization_app_access','organization_memberships','user_app_roles','music_requests','crm_contacts','projects','project_tasks','internal_employees']);
+  'subscriptions','organization_app_access','organization_memberships','user_app_roles','music_requests','crm_contacts','projects','project_tasks','project_milestones','project_activity','internal_employees']);
  const identifier=value=>{if(!/^[a-z_]+$/.test(value))throw Error('Invalid test identifier');return '"'+value+'"'};
  function from(table){
   if(!allowedTables.has(table))throw Error('Unexpected fixture table');
@@ -11,7 +11,9 @@ module.exports=function databaseBackedServer(pool,auth,credentialFactory){
   const predicates=[],values=[];
   const q={
    select(value,options={}){fields=value;q.countOnly=options.head===true&&options.count==='exact';return q},eq(key,value){values.push(value);predicates.push(identifier(key)+'=$'+values.length);return q},
-   in(key,value){values.push(value);predicates.push(identifier(key)+'=any($'+values.length+'::uuid[])');return q},
+   in(key,value){values.push(value);predicates.push(identifier(key)+'=any($'+values.length+(key.endsWith('id')?'::uuid[])':'::text[])'));return q},
+   lt(key,value){values.push(value);predicates.push(identifier(key)+'<$'+values.length);return q},
+   gte(key,value){values.push(value);predicates.push(identifier(key)+'>=$'+values.length);return q},
    limit(value){limit=value;return q},order(key,{ascending=true}={}){q.sort=identifier(key)+(ascending?' asc':' desc');return q},
    insert(value){mode='insert';payload=value;return q},
    delete(){if(!['portal_sessions','app_sessions'].includes(table))throw Error('Unexpected fixture delete');mode='delete';return q},
@@ -25,7 +27,12 @@ module.exports=function databaseBackedServer(pool,auth,credentialFactory){
     }
     if(mode==='delete'){const r=await pool.query('delete from '+identifier(table)+(predicates.length?' where '+predicates.join(' and '):'')+' returning '+columns,values);return {data:r.rows,error:null};}
     sql='select '+columns+' from '+identifier(table)+(predicates.length?' where '+predicates.join(' and '):'')+(q.sort?' order by '+q.sort:'')+' limit '+Number(limit);
-    const r=await pool.query(sql,values);const rows=JSON.parse(JSON.stringify(r.rows));return {data:single?rows[0]||null:rows,error:null};
+    const r=await pool.query(sql,values);
+    // PostgREST returns DATE as calendar text. Do not timezone-shift it through
+    // a native pg Date on Windows/IST while emulating the query transport.
+    const dates=r.fields.filter(f=>f.dataTypeID===1082).map(f=>f.name);
+    const rows=JSON.parse(JSON.stringify(r.rows.map(row=>{const result={...row};for(const key of dates){const d=result[key];if(d instanceof Date)result[key]=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}return result;})));
+    return {data:single?rows[0]||null:rows,error:null};
    }catch(error){return {data:null,error}}},
    maybeSingle(){return q.execute(true)},single(){return q.execute(true)},then(resolve,reject){return q.execute().then(resolve,reject)}
   };return q;
