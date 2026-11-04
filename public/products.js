@@ -19,7 +19,7 @@
   function busyState(value) {
     busy = value;
     document.querySelector("main").setAttribute("aria-busy", String(value));
-    for (const el of document.querySelectorAll("input,select,textarea,button"))
+    for (const el of document.querySelectorAll("main input, main select, main textarea, main button"))
       el.disabled = value;
     form.elements.code.disabled = value || Boolean(current);
   }

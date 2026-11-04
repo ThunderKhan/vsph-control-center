@@ -734,74 +734,6 @@
       container.setAttribute("aria-busy", "false");
     }
   }
-  function navigation() {
-    const root = document.documentElement,
-      toggle = $("sidebarToggle");
-    const collapse = (save) => {
-      const c = root.dataset.sidebarState === "collapsed";
-      toggle.setAttribute("aria-expanded", String(!c));
-      toggle.setAttribute(
-        "aria-label",
-        c ? "Expand sidebar" : "Collapse sidebar",
-      );
-      if (save)
-        try {
-          localStorage.setItem("vsph.sidebar.collapsed", String(c));
-        } catch {}
-    };
-    toggle.onclick = () => {
-      root.dataset.sidebarState =
-        root.dataset.sidebarState === "collapsed" ? "expanded" : "collapsed";
-      collapse(true);
-    };
-    collapse(false);
-    const close = () => {
-      document.body.classList.remove("nav-open");
-      $("navBackdrop").hidden = true;
-      $("openMenu").setAttribute("aria-expanded", "false");
-      $("openMenu").focus();
-    };
-    $("openMenu").onclick = () => {
-      document.body.classList.add("nav-open");
-      $("navBackdrop").hidden = false;
-      $("openMenu").setAttribute("aria-expanded", "true");
-      $("closeMenu").focus();
-    };
-    $("closeMenu").onclick = close;
-    $("navBackdrop").onclick = close;
-    document.addEventListener("keydown", (e) => {
-      if (!document.body.classList.contains("nav-open")) return;
-      if (e.key === "Escape") close();
-      if (e.key === "Tab") {
-        const links = [
-          ...$("workspaceSidebar").querySelectorAll("a,button"),
-        ].filter((e) => e.getClientRects().length);
-        const first = links[0],
-          last = links.at(-1);
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
-    });
-    for (const a of document.querySelectorAll(".sidebar-link")) {
-      a.classList.toggle("is-active", a.getAttribute("href") === "/projects");
-      if (a.getAttribute("href") === "/projects")
-        a.setAttribute("aria-current", "page");
-      else a.removeAttribute("aria-current");
-    }
-    $("logoutButton").onclick = async () => {
-      try {
-        await api("/api/auth/logout", { method: "POST" });
-        location.assign("/login");
-      } catch (e) {
-        setMessage(e.message);
-      }
-    };
-  }
   $("newProject").onclick = () =>
     createForm().catch((e) => setMessage(e.message));
   $("reloadProjects").onclick = () => {
@@ -824,12 +756,10 @@
           ? "Platform administrator"
           : "Project member";
       $("avatar").textContent = user.name.slice(0, 1).toUpperCase();
-      $("adminNavContainer").hidden = user.platformRole !== "super_admin";
       $("topbarOnboard").hidden = user.platformRole !== "super_admin";
       document.dispatchEvent(
         new CustomEvent("vsph:identity-loaded", { detail: user }),
       );
-      navigation();
       if (projectId) await loadDetail();
       else await loadList();
     } catch (e) {

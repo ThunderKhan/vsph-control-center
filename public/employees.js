@@ -119,7 +119,7 @@
   finally{if(currentLoad===searchVersion)$('employeeRows').setAttribute('aria-busy','false');}
  }
  async function run(action){
-  if(busy)return;busy=true;const controls=[...document.querySelectorAll('button')].filter(x=>!x.disabled);
+  if(busy)return;busy=true;const controls=[...document.querySelectorAll('main button')].filter(x=>!x.disabled);
   for(const control of controls)control.disabled=true;
   try{await action();}catch(error){successNotice='';info(error.message);}
   finally{busy=false;for(const control of controls)if(control.id!=='nextEmployeePage')control.disabled=false;}

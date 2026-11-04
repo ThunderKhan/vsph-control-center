@@ -7,6 +7,7 @@ const {musicConfig}=require('./integration/sso-config');
 const {securityHeaders,trustProxy,rateLimit,safeError}=require('./http-security');
 const app=express();app.disable('x-powered-by');app.set('trust proxy',trustProxy());
 app.use(securityHeaders);
+app.use(require('./services/portal-page').middleware);
 // All applications use this login view by default. Explicit, reviewed overrides
 // can be placed here later for a customer's structural requirements.
 const sharedAuthView = path.join(__dirname,'views','auth.html');

@@ -7,7 +7,7 @@ const root=path.join(__dirname,'..');
 const read=pathName=>fs.readFileSync(path.join(root,pathName),'utf8');
 
 test('desktop sidebar uses an animating grid track, so the main area reflows',()=>{
-  const css=read('public/dashboard.css');
+  const css=read('public/portal-navigation.css');
   assert.match(css,/\.workspace-shell\s*\{transition:grid-template-columns/);
   assert.match(css,/@media\s*\(min-width:951px\)/);
   assert.match(css,/:root\[data-sidebar-state="collapsed"\] \.workspace-shell\s*\{\s*grid-template-columns:72px minmax\(0,1fr\)/);
@@ -18,7 +18,7 @@ test('desktop sidebar uses an animating grid track, so the main area reflows',()
 });
 
 test('icon rail keeps real accessible links and native disclosure toggle',()=>{
-  const html=read('public/dashboard.html'),css=read('public/dashboard.css');
+  const html=read('views/partials/portal-sidebar.html'),css=read('public/portal-navigation.css');
   assert.match(html,/id="sidebarToggle" class="sidebar-collapse-toggle" type="button"/);
   assert.match(html,/aria-expanded="true" aria-controls="workspaceSidebar"/);
   for(const label of ['Overview','Applications','Platform administration','New customer']){

@@ -2,8 +2,8 @@ const {randomUUID}=require('node:crypto'),{hashToken}=require('../../tokens');
 module.exports=async(pool,owner)=>{
  for(const layout of ['desktop','mobile']){
   const ids={};for(const role of ['staff','hr']){
-   const user=randomUUID();ids[role]=user;await pool.query('insert into auth.users values($1)',[user]);await pool.query("insert into profiles(id,full_name,email) values($1,$2,$3)",[user,role+' '+layout,user+'@fixture.test']);await pool.query("insert into portal_sessions(token_hash,user_id,expires_at) values($1,$2,now()+interval '2 hours')",[hashToken('fixture-hrms-'+role+'-'+layout),user]);
-   const e=(await pool.query("select internal_employee_command($1,'create',$2,$3) d",[owner,randomUUID(),{fullName:role+' '+layout,email:user+'@fixture.test',department:'Engineering',jobTitle:'Developer',employmentType:'full_time',startDate:'2026-11-01'}])).rows[0].d;
+   const user=randomUUID();ids[role]=user;await pool.query('insert into auth.users values($1)',[user]);await pool.query("insert into profiles(id,full_name,email) values($1,$2,$3)",[user,role+' '+layout,role+'-'+layout+'@fixture.test']);await pool.query("insert into portal_sessions(token_hash,user_id,expires_at) values($1,$2,now()+interval '2 hours')",[hashToken('fixture-hrms-'+role+'-'+layout),user]);
+   const e=(await pool.query("select internal_employee_command($1,'create',$2,$3) d",[owner,randomUUID(),{fullName:role+' '+layout,email:role+'-'+layout+'@fixture.test',department:'Engineering',jobTitle:'Developer',employmentType:'full_time',startDate:'2026-11-01'}])).rows[0].d;
    await pool.query("update internal_employees set status='active' where id=$1",[e.id]);await require('../database/employee-link-fixture')(pool,owner,user,e.id);
    if(role==='hr'){await pool.query('insert into internal_hr_managers(employee_id,user_id,granted_by) values($1,$2,$3)',[e.id,user,owner]);}
   }

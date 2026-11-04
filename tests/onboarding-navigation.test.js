@@ -7,7 +7,7 @@ const root=path.join(__dirname,'..');
 const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 
 test('main workspace exposes platform-only customer onboarding navigation',()=>{
- const dashboard=read('public/dashboard.html'),script=read('public/dashboard.js');
+ const dashboard=read('public/dashboard.html')+read('views/partials/portal-sidebar.html'),script=read('public/dashboard.js');
  const server=read('server.js'),admin=read('public/admin.html');
  assert.match(dashboard,/id="topbarOnboard"[^>]+href="\/admin\/onboarding" hidden/);
  assert.match(dashboard,/id="adminNavContainer" hidden>[\s\S]*?href="\/admin\/onboarding"/);

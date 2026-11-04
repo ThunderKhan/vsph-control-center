@@ -11,7 +11,7 @@
   if(!r.ok){const e=Error(data.message||'Account-link operation unavailable.');e.data=data;throw e;}return data;
  }
  function button(title,fn){const b=node('button',title);b.type='button';b.onclick=()=>run(fn);return b;}
- async function run(fn){if(busy)return;busy=true;for(const b of document.querySelectorAll('button'))b.disabled=true;try{await fn();}catch(e){message.textContent=e.message;}finally{busy=false;for(const b of document.querySelectorAll('button'))b.disabled=false;}}
+ async function run(fn){if(busy)return;busy=true;for(const b of document.querySelectorAll('main button'))b.disabled=true;try{await fn();}catch(e){message.textContent=e.message;}finally{busy=false;for(const b of document.querySelectorAll('main button'))b.disabled=false;}}
  async function mutate(action,data){
   if(!confirm(action==='revoke'?'Revoke this account link and any linked HR grant? Customer/product/project assignments and the portal account remain separate.':'Confirm this employee identity request action?'))return;
   await api('/employees/'+employeeId+'/'+action,{...data,confirmed:true},action==='request'?requestKey:null);

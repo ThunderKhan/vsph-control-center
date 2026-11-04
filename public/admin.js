@@ -231,11 +231,6 @@ document.getElementById("accessForm").addEventListener("submit", async e => {
     await loadLookups();say("Application access saved."); loadAccess(); loadOverview();
   } catch (err) { say(err.message, true); }
 });
-document.getElementById("logoutButton").addEventListener("click", async () => {
-  try { await fetch("/api/auth/logout", { method: "POST" }); }
-  finally { window.location.href = "/login"; }
-});
-
 (async function init() {
   try {
     const response = await fetch("/api/auth/me");

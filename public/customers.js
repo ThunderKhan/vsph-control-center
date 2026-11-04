@@ -23,7 +23,7 @@
   function setBusy(value) {
     busy = value;
     $("detail").setAttribute("aria-busy", String(value));
-    for (const e of document.querySelectorAll("button,input,select"))
+    for (const e of document.querySelectorAll("main button, main input, main select"))
       e.disabled = value;
   }
   async function execute(fn) {

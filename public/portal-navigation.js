@@ -1,0 +1,20 @@
+(() => {
+ 'use strict';
+ const $=id=>document.getElementById(id),side=$('workspaceSidebar');if(!side)return;
+ const root=document.documentElement,main=document.querySelector('.workspace-main'),open=$('openMenu'),toggle=$('sidebarToggle'),backdrop=$('navBackdrop');
+ function collapsed(save=false){const value=root.dataset.sidebarState==='collapsed';toggle.setAttribute('aria-expanded',String(!value));toggle.setAttribute('aria-label',value?'Expand sidebar':'Collapse sidebar');toggle.title=value?'Expand sidebar':'Collapse sidebar';if(save)try{localStorage.setItem('vsph.sidebar.collapsed',String(value));}catch{}}
+ collapsed();toggle.addEventListener('click',()=>{root.dataset.sidebarState=root.dataset.sidebarState==='collapsed'?'expanded':'collapsed';collapsed(true);});
+ function close(restore=false){const wasOpen=document.body.classList.contains('nav-open');document.body.classList.remove('nav-open');backdrop.hidden=true;open.setAttribute('aria-expanded','false');main.inert=false;if(restore&&wasOpen)(open.getClientRects().length?open:toggle).focus();}
+ open.addEventListener('click',()=>{if(innerWidth>950)return;document.body.classList.add('nav-open');backdrop.hidden=false;open.setAttribute('aria-expanded','true');main.inert=true;$('closeMenu').focus();});
+ $('closeMenu').addEventListener('click',()=>close(true));backdrop.addEventListener('click',()=>close(true));
+ side.addEventListener('click',e=>{if(e.target.closest('a')&&innerWidth<=950)close();});
+ addEventListener('resize',()=>{if(innerWidth>950)close();});
+ document.addEventListener('keydown',e=>{if(!document.body.classList.contains('nav-open'))return;if(e.key==='Escape'){e.preventDefault();close(true);}if(e.key==='Tab'){const items=[...side.querySelectorAll('a,button:not([disabled])')].filter(n=>n.getClientRects().length);const first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
+ const current=location.pathname.replace(/\/$/,'')||'/dashboard',links=[...side.querySelectorAll('a.sidebar-link')];
+ const match=links.filter(a=>current===a.pathname||current.startsWith(a.pathname+'/')).sort((a,b)=>b.pathname.length-a.pathname.length)[0];
+ for(const a of links){a.classList.toggle('is-active',a===match);if(a===match)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');if(!a.hasAttribute('aria-label'))a.setAttribute('aria-label',a.textContent.trim());if(!a.title)a.title=a.textContent.trim();}
+ const message=document.createElement('p'),retry=document.createElement('button');message.className='portal-nav-message';message.setAttribute('role','status');retry.type='button';retry.className='sidebar-logout';retry.textContent='Retry navigation access';retry.hidden=true;side.querySelector('.sidebar-navigation').append(message,retry);
+ async function access(){retry.hidden=true;message.textContent='';try{const r=await fetch('/api/hrms/access',{credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(8000)});if(r.status===401){location.replace('/login');return;}if(!r.ok)throw Error('unavailable');const f=await r.json();$('employeeNavContainer').hidden=!f.management;$('hrGovernanceNav').hidden=!f.governHr;$('adminNavContainer').hidden=!f.governHr;$('myWorkNav').hidden=!f.employee;for(const a of side.querySelectorAll('[data-nav="employment"]'))a.hidden=!(f.employee||f.pendingLink);document.documentElement.dataset.navigationReady='true';}catch{message.textContent='Some navigation permissions could not be checked.';retry.hidden=false;}}
+ retry.addEventListener('click',access);void access();
+ $('logoutButton').addEventListener('click',async()=>{const button=$('logoutButton');button.disabled=true;try{const r=await fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'});if(!r.ok)throw Error('Sign out failed. Please retry.');location.replace('/login');}catch(e){message.textContent=e.message;button.disabled=false;}});
+})();

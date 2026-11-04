@@ -1,6 +1,23 @@
 {
-  "watch": ["*.js", ".env", "routes", "services", "integration", "products", "public/dashboard.html"],
+  "watch": [
+    "*.js",
+    ".env",
+    "routes",
+    "services",
+    "integration",
+    "products",
+    "public/dashboard.html",
+    "views"
+  ],
   "ext": "js,json,env,html",
-  "ignore": ["node_modules/**", "tests/**", "test-results/**", "playwright-report/**", "coverage/**", "docs/**", "supabase/**"],
+  "ignore": [
+    "node_modules/**",
+    "tests/**",
+    "test-results/**",
+    "playwright-report/**",
+    "coverage/**",
+    "docs/**",
+    "supabase/**"
+  ],
   "delay": "150ms"
 }
