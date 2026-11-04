@@ -1,3 +1,7 @@
+## Windows source checksum integrity — 4 November 2026
+
+A real Git autocrlf simulation reproduced migration-byte drift risk in the absence of an LF policy. Repository attributes and the safe `migrations:eol` helper preserve reviewed LF digests; content changes/unsafe paths refuse before normalization. No user Git configuration, manifest hash, database or hosted data is changed. Native Windows execution remains unverified. Journal #63 is merged as `42c0448811a2324bd28aab085d5aa2aa82d055a6` after all checks passed; its ordinary target index installation still needs lock/backup/target approval. Six pending identities remain inferred from the prior 19-entry ledger; six moderate dev findings are unchanged. See ../operations/MIGRATION_SOURCE_EOL.md.
+
 ## Finance journal source increment — 4 November 2026
 
 The latest-50 history limitation is addressed by a separate authorized read journal, not a claim of full historical edit/export capability. One additive unapplied migration creates four ordinary indexes and a service-only STABLE owner read RPC. CREATE INDEX can block target writers; real size/lock/maintenance approval remains required before hosted installation. Cursor checksums bind consistency but are not authorization capabilities; owner/session checks remain authoritative. Twenty-five-row output does not prove indexed substring-search performance at production scale. Six pending identities are inferred from the prior 19-entry ledger; no hosted action. Six moderate dev dependency findings unchanged. See ../operations/FINANCE_JOURNAL.md.

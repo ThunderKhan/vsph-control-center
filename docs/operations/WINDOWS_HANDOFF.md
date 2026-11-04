@@ -1,3 +1,34 @@
+# Journal and canonical Windows source handoff — 4 November 2026
+
+Journal code merged in [#63](https://github.com/ThunderKhan/vsph-control-center/pull/63) as `42c0448811a2324bd28aab085d5aa2aa82d055a6`, after 149 Node / 39 native PostgreSQL / 52 active Chromium tests and all gates passed. The additional LF policy/helper has a real Git autocrlf regression test and brings local Node acceptance to 150; its PR requires full CI before merge. Commands are checked on Linux CI with simulated Windows Git line endings; native Windows execution is not claimed.
+
+```powershell
+cd D:\Projects\vsph-control-center
+git status --short
+git switch main
+git pull --ff-only origin main
+npm ci
+npm run migrations:eol -- --write
+npm test
+npm run check
+npm run lint
+npm run format:check
+npm run check:migrations
+npm run test:coverage
+npm audit --omit=dev --audit-level=high
+npm audit --audit-level=high
+npx playwright install chromium
+npm run test:db:local
+npm run test:e2e:db
+npm run dev
+```
+
+The normalization command only repairs LF bytes matching the existing reviewed hashes. It refuses actual SQL edits and touches no database. Read [MIGRATION_SOURCE_EOL.md](MIGRATION_SOURCE_EOL.md) before interpreting a checksum failure. Do not regenerate hashes or discard personal work to bypass a refusal. The six moderate development findings are unchanged; no audit fix --force. There is no typecheck/build script. Disposable helpers use empty loopback databases and ordinary OS privileges, without Docker/AWS/hosted URLs. Normal runtime still needs its private Supabase configuration and reviewed target schema.
+
+After approved migration installation: Finance → Search full journal → search an old reference/customer/project → invoice/receipt status and inclusive issue/received dates → Next/Previous → reload. Verify records beyond 50, historical voids/reversals and suspended-customer history, exact amounts, invalid/expired permissions, failed-page Retry, first-page filter reset, keyboard and mobile table scrolling. The journal is read-only; mutation pickers remain latest-50 and finance CSV/customer billing are separate work. The new `20261104053000_finance_journal.sql` is unapplied hosted and adds ordinary indexes that can block writers. Six identities are missing by the last recorded 19-entry ledger; hosting is deferred. Do not reset/seed/bootstrap/push the potentially live target. See [journal contract](FINANCE_JOURNAL.md), [partial history](PARTIAL_MIGRATION_HISTORY.md) and [full QA](MANUAL_QA.md).
+
+---
+
 # Latest owner overview handoff — 4 November 2026
 
 Code baseline `9638eeb5b66e5e55d42fe00cfdb7849b47b25aad` (#61) passes 148 Node, 38 native PostgreSQL and 48 active Chromium tests, plus existing quality/security/restore/helper gates. [Current merges, M0–M12 status and five pending migrations](../roadmap/CONTINUATION_HANDOFF_20261104.md) supersede older cutoffs below. This increment adds no migration. Hosting remains deferred; existing report/ledger migrations are required on the normal runtime target. These commands are verified on Linux CI; this increment was not run on native Windows.
