@@ -66,7 +66,7 @@ function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=fal
     querySelectorAll(){return[];}
     focus(){}
   }
-  const ids=['appGrid','appSearch','errorMessage','emptyMessage','logoutButton','avatar','sideName','sideRole','topAccount','welcomeMessage','adminNavContainer','adminOverviewPanel','topbarOnboard','appCount','featureAppCount','workspaceCount','navBackdrop','openMenu','closeMenu','sidebarToggle','workspaceSidebar','spotlightPanel','accessGrid','libraryCount','employeeNavContainer'];
+  const ids=['appGrid','appSearch','errorMessage','emptyMessage','logoutButton','avatar','sideName','sideRole','topAccount','welcomeMessage','adminNavContainer','adminOverviewPanel','topbarOnboard','appCount','featureAppCount','workspaceCount','navBackdrop','openMenu','closeMenu','sidebarToggle','workspaceSidebar','spotlightPanel','accessGrid','libraryCount','employeeNavContainer','hrGovernanceNav','myWorkNav'];
   const nodes=new Map(ids.map(id=>[id,new Element(id)]));
   const visibleViews=[];
   for(const name of ['overview','applications']){

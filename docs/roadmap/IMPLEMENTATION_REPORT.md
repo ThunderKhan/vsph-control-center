@@ -292,3 +292,7 @@ Rebuilt the actual owner landing page from the supplied Web3Bento composition wh
 ## HRMS continuation: self-owned profile vertical
 
 Added a separate `/account/profile` page, reachable from the dashboard account identity, with durable own display name, multiline bio, IANA time zone and initials-avatar color. Actor/session-bound SQL and strict HTTP allowlists prohibit identity, email, status, role or other-user edits; optimistic locking and atomic audit protect concurrent saves. New additive migration `20261104091848_account_profile_preferences.sql` is registered with existing source checksums unchanged. Database/browser acceptance includes own-only access, forged privileges, expiry, concurrency, audit failure and persistent desktop/mobile editing. [Profile operational contract](../operations/PERSONAL_PROFILES.md). The new migration remains unapplied until reviewed target installation; wider HRMS work continues in subsequent verticals.
+
+## 4 November 2026 — HRMS continuation
+
+Profile PR [#70](https://github.com/ThunderKhan/vsph-control-center/pull/70) merged as `89910c9715ed5547c3b21bbe16dc71814a74b177`; all four CI jobs passed. Fixed a mobile navigation test, migration-count assumptions and an advertised sessions link before merge. New profile and HRMS migrations are not yet installed hosted. HRMS workspaces add real leave/attendance records and strict own-assigned-work access, with owner-only HR governance. See the operational guide for exact exclusions; full payroll and live Auth invitation delivery remain incomplete.

@@ -26,7 +26,7 @@ const clean = () => ({
 test("manifest hashes every ordered migration and rejects drift", () => {
   const { manifest, errors } = verifyManifest();
   assert.deepEqual(errors, []);
-  assert.equal(manifest.migrations.length, 25);
+  assert.equal(manifest.migrations.length, 26);
   const changed = structuredClone(manifest);
   changed.migrations[0].sha256 = "0".repeat(64);
   assert.ok(
@@ -132,7 +132,7 @@ test("partial canonical history reports only new gaps and denies marker drift, d
  const missing=['project_work_search','internal_hr_lock_order','internal_employee_identity_links','finance_ledger','finance_exact_snapshot_report','finance_journal'];
  const s=clean();s.history=entries.filter(entry=>!missing.includes(entry.name)).map(entry=>({version:entry.version,name:entry.name,source_marker:sourceMarker(entry)}));
  const before=structuredClone(s),r=assess(s,manifest);
- assert.equal(s.history.length,20);
+ assert.equal(s.history.length,21);
  assert.equal(r.canonicalHistoryRecognized,true);assert.equal(r.canonicalHistoryVerified,false);
  assert.equal(r.catalogChecksPassed,true);assert.equal(r.historyReconciled,false);assert.equal(r.releaseReady,false);
  assert.deepEqual(r.pending,entries.filter(entry=>missing.includes(entry.name)).map(entry=>entry.path));
