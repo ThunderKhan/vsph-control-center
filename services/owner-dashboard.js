@@ -17,6 +17,9 @@ async function ownerDashboard(client) {
     client.from('projects').select('id,name,status,kind,created_at').eq('status','active').order('created_at',{ascending:false}).limit(6)
    ]);
    if(recent.error)throw recent.error;
+   // These counts are independent observations. A concurrent status transition
+   // can make them inconsistent; fail this section only, never other modules.
+   if(done+cancelled>tasks||blocked>tasks)throw Error('Delivery observation changed');
    return {active,completed,tasks,done,cancelled,blocked,recent:recent.data.map(p=>({id:p.id,name:p.name,status:p.status,kind:p.kind}))};
   }),
   section(async()=>{const [total,active,onboarding]=await Promise.all([count('internal_employees'),count('internal_employees','active'),count('internal_employees','onboarding')]);return {total,active,onboarding};}),
