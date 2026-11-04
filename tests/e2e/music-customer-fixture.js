@@ -12,4 +12,5 @@ module.exports=async pool=>{
  await pool.query("insert into user_app_roles(organization_id,user_id,application_id,role_code) values($1,$2,$3,'super_admin')",[org,user,app]);
  await pool.query("insert into portal_sessions(token_hash,user_id,expires_at) values($1,$2,now()+interval '2 hours')",[hashToken('fixture-music-customer-session'),user]);
  await pool.query("insert into music_requests(organization_id,song_title,artist) values($1,'QA Music request','Isolated fixture')",[org]);
+ const other='eebbbbbb-2222-4222-8222-222222222222';await pool.query("insert into organizations(id,name,slug) values($1,'Other QA Music organization','qa-other-music')",[other]);await pool.query("insert into music_requests(organization_id,song_title,artist) values($1,'Other tenant private request','Isolated fixture')",[other]);
 };
