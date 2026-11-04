@@ -5,7 +5,7 @@
  const label=s=>String(s||'').replaceAll('_',' '),date=s=>s?new Date(s).toLocaleString('en-IN',{timeZone:'Asia/Kolkata'}):'Not recorded';
  const notice=(s,error=false)=>{$('hrMessage').textContent=s;$('hrMessage').dataset.error=String(error);};
  async function api(url,body,key){const r=await fetch('/api'+url,{credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(15000),...(body?{method:'POST',headers:{'Content-Type':'application/json',...(key?{'Idempotency-Key':key}:{})},body:JSON.stringify(body)}:{})});if(r.status===401){location.assign('/login');throw Error('Session expired.');}const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.message||'The operation was denied or the HR database upgrade is required.');return d;}
- const button=(name,fn,secondary=false)=>{const b=text('button',name,secondary?'secondary':'');b.type='button';b.addEventListener('click',fn);return b;};
+ const button=(name,fn,secondary=false)=>{const b=text('button',name,secondary?'secondary':'');b.type='button';b.disabled=busy;b.addEventListener('click',fn);return b;};
  const record=(parent,title,description)=>{const el=text('article','','hr-record');el.append(text('h3',title),text('p',description));parent.append(el);return el;};
  async function run(fn){if(busy)return;busy=true;document.querySelectorAll('button').forEach(b=>b.disabled=true);try{await fn();}catch(e){notice(e.name==='TimeoutError'?'Request timed out. Refresh before retrying; a saved operation may already have completed.':e.message,true);}finally{busy=false;document.querySelectorAll('button').forEach(b=>b.disabled=false);}}
  async function mutate(url,body,key){await api(url,body,key);await load();notice('Saved. Current records have been reloaded.');}
@@ -23,7 +23,7 @@
   const form=text('form','','hr-review');let decision;
   if(type==='leave'){const l=text('label','Decision');decision=document.createElement('select');decision.name='decision';decision.setAttribute('aria-label','Decision');for(const value of ['approved','rejected']){const o=text('option',label(value));o.value=value;decision.append(o);}l.append(decision);form.append(l);}
   const noteLabel=text('label',type==='leave'?'Review note (optional)':'Reason for incomplete record');const note=document.createElement('textarea');note.maxLength=300;note.rows=2;note.name='note';if(type!=='leave'){note.required=true;note.minLength=8;}noteLabel.append(note);form.append(noteLabel);
-  const confirmLabel=text('label','','check'),check=document.createElement('input');check.type='checkbox';check.required=true;confirmLabel.append(check,text('span','I reviewed the current record and confirm this change.'));form.append(confirmLabel);const submit=text('button',type==='leave'?'Save review':'Mark incomplete');submit.type='submit';form.append(submit);
+  const confirmLabel=text('label','','check'),check=document.createElement('input');check.type='checkbox';check.required=true;confirmLabel.append(check,text('span','I reviewed the current record and confirm this change.'));form.append(confirmLabel);const submit=text('button',type==='leave'?'Save review':'Mark incomplete');submit.type='submit';submit.disabled=busy;form.append(submit);
   form.addEventListener('submit',e=>{e.preventDefault();if(!form.reportValidity())return;run(()=>mutate('/hrms/'+(type==='leave'?'leave/'+r.id+'/review':'attendance/'+r.id+'/incomplete'),{version:r.version,note:note.value,confirmed:check.checked,...(decision?{decision:decision.value}:{})}));});el.append(form);
  }
  async function management(){
