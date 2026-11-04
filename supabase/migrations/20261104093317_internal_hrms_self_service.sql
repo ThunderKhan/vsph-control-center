@@ -190,7 +190,7 @@ begin
   if request.status<>'pending' or request.version<>(p_data->>'version')::integer then raise exception 'Leave already reviewed or changed' using errcode='40001';end if;
   if p_data->>'decision' not in ('approved','rejected') or p_data->>'decision' is null then raise exception 'Invalid decision' using errcode='22023';end if;
   if exists(select 1 from public.internal_employee_identity_links where employee_id=request.employee_id and user_id=p_actor) then raise exception 'Self approval is forbidden' using errcode='42501';end if;
-  if not exists(select 1 from public.internal_employees where id=request.employee_id and status in ('active','on_leave')) then raise exception 'Current employment required' using errcode='42501';end if;
+  if p_data->>'decision'='approved' and not exists(select 1 from public.internal_employees where id=request.employee_id and status in ('active','on_leave')) then raise exception 'Current employment required for approval' using errcode='42501';end if;
   update public.internal_leave_requests set status=p_data->>'decision',decision_note=p_data->>'note',reviewed_by=p_actor,reviewed_at=now(),version=version+1 where id=request.id;
  else
   select * into entry from public.internal_attendance where id=p_id for update;

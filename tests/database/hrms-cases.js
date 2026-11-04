@@ -38,5 +38,8 @@ module.exports=async pool=>{
  await pool.query("update internal_employee_identity_links set status='revoked',revoked_at=now(),version=version+1 where user_id=$1",[staff]);await assert.rejects(self(staff,'get'),{code:'42501'});assert.equal((await pool.query('select project_permission($1,$2) p',[staff,p.id])).rows[0].p,null);
  await pool.query("update profiles set status='disabled' where id=$1",[hr]);await assert.rejects(self(hr,'get'),{code:'42501'});await assert.rejects(manage(hr,'leave.list'),{code:'42501'});
  await pool.query('delete from internal_hr_managers where user_id=$1',[hr]);await assert.rejects(manage(hr,'leave.list'),{code:'42501'});
+ const offboarding=await self(other,'leave.request',randomUUID(),{...request,startOn:'2027-02-01',endOn:'2027-02-02'});
  await pool.query("update portal_sessions set expires_at=now()-interval '1 second' where user_id=$1",[other]);await assert.rejects(self(other,'get'),{code:'42501'});
+ await pool.query("update internal_employees set status='inactive',version=version+1 where id=$1",[employees.get(other)]);await assert.rejects(manage(owner,'leave.review',offboarding.id,{version:1,decision:'approved',note:'Inactive employee',confirmed:true}),{code:'42501'});await manage(owner,'leave.review',offboarding.id,{version:1,decision:'rejected',note:'Closed during offboarding',confirmed:true});assert.equal((await pool.query('select status from internal_leave_requests where id=$1',[offboarding.id])).rows[0].status,'rejected');
+
 };

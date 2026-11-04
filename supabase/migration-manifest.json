@@ -230,7 +230,7 @@
     },
     {
       "path": "supabase/migrations/20261104093317_internal_hrms_self_service.sql",
-      "sha256": "6785abae69fd0452e64f61bf6d037e81334e63346fc286433fc30846ad5f1dbf",
+      "sha256": "e635d8f78044d0277053f6c92e7ebac33e1d75a14acf557a6a24f132008e9889",
       "version": "20261104093317",
       "name": "internal_hrms_self_service",
       "requires": [
