@@ -161,7 +161,24 @@ Continued from verified main `08f601fd0f74221aa3e80dc10367cda602e5f72f`, with no
 | PR                                                                | Delivered                                                                                                                              | Exact squash SHA                           |
 | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
 | [#33](https://github.com/ThunderKhan/vsph-control-center/pull/33) | Existing-organization invitations, generation-fenced renewal/cancellation, membership/product roles and customer workspace             | `b80dc6a225f9699673983c137aea17bbe8fb8841` |
-| [#34](https://github.com/ThunderKhan/vsph-control-center/pull/34) | Atomic pro…896 tokens truncated…rough PR #32
+| [#34](https://github.com/ThunderKhan/vsph-control-center/pull/34) | Atomic product registry, safe metadata/lifecycle, pagination/direct lookup and scoped persisted readiness                              | `041a53a6891251bdce4dfd40b89100a21d8459c7` |
+| [#35](https://github.com/ThunderKhan/vsph-control-center/pull/35) | Atomic customer lifecycle/entitlements, impact/version confirmation, login and invitation-binding races, restored trigger/index checks | `b3d2c697a8598e50e3c11256d2d090c72af352a8` |
+
+Acceptance: **120 Node, 25 native PostgreSQL and 22 desktop/mobile Chromium cases passed**, including ordinary-user disposable DB/browser helpers. Native restore matched **36 tables, 186 constraints, 75 indexes, four triggers, four sequences and 12 application functions**. Syntax/lint/format/coverage/manifest and dependency gates passed. Security advisors retain the historical pgcrypto-in-public WARN; no advisor ERROR. Production dependency audit is clean; six moderate dev-tool findings remain.
+
+New CLI-generated migrations, all unapplied hosted: `20261101052745_member_governance.sql`, `20261101053314_product_registry.sql`, `20261101054139_customer_lifecycle.sql`, in manifest order after prior migrations. Native populated rehearsal deliberately fails duplicate live invitations, rolls the schema transaction back without losing rows, uses audited revocation as a synthetic forward repair, then installs successfully. No hosted history repair/seed/bootstrap occurred.
+
+Review/CI corrections: ambiguous member SQL alias; obsolete test reinstalled a superseded disable function; cancellation versus explicit account blocking and conservative historical backfill; stale cancellation generation; inaccessible products beyond first page; select accessible names; customer/product selection reset on lookup refresh. Session suspension uses NO KEY UPDATE to preserve membership FK compatibility while conflicting with session-insert SHARE locks; a controlled native lock-gate test verifies the cross-workflow race. No failed checks were merged.
+
+## Exact hosted and approval gates
+
+Supabase connector read-only inspection reconfirmed only one active VSPH candidate, 13 legacy public tables, no ledger, no Projects/provisioning/product-health table or required provisioning/customer RPC, and no development branches. The other accessible projects are unrelated/inactive. The accessible Vercel vsph project is CLI-deployed Next.js without a returned Git binding. Neither fact establishes the Express backend's actual database/environment binding. No approved isolated target was identified. See [PHASE4_STAGING_GATE.md](../operations/PHASE4_STAGING_GATE.md).
+
+No hosted write, Auth setting change, migration, real email, project/branch creation, purchase, deployment, credential change or production session mutation occurred. Creating an isolated cloud resource requires explicit approval; production needs separate release approval after staging evidence. All new workflows are merged and fixture-verified, not hosted-verified or deployed.
+
+Resume: establish actual backend/project/database binding, designate/approve isolated staging, verify backups/history and ordered installation, run real Auth/PostgREST/provider acceptance. Independently finish MFA/step-up/recovery, customer self-service, broad search/export/retention, operational health/worker scheduling/alerts/load and accessibility. See [IMPLEMENTATION_REPORT.md](IMPLEMENTATION_REPORT.md), [RISK_REGISTER.md](../architecture/RISK_REGISTER.md), [WINDOWS_HANDOFF.md](../operations/WINDOWS_HANDOFF.md) and [MANUAL_QA.md](../operations/MANUAL_QA.md).
+
+## Historical continuation through PR #32
 
 The sections below describe their earlier cutoffs; the Phase 4 table above supersedes outstanding-feature labels.
 
