@@ -9,6 +9,7 @@ test('shared navigation survives module changes and repeated desktop/mobile togg
   else{await expect(page.locator('#workspaceSidebar .sidebar-link[href="/hr/access"]')).toBeVisible();for(let n=0;n<3;n++)await page.locator('#sidebarToggle').click();const state=await page.locator('html').getAttribute('data-sidebar-state');await page.reload();await expect(page.locator('html')).toHaveAttribute('data-sidebar-state',state);}
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),path).toBe(true);
  }
+ const denied=await page.goto('/apps/music/login');expect(denied.status()).toBe(403);await expect(page.locator('#workspaceSidebar')).toHaveCount(1);await expect(page.getByRole('heading',{name:'Access denied',exact:true})).toBeVisible();
  await info.attach('shared-sidebar-'+info.project.name,{body:await page.screenshot({fullPage:true}),contentType:'image/png'});
 });
 test('HR, employees and Music customers receive distinct menus with enforced server denials',async({page,context},info)=>{

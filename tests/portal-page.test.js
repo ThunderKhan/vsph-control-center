@@ -19,3 +19,12 @@ test('newly wrapped pages restore preferences without introducing unapproved inl
  const h=await render(await fs.readFile('views/hr-workspace.html','utf8'),{full_name:'HR',platform_role:'user'});
  assert.match(h,/<script src="\/portal-prepaint.js"><\/script>/);assert.doesNotMatch(h,/<script>/);
 });
+test('authenticated page denials retain navigation and status while API and anonymous errors stay unchanged',async()=>{
+ const express=require('express'),{once}=require('node:events'),{middleware}=require('../services/portal-page'),app=express();
+ app.use((req,res,next)=>{if(req.path!=='/anonymous')req.user={full_name:'Own account',platform_role:'user'};next();});app.use(middleware);
+ app.get('/denied',(_req,res)=>res.status(403).send('<script>Untrusted denial</script>'));
+ app.get('/api/denied',(_req,res)=>res.status(403).json({message:'Denied'}));app.get('/anonymous',(_req,res)=>res.status(403).send('Denied'));
+ const server=app.listen(0,'127.0.0.1');await once(server,'listening');const origin='http://127.0.0.1:'+server.address().port;
+ try{const r=await fetch(origin+'/denied'),h=await r.text();assert.equal(r.status,403);assert.equal(r.headers.get('cache-control'),'no-store');assert.match(h,/id="workspaceSidebar"/);assert.match(h,/&lt;script&gt;Untrusted denial/);assert.doesNotMatch(h,/<script>Untrusted/);const api=await fetch(origin+'/api/denied');assert.equal(api.status,403);assert.deepEqual(await api.json(),{message:'Denied'});const publicError=await fetch(origin+'/anonymous');assert.equal(publicError.status,403);assert.equal(await publicError.text(),'Denied');}
+ finally{await new Promise(r=>server.close(r));}
+});
