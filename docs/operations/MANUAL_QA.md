@@ -1,3 +1,9 @@
+## Finance journal acceptance
+
+- After approved journal migration installation, open Finance → Search full journal as owner. Search an older invoice/customer/project beyond the recent-50 lists, traverse Next/Previous pages, change invoice/receipt status and inclusive issue/received date filters, then reload. Void/reversed and historical suspended-customer records remain visible to the owner.
+- Invalid/forged/unbounded filters, changed-filter cursors, ordinary/client/HR/product/project roles and expired/revoked permissions deny. Use disposable fixtures for timestamp ties/microseconds, new concurrent head records, migration/rollback and 61-record traversal. A page is current data, not a frozen statement/export.
+- In fixtures, simulate missing RPC, failed Next, denied refresh, superseded replies and timeout. Old rows clear; Retry preserves the attempted page; new filters restart at page one. Validate keyboard/mobile horizontal table scrolling without document overflow. History is read-only; older mutation pickers and finance exports remain separate work.
+
 ## Recorded owner landing
 
 - Sign in as owner and open Dashboard. Verify issued/collected/outstanding/past-due amounts and six calendar months against Finance/API persisted data, including invoice/receipt/reversal/void changes after refresh. Counts describe issued invoices and their customer/project associations.

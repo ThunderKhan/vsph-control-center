@@ -1,3 +1,7 @@
+## Finance journal
+
+`GET /api/finance/journal` and `/admin/finance/journal`: active current portal session plus platform super administrator; SQL repeats current active owner authorization. Organization/product/HR/project roles do not imply this authority. Fixed 25-row pages, allowlisted filters, exact money and actor/type/filter-bound cursor consistency. No mutation/export endpoint or implicit product access is added. See ../operations/FINANCE_JOURNAL.md.
+
 ## Recorded owner overview
 
 `GET /api/finance/overview`: current portal session + active platform super administrator in HTTP and `finance_report` SQL. No filters/caller identity; only summary/monthly/currency/basis/date returned, without names/references/row lists. Missing schema fails closed. `/dashboard?preview=executive` is an explicit fictional preview for verified owners; it grants no API or product authority. Ordinary users retain their scoped workspace view. See ../operations/OWNER_OVERVIEW.md.

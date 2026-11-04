@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#00255A"><title>Finance journal | VSPH Control Center</title><link rel="stylesheet" href="/operations.css"><link rel="stylesheet" href="/finance.css"><script defer src="/finance-journal.js"></script></head>
+<body><main class="finance-shell">
+<nav class="finance-nav"><a href="/dashboard">Control Center</a> / <a href="/admin/finance">Finance ledger</a> / Journal</nav>
+<header class="finance-header"><div><p class="finance-eyebrow">FINANCE / OWNER CONTROL</p><h1>Finance journal<span>.</span></h1><p>Search recorded invoice and receipt history, including older records.</p></div></header>
+<p class="finance-notice">Read-only history · INR amounts come from persisted records. Dates filter invoice issue dates or cash received dates. Each page reads current data; this is not a frozen statement or a complete export. Use the Finance ledger for entries and corrections.</p>
+<form id="journalFilters" class="finance-panel journal-filters">
+<label>Records<select name="kind" id="journalKind"><option value="invoices">Invoices</option><option value="receipts">Receipts</option></select></label>
+<label>Status<select name="status" id="journalFilterStatus"><option value="all">All statuses</option><option value="issued">Issued</option><option value="void">Void</option></select></label>
+<label class="journal-search">Reference, customer or project<input name="search" type="search" maxlength="100" placeholder="Search recorded history"></label>
+<label>From date<input name="from" type="date"></label><label>To date<input name="to" type="date"></label>
+<button type="submit" class="finance-button">Apply filters</button>
+</form>
+<p id="journalStatus" role="status" aria-live="polite">Loading journal…</p>
+<section class="finance-panel" aria-label="Matching financial history"><div class="finance-scroll" id="journalResult" aria-busy="true"></div>
+<div class="journal-pages"><button type="button" class="finance-button secondary" id="journalPrevious" disabled>Previous page</button><span id="journalPage">—</span><button type="button" class="finance-button secondary" id="journalNext" disabled>Next page</button><button type="button" class="finance-button secondary" id="journalRetry">Retry page</button></div></section>
+<p class="finance-hint">25 records per page. New records inserted above your cursor appear after applying filters again. Reversals and voids remain in history. Access is limited to the active platform owner.</p>
+</main></body></html>

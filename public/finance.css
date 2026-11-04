@@ -65,3 +65,5 @@
 @media(max-width:760px){.finance-grid{grid-template-columns:1fr}.finance-header{align-items:start;flex-direction:column}.finance-panel{padding:18px}.finance-chart{gap:5px}.finance-month>strong{font-size:9px}.finance-stats article{padding:16px}}
 @media(max-width:480px){.finance-stats{grid-template-columns:1fr 1fr;gap:9px}.finance-stats article strong{font-size:23px}.finance-fields{grid-template-columns:1fr}.finance-chart{gap:2px}.finance-month{font-size:9px}.finance-month-track{height:95px}}
 @media(prefers-reduced-motion:reduce){.finance-shell *{scroll-behavior:auto}}
+
+.journal-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.journal-search{grid-column:1/-1}.journal-pages{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:20px}#journalResult td{overflow-wrap:anywhere;max-width:340px}#journalResult{min-height:60px}@media(max-width:600px){.journal-filters{grid-template-columns:1fr}.journal-search{grid-column:auto}}
