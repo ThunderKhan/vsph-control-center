@@ -124,6 +124,7 @@ app.get(['/', '/login'],optionalPortal,(req,res)=>{
   res.sendFile(sharedAuthView);
 });
 app.get('/login.html',(req,res)=>res.redirect(302,'/login'));
+app.get('/fonts/inter-5a8d3e72.woff2',(req,res)=>{res.set('Cache-Control','public, max-age=31536000, immutable');res.sendFile(path.join(__dirname,'public','fonts','inter-5a8d3e72.woff2'),{cacheControl:false});});
 app.use(express.static(path.join(__dirname,'public'),{index:false}));
 app.use(safeError);
 const port=Number(process.env.PORT||3000);

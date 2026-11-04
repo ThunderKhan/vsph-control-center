@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('/fonts.css');
 :root{font-family:Inter,Arial,sans-serif;color:#00255A;background:#F6F8FB}
 *{box-sizing:border-box}body{margin:0} [hidden]{display:none!important}
 a{color:inherit} .onboarding-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:24px clamp(20px,5vw,70px);border-bottom:1px solid #E0E8F0;background:white}

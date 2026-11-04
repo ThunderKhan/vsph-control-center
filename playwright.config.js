@@ -1,6 +1,6 @@
 const {defineConfig,devices}=require('@playwright/test');
 module.exports=defineConfig({
- testDir:'./tests/e2e', fullyParallel:true, forbidOnly:Boolean(process.env.CI), retries:process.env.CI?1:0,
+ testDir:'./tests/e2e', workers:2, fullyParallel:true, forbidOnly:Boolean(process.env.CI), retries:process.env.CI?1:0,
  reporter:[['list'],['html',{open:'never'}]],
  use:{baseURL:'http://127.0.0.1:3100',trace:'retain-on-failure',screenshot:'only-on-failure'},
  projects:[{name:'desktop',use:{...devices['Desktop Chrome']}},{name:'mobile',use:{...devices['iPhone 13'],defaultBrowserType:'chromium'}}],
