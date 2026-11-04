@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('/fonts.css');
 :root{font-family:Inter,Arial,sans-serif;color:#00255A;background:#F6F8FB}*{box-sizing:border-box}body{margin:0}[hidden]{display:none!important}
 header{height:85px;background:white;border-bottom:1px solid #E1E8F0;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,6vw,75px);font-size:11px;font-weight:700;letter-spacing:.12em;color:#69829A}
 .brand{font-size:23px;font-weight:700;letter-spacing:.03em;text-decoration:none;color:#00255A}.brand span,h1 span{color:#0069C8}

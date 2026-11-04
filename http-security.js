@@ -6,7 +6,7 @@ const dashboard = fs.readFileSync(path.join(__dirname, 'public/dashboard.html'),
 const hashes = [...dashboard.matchAll(/<script>([\s\S]*?)<\/script>/g)]
   .map(match => "'sha256-" + crypto.createHash('sha256').update(match[1]).digest('base64') + "'");
 const csp = ["default-src 'self'", "script-src 'self' " + hashes.join(' '),
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com", "font-src 'self' https://fonts.gstatic.com",
+  "style-src 'self' 'unsafe-inline'", "font-src 'self'",
   "img-src 'self' data:", "connect-src 'self'", "object-src 'none'", "base-uri 'none'",
   "frame-ancestors 'none'", "form-action 'self'"].join('; ');
 function securityHeaders(req, res, next) {

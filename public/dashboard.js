@@ -280,10 +280,11 @@
       // only see its navigation after the current database grants explicit HR access.
       byId('employeeNavContainer').hidden = !isPlatformAdmin;
       byId('hrGovernanceNav').hidden = !isPlatformAdmin;
-      try {
+      // Navigation capabilities must never hold up the workspace's main data.
+      void (async () => {try {
         const response = await fetch('/api/hrms/access', {credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(8000)});
         if(response.ok){const flags=await response.json();byId('employeeNavContainer').hidden=!flags.management;byId('hrGovernanceNav').hidden=!flags.governHr;byId('myWorkNav').hidden=!flags.employee;}
-      } catch { /* Authorization is rechecked by each protected page/API. */ }
+      } catch { /* Authorization is rechecked by each protected page/API. */ }})();
       // Owner defaults to persisted facts. The preserved fictional preview is
       // opt-in, and neither owner view borrows customer-product permissions.
       if (isPlatformAdmin && !isApplicationsView) {
@@ -291,6 +292,7 @@
         if (window.VSPHOwnerOverview?.activate?.()) return;
       }
 
+      const workspaceRequest = responseJson('/api/workspaces').catch(() => null);
       const result = await responseJson('/api/apps');
       if (!result) return;
       authorizedApps = (Array.isArray(result.applications) ? result.applications : [])
@@ -300,11 +302,10 @@
       byId('appCount').textContent = count;
       byId('featureAppCount').textContent = count;
 
-      const workspaces = await responseJson('/api/workspaces').catch(() => null);
-      if (workspaces) {
+      void workspaceRequest.then(workspaces => {if (workspaces) {
         const number = Number(workspaces.count);
         byId('workspaceCount').textContent = Number.isSafeInteger(number) && number >= 0 ? String(number) : '—';
-      }
+      }});
 
       loaded = true;
       if (isApplicationsView) renderApps();
