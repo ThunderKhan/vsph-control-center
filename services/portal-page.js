@@ -24,5 +24,21 @@ async function render(html,user,notice){
 }
 // Only reviewed authenticated HTML sendFile paths are decorated. APIs, public
 // login/invitation pages, assets and route authorization remain untouched.
-function middleware(req,res,next){const original=res.sendFile.bind(res);res.sendFile=function(file,...args){if(!req.user||!allowed.has(file))return original(file,...args);fs.readFile(file,'utf8').then(h=>render(h,req.user,res.app.locals.environmentNotice)).then(h=>res.set('Cache-Control','no-store').type('html').send(h)).catch(next);return res;};next();}
+function middleware(req,res,next){
+ const original=res.sendFile.bind(res),send=res.send.bind(res);
+ // Authenticated page denials keep a route back to the user's workspace.
+ // Status codes and JSON/API contracts are never converted into success HTML.
+ res.send=function(body){
+  const type=String(res.get('Content-Type')||'');
+  const pageType=!type||/^text\/(?:html|plain)(?:;|$)/i.test(type);
+  const extension=path.extname(req.path||'').toLowerCase(),asset=extension&&extension!=='.html';
+  if(!req.user||req.method!=='GET'||/^\/api(?:\/|$)/i.test(req.path)||res.statusCode<400||!pageType||asset||typeof body!=='string'||res.locals.portalErrorRendered)return send(body);
+  res.locals.portalErrorRendered=true;
+  const status=res.statusCode,title=status===403?'Access denied':'Page unavailable';
+  const html='<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+title+' | VSPH</title><link rel="stylesheet" href="/operations.css"></head><body><main class="project-page"><h1>'+title+'</h1><p>'+escape(body)+'</p><a class="button" href="/dashboard">Return to your workspace</a></main></body></html>';
+  render(html,req.user,res.app.locals.environmentNotice).then(h=>{res.status(status).set('Cache-Control','no-store').type('html');send(h);}).catch(next);
+  return res;
+ };
+ res.sendFile=function(file,...args){if(!req.user||!allowed.has(file))return original(file,...args);fs.readFile(file,'utf8').then(h=>render(h,req.user,res.app.locals.environmentNotice)).then(h=>res.set('Cache-Control','no-store').type('html').send(h)).catch(next);return res;};next();
+}
 module.exports={middleware,render};

@@ -230,3 +230,21 @@ The profile and HRMS migrations are installed on the existing configured target;
 Pull latest main, stop/restart `npm run dev`, and hard-refresh. Licensed Inter loads locally; HR navigation discovery no longer delays owner dashboard reads. Current-session authentication uses one fresh joined read. The owner operating endpoint uses one snapshot RPC, plus authentication and a fresh owner fence (three database requests in total). The reviewed read-only migration is installed on the existing configured target; no reset, seed or legacy installer is required. See [performance evidence and limits](PERFORMANCE.md).
 
 Run the same Node/check/lint/format/coverage/checksum commands above. `npm run test:db:local` and `npm run test:e2e:db` use disposable data; Chromium defaults to two workers without relaxed timeouts. Verify login, owner dashboard refresh, Projects, own profile and admin on desktop/mobile, then check HR/customer denial and logout. A localhost server still reads remote Supabase; actual workstation latency is unmeasured.
+
+## Shared navigation and role testing — 5 November 2026 handoff
+
+Navigation/role-workspace PR #77 is merged (`43bca84f180541495c97378fe00f33f585661a71`). Pull main, install and restart your normal portal:
+
+```powershell
+cd D:\Projects\vsph-control-center
+git switch main
+git pull --ff-only origin main
+npm ci
+npm test
+npm run check
+npm run dev
+```
+
+For the separate, disposable role-testing workspace, open another PowerShell terminal in the repository and run `npm run demo:local`, then open **http://127.0.0.1:3001/login**. Use the [exact role logins and manual acceptance workflow](NAVIGATION_AND_ROLE_TESTING.md). This is independent of normal localhost:3000 and uses simulated Auth; it creates no hosted users, sends no email and needs no Docker, AWS or paid resource. Ctrl+C removes its temporary database; page reloads within the running workspace preserve saved work. Do not run the legacy seed or reset.
+
+Additional verified commands: `npm run lint`, `npm run format:check`, `npm run test:coverage`, `npm run check:migrations`, `npm run test:db:local`, `npm run test:demo`, `npx playwright install chromium`, and `npm run test:e2e:db`. Run native helpers as an ordinary OS user. No standalone TypeScript typecheck script exists; `check` validates JavaScript syntax. Current CI: 162 Node, 44 PostgreSQL, one interactive smoke and 68 Chromium passed/two intentional skips per launcher; production audit clean, six moderate development findings unchanged.
