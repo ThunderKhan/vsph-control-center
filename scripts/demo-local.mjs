@@ -23,7 +23,7 @@ let pool,server;try{
  console.log('Password for these isolated fixtures only: fixture-password-only');
  console.log('HR cannot grant HR; employee sees own assigned work; customer has Music only.');
  console.log('No hosted data, real emails or live Music SSO. Stop with Ctrl+C; fixtures are removed.');
- await new Promise(resolve=>{process.once('SIGINT',resolve);process.once('SIGTERM',resolve);server.once('close',resolve);});
+ await new Promise(resolve=>{process.once('SIGINT',resolve);process.once('SIGTERM',resolve);server.once('close',resolve);process.on('message',m=>{if(m?.type==='vsph-demo-stop')resolve();});});
 }finally{
- if(server?.listening)await new Promise(r=>server.close(r));await pool?.end();await database.stop();await rm(directory,{recursive:true,force:true});
+ if(server?.listening)await new Promise(r=>server.close(r));await pool?.end();await database.stop();await rm(directory,{recursive:true,force:true});if(process.connected)process.disconnect();
 }
