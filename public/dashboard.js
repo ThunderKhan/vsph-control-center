@@ -285,9 +285,12 @@
           if (workforce.ok) byId('employeeNavContainer').hidden = false;
         } catch { /* Unmigrated or unavailable HR module must not break workspace. */ }
       }
-      // Only a verified platform administrator gets the isolated fictional
-      // executive preview. Avoid unnecessary application/schema reads for it.
-      if (isPlatformAdmin && !isApplicationsView && window.VSPHExecutiveDashboard?.activate?.()) return;
+      // Owner defaults to persisted facts. The preserved fictional preview is
+      // opt-in, and neither owner view borrows customer-product permissions.
+      if (isPlatformAdmin && !isApplicationsView) {
+        if (new URLSearchParams(window.location.search).get('preview') === 'executive' && window.VSPHExecutiveDashboard?.activate?.()) return;
+        if (window.VSPHOwnerOverview?.activate?.()) return;
+      }
 
       const result = await responseJson('/api/apps');
       if (!result) return;

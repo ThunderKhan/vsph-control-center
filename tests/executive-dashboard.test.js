@@ -18,7 +18,9 @@ test('executive bento is explicitly demo-only, separated from regular users and 
   assert.match(html, /href="\/projects"/);
   assert.match(html, /src="\/executive-dashboard\.js"/);
   assert.match(html, /href="\/executive-dashboard\.css"/);
-  assert.match(controller, /isPlatformAdmin && !isApplicationsView && window\.VSPHExecutiveDashboard\?\.activate\?\.\(\)/);
+  assert.match(controller, /isPlatformAdmin && !isApplicationsView/);
+  assert.match(controller, /get\('preview'\) === 'executive' && window\.VSPHExecutiveDashboard/);
+  assert.match(controller, /window\.VSPHOwnerOverview\?\.activate/);
   assert.match(js, /\/api\/auth\/me confirms platform super_admin/);
   assert.doesNotMatch(js, /\bfetch\s*\(|Math\.random|setInterval/);
   assert.match(css, /html\[data-executive="true"\] \[data-view="overview"\]/);

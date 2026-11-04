@@ -59,13 +59,23 @@ module.exports=async pool=>{
  try{
   const response=await fetch(base+'/api/finance',{headers:{Cookie:'vsph.portal.sid='+raw}});assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),'no-store');
   assert.equal((await response.json()).summary.collectedPaise,'9008000000000002');
+  const overviewResponse=await fetch(base+'/api/finance/overview',{headers:{Cookie:'vsph.portal.sid='+raw}});
+  assert.equal(overviewResponse.status,200);assert.equal(overviewResponse.headers.get('cache-control'),'no-store');
+  const overview=await overviewResponse.json();assert.deepEqual(Object.keys(overview).sort(),['asOf','basis','currency','monthly','summary']);
+  assert.equal(overview.summary.collectedPaise,'9008000000000002');assert.equal(overview.monthly.length,6);
+  assert.equal(JSON.stringify(overview).includes('Exact fixture customer'),false,'Landing DTO excludes customer and project names/references');
+  assert.equal((await fetch(base+'/api/finance/overview?organizationId='+client,{headers:{Cookie:'vsph.portal.sid='+raw}})).status,400);
+  assert.equal((await fetch(base+'/api/finance/overview')).status,401);
+  assert.equal((await fetch(base+'/api/finance/overview',{headers:{Cookie:'vsph.portal.sid='+raw+'-other'}})).status,403);
   assert.equal((await fetch(base+'/api/finance')).status,401);
   assert.equal((await fetch(base+'/api/finance',{headers:{Cookie:'vsph.portal.sid='+raw+'-other'}})).status,403);
   await pool.query("update portal_sessions set expires_at=clock_timestamp()-interval '1 second' where token_hash=$1",[hashToken(raw)]);
   assert.equal((await fetch(base+'/api/finance',{headers:{Cookie:'vsph.portal.sid='+raw}})).status,401);
+  assert.equal((await fetch(base+'/api/finance/overview',{headers:{Cookie:'vsph.portal.sid='+raw}})).status,401);
   await pool.query("update portal_sessions set expires_at=clock_timestamp()+interval '1 hour' where token_hash=$1",[hashToken(raw)]);
   await pool.query("update profiles set platform_role='user' where id=$1",[owner]);await assert.rejects(report(),{code:'42501'});
   assert.equal((await fetch(base+'/api/finance',{headers:{Cookie:'vsph.portal.sid='+raw}})).status,403);
+  assert.equal((await fetch(base+'/api/finance/overview',{headers:{Cookie:'vsph.portal.sid='+raw}})).status,403);
   await pool.query("update profiles set platform_role='super_admin',status='disabled' where id=$1",[owner]);await assert.rejects(report(),{code:'42501'});
   await pool.query('delete from portal_sessions where token_hash=$1',[hashToken(raw)]);
   assert.equal((await fetch(base+'/api/finance',{headers:{Cookie:'vsph.portal.sid='+raw}})).status,401);
