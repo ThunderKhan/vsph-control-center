@@ -91,6 +91,7 @@ const tables = [
   "project_notifications",
 ];
 const signatures = [
+  "public.owner_dashboard_snapshot(uuid,text,uuid,jsonb)",
   "public.account_profile(uuid,text,uuid,jsonb)",
   "public.hrms_access(uuid,text,uuid,jsonb)",
   "public.internal_self_service(uuid,text,uuid,jsonb)",
