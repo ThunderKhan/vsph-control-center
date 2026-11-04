@@ -1,6 +1,6 @@
 # Journal and canonical Windows source handoff — 4 November 2026
 
-Journal code merged in [#63](https://github.com/ThunderKhan/vsph-control-center/pull/63) as `42c0448811a2324bd28aab085d5aa2aa82d055a6`, after 149 Node / 39 native PostgreSQL / 52 active Chromium tests and all gates passed. The additional LF policy/helper has a real Git autocrlf regression test and brings local Node acceptance to 150; its PR requires full CI before merge. Commands are checked on Linux CI with simulated Windows Git line endings; native Windows execution is not claimed.
+Journal code merged in [#63](https://github.com/ThunderKhan/vsph-control-center/pull/63) as `42c0448811a2324bd28aab085d5aa2aa82d055a6`, after 149 Node / 39 native PostgreSQL / 52 active Chromium tests and all gates passed. The additional LF policy/helper passed all four CI jobs on `ba41492ea71820d1a590c4402058c66516d9f465` in [#64](https://github.com/ThunderKhan/vsph-control-center/pull/64): 150 Node / 39 native PostgreSQL / 52 active Chromium, two intentional skips and all existing gates. Its final documentation revision is checked again before merge. Commands are checked on Linux CI with simulated Windows Git line endings; native Windows execution is not claimed.
 
 ```powershell
 cd D:\Projects\vsph-control-center
