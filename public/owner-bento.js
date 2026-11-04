@@ -81,7 +81,7 @@
   };
   for(const p of list){
    const card=document.createElement('button'),code=document.createElement('span'),name=document.createElement('strong'),state=document.createElement('small');
-   card.type='button';card.className='owner-product-card';card.dataset.productId=p.id;card.setAttribute('aria-label',p.name+' product card');
+   card.type='button';card.className='owner-product-card';card.dataset.productId=p.id;card.title=p.name;card.setAttribute('aria-label',p.name+' product card');
    code.textContent=p.code;name.textContent=p.name;state.textContent=p.status.charAt(0).toUpperCase()+p.status.slice(1);
    card.append(code,name,state);card.addEventListener('click',()=>{cardOrder=[...cardOrder.filter(id=>id!==p.id),p.id];arrange();});
    cardNodes.push(card);$('ownerProductCards').append(card);
