@@ -1,0 +1,9 @@
+# Personal profiles
+
+`/account/profile` is available to any current active portal account, including customer users. It returns only the authenticated account's own profile. The dashboard's account identity links to this page. Users can update their display name, plain-text bio, IANA time zone and an initials-avatar color; email, account status, employment record and all roles remain immutable here. External avatar URLs and file uploads are not enabled.
+
+The service-only `account_profile` RPC rechecks the active identity and current unexpired portal session under profile -> session -> preference row locks. Its actor/hash come from validated server sessions, never the request body. Unknown fields, target IDs, foreign session hashes, expired access and stale versions deny. Mutations use a version and atomically update the display name/preferences/audit entry; duplicate concurrent updates conflict. Audits record field names/version, not bio content or credentials. RLS and browser-role table/RPC denial protect the new table.
+
+Migration `20261104091848_account_profile_preferences.sql` is additive and depends on self-service sessions. It does not create or modify any existing preference/profile row during installation. No Auth identity, email, permissions or credentials change. Apply only to the reviewed approved target; rollback UI/API first and keep the table/history. A failed SQL transaction rolls back installation; later repair is forward-only. Do not reset or seed hosted data.
+
+Native PostgreSQL acceptance covers cross-user/session denial, expired/disabled users, concurrent versions, audit rollback and immutable identity fields. Authenticated browser coverage saves and reloads a dedicated ordinary fixture account on desktop/mobile, verifies the avatar and multiline bio, and denies workforce/owner APIs. This is isolated application evidence, not real Auth/MFA/provider acceptance.

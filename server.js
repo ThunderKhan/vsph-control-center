@@ -37,6 +37,8 @@ app.use((req,res,next)=>{
 app.use('/api/auth',require('./routes/auth'));
 app.use('/api/invitations',require('./routes/invitations'));
 
+app.use('/api/account/profile',require('./routes/profile').router);
+app.get('/account/profile',portalSession,require('./routes/profile').page);
 app.use('/api/account/sessions',require('./routes/sessions'));
 app.use('/api/notifications',require('./routes/notifications').router);
 app.use('/api/project-reports',require('./routes/notifications').reports);

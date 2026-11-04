@@ -18,7 +18,7 @@ module.exports=async(base,inputUrl)=>{
   const pack=buildForward(history);
   await assert.rejects(a.query(pack.sql.replace("notify pgrst,'reload schema';",'select 1/0;')),{code:'22012'});await a.query('rollback');
   assert.equal((await a.query("select to_regclass('public.finance_invoices') t")).rows[0].t,null);
-  assert.equal((await a.query('select count(*) from supabase_migrations.schema_migrations')).rows[0].count,'19');
+  assert.equal((await a.query('select count(*) from supabase_migrations.schema_migrations')).rows[0].count,String(installed.length));
   await a.query("update supabase_migrations.schema_migrations set name='drift' where version='20261030000000'");
   await assert.rejects(a.query(pack.sql),/history changed/);await a.query('rollback');
   await a.query("update supabase_migrations.schema_migrations set name='vsph_verified_baseline' where version='20261030000000'");

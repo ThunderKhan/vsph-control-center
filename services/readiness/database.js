@@ -43,6 +43,7 @@ function verifyManifest(
   return { manifest, errors };
 }
 const tables = [
+  "account_profile_preferences",
   "internal_employee_link_requests",
   "internal_employee_identity_links",
   "finance_invoices",
@@ -88,6 +89,7 @@ const tables = [
   "project_notifications",
 ];
 const signatures = [
+  "public.account_profile(uuid,text,uuid,jsonb)",
   "public.finance_journal(uuid,text,uuid,jsonb)",
   "public.finance_report(uuid,text,uuid,jsonb)",
   "public.internal_employee_identity(uuid,text,uuid,jsonb)",
