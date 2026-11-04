@@ -1,7 +1,7 @@
 const assert = require("node:assert/strict");
 module.exports = async (pool) => {
   const admin = "44444444-4444-4444-8444-444444444444",
-    user = "11111111-1111-4111-8111-111111111111";
+    user = "12121212-1111-4111-8111-111111111111";
   const pc = async (a, id, d) =>
     (
       await pool.query("select project_command($1,$2,$3,$4) data", [

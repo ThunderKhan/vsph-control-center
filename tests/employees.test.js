@@ -42,7 +42,7 @@ test('employee and HR routes are session-backed; HTML and APIs are not static ac
  const dashboard=read('public/dashboard.html');
  assert.match(dashboard,/id="employeeNavContainer" hidden/);
  const script=read('public/dashboard.js');
- assert.match(script,/\/api\/employees\/access/);
+ assert.match(script,/\/api\/hrms\/access/);
  const overview=read('views/employees.html'),onboarding=read('views/employee-onboarding.html');
  assert.match(overview,/id="employeeRows"/);
  assert.match(overview,/id="hrGovernance"/);

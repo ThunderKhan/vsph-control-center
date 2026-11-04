@@ -43,6 +43,8 @@ function verifyManifest(
   return { manifest, errors };
 }
 const tables = [
+  "internal_leave_requests",
+  "internal_attendance",
   "account_profile_preferences",
   "internal_employee_link_requests",
   "internal_employee_identity_links",
@@ -90,6 +92,9 @@ const tables = [
 ];
 const signatures = [
   "public.account_profile(uuid,text,uuid,jsonb)",
+  "public.hrms_access(uuid,text,uuid,jsonb)",
+  "public.internal_self_service(uuid,text,uuid,jsonb)",
+  "public.internal_hrms(uuid,text,uuid,jsonb)",
   "public.finance_journal(uuid,text,uuid,jsonb)",
   "public.finance_report(uuid,text,uuid,jsonb)",
   "public.internal_employee_identity(uuid,text,uuid,jsonb)",

@@ -38,6 +38,10 @@ app.use('/api/auth',require('./routes/auth'));
 app.use('/api/invitations',require('./routes/invitations'));
 
 app.use('/api/account/profile',require('./routes/profile').router);
+app.use('/api/hrms',require('./routes/hrms').router);
+app.get('/my-work',portalSession,require('./routes/hrms').page('employee'));
+app.get('/hr',portalSession,require('./routes/hrms').page('management'));
+app.get('/hr/access',portalSession,require('./routes/hrms').page('governance'));
 app.get('/account/profile',portalSession,require('./routes/profile').page);
 app.use('/api/account/sessions',require('./routes/sessions'));
 app.use('/api/notifications',require('./routes/notifications').router);

@@ -279,12 +279,11 @@
       // The platform owner always has employee administration. Other users
       // only see its navigation after the current database grants explicit HR access.
       byId('employeeNavContainer').hidden = !isPlatformAdmin;
-      if (!isPlatformAdmin) {
-        try {
-          const workforce = await fetch('/api/employees/access', {credentials:'same-origin',cache:'no-store'});
-          if (workforce.ok) byId('employeeNavContainer').hidden = false;
-        } catch { /* Unmigrated or unavailable HR module must not break workspace. */ }
-      }
+      byId('hrGovernanceNav').hidden = !isPlatformAdmin;
+      try {
+        const response = await fetch('/api/hrms/access', {credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(8000)});
+        if(response.ok){const flags=await response.json();byId('employeeNavContainer').hidden=!flags.management;byId('hrGovernanceNav').hidden=!flags.governHr;byId('myWorkNav').hidden=!flags.employee;}
+      } catch { /* Authorization is rechecked by each protected page/API. */ }
       // Owner defaults to persisted facts. The preserved fictional preview is
       // opt-in, and neither owner view borrows customer-product permissions.
       if (isPlatformAdmin && !isApplicationsView) {
