@@ -3,7 +3,7 @@ const cookie={name:'vsph.portal.sid',value:'fixture-admin-session',url:'http://1
 test('login and authenticated workspaces load fonts without any third-party network dependency',async({page,context})=>{
  test.skip(!process.env.PROJECT_E2E_DATABASE,'Requires isolated database');const external=[];await page.route('**/*',route=>{const u=new URL(route.request().url());if(u.origin!=='http://127.0.0.1:3100'){external.push(u.origin);return route.abort();}return route.continue();});
  await page.goto('/login');await expect(page.locator('#authForm')).toBeVisible();await context.addCookies([cookie]);
- for(const path of ['/projects','/account/profile']){await page.goto(path);await page.evaluate(()=>document.fonts.ready);expect(await page.evaluate(()=>[...document.fonts].some(f=>f.family==='Inter'&&f.status==='loaded'))).toBe(true);}
+ for(const path of ['/projects','/account/profile','/admin']){await page.goto(path);await page.evaluate(()=>document.fonts.ready);expect(await page.evaluate(()=>[...document.fonts].some(f=>f.family==='Inter'&&f.status==='loaded'))).toBe(true);}
  expect(external).toEqual([]);
 });
 test('slow HR navigation permissions do not delay owner content',async({page,context})=>{
