@@ -230,12 +230,13 @@
     },
     {
       "path": "supabase/migrations/20261104093317_internal_hrms_self_service.sql",
-      "sha256": "a6766833dea59e76f99bbac2510799899cf750fa1f9c5e3a1d29ea9830e25828",
+      "sha256": "6785abae69fd0452e64f61bf6d037e81334e63346fc286433fc30846ad5f1dbf",
       "version": "20261104093317",
       "name": "internal_hrms_self_service",
       "requires": [
         "supabase/migrations/20261103165522_internal_employee_identity_links.sql",
-        "supabase/migrations/20261104091848_account_profile_preferences.sql"
+        "supabase/migrations/20261104091848_account_profile_preferences.sql",
+        "supabase/migrations/20261031065919_overdue_milestone_notifications.sql"
       ]
     }
   ],
