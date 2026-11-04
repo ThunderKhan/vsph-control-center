@@ -115,6 +115,12 @@ begin
   select p.* into project from public.projects p join public.project_tasks t on t.project_id=p.id where t.id=p_id and t.assignee_id=p_actor for update of p;
   select * into task from public.project_tasks where id=p_id and assignee_id=p_actor;
   if not found or project.status<>'active' or not exists(select 1 from public.project_memberships where project_id=project.id and user_id=p_actor and status='active' and role in ('manager','contributor')) or (project.customer_organization_id is not null and not exists(select 1 from public.organizations where id=project.customer_organization_id and status='active')) then raise exception 'Assigned work unavailable' using errcode='42501';end if;
+  -- Serialize customer suspension with the assigned-work mutation. A status
+  -- read alone would permit an organization revocation to race the update.
+  if project.customer_organization_id is not null then
+   perform 1 from public.organizations where id=project.customer_organization_id and status='active' for share;
+   if not found then raise exception 'Customer organization unavailable' using errcode='42501';end if;
+  end if;
   if project.version<>(p_data->>'version')::integer then raise exception 'Project changed' using errcode='40001';end if;
   if jsonb_typeof(p_data->'status') is distinct from 'string' or not ((task.status='todo' and p_data->>'status' in ('in_progress','blocked')) or (task.status='in_progress' and p_data->>'status' in ('in_review','blocked')) or (task.status='in_review' and p_data->>'status' in ('done','in_progress','blocked')) or (task.status='blocked' and p_data->>'status'='in_progress')) then raise exception 'Invalid task transition' using errcode='22023';end if;
   before_status:=task.status;update public.project_tasks set status=p_data->>'status' where id=task.id;
