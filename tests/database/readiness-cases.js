@@ -57,10 +57,10 @@ module.exports = async (pool) => {
     try {
       for(const entry of entries.filter(e=>!missing.includes(e.name)))await client.query('insert into supabase_migrations.schema_migrations values($1,$2,$3)',[entry.version,entry.name,[sourceMarker(entry)]]);
       const partial=await inspectDatabase(client),assessment=assess(partial,verifyManifest().manifest);
-      assert.equal(partial.history.length,19);assert.equal(assessment.canonicalHistoryRecognized,true);assert.equal(assessment.canonicalHistoryVerified,false);
+      assert.equal(partial.history.length,entries.length-missing.length);assert.equal(assessment.canonicalHistoryRecognized,true);assert.equal(assessment.canonicalHistoryVerified,false);
       assert.deepEqual(assessment.blockers,['migration_history_incomplete']);
       assert.deepEqual(assessment.pending,entries.filter(e=>missing.includes(e.name)).map(e=>e.path));
-      assert.equal((await client.query('select count(*) from supabase_migrations.schema_migrations')).rows[0].count,'19');
+      assert.equal((await client.query('select count(*) from supabase_migrations.schema_migrations')).rows[0].count,String(entries.length-missing.length));
       await client.query("update supabase_migrations.schema_migrations set statements=array['tampered'] where version=$1",[entries[1].version]);
       const drift=assess(await inspectDatabase(client),verifyManifest().manifest);
       assert.ok(drift.blockers.includes('migration_history_source_marker_mismatch'));assert.equal(drift.historyReconciled,false);

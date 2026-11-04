@@ -13,5 +13,5 @@ test('a member customizes only their own durable profile without gaining workfor
  expect((await context.request.get('/api/employees')).status()).toBe(403);expect((await context.request.get('/api/admin-management/dashboard')).status()).toBe(403);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
  await info.attach('personal-profile-'+info.project.name,{body:await page.screenshot({fullPage:true}),contentType:'image/png'});
- await page.goto('/dashboard');await page.getByRole('link',{name:'Edit your profile',exact:true}).click();await expect(page).toHaveURL(/\/account\/profile$/);
+ await page.goto('/dashboard');if(info.project.name==='mobile')await page.getByRole('button',{name:'Open navigation',exact:true}).click();await page.getByRole('link',{name:'Edit your profile',exact:true}).click();await expect(page).toHaveURL(/\/account\/profile$/);
 });
