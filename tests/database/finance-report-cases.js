@@ -63,6 +63,8 @@ module.exports=async pool=>{
   assert.equal(overviewResponse.status,200);assert.equal(overviewResponse.headers.get('cache-control'),'no-store');
   const overview=await overviewResponse.json();assert.deepEqual(Object.keys(overview).sort(),['asOf','basis','currency','monthly','summary']);
   assert.equal(overview.summary.collectedPaise,'9008000000000002');assert.equal(overview.monthly.length,6);
+  assert.deepEqual(Object.keys(overview.summary).sort(),['clients','collectedPaise','invoicedPaise','issuedInvoices','outstandingPaise','pastDuePaise','projects','voidInvoices']);
+  for(const row of overview.monthly)assert.deepEqual(Object.keys(row).sort(),['collected_paise','month_start']);
   assert.equal(JSON.stringify(overview).includes('Exact fixture customer'),false,'Landing DTO excludes customer and project names/references');
   assert.equal((await fetch(base+'/api/finance/overview?organizationId='+client,{headers:{Cookie:'vsph.portal.sid='+raw}})).status,400);
   assert.equal((await fetch(base+'/api/finance/overview')).status,401);

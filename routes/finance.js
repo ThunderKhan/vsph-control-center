@@ -59,7 +59,9 @@ router.get('/',rpcRoute(req=>db().rpc('finance_report',{p_actor:req.user.id,p_ac
 router.get('/overview',rpcRoute(async req=>{
  if(Object.keys(req.query).length)invalid('The owner overview does not accept filters.');
  const report=check(await db().rpc('finance_report',{p_actor:req.user.id,p_action:'dashboard',p_id:null,p_data:{}}));
- return {summary:report.summary,monthly:report.monthly,asOf:report.asOf,currency:report.currency,basis:report.basis};
+ const summary=Object.fromEntries(['invoicedPaise','collectedPaise','outstandingPaise','pastDuePaise','issuedInvoices','voidInvoices','clients','projects'].map(key=>[key,report.summary[key]]));
+ const monthly=report.monthly.map(row=>({month_start:row.month_start,collected_paise:row.collected_paise}));
+ return {summary,monthly,asOf:report.asOf,currency:report.currency,basis:report.basis};
 }));
 router.get('/options',rpcRoute(async(req)=>{
  const [orgs,projects]=await Promise.all([
