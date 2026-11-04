@@ -2,7 +2,7 @@
 (() => {
  'use strict';
  const $=id=>document.getElementById(id);
- let initialized=false,loading=false;
+ let initialized=false,loading=false,accessLost=false,operationEpoch=0;
  const money=value=>typeof value==='string'&&/^(0|[1-9][0-9]{0,99})$/.test(value);
  const date=value=>typeof value==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(value)&&
   Number.isFinite(Date.parse(value))&&new Date(value).toISOString().slice(0,10)===value;
@@ -44,23 +44,75 @@
   $('ownerOverviewObserved').textContent='Ledger date '+report.asOf+' · Retrieved '+new Intl.DateTimeFormat('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(new Date());
   $('ownerOverviewFacts').hidden=false;
  }
+ const operationIds=['ownerActiveCustomers','ownerActiveProjects','ownerActiveEmployees','ownerActiveProducts','ownerCustomerTotal','ownerCustomerActive','ownerCustomerSuspended','ownerEmployeeTotal','ownerEmployeeOnboarding','ownerProductTotal'];
+ function clearOperations(){
+  for(const id of operationIds)$(id).textContent='—';
+  $('ownerRecentProjects').replaceChildren();$('ownerTaskProgress').hidden=true;
+  $('ownerDeliverySummary').textContent='Project records are unavailable.';
+  $('ownerCustomersStatus').textContent='Customer records are unavailable.';
+  $('ownerPeopleStatus').textContent='Workforce and product records are unavailable.';
+ }
+ function validateOperations(report){
+  for(const [name,keys] of Object.entries({customers:['total','active','suspended'],delivery:['active','completed','tasks','done','cancelled','blocked'],workforce:['total','active','onboarding'],products:['total','active']})){
+   const section=report?.[name];if(!section||!['ready','unavailable'].includes(section.status))throw Error('invalid');
+   if(section.status==='ready')for(const key of keys)if(!Number.isSafeInteger(section[key])||section[key]<0)throw Error('invalid');
+  }
+  if(report.delivery.status==='ready'){
+   const d=report.delivery;
+   if(d.done+d.cancelled>d.tasks||d.blocked>d.tasks||!Array.isArray(d.recent)||d.recent.length>6)throw Error('invalid');
+   for(const p of d.recent)if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(p.id)||typeof p.name!=='string'||p.name.length>200||!['internal','customer'].includes(p.kind)||p.status!=='active')throw Error('invalid');
+  }
+ }
+ function renderOperations(report){
+  const set=(id,n)=>{$(id).textContent=n.toLocaleString('en-IN');};
+  const {customers:c,delivery:d,workforce:w,products:p}=report;
+  if(c.status==='ready'){
+   set('ownerActiveCustomers',c.active);set('ownerCustomerTotal',c.total);set('ownerCustomerActive',c.active);set('ownerCustomerSuspended',c.suspended);
+   $('ownerCustomersStatus').textContent='Recorded organization lifecycle states. Closed organizations remain included in the total.';
+  }
+  if(d.status==='ready'){
+   set('ownerActiveProjects',d.active);
+   const total=d.tasks-d.cancelled;
+   $('ownerDeliverySummary').textContent=d.done.toLocaleString('en-IN')+' of '+total.toLocaleString('en-IN')+' noncancelled tasks completed · '+d.blocked.toLocaleString('en-IN')+' blocked · '+d.completed.toLocaleString('en-IN')+' completed projects.';
+   if(total){$('ownerTaskProgress').value=100*d.done/total;$('ownerTaskProgress').hidden=false;}
+   for(const p of d.recent){const row=document.createElement('li'),link=document.createElement('a'),kind=document.createElement('small');link.href='/projects/'+p.id;link.textContent=p.name;kind.textContent=p.kind==='internal'?'Internal':'Customer';row.append(link,kind);$('ownerRecentProjects').append(row);}
+   if(!d.recent.length){const row=document.createElement('li');row.textContent='No active projects recorded. Create a project to start tracking delivery.';$('ownerRecentProjects').append(row);}
+  }
+  if(w.status==='ready'){set('ownerActiveEmployees',w.active);set('ownerEmployeeTotal',w.total);set('ownerEmployeeOnboarding',w.onboarding);}
+  if(p.status==='ready'){set('ownerActiveProducts',p.active);set('ownerProductTotal',p.total);}
+  $('ownerPeopleStatus').textContent=w.status==='ready'&&p.status==='ready'?'Counts from the internal employee roster and product registry.':w.status==='ready'?'Employee records loaded; product registry is unavailable.':p.status==='ready'?'Product registry loaded; employee records are unavailable.':'Workforce and product records are unavailable.';
+  $('ownerOperationsStatus').textContent=[c,d,w,p].every(x=>x.status==='ready')?'Operating records loaded. Each section is read independently.':'Some operating sections are unavailable. Available records remain visible.';
+ }
+ async function refreshOperations(epoch){
+  clearOperations();$('ownerOperationsStatus').textContent='Loading operating records…';
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
+  try{
+   const response=await fetch('/api/admin-management/dashboard',{credentials:'same-origin',cache:'no-store',signal:controller.signal});
+   if(epoch!==operationEpoch)return;
+   if(response.status===401){accessLost=true;clear();window.location.replace('/login');throw Error('denied');}
+   if(response.status===403){accessLost=true;clear();throw Error('denied');}
+   if(!response.ok||accessLost)throw Error('unavailable');
+   const report=await response.json();validateOperations(report);renderOperations(report);
+  }catch{if(epoch!==operationEpoch)return;clearOperations();$('ownerOperationsStatus').textContent=accessLost?'Owner access is no longer available. Sign in again.':'Operating records are unavailable. Use Refresh overview to retry; finance is loaded separately.';}
+  finally{clearTimeout(timer);}
+ }
  async function refresh(){
   if(loading)return;
-  loading=true;clear();$('ownerOverview').dataset.state='loading';$('ownerOverviewFacts').setAttribute('aria-busy','true');$('ownerOverviewRefresh').disabled=true;
+  loading=true;accessLost=false;void refreshOperations(++operationEpoch);clear();$('ownerOverview').dataset.state='loading';$('ownerOverviewFacts').setAttribute('aria-busy','true');$('ownerOverviewRefresh').disabled=true;
   $('ownerOverviewStatus').textContent='Loading recorded balances…';
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
   try{
    const response=await fetch('/api/finance/overview',{credentials:'same-origin',cache:'no-store',signal:controller.signal});
-   if(response.status===401){window.location.replace('/login');throw Error('session');}
-   if(response.status===403)throw Error('denied');
+   if(response.status===401){accessLost=true;clearOperations();window.location.replace('/login');throw Error('session');}
+   if(response.status===403){accessLost=true;clearOperations();throw Error('denied');}
    const report=await response.json();
    if(!response.ok){if(response.status===503&&report.code==='SCHEMA_NOT_READY')throw Error('schema');throw Error('unavailable');}
-   validate(report);render(report);$('ownerOverview').dataset.state='ready';
+   if(accessLost)throw Error('denied');validate(report);render(report);$('ownerOverview').dataset.state='ready';
    $('ownerOverviewStatus').textContent='Recorded balances loaded from the finance ledger. Refresh to retrieve later changes.';
   }catch(error){
    clear();$('ownerOverview').dataset.state='error';
    $('ownerOverviewStatus').textContent=error.message==='denied'?'Owner finance access is no longer available. Recorded balances have been cleared.':
-    error.message==='schema'?'The finance database upgrade is required. An operator must review and install the ledger and exact-report migrations before this overview can load.':
+    error.message==='schema'?'The finance database upgrade is required. Operating records above are loaded independently; the finance ledger and report migrations must be installed to show balances.':
     error.message==='session'?'Your session has expired. Please sign in again.':
     error.name==='AbortError'?'The overview request timed out. Retry with Refresh overview.':
     'Recorded balances are unavailable. Retry with Refresh overview; no balances are estimated.';
@@ -68,7 +120,7 @@
  }
  function activate(){
   if(!/^\/dashboard\/?$/.test(window.location.pathname)||!$('ownerOverview'))return false;
-  $('ownerOverview').hidden=false;document.documentElement.dataset.ownerOverview='true';document.title='Operating overview | VSPH Control Center';
+  $('ownerOverview').hidden=false;document.documentElement.dataset.ownerOverview='true';document.title='Owner dashboard | VSPH Control Center';
   if(!initialized){initialized=true;$('ownerOverviewRefresh').addEventListener('click',refresh);void refresh();}
   return true;
  }

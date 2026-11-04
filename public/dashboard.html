@@ -113,11 +113,26 @@
       </header>
 
       <main class="workspace-content">
-        <section id="ownerOverview" class="owner-overview" hidden aria-labelledby="ownerOverviewTitle">
+        <section id="ownerOverview" class="owner-overview executive-dashboard" hidden aria-labelledby="ownerOverviewTitle">
           <header class="owner-heading">
-            <div><p class="owner-eyebrow">VSPH · PLATFORM OWNER</p><h1 id="ownerOverviewTitle">Operating overview</h1><p>Recorded invoices and cash receipts across VSPH customers.</p></div>
+            <div><p class="owner-eyebrow">VSPH · PLATFORM OWNER</p><h1 id="ownerOverviewTitle">Your business, at a glance.</h1><p>Customers, delivery, team and recorded finances — from your operating records.</p></div>
             <div class="owner-actions"><a href="/admin/finance">Open finance ledger</a><button id="ownerOverviewRefresh" type="button">Refresh overview</button></div>
           </header>
+          <section class="owner-operations" aria-labelledby="ownerOperationsTitle">
+            <header class="owner-section-head"><div><p class="owner-eyebrow">OPERATING WORKSPACE</p><h2 id="ownerOperationsTitle">Platform overview</h2></div><p id="ownerOperationsStatus" role="status" aria-live="polite">Loading operating records…</p></header>
+            <div class="owner-summary-grid" aria-label="Recorded operating metrics">
+              <article class="exec-mini"><span class="exec-mini-label">Active customers</span><strong id="ownerActiveCustomers">—</strong><a href="/admin/customers">Manage customers ↗</a></article>
+              <article class="exec-mini"><span class="exec-mini-label">Active projects</span><strong id="ownerActiveProjects">—</strong><a href="/projects">Open delivery portfolio ↗</a></article>
+              <article class="exec-mini"><span class="exec-mini-label">Active employees</span><strong id="ownerActiveEmployees">—</strong><a href="/employees">Open employee directory ↗</a></article>
+              <article class="exec-mini"><span class="exec-mini-label">Active products</span><strong id="ownerActiveProducts">—</strong><a href="/admin/products">Open product registry ↗</a></article>
+            </div>
+            <div class="owner-operations-grid">
+              <article class="exec-tile owner-delivery"><header class="exec-tile-title"><h2>Project delivery</h2><a href="/projects">View projects ↗</a></header><p id="ownerDeliverySummary" class="owner-panel-summary">Waiting for project records.</p><progress id="ownerTaskProgress" max="100" value="0" hidden aria-label="Completed project tasks"></progress><ul id="ownerRecentProjects" class="owner-project-list"></ul><p class="exec-muted">Up to six most recently created active projects. Task completion counts exclude cancelled tasks; no delivery forecast is inferred.</p></article>
+              <article class="exec-tile"><header class="exec-tile-title"><h2>Customer portfolio</h2><a href="/admin/customers">Manage ↗</a></header><dl class="owner-fact-list"><div><dt>Total organizations</dt><dd id="ownerCustomerTotal">—</dd></div><div><dt>Active</dt><dd id="ownerCustomerActive">—</dd></div><div><dt>Suspended</dt><dd id="ownerCustomerSuspended">—</dd></div></dl><p id="ownerCustomersStatus" class="exec-muted">Waiting for customer records.</p></article>
+              <article class="exec-tile"><header class="exec-tile-title"><h2>People and products</h2><a href="/employees">Manage team ↗</a></header><dl class="owner-fact-list"><div><dt>Employee roster records</dt><dd id="ownerEmployeeTotal">—</dd></div><div><dt>Employees onboarding</dt><dd id="ownerEmployeeOnboarding">—</dd></div><div><dt>Registered products</dt><dd id="ownerProductTotal">—</dd></div></dl><p id="ownerPeopleStatus" class="exec-muted">Waiting for workforce and product records.</p><p class="exec-muted">Roster status does not grant application access. Product registration does not prove external integration readiness.</p></article>
+            </div>
+          </section>
+          <header class="owner-section-head"><div><p class="owner-eyebrow">RECORDED FINANCES</p><h2>Cash and invoice balances</h2></div><a href="/admin/finance/journal">Browse finance journal ↗</a></header>
           <p class="owner-boundary">Manual INR ledger · An invoice records an amount due. Collected cash includes unreversed receipts. Subscription access does not count as payment or recognized revenue.</p>
           <p id="ownerOverviewStatus" class="owner-status" role="status" aria-live="polite">Loading recorded balances…</p>
           <div id="ownerOverviewFacts" hidden>

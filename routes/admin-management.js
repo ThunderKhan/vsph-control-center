@@ -15,6 +15,16 @@ async function audit(req,action,target_type,target_id,details={},organization_id
  check(await db().from('audit_logs').insert({actor_user_id:req.user.id,organization_id,action,target_type,target_id:String(target_id||''),details}));
 }
 const withCounts=async table=>{const{count,error}=await db().from(table).select('*',{count:'exact',head:true});if(error)throw error;return count};
+// Mounted behind portalSession + requireAdmin in server.js. Return aggregates
+// and six recent project names only; never employee/contact identities or secrets.
+router.get('/dashboard',rpcRoute(async req=>{
+ if(Object.keys(req.query).length){const e=Error('Dashboard filters are not supported');e.validation=true;throw e;}
+ const result=await require('../services/owner-dashboard').ownerDashboard(db());
+ // Fence privilege loss while independent sections were being read.
+ const actor=check(await db().from('profiles').select('id,platform_role,status').eq('id',req.user.id).single());
+ if(actor?.status!=='active'||actor?.platform_role!=='super_admin'){const e=Error('Owner access revoked');e.code='42501';throw e;}
+ return result;
+}));
 router.get('/overview',asyncRoute(async(req,res)=>{
  const[organizations,users,applications,subs,access]=await Promise.all([
  withCounts('organizations'),withCounts('profiles'),withCounts('applications'),

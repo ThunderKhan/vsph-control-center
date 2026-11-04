@@ -31,3 +31,21 @@ html[data-owner-overview="true"] [data-view="overview"]{display:none!important}
 .owner-workflows a{color:#0069C8;font-size:12px;line-height:1.6;padding:10px 0;min-height:44px;text-underline-offset:4px}
 .owner-overview :is(a,button):focus-visible{outline:3px solid #50C0E8;outline-offset:4px}
 @media(max-width:640px){.owner-heading{align-items:start;flex-direction:column;gap:12px}.owner-balances{grid-template-columns:1fr}.owner-balances>div,.owner-monthly{padding:18px}.owner-monthly header{flex-direction:column;gap:8px}.owner-monthly li{grid-template-columns:60px minmax(12px,1fr) minmax(70px,auto);gap:8px}.owner-actions{width:100%}.owner-actions a,.owner-actions button{flex:1;text-align:center}}
+
+/* Independent real-data panels restore the full executive workspace. */
+html[data-owner-overview="true"] .workspace-content{width:min(1600px,100%);padding:30px clamp(18px,2.6vw,42px)}
+.owner-heading{margin-bottom:28px}.owner-heading h1{font-size:clamp(30px,3.5vw,48px)}
+.owner-operations{margin:28px 0 34px}
+.owner-section-head{display:flex;justify-content:space-between;gap:18px;align-items:center;margin:18px 0}
+.owner-section-head h2{font-size:20px;margin:0;letter-spacing:-.025em}.owner-section-head p[role="status"]{font-size:11px;color:#52657D;max-width:330px;line-height:1.6}
+.owner-overview a{color:#0069C8;text-underline-offset:4px}.owner-actions a{color:white}
+.owner-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:14px}
+.owner-summary-grid .exec-mini{min-height:140px}.owner-summary-grid strong{font-weight:700;font-size:36px;line-height:1.2}.owner-summary-grid a{font-size:11px;padding-top:8px;min-height:30px}
+.owner-operations-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px}.owner-operations-grid .exec-tile{border-radius:14px;padding:22px}
+.owner-operations-grid .exec-tile-title{align-items:start;gap:12px}.owner-operations-grid .exec-tile-title h2{font-size:15px;color:#00255A}.owner-operations-grid a{font-size:11px}
+.owner-fact-list{margin:8px 0 22px}.owner-fact-list>div{display:flex;gap:14px;justify-content:space-between;padding:12px 0;border-bottom:1px solid #E6EDF4}.owner-fact-list dt{font-size:12px;color:#52657D}.owner-fact-list dd{margin:0;font-weight:700;font-size:15px}
+.owner-panel-summary{font-size:12px;color:#52657D;line-height:1.7}.owner-delivery progress{width:100%;height:9px;accent-color:#0069C8}
+.owner-project-list{list-style:none;margin:18px 0;padding:0;display:grid;gap:0}.owner-project-list li{border-top:1px solid #E6EDF4;padding:13px 0;display:flex;justify-content:space-between;gap:14px;align-items:center;overflow-wrap:anywhere}.owner-project-list li a{font-size:13px;font-weight:600;min-width:0}.owner-project-list small{font-size:10px;color:#52657D;white-space:nowrap}
+.owner-overview .exec-muted{line-height:1.7}.owner-balances{grid-template-columns:repeat(4,minmax(0,1fr))}.owner-balances dd{font-size:clamp(20px,2vw,30px)}
+@media(max-width:1100px){.owner-operations-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.owner-delivery{grid-column:1/-1}.owner-balances{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.owner-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.owner-operations-grid{grid-template-columns:1fr}.owner-summary-grid .exec-mini{padding:16px;min-height:130px}.owner-section-head{align-items:start;flex-direction:column;gap:8px}.owner-balances{grid-template-columns:1fr}.owner-operations-grid .exec-tile-title{flex-wrap:wrap}}
