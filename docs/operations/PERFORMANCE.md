@@ -11,3 +11,11 @@ The local Chromium runner defaults to two workers rather than half of an arbitra
 ## Verification limits
 
 The end-to-end fixtures use a real disposable PostgreSQL database and simulated provider identities. They prove the rendering/dependency boundary and authorized workflows, not a speed measurement of the user's Windows/network/Supabase connection. The database remains remote even when Express listens on localhost. Server round-trip reductions and request timing should be reviewed separately. No hosted schema, credentials, customer records or email delivery is changed by these frontend improvements.
+
+## Current-session checks in one round trip
+
+Portal authentication now selects the session plus its explicitly projected current profile through the existing `portal_sessions.user_id` foreign key, using PostgREST's many-to-one embedded join. This replaces two sequential server-to-Supabase HTTP reads with one statement. Missing/expired/revoked sessions, inactive profiles, a mismatched profile and downgraded owner roles still deny. No authorization result is cached across requests. SQL mutation guards remain unchanged.
+
+Authenticated and optional-login responses expose `Server-Timing: auth;dur=...`, with the measured middleware duration only; tokens, IDs, emails and SQL/provider details are absent. This helps distinguish remote database delay from browser resource loading. Native HTTP tests count exactly one SQL query and verify role changes, disable, expiry and deletion against real fixture rows; mock-provider failure tests fail closed. This does not measure the user's actual network or prove a live provider login.
+
+Development watching is restricted to runtime code, environment configuration and the dashboard prepaint template. Test reports, coverage, docs and migrations no longer cause incidental development-server restarts. Neither caching policy nor production runtime authentication is weakened. No database migration is required for this optimization: the existing hosted profile foreign key was verified read-only. Reference: https://supabase.com/docs/guides/database/joins-and-nesting.

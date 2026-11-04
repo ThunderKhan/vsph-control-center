@@ -18,7 +18,9 @@ module.exports=function databaseBackedServer(pool,auth,credentialFactory){
    insert(value){mode='insert';payload=value;return q},
    delete(){if(!['portal_sessions','app_sessions'].includes(table))throw Error('Unexpected fixture delete');mode='delete';return q},
    async execute(single=false){try{
-    const columns=fields==='*'?'*':fields.split(',').map(identifier).join(',');
+    const joined=table==='portal_sessions'&&fields===require('../../services/portal-session-fields').PORTAL_SESSION_FIELDS;
+    const columns=joined?'token_hash,user_id,expires_at,profile':fields==='*'?'*':fields.split(',').map(identifier).join(',');
+    const source=joined?"(select s.token_hash,s.user_id,s.expires_at,jsonb_build_object('id',p.id,'full_name',p.full_name,'email',p.email,'status',p.status,'platform_role',p.platform_role) profile from portal_sessions s join profiles p on p.id=s.user_id) session_data":identifier(table);
     if(q.countOnly){const r=await pool.query('select count(*)::integer count from '+identifier(table)+(predicates.length?' where '+predicates.join(' and '):''),values);return {data:null,count:r.rows[0].count,error:null};}
     let sql;
     if(mode==='insert'){
@@ -26,7 +28,7 @@ module.exports=function databaseBackedServer(pool,auth,credentialFactory){
      const r=await pool.query(sql,keys.map(key=>payload[key]));const rows=JSON.parse(JSON.stringify(r.rows));return {data:single?rows[0]||null:rows,error:null};
     }
     if(mode==='delete'){const r=await pool.query('delete from '+identifier(table)+(predicates.length?' where '+predicates.join(' and '):'')+' returning '+columns,values);return {data:r.rows,error:null};}
-    sql='select '+columns+' from '+identifier(table)+(predicates.length?' where '+predicates.join(' and '):'')+(q.sort?' order by '+q.sort:'')+' limit '+Number(limit);
+    sql='select '+columns+' from '+source+(predicates.length?' where '+predicates.join(' and '):'')+(q.sort?' order by '+q.sort:'')+' limit '+Number(limit);
     const r=await pool.query(sql,values);
     // PostgREST returns DATE as calendar text. Do not timezone-shift it through
     // a native pg Date on Windows/IST while emulating the query transport.

@@ -1,0 +1,6 @@
+{
+  "watch": ["*.js", ".env", "routes", "services", "integration", "products", "public/dashboard.html"],
+  "ext": "js,json,env,html",
+  "ignore": ["node_modules/**", "tests/**", "test-results/**", "playwright-report/**", "coverage/**", "docs/**", "supabase/**"],
+  "delay": "150ms"
+}

@@ -25,12 +25,13 @@ const rows = {
 function db() {
   return {
     from(table) {
-      const filters=[];
+      const filters=[];let fields;
       return {
-        select() { return this; },
+        select(value) { fields=value;return this; },
         eq(field,value) { filters.push([field,value]); return this; },
         maybeSingle() {
-          const data=(rows[table] || []).find(entry => filters.every(([key,value])=>entry[key]===value)) || null;
+          let data=(rows[table] || []).find(entry => filters.every(([key,value])=>entry[key]===value)) || null;
+          if(data&&table==='portal_sessions'&&fields===require('../services/portal-session-fields').PORTAL_SESSION_FIELDS){const profile=rows.profiles.find(p=>p.id===data.user_id);data=profile?{...data,profile}:null;}
           return Promise.resolve({data,error:null});
         }
       };
