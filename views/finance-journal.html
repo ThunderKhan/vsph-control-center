@@ -5,8 +5,8 @@
 <header class="finance-header"><div><p class="finance-eyebrow">FINANCE / OWNER CONTROL</p><h1>Finance journal<span>.</span></h1><p>Search recorded invoice and receipt history, including older records.</p></div></header>
 <p class="finance-notice">Read-only history · INR amounts come from persisted records. Dates filter invoice issue dates or cash received dates. Each page reads current data; this is not a frozen statement or a complete export. Use the Finance ledger for entries and corrections.</p>
 <form id="journalFilters" class="finance-panel journal-filters">
-<label>Records<select name="kind" id="journalKind"><option value="invoices">Invoices</option><option value="receipts">Receipts</option></select></label>
-<label>Status<select name="status" id="journalFilterStatus"><option value="all">All statuses</option><option value="issued">Issued</option><option value="void">Void</option></select></label>
+<div class="journal-control"><label for="journalKind">Records</label><select name="kind" id="journalKind"><option value="invoices">Invoices</option><option value="receipts">Receipts</option></select></div>
+<div class="journal-control"><label for="journalFilterStatus">Status</label><select name="status" id="journalFilterStatus"><option value="all">All statuses</option><option value="issued">Issued</option><option value="void">Void</option></select></div>
 <label class="journal-search">Reference, customer or project<input name="search" type="search" maxlength="100" placeholder="Search recorded history"></label>
 <label>From date<input name="from" type="date"></label><label>To date<input name="to" type="date"></label>
 <button type="submit" class="finance-button">Apply filters</button>
