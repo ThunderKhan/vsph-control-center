@@ -1,3 +1,25 @@
+# Current HRMS and profile status — 4 November 2026
+
+Verified implementation main before this receipt/handoff follow-up: `5d895d55cea9b712f2a8a1ec8d107247109483f5`.
+
+| PR                                                                | Delivered                                                            | Squash merge SHA                           |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------- | ------------------------------------------ |
+| [#70](https://github.com/ThunderKhan/vsph-control-center/pull/70) | Secure own-profile customization                                     | `89910c9715ed5547c3b21bbe16dc71814a74b177` |
+| [#71](https://github.com/ThunderKhan/vsph-control-center/pull/71) | Private employee work, leave/attendance and owner HR governance      | `81dd696dffc50887232cf459e529e1ce300be212` |
+| [#72](https://github.com/ThunderKhan/vsph-control-center/pull/72) | SHA-256 receipt guard and deterministic browser interception cleanup | `5d895d55cea9b712f2a8a1ec8d107247109483f5` |
+
+Final #72 CI passed all four jobs: **162 Node tests, 42 native PostgreSQL cases, 60 Chromium passed with two intentional skips on each launcher**, syntax, lint, formatting, coverage, source checksums, production/high-severity dependency gates, isolated security advisors and full synthetic restore rehearsal. Final browser logs contain no flaky retries. Failed intermediate runs exposed fixture identity mixing, SQL fixture typing/key validation, own-task notification suppression, asynchronous control state, test initialization/route cleanup and a receipt delimiter collision; each was corrected and rerun.
+
+Both new canonical migrations (`20261104091848`, `20261104093317`) are installed on the existing configured target. Read-only checks verify **46 protected tables, 31 privileged function signatures, 27 canonical history entries plus two exact installation receipts, no pending source migrations, and unchanged fingerprints for 12 existing data tables**. Six Auth users remain and all three new tables start empty. Receipt `20261104103649` / `vsph_hrms_profiles_20261104` hashes to `af28c4185c0100d502b9753037d85e24dd3379ee65a9dba79f58715e256e97a1`. No hosted history was deleted/repaired, no reset/seed ran, and no real email, new cloud resource or application deployment was performed.
+
+Owner-only `/hr/access` grants/revokes HR through consent-bound existing identity controls. `/hr` reviews authorized leave/attendance; HR cannot appoint HR or review protected HR/owner records. `/my-work` exposes only the linked employee's assigned tasks, own leave and attendance; customer accounts gain no internal HR authority. Explicit project manager permissions remain separate. `/account/profile` edits only the current user's name, bio, time zone and avatar color, never email or access.
+
+[Installation proof and exact verification limits](../operations/HRMS_INSTALL_20261104.md), [aggregate machine-readable evidence](../operations/preflight/hrms-install-verification-20261104.json), [role workflows and manual acceptance](../operations/HRMS_WORKSPACES.md), [Windows commands](../operations/WINDOWS_HANDOFF.md).
+
+This is not full HR/payroll or enterprise release acceptance. New-identity employee Auth invitations, payroll/statutory calculations, balances/accruals, shifts, performance reviews and broader roadmap gaps remain. Live employee Auth/MFA/PostgREST acceptance, hosted restore, monitoring and production deployment are unverified. Existing provider trigger-grant/leaked-password warnings and six moderate development-dependency findings remain unchanged. Older cutoffs below are historical; earlier statements about pending migrations are superseded by this verified installation.
+
+---
+
 ## Verified journal and Windows source integrity — 4 November 2026
 
 [#63](https://github.com/ThunderKhan/vsph-control-center/pull/63) merged as `42c0448811a2324bd28aab085d5aa2aa82d055a6` after all four checks passed on `03197eb6f566a5f4e259e33b466ffa8b82089adb`: **149 Node / 39 native PostgreSQL / 52 active Chromium**, two intentional skips, both disposable helpers and quality/security/advisor/restore gates. Journal history beyond 50, filters, cursor recovery, microsecond ties, concurrency and populated migration rollback are accepted in isolated fixtures. Initial Chromium found selector labels including option text; explicit for/id associations fixed it before merge.

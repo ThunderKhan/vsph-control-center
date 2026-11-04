@@ -1,0 +1,130 @@
+{
+  "verifiedAt": "2026-11-04T10:41:57.330Z",
+  "projectRef": "zbmerhexucqxazuxjmmw",
+  "environmentClassification": "existing target; not isolated staging; production dependencies unclassified",
+  "installedCanonicalVersions": [
+    "20261104091848",
+    "20261104093317"
+  ],
+  "receipt": {
+    "version": "20261104103649",
+    "name": "vsph_hrms_profiles_20261104",
+    "sqlSha256": "af28c4185c0100d502b9753037d85e24dd3379ee65a9dba79f58715e256e97a1"
+  },
+  "historyRows": 29,
+  "canonicalEntries": 27,
+  "verifiedReceipts": 2,
+  "tableChecks": {
+    "required": 46,
+    "rlsEnabled": true,
+    "browserAccessDenied": true
+  },
+  "functionChecks": {
+    "required": 31,
+    "fixedDefiner": true,
+    "browserExecutionDenied": true,
+    "serverExecutionAllowed": true
+  },
+  "existingDataPreserved": true,
+  "existingTables": [
+    {
+      "name": "profiles",
+      "records": 6,
+      "fingerprintUnchanged": true
+    },
+    {
+      "name": "organizations",
+      "records": 6,
+      "fingerprintUnchanged": true
+    },
+    {
+      "name": "subscriptions",
+      "records": 8,
+      "fingerprintUnchanged": true
+    },
+    {
+      "name": "crm_contacts",
+      "records": 4,
+      "fingerprintUnchanged": true
+    },
+    {
+      "name": "music_requests",
+      "records": 3,
+      "fingerprintUnchanged": true
+    },
+    {
+      "name": "internal_employees",
+      "records": 1,
+      "fingerprintUnchanged": true
+    },
+    {
+      "name": "organization_memberships",
+      "records": 6,
+      "fingerprintUnchanged": true
+    },
+    {
+      "name": "organization_app_access",
+      "records": 8,
+      "fingerprintUnchanged": true
+    },
+    {
+      "name": "user_app_roles",
+      "records": 8,
+      "fingerprintUnchanged": true
+    },
+    {
+      "name": "app_sessions",
+      "records": 1,
+      "fingerprintUnchanged": true
+    },
+    {
+      "name": "portal_sessions",
+      "records": 9,
+      "fingerprintUnchanged": true
+    },
+    {
+      "name": "applications",
+      "records": 2,
+      "fingerprintUnchanged": true
+    }
+  ],
+  "authUsers": 6,
+  "newTableRecords": {
+    "account_profile_preferences": 0,
+    "internal_leave_requests": 0,
+    "internal_attendance": 0
+  },
+  "securityAdvisors": [
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "count": 46,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy"
+    },
+    {
+      "name": "anon_security_definer_function_executable",
+      "level": "WARN",
+      "count": 1,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable"
+    },
+    {
+      "name": "authenticated_security_definer_function_executable",
+      "level": "WARN",
+      "count": 1,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable"
+    },
+    {
+      "name": "auth_leaked_password_protection",
+      "level": "WARN",
+      "count": 1,
+      "remediation": "https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection"
+    }
+  ],
+  "notVerified": [
+    "hosted backup restore",
+    "live Auth/MFA employee acceptance",
+    "live PostgREST login workflow",
+    "SMTP delivery",
+    "production application deployment"
+  ]
+}

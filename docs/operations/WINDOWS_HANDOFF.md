@@ -1,3 +1,7 @@
+# Current HRMS handoff — 4 November 2026
+
+The configured database has the reviewed profile/HRMS migrations installed. Do not rerun the legacy installer or seed. Pull `main`, install dependencies and restart the portal using the commands below. See [installation evidence](HRMS_INSTALL_20261104.md) and the [owner/HR/employee walkthrough](HRMS_WORKSPACES.md). Older installation cutoffs in this historical guide are superseded by that evidence. Live Auth/MFA and hosted restore are still separate acceptance gates.
+
 # Journal and canonical Windows source handoff — 4 November 2026
 
 Journal code merged in [#63](https://github.com/ThunderKhan/vsph-control-center/pull/63) as `42c0448811a2324bd28aab085d5aa2aa82d055a6`, after 149 Node / 39 native PostgreSQL / 52 active Chromium tests and all gates passed. The additional LF policy/helper passed all four CI jobs on `ba41492ea71820d1a590c4402058c66516d9f465` in [#64](https://github.com/ThunderKhan/vsph-control-center/pull/64): 150 Node / 39 native PostgreSQL / 52 active Chromium, two intentional skips and all existing gates. Its final documentation revision is checked again before merge. Commands are checked on Linux CI with simulated Windows Git line endings; native Windows execution is not claimed.
@@ -216,3 +220,7 @@ The same install/Node/native-PostgreSQL/Chromium/lint/coverage/checksum/security
 ## November 4 database/dashboard repair
 
 The six previously missing source migrations are now installed on the existing configured project. Do not rerun the legacy installer or seed. Pull current main, restart the server, and use the [repair-specific Windows commands and acceptance workflow](HOSTED_REPAIR_20261104.md). The broader owner dashboard now displays independent real operating/finance modules. Existing finance records were not fabricated; the new ledger starts empty.
+
+## HRMS and own profiles
+
+The profile and HRMS migrations are installed on the existing configured target; see [installation evidence](HRMS_INSTALL_20261104.md) and the [role-based HRMS walkthrough](HRMS_WORKSPACES.md). Pull current main and restart the server. Do not rerun the old legacy installer or seed. `/hr/access` is owner-only, `/hr` is owner/current HR, `/my-work` requires employee consent, and `/account/profile` edits only the signed-in user's personal presentation. No Docker, AWS, paid staging resource or real email is required for the isolated tests. Full live Auth/MFA acceptance and hosted restore remain unverified.
