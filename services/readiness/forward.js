@@ -2,7 +2,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const {verifyManifest} = require('./database');
-const {installationEntries,sourceMarker} = require('./history');
+const {installationEntries,sourceMarker,separateReceipts} = require('./history');
 const literal = value => "'" + String(value).replaceAll("'", "''") + "'";
 function buildForward(history) {
  const checked=verifyManifest();
@@ -10,7 +10,7 @@ function buildForward(history) {
  const entries=installationEntries(checked.manifest);
  if(!Array.isArray(history)||!history.length||new Set(history.map(h=>h.version)).size!==history.length)
   throw Error('Verified canonical history required');
- for(const row of history){
+ for(const row of separateReceipts(history,checked.manifest).history){
   const entry=entries.find(e=>e.version===row.version&&e.name===row.name);
   if(!entry||row.source_marker!==sourceMarker(entry))throw Error('Migration history drift');
  }

@@ -1,0 +1,535 @@
+{
+  "observedOn": "2026-11-04",
+  "projectRef": "zbmerhexucqxazuxjmmw",
+  "sourceMain": "21253091d2c0ed88217460e7682e83a8ac896b18",
+  "method": "Supabase apply_migration; guarded canonical forward transaction",
+  "installed": [
+    {
+      "version": "20261103072229",
+      "name": "project_work_search",
+      "sha256": "dfc44ac57217109ae27305f96c4a77a0f0c3750b16861369090bb980431b5b10"
+    },
+    {
+      "version": "20261103155930",
+      "name": "internal_hr_lock_order",
+      "sha256": "dff4d9f3de923161d5de2adc2055a66610cc92d663336f388bca7ce35373b9c1"
+    },
+    {
+      "version": "20261103165522",
+      "name": "internal_employee_identity_links",
+      "sha256": "4e5ae86c0116d8b7be0cb8a25bd4dee15f381358a94cdaef2fd10a3ff07ce8d4"
+    },
+    {
+      "version": "20261103170000",
+      "name": "finance_ledger",
+      "sha256": "7a399e4b2c95334666eeea8245af540f58f86f4f9c4090ca3c4eae0e2faaf48a"
+    },
+    {
+      "version": "20261103171835",
+      "name": "finance_exact_snapshot_report",
+      "sha256": "8f968078468f1f08651a7ad95d43f450ba1b9f2ea0cde6bc7cfabee00badd4b0"
+    },
+    {
+      "version": "20261104053000",
+      "name": "finance_journal",
+      "sha256": "a885ee0e22aa182de8b54754a7f67b1a45ee9855531d911a5318c43bdcd1663c"
+    }
+  ],
+  "operatorReceipt": {
+    "version": "20261104070249",
+    "name": "vsph_canonical_forward_repair_20261104",
+    "sqlSha256": "7c72b69f6a2c59562e730e8da54199ba6cacad42961fd50f3c49ba7e7372cd62"
+  },
+  "countsBefore": {
+    "profiles": 6,
+    "projects": 0,
+    "employees": 1,
+    "hr_grants": 0,
+    "auth_users": 6,
+    "memberships": 6,
+    "crm_contacts": 4,
+    "organizations": 6,
+    "subscriptions": 8,
+    "music_requests": 3,
+    "product_assignments": 8
+  },
+  "countsAfter": {
+    "profiles": 6,
+    "projects": 0,
+    "employees": 1,
+    "hr_grants": 0,
+    "auth_users": 6,
+    "memberships": 6,
+    "crm_contacts": 4,
+    "organizations": 6,
+    "subscriptions": 8,
+    "music_requests": 3,
+    "product_assignments": 8
+  },
+  "newCounts": {
+    "link_requests": 0,
+    "identity_links": 0,
+    "finance_invoices": 0,
+    "finance_payments": 0,
+    "finance_payment_reversals": 0
+  },
+  "requiredTables": [
+    {
+      "rls": true,
+      "name": "app_roles",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "app_sessions",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "applications",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "audit_logs",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "crm_contacts",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "finance_invoices",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "finance_payment_reversals",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "finance_payments",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "github_webhook_receipts",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "internal_employee_identity_links",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "internal_employee_link_requests",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "internal_employees",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "internal_hr_managers",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "invitation_outbox",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "membership_invitations",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "music_requests",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "organization_app_access",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "organization_memberships",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "organization_owner_transfer_grants",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "organizations",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "portal_sessions",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "product_health_observations",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "profiles",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "project_activity",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "project_comments",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "project_deliverables",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "project_delivery_events",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "project_delivery_links",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "project_delivery_records",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "project_github_installations",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "project_memberships",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "project_milestones",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "project_notification_outbox",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "project_notification_preferences",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "project_notifications",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "project_products",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "project_repositories",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "project_tasks",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "projects",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "provisioning_jobs",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "sso_launch_codes",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "subscriptions",
+      "browserAccess": false
+    },
+    {
+      "rls": true,
+      "name": "user_app_roles",
+      "browserAccess": false
+    }
+  ],
+  "requiredFunctions": [
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.consume_sso_launch_code(text)",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.customer_command(uuid,text,uuid,jsonb)",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.customer_lifecycle(uuid,text,uuid,jsonb)",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.delegated_invitation_authority(uuid,uuid,jsonb)",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.delivery_command(uuid,text,uuid,jsonb)",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.finance_command(uuid,text,uuid,jsonb)",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.finance_journal(uuid,text,uuid,jsonb)",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.finance_report(uuid,text,uuid,jsonb)",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.guard_product_session_organization()",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.internal_employee_command(uuid,text,uuid,jsonb)",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.internal_employee_identity_lifecycle()",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.internal_employee_identity(uuid,text,uuid,jsonb)",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.internal_hr_profile_disabled()",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.internal_workforce_authority(uuid)",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.notification_command(uuid,text,uuid,jsonb)",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.organization_command(uuid,text,uuid,jsonb)",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.organization_invitation_core(uuid,text,uuid,jsonb)",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.organization_invitation(uuid,text,uuid,jsonb)",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.organization_ownership(uuid,text,uuid,jsonb)",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.product_command(uuid,text,uuid,jsonb)",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.project_command(uuid,text,uuid,jsonb)",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.project_report(uuid,text,uuid,jsonb)",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.project_search(uuid,text,uuid,jsonb)",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.provisioning_command(uuid,text,uuid,jsonb)",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.provisioning_core_command(uuid,text,uuid,jsonb)",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.session_command(uuid,text,uuid,jsonb)",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    },
+    {
+      "exists": true,
+      "definer": true,
+      "signature": "public.set_profile_status(uuid,uuid,text)",
+      "browserExecute": false,
+      "serviceExecute": true,
+      "fixedSearchPath": true
+    }
+  ],
+  "productVisibility": true,
+  "sessionPublicId": true,
+  "assessment": {
+    "catalogChecksPassed": true,
+    "operatorReceiptsVerified": [
+      {
+        "version": "20261104070249",
+        "name": "vsph_canonical_forward_repair_20261104",
+        "sqlSha256": "7c72b69f6a2c59562e730e8da54199ba6cacad42961fd50f3c49ba7e7372cd62"
+      }
+    ],
+    "canonicalHistoryRecognized": true,
+    "canonicalHistoryVerified": true,
+    "historyReconciled": true,
+    "releaseReady": false,
+    "blockers": [],
+    "pending": [],
+    "limits": [
+      "Catalog checks do not prove full schema equivalence or Auth/PostgREST behavior.",
+      "No backup, restore, migration application or deployment is performed."
+    ]
+  },
+  "hostedAuthBrowserVerified": false,
+  "hostedRestoreVerified": false
+}

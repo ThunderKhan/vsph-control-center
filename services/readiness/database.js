@@ -2,7 +2,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const root = path.resolve(__dirname, "../..");
-const { installationEntries, sourceMarker } = require("./history");
+const { installationEntries, sourceMarker, separateReceipts } = require("./history");
 function verifyManifest(
   manifest = JSON.parse(
     fs.readFileSync(
@@ -229,6 +229,7 @@ async function inspectDatabase(client) {
 }
 function assess(snapshot, manifest) {
   const blockers = [];
+  const {history,receipts}=separateReceipts(snapshot.history,manifest);
   for (const role of ["anon", "authenticated", "service_role"])
     if (!snapshot.roles.includes(role)) blockers.push("missing_role:" + role);
   for (const table of tables) {
@@ -255,23 +256,23 @@ function assess(snapshot, manifest) {
   if (!snapshot.historyExists) blockers.push("migration_history_missing");
   const canonical = installationEntries(manifest);
   const canonicalByVersion = new Map(canonical.map(entry => [entry.version, entry]));
-  const canonicalNamespace = snapshot.historyExists && snapshot.history.some(
+  const canonicalNamespace = snapshot.historyExists && history.some(
     row => row.version === canonical[0].version && row.name === canonical[0].name,
   );
   const duplicateHistory = new Set(snapshot.history.map(row => row.version)).size !== snapshot.history.length;
-  const canonicalHistoryRecognized = canonicalNamespace && !duplicateHistory && snapshot.history.every(
+  const canonicalHistoryRecognized = canonicalNamespace && !duplicateHistory && history.every(
     row => { const entry = canonicalByVersion.get(row.version); return Boolean(entry && entry.name === row.name); },
   );
-  const canonicalMarkersVerified = canonicalHistoryRecognized && snapshot.history.every(
+  const canonicalMarkersVerified = canonicalHistoryRecognized && history.every(
     row => row.source_marker === sourceMarker(canonicalByVersion.get(row.version)),
   );
-  const canonicalHistoryVerified = canonicalMarkersVerified && snapshot.history.length === canonical.length;
+  const canonicalHistoryVerified = canonicalMarkersVerified && history.length === canonical.length;
   // A valid older canonical journal stays canonical when new source migrations
   // are added. Missing entries (including lower-version gaps) remain pending.
   // Recognizing its namespace never authorizes marker drift or unknown rows.
   const expected = canonicalNamespace ? canonical : manifest.migrations;
   if (duplicateHistory) blockers.push("migration_history_duplicate_version");
-  if (canonicalNamespace && snapshot.history.some(row => {
+  if (canonicalNamespace && history.some(row => {
     const entry = canonicalByVersion.get(row.version);
     return entry && entry.name === row.name && row.source_marker !== sourceMarker(entry);
   })) blockers.push("migration_history_source_marker_mismatch");
@@ -281,18 +282,19 @@ function assess(snapshot, manifest) {
   const pending = expected
     .filter(
       (m) =>
-        !snapshot.history.some(
+        !history.some(
           (h) => h.version === m.version && h.name === m.name,
         ),
     )
     .map((m) => m.path);
   if (pending.length) blockers.push("migration_history_incomplete");
-  if (snapshot.history.some(row => !expected.some(entry => entry.version === row.version && entry.name === row.name)))
+  if (history.some(row => !expected.some(entry => entry.version === row.version && entry.name === row.name)))
     blockers.push("unrecognized_migration_history");
   return {
     catalogChecksPassed: !blockers.some(
       (b) => !b.includes("history") && !b.includes("reconciliation"),
     ),
+    operatorReceiptsVerified:receipts,
     canonicalHistoryRecognized,
     canonicalHistoryVerified,
     historyReconciled: !blockers.some(
