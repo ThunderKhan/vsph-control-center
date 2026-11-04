@@ -19,7 +19,7 @@ const withCounts=async table=>{const{count,error}=await db().from(table).select(
 // and six recent project names only; never employee/contact identities or secrets.
 router.get('/dashboard',rpcRoute(async req=>{
  if(Object.keys(req.query).length){const e=Error('Dashboard filters are not supported');e.validation=true;throw e;}
- const result=await require('../services/owner-dashboard').ownerDashboard(db());
+ const result=await require('../services/owner-dashboard').ownerDashboard(db(),req.user.id,req.portalSession.token_hash);
  // Fence privilege loss while independent sections were being read.
  const actor=check(await db().from('profiles').select('id,platform_role,status').eq('id',req.user.id).single());
  if(actor?.status!=='active'||actor?.platform_role!=='super_admin'){const e=Error('Owner access revoked');e.code='42501';throw e;}
