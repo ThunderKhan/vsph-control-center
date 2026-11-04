@@ -224,3 +224,9 @@ The six previously missing source migrations are now installed on the existing c
 ## HRMS and own profiles
 
 The profile and HRMS migrations are installed on the existing configured target; see [installation evidence](HRMS_INSTALL_20261104.md) and the [role-based HRMS walkthrough](HRMS_WORKSPACES.md). Pull current main and restart the server. Do not rerun the old legacy installer or seed. `/hr/access` is owner-only, `/hr` is owner/current HR, `/my-work` requires employee consent, and `/account/profile` edits only the signed-in user's personal presentation. No Docker, AWS, paid staging resource or real email is required for the isolated tests. Full live Auth/MFA acceptance and hosted restore remain unverified.
+
+## Performance continuation — 4 November 2026
+
+Pull latest main, stop/restart `npm run dev`, and hard-refresh. Licensed Inter loads locally; HR navigation discovery no longer delays owner dashboard reads. Current-session authentication uses one fresh joined read. The owner operating endpoint uses one snapshot RPC, plus authentication and a fresh owner fence (three database requests in total). The reviewed read-only migration is installed on the existing configured target; no reset, seed or legacy installer is required. See [performance evidence and limits](PERFORMANCE.md).
+
+Run the same Node/check/lint/format/coverage/checksum commands above. `npm run test:db:local` and `npm run test:e2e:db` use disposable data; Chromium defaults to two workers without relaxed timeouts. Verify login, owner dashboard refresh, Projects, own profile and admin on desktop/mobile, then check HR/customer denial and logout. A localhost server still reads remote Supabase; actual workstation latency is unmeasured.
