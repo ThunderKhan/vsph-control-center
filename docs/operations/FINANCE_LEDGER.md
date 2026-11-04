@@ -1,3 +1,7 @@
+## Recorded landing integration — 4 November 2026
+
+The platform owner's default Dashboard now uses `/api/finance/overview` to show the persisted exact summary and six receipt months. Individual names/references/row lists are omitted. The historical executive demo is opt-in; client finance remains separate incomplete work. This adds no migration and requires the existing exact report RPC. See [OWNER_OVERVIEW.md](OWNER_OVERVIEW.md).
+
 ## Exact report repair — 3 November 2026
 
 The additive `20261103171835_finance_exact_snapshot_report.sql` requires the existing finance-ledger migration. `GET /api/finance` now requires `finance_report`; an older target fails with `SCHEMA_NOT_READY`, with no imprecise fallback. The legacy service-only `finance_command` dashboard action delegates to the same report. Invoice/payment/reversal mutation code and rows remain intact. Installation is not authorized by this source change.

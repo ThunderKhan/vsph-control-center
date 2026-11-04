@@ -37,6 +37,10 @@ test('owner records INR invoice, receipt and persistent real totals; outsider is
  await expect(page.locator('#financeStatus')).toContainText('Live ledger loaded');
  await expect(page.locator('#finCollected')).toHaveText('₹30.00');
  await expect(page.locator('#financePaymentRows')).toContainText('E2E-REC-'+info.retry);
+ await page.goto('/dashboard');await expect(page.locator('#ownerOverviewStatus')).toContainText('Recorded balances loaded');
+ await expect(page.locator('#ownerCollected')).toHaveText('₹30.00');
+ await expect(page.locator('#ownerOutstanding')).toHaveText('₹70.00');
+ await page.goto('/admin/finance');await expect(page.locator('#financeStatus')).toContainText('Live ledger loaded');
  await info.attach('finance-owner-ledger',{body:await page.screenshot({fullPage:true}),contentType:'image/png'});
  await context.clearCookies();
  await context.addCookies([{name:'vsph.portal.sid',value:'fixture-outsider-session',url:'http://127.0.0.1:3100'}]);

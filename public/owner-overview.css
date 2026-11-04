@@ -1,0 +1,33 @@
+/* Owner facts reuse VSPH's restrained Inter/navy/blue shell. No telemetry veneer. */
+html[data-owner-overview="true"] [data-view="overview"]{display:none!important}
+.owner-overview{color:#00255A;min-width:0;font-variant-numeric:tabular-nums}
+.owner-heading{display:flex;justify-content:space-between;align-items:end;gap:24px;margin:6px 0 22px}
+.owner-eyebrow{color:#0069C8;font-size:11px;font-weight:700;letter-spacing:.14em}
+.owner-heading h1{font-size:clamp(28px,3.8vw,46px);line-height:1.12;letter-spacing:-.045em;margin:10px 0}
+.owner-heading p:not(.owner-eyebrow),.owner-boundary,.owner-status,.owner-counts{color:#52657D;font-size:13px;line-height:1.6}
+.owner-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.owner-actions a,.owner-actions button{border:1px solid #B8CDDF;background:#FFFFFF;border-radius:8px;padding:11px 14px;font:inherit;font-size:12px;font-weight:600;color:#00255A;min-height:44px;text-decoration:none;cursor:pointer}
+.owner-actions a{background:#0069C8;color:#FFFFFF;border-color:#0069C8}
+.owner-actions button:disabled{cursor:wait;opacity:.65}
+.owner-boundary{border-left:3px solid #0069C8;padding:10px 15px;background:#EAF3FA;margin:0 0 16px}
+.owner-status{min-height:24px;margin:12px 0}
+.owner-overview[data-state="error"] .owner-status{color:#8A2525}
+.owner-balances{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:16px 0 22px}
+.owner-balances>div{border:1px solid #DDE5EF;border-radius:12px;background:#FFFFFF;padding:22px;min-width:0}
+.owner-balances dt{color:#53667E;font-size:12px;font-weight:600}
+.owner-balances dd{font-size:clamp(23px,2.6vw,35px);font-weight:700;letter-spacing:-.035em;margin:13px 0;overflow-wrap:anywhere}
+.owner-balances strong{display:block}.owner-balances small{display:block;margin-top:13px;font-size:11px;font-weight:400;letter-spacing:normal;color:#6E7E91}
+.owner-monthly{border:1px solid #DDE5EF;border-radius:12px;background:#FFFFFF;padding:22px}
+.owner-monthly header{display:flex;justify-content:space-between;align-items:start;gap:20px}
+.owner-monthly h2{font-size:17px;letter-spacing:-.02em;margin:0}
+.owner-monthly header p{font-size:11px;color:#6E7E91;margin:0;line-height:1.5}
+.owner-monthly ol{list-style:none;padding:0;margin:22px 0 0;display:grid;gap:13px}
+.owner-monthly li{display:grid;grid-template-columns:70px minmax(16px,1fr) minmax(70px,auto);gap:12px;align-items:center;font-size:12px;min-width:0}
+.owner-monthly li strong{font-weight:600;text-align:right;overflow-wrap:anywhere;min-width:0}
+.owner-month-track{background:#EAF3FA;height:8px;border-radius:4px;overflow:hidden}
+.owner-month-track span{display:block;height:100%;background:#0069C8;border-radius:4px}
+.owner-counts{margin:15px 0 22px}
+.owner-workflows{border-top:1px solid #DDE5EF;display:flex;gap:12px 24px;flex-wrap:wrap;padding-top:20px;margin-top:20px}
+.owner-workflows a{color:#0069C8;font-size:12px;line-height:1.6;padding:10px 0;min-height:44px;text-underline-offset:4px}
+.owner-overview :is(a,button):focus-visible{outline:3px solid #50C0E8;outline-offset:4px}
+@media(max-width:640px){.owner-heading{align-items:start;flex-direction:column;gap:12px}.owner-balances{grid-template-columns:1fr}.owner-balances>div,.owner-monthly{padding:18px}.owner-monthly header{flex-direction:column;gap:8px}.owner-monthly li{grid-template-columns:60px minmax(12px,1fr) minmax(70px,auto);gap:8px}.owner-actions{width:100%}.owner-actions a,.owner-actions button{flex:1;text-align:center}}

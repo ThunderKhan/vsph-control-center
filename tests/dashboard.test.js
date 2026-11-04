@@ -106,7 +106,7 @@ function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=fal
     getItem(key){if(blockedStorage)throw Error('Storage blocked');return stored.get(key)||null;}
   };
   const window={innerWidth:1280,location,localStorage,matchMedia:()=>({matches:true}),addEventListener(){}};
-  vm.runInNewContext(read('public/dashboard.js'),{document,window,fetch,console});
+  vm.runInNewContext(read('public/dashboard.js'),{document,window,fetch,console,URLSearchParams});
   return{nodes,calls,location,visibleViews,links,document,stored,window};
 }
 async function settle(){await new Promise(resolve=>setImmediate(resolve));}

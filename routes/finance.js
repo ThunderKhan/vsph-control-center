@@ -54,6 +54,15 @@ const command=(req,action,id=null,data={})=>db().rpc('finance_command',{
  p_actor:req.user.id,p_action:action,p_id:id,p_data:data
 }).then(check);
 router.get('/',rpcRoute(req=>db().rpc('finance_report',{p_actor:req.user.id,p_action:'dashboard',p_id:null,p_data:{}}).then(check)));
+// Deliberately bounded owner DTO: no client names, invoices, receipt references
+// or individual project facts are needed by the landing page.
+router.get('/overview',rpcRoute(async req=>{
+ if(Object.keys(req.query).length)invalid('The owner overview does not accept filters.');
+ const report=check(await db().rpc('finance_report',{p_actor:req.user.id,p_action:'dashboard',p_id:null,p_data:{}}));
+ const summary=Object.fromEntries(['invoicedPaise','collectedPaise','outstandingPaise','pastDuePaise','issuedInvoices','voidInvoices','clients','projects'].map(key=>[key,report.summary[key]]));
+ const monthly=report.monthly.map(row=>({month_start:row.month_start,collected_paise:row.collected_paise}));
+ return {summary,monthly,asOf:report.asOf,currency:report.currency,basis:report.basis};
+}));
 router.get('/options',rpcRoute(async(req)=>{
  const [orgs,projects]=await Promise.all([
    db().from('organizations').select('id,name').eq('status','active').order('name').limit(251),

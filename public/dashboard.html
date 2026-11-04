@@ -7,6 +7,7 @@
   <title>Workspace | VSPH Control Center</title>
   <link rel="stylesheet" href="/dashboard.css">
   <link rel="stylesheet" href="/executive-dashboard.css">
+  <link rel="stylesheet" href="/owner-overview.css">
   <script>
     document.documentElement.dataset.workspaceView = ['/applications','/applications/'].includes(location.pathname) ? 'applications' : 'overview';
     // Apply the previous desktop preference before paint so the layout does not jump.
@@ -112,6 +113,25 @@
       </header>
 
       <main class="workspace-content">
+        <section id="ownerOverview" class="owner-overview" hidden aria-labelledby="ownerOverviewTitle">
+          <header class="owner-heading">
+            <div><p class="owner-eyebrow">VSPH · PLATFORM OWNER</p><h1 id="ownerOverviewTitle">Operating overview</h1><p>Recorded invoices and cash receipts across VSPH customers.</p></div>
+            <div class="owner-actions"><a href="/admin/finance">Open finance ledger</a><button id="ownerOverviewRefresh" type="button">Refresh overview</button></div>
+          </header>
+          <p class="owner-boundary">Manual INR ledger · An invoice records an amount due. Collected cash includes unreversed receipts. Subscription access does not count as payment or recognized revenue.</p>
+          <p id="ownerOverviewStatus" class="owner-status" role="status" aria-live="polite">Loading recorded balances…</p>
+          <div id="ownerOverviewFacts" hidden>
+            <dl class="owner-balances">
+              <div><dt>Issued invoice value</dt><dd><strong id="ownerInvoiced">—</strong><small>Issued, nonvoid invoices</small></dd></div>
+              <div><dt>Recorded cash collected</dt><dd><strong id="ownerCollected">—</strong><small>Receipts excluding reversals</small></dd></div>
+              <div><dt>Outstanding balance</dt><dd><strong id="ownerOutstanding">—</strong><small>Issued value minus collected cash</small></dd></div>
+              <div><dt>Past-due balance</dt><dd><strong id="ownerPastDue">—</strong><small>Unpaid invoices due before today</small></dd></div>
+            </dl>
+            <section class="owner-monthly" aria-labelledby="ownerMonthlyTitle"><header><h2 id="ownerMonthlyTitle">Monthly cash collections</h2><p id="ownerOverviewObserved"></p></header><ol id="ownerOverviewMonths" aria-label="Six calendar months of recorded cash receipts"></ol></section>
+            <p id="ownerOverviewCounts" class="owner-counts"></p>
+          </div>
+          <nav class="owner-workflows" aria-label="Owner workflows"><a href="/admin">Customer administration</a><a href="/employees">Employee directory</a><a href="/projects">Projects and delivery</a><a href="/dashboard?preview=executive">Open illustrative executive preview</a></nav>
+        </section>
         <!-- Deliberately fictional executive preview. Verified platform admins only.
              No invoices, revenue, employee records or client names are read from the database. -->
         <section id="executiveDashboard" class="executive-dashboard" aria-labelledby="executiveTitle" hidden>
@@ -126,7 +146,7 @@
               <span class="exec-date" id="executiveDate">November 2026</span>
             </div>
           </header>
-          <div class="exec-demo-notice" role="note"><strong>Illustrative data only.</strong> All financial figures, client names, employee statistics, activity and project metrics on this preview are fictional; no real financial or HR records are connected.</div>
+          <div class="exec-demo-notice" role="note"><strong>Illustrative data only.</strong> All financial figures, client names, employee statistics, activity and project metrics on this preview are fictional; no real financial or HR records are connected. <a href="/dashboard">Return to recorded operating overview</a></div>
 
           <div class="exec-metrics" aria-label="Illustrative executive key metrics">
             <article class="exec-mini"><span class="exec-mini-label">Total revenue</span><strong>₹28.45L</strong><span class="exec-mini-foot"><b>+18.2%</b> vs prior period</span></article>
@@ -382,6 +402,7 @@
     </div>
   </div>
   <script defer src="/executive-dashboard.js"></script>
+  <script defer src="/owner-overview.js"></script>
   <script defer src="/dashboard.js"></script>
 </body>
 </html>

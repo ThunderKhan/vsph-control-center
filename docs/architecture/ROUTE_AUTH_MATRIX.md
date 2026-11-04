@@ -1,3 +1,7 @@
+## Recorded owner overview
+
+`GET /api/finance/overview`: current portal session + active platform super administrator in HTTP and `finance_report` SQL. No filters/caller identity; only summary/monthly/currency/basis/date returned, without names/references/row lists. Missing schema fails closed. `/dashboard?preview=executive` is an explicit fictional preview for verified owners; it grants no API or product authority. Ordinary users retain their scoped workspace view. See ../operations/OWNER_OVERVIEW.md.
+
 # Route authorization matrix
 
 The original portal/product rows are retained below; current Projects authorization is specified in PROJECTS.md and durable invitations in operations/PROVISIONING_V2.md. Cookies are opaque tokens; only their hashes are stored. browser writes require exact PUBLIC_ORIGIN. Exceptions are confidential SSO exchange/introspection and the signed raw-body GitHub webhook.

@@ -1,3 +1,10 @@
+## Recorded owner landing
+
+- Sign in as owner and open Dashboard. Verify issued/collected/outstanding/past-due amounts and six calendar months against Finance/API persisted data, including invoice/receipt/reversal/void changes after refresh. Counts describe issued invoices and their customer/project associations.
+- Open the illustrative preview explicitly, check its notice, then return to fresh recorded data. Ordinary/customer users and a forged preview query must not reveal recorded owner data or grant product access.
+- Test schema-not-ready, network failure, twelve-second timeout, retry, invalid numeric money and revoked/expired permissions using disposable fixtures. Old balances clear on errors; zero is shown only for a valid empty ledger. Refresh clicks coalesce.
+- Validate exact large amounts, keyboard navigation, desktop collapse/mobile drawer, no horizontal overflow and reload persistence. Native/backend fixtures prove authorization; mocked transport proves failure presentation only. No hosted/provider verification is implied.
+
 ## Exact owner finance acceptance
 
 After reviewed migration installation on a separately approved target, open Finance as the owner; record an invoice and partial receipt, reload and reconcile every summary/group/month/row with persisted records. Money in `/api/finance` must be decimal-string paise; counts/versions stay numbers. A concurrent receipt must appear consistently across all sections of the next report. Customer/HR/product roles and stale/revoked/expired sessions cannot read owner finance. An absent read RPC must show schema-not-ready rather than use the historical numeric response. Use disposable fixtures for maximum amounts and failure/concurrency tests; do not create demonstration financial records on a customer database. Validate desktop/mobile layout, keyboard forms, confirmation, reversal/void conflicts and no localStorage credentials. Full journal pagination/export/client dashboards remain separate.
