@@ -29,7 +29,7 @@ app.use((req,res,next)=>{
  const url=(String(req.originalUrl||'').split('?')[0].replace(/\/+$/, '') || '/');
  if(url.startsWith('/api/sso/') || url.startsWith('/api/invitations/') || url.startsWith('/api/admin-management/') || url.startsWith('/api/auth/') || url==='/api/apps' || url.startsWith('/api/apps/') || url.startsWith('/api/employee-identity') || url.startsWith('/api/employees') || url.startsWith('/api/finance') ||
     url.startsWith('/apps/') || ['/', '/login', '/login.html', '/index.html',
-    '/dashboard','/applications','/employment','/employees','/employees/onboarding','/admin','/admin/onboarding','/admin/finance','/accept-invite','/dashboard.html','/applications.html','/admin.html'].includes(url)) {
+    '/dashboard','/applications','/employment','/employees','/employees/onboarding','/admin','/admin/onboarding','/admin/finance','/admin/finance/journal','/accept-invite','/dashboard.html','/applications.html','/admin.html'].includes(url)) {
    res.set('Cache-Control','no-store');
  }
  next();
@@ -55,6 +55,8 @@ app.use('/api/employee-identity',require('./routes/employee-identity').router);
 app.get('/employees/:id/account-link',portalSession,require('./routes/employee-identity').managerPage);
 app.get('/employment',portalSession,(req,res)=>{res.set('Cache-Control','no-store');res.sendFile(path.join(__dirname,'views','employee-identity.html'))});
 // Owner-only finance; never infer payment from an active subscription.
+app.use('/api/finance/journal',require('./routes/finance-journal').router);
+app.get('/admin/finance/journal',portalSession,requireAdmin,(req,res)=>{res.set('Cache-Control','no-store');res.sendFile(path.join(__dirname,'views','finance-journal.html'));});
 app.use('/api/finance',require('./routes/finance').router);
 app.get('/admin/finance',portalSession,requireAdmin,(req,res)=>{res.set('Cache-Control','no-store');res.sendFile(path.join(__dirname,'views','finance.html'));});
 app.get(['/employees','/employees/','/employees/onboarding','/employees/onboarding/'],portalSession,require('./routes/employees').employeePage);

@@ -1,3 +1,7 @@
+## Bounded historical read journal
+
+The ledger links to [the owner-only journal](FINANCE_JOURNAL.md), which reads older invoice/receipt history in 25-row server pages with text/status/date filters. Its separate additive migration must be installed before use. Latest-50 quick-entry/correction pickers are preserved and remain limited; the new journal is a read workflow, not an export or historical-edit claim.
+
 ## Recorded landing integration — 4 November 2026
 
 The platform owner's default Dashboard now uses `/api/finance/overview` to show the persisted exact summary and six receipt months. Individual names/references/row lists are omitted. The historical executive demo is opt-in; client finance remains separate incomplete work. This adds no migration and requires the existing exact report RPC. See [OWNER_OVERVIEW.md](OWNER_OVERVIEW.md).

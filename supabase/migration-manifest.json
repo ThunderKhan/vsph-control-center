@@ -209,6 +209,15 @@
       "requires": [
         "supabase/migrations/20261103170000_finance_ledger.sql"
       ]
+    },
+    {
+      "path": "supabase/migrations/20261104053000_finance_journal.sql",
+      "sha256": "a885ee0e22aa182de8b54754a7f67b1a45ee9855531d911a5318c43bdcd1663c",
+      "version": "20261104053000",
+      "name": "finance_journal",
+      "requires": [
+        "supabase/migrations/20261103171835_finance_exact_snapshot_report.sql"
+      ]
     }
   ],
   "note": "Historical Music filenames share version 20261030. Reconcile hosted ledger explicitly; do not silently rename or repair history."

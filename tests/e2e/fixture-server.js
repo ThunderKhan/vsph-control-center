@@ -55,6 +55,7 @@ async function start(pool) {
   );
   require("./github-fixture")();
   await require('./organization-fixture')(pool);
+  await require('./finance-journal-fixture')(pool,ADMIN);
   const mfaId='ffffffff-3333-4333-8333-333333333333';
   await pool.query('insert into auth.users values($1)',[mfaId]);
   await pool.query("insert into profiles(id,full_name,email) values($1,'MFA fixture','mfa@fixture.test')",[mfaId]);
