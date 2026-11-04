@@ -7,7 +7,7 @@ import {join} from 'node:path';
 import {createServer} from 'node:net';
 import {createRequire} from 'node:module';
 if(process.getuid?.()===0)throw Error('Run as an ordinary OS user. No OS users are created.');
-for(const key of Object.keys(process.env))if(/^(SUPABASE_|MUSIC_|GITHUB_|VERCEL_|INVITATION_|SMTP_|STAGING_|DATABASE_URL$|TEST_DATABASE_URL$|DEMO_PASSWORD$|TRUST_PROXY$)/.test(key))delete process.env[key];
+for(const key of Object.keys(process.env))if(/^(PG[A-Z_]|SUPABASE_|MUSIC_|GITHUB_|VERCEL_|INVITATION_|SMTP_|STAGING_|DATABASE_URL$|TEST_DATABASE_URL$|DEMO_PASSWORD$|TRUST_PROXY$)/.test(key))delete process.env[key];
 for(const key of ['SUPABASE_URL','SUPABASE_SECRET_KEY','SUPABASE_PUBLISHABLE_KEY'])process.env[key]='';
 process.env.PORT='3001';process.env.PUBLIC_ORIGIN='http://127.0.0.1:3001';process.env.NODE_ENV='test';
 const directory=await mkdtemp(join(tmpdir(),'vsph-interactive-'));
