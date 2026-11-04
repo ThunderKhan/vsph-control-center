@@ -25,7 +25,8 @@
     "github:verify": "node scripts/verify-github.js",
     "test:restore:ci": "node scripts/rehearse-restore.mjs",
     "config:inspect": "node scripts/inspect-config.js",
-    "db:package": "node scripts/build-database-install.js"
+    "db:package": "node scripts/build-database-install.js",
+    "migrations:eol": "node scripts/migration-eol.js"
   },
   "engines": {
     "node": ">=20.19"

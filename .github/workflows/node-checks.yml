@@ -16,6 +16,7 @@ jobs:
         with:
           node-version: '24'
       - run: npm ci
+      - run: npm run migrations:eol
       - run: npm test
       - run: npm run check
       - run: npm run check:migrations
