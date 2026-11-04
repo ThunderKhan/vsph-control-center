@@ -1,3 +1,21 @@
+# HRMS and personal profile acceptance — 4 November 2026
+
+Use isolated fixtures or approved consenting test identities; do not seed customer databases or send real invitation emails for QA. Run `npm run test:e2e:db` for the isolated desktop/mobile workflow. [Full role walkthrough](HRMS_WORKSPACES.md) and [installation boundary](HRMS_INSTALL_20261104.md).
+
+- Owner: onboard/activate a roster row, request existing-identity consent, and grant/revoke HR through `/hr/access`. A roster record alone must grant no account or role.
+- HR: open `/hr`, review ordinary staff leave and past incomplete attendance; `/hr/access` and grant/revoke APIs deny. Protected HR/owner leave and self-approval deny.
+- Employee: accept only their own employment request with password/enrolled MFA; `/my-work` shows their own records and currently assigned tasks. Coworker IDs, directory/HR routes and broad project metadata deny. Explicit project managers retain only their separately assigned project powers.
+- Customer: own profile and customer/product workflows remain available; all internal HRMS pages/APIs deny without an explicit internal workforce identity/role.
+- Persistence: change an assigned task through valid transitions, request/retry/cancel leave, approve/reject as HR, clock in/out and reload. Stale versions, overlapping requests, concurrent reviews and forged timestamps/ownership deny without duplicates.
+- Failure: revoke a project membership, employee link, HR grant or session; verify the next request denies. Disable an identity; verify access loss. Suspend a customer while updating its assigned task; the update must fail after suspension. Reject an inactive employee's pending leave without reactivating access.
+- Resilience: notification failure must leave own work visible; newly rendered actions stay disabled until refresh completes. No hidden buttons or navigation links are treated as authorization.
+- Profile: save name, multiline bio, time zone and avatar color; reload and confirm persistence. Email/status/roles and another user's profile cannot be changed.
+- Interaction: tab through forms, use visible keyboard focus, test narrow/mobile layouts and the desktop sidebar/mobile drawer, and verify logout clears access. Recheck login, customer onboarding, subscriptions, organization/product access, finance owner boundaries and Projects.
+
+Earlier feature checklists follow.
+
+---
+
 ## Finance journal acceptance
 
 - After approved journal migration installation, open Finance → Search full journal as owner. Search an older invoice/customer/project beyond the recent-50 lists, traverse Next/Previous pages, change invoice/receipt status and inclusive issue/received date filters, then reload. Void/reversed and historical suspended-customer records remain visible to the owner.

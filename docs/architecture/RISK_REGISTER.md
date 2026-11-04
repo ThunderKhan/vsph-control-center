@@ -1,3 +1,13 @@
+# Current HRMS risk and installation cutoff — 4 November 2026
+
+Profiles/HRMS source is merged through PR #72 (`5d895d55cea9b712f2a8a1ec8d107247109483f5`). Both new source migrations are installed on the existing configured target, with exact receipt recognition and unchanged existing-data fingerprints; [installation evidence](../operations/HRMS_INSTALL_20261104.md) supersedes older pending-migration statements below. Native authorization/concurrency/provider-failure tests, two authenticated Chromium launchers and full synthetic restore CI pass. The receipt guard now hashes nested SQL safely; a failed initial attempt installed nothing.
+
+Remaining release risks: no isolated hosted staging, live employee Auth/MFA/PostgREST acceptance, hosted restore or production deployment proof. Existing provider `rls_auto_enable` browser execution grants and leaked-password protection WARNs remain unchanged; the new functions deny browser execution. Six moderate dev dependency findings remain, with high-severity gates passing. Payroll, statutory policy, leave balances/accrual, shifts, new Auth employee invitations and performance management are incomplete. Do not treat self-reported attendance as paid hours. Review dual-purpose customer/staff identities and explicit project managers before applying this model to another populated target. No HR or platform owner role implicitly grants customer product permissions.
+
+[Current operator guide and role acceptance](../operations/HRMS_WORKSPACES.md). Historical risk entries follow and retain their original cutoffs.
+
+---
+
 ## Windows source checksum integrity — 4 November 2026
 
 A real Git autocrlf simulation reproduced migration-byte drift risk in the absence of an LF policy. Repository attributes and the safe `migrations:eol` helper preserve reviewed LF digests; content changes/unsafe paths refuse before normalization. No user Git configuration, manifest hash, database or hosted data is changed. Native Windows execution remains unverified. Journal #63 is merged as `42c0448811a2324bd28aab085d5aa2aa82d055a6` after all checks passed; its ordinary target index installation still needs lock/backup/target approval. Six pending identities remain inferred from the prior 19-entry ledger; six moderate dev findings are unchanged. See ../operations/MIGRATION_SOURCE_EOL.md.
