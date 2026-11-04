@@ -256,3 +256,9 @@ The public login/invite-help pages still boot without keys. Anonymous protected 
 - Production release needs separate approval after migration verification and real UAT. No background work is claimed.
 
 Use [WINDOWS_HANDOFF.md](../operations/WINDOWS_HANDOFF.md) for exact commands and [MANUAL_QA.md](../operations/MANUAL_QA.md) for current acceptance checks. The requested core Projects workflow is implemented and tested in isolation; deployment into the user's live environment is the outstanding operational gate.
+
+## November 4: guarded forward repair (review pending)
+
+Fresh read-only hosted inspection against `zbmerhexucqxazuxjmmw` found 19 canonical entries with matching source markers. Six source migrations remain missing: project work search, HR lock ordering, employee identity consent, finance ledger, exact finance report and finance journal. Product visibility and customer/Projects command functions already exist. The installed employee command body matches reviewed source.
+
+`services/readiness/forward.js` builds a transaction from verified canonical history, including lower-version gaps, without replaying bootstrap or installed migrations. It rejects unknown, duplicate or changed entries and rechecks the entire journal after a transaction-scoped advisory lock and ledger lock. Two-second lock and 60-second statement timeouts bound blocking. No network or database mutation occurs during generation. Native acceptance covers populated history, late failure rollback, concurrent execution, replay and preservation of profiles/customer/product customizations. Hosted application is not yet claimed here; see the repair record when completed.
