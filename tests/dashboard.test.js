@@ -169,5 +169,3 @@ test('unauthenticated direct dashboard access navigates to portal login without 
   assert.equal(fixture.location.replaced,'/login');
   assert.ok(!fixture.calls.some(call=>call.url==='/api/apps'));
 });
-
-

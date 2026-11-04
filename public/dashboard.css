@@ -284,5 +284,3 @@ html[data-workspace-view="applications"] [data-view="overview"]{display:none!imp
   .topbar-account{max-width:120px}
 }
 @media(max-width:390px){.topbar-actions .topbar-account{display:none}}
-
-
