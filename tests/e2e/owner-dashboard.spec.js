@@ -1,0 +1,26 @@
+const {test,expect}=require('@playwright/test');
+const cookie=value=>({name:'vsph.portal.sid',value,url:'http://127.0.0.1:3100',httpOnly:true,sameSite:'Lax'});
+test('full owner dashboard shows durable operating records and survives finance failure',async({page,context},info)=>{
+ test.skip(!process.env.PROJECT_E2E_DATABASE,'Requires isolated native PostgreSQL');
+ await context.addCookies([cookie('fixture-admin-session')]);
+ const response=await context.request.get('/api/admin-management/dashboard');expect(response.status()).toBe(200);expect(response.headers()['cache-control']).toContain('no-store');
+ const report=await response.json();expect(report.customers.status).toBe('ready');expect(report.delivery.status).toBe('ready');
+ expect((await context.request.get('/api/admin-management/dashboard?tenant=other')).status()).toBe(400);
+ await page.route('**/api/finance/overview',r=>r.fulfill({status:503,json:{code:'SCHEMA_NOT_READY'}}));
+ await page.goto('/dashboard');
+ await expect(page.getByRole('heading',{name:'Your business, at a glance.'})).toBeVisible();
+ await expect(page.locator('#ownerOperationsStatus')).toContainText('Operating records loaded');
+ await expect(page.locator('#ownerActiveCustomers')).toHaveText(report.customers.active.toLocaleString('en-IN'));
+ await expect(page.locator('#ownerOverviewStatus')).toContainText('database upgrade is required');
+ await expect(page.locator('#ownerOverviewFacts')).toBeHidden();await expect(page.locator('.owner-operations')).toBeVisible();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+ await info.attach('owner-restored-'+info.project.name,{body:await page.screenshot({fullPage:true}),contentType:'image/png'});
+ await page.unroute('**/api/finance/overview');await page.reload();
+ await expect(page.locator('#ownerOverviewStatus')).toContainText('Recorded balances loaded');
+ await expect(page.locator('#ownerOperationsStatus')).toContainText('Operating records loaded');
+ await page.route('**/api/admin-management/dashboard',r=>r.fulfill({status:503,json:{message:'unavailable'}}));
+ await page.getByRole('button',{name:'Refresh overview',exact:true}).click();await expect(page.locator('#ownerOperationsStatus')).toContainText('Operating records are unavailable');
+ await expect(page.locator('#ownerActiveCustomers')).toHaveText('—');await expect(page.locator('#ownerOverviewStatus')).toContainText('Recorded balances loaded');
+ await context.clearCookies();expect((await context.request.get('/api/admin-management/dashboard')).status()).toBe(401);
+ await context.addCookies([cookie('fixture-outsider-session')]);expect((await context.request.get('/api/admin-management/dashboard')).status()).toBe(403);
+});

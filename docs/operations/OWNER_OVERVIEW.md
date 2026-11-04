@@ -1,6 +1,6 @@
 # Recorded owner overview
 
-The verified platform owner's default `/dashboard` shows persisted finance facts. The historical fictional executive preview is preserved at `/dashboard?preview=executive`, behind the same verified owner UI boundary and a prominent illustrative-data notice. Ordinary/customer users retain their own product/workspace overview; the query parameter cannot grant owner access. Applications navigation remains separate.
+The verified platform owner's default `/dashboard` shows the complete operating workspace: customer lifecycle counts, project/task delivery, the employee roster, product registry and persisted finance facts. The historical fictional executive preview is preserved at `/dashboard?preview=executive`, behind the same verified owner UI boundary and a prominent illustrative-data notice. Ordinary/customer users retain their own product/workspace overview; the query parameter cannot grant owner access. Applications navigation remains separate.
 
 ## Meaning and data ownership
 
@@ -8,7 +8,7 @@ Four exact INR-paise balances come from `finance_report`: issued nonvoid invoice
 
 `GET /api/finance/overview` uses the existing portal session, active platform-owner middleware and SQL owner authorization. Its allowlisted response contains only summary, six monthly observations, currency, accounting basis and ledger date. It excludes individual invoice/receipt references, customer/project names and row lists. It accepts no filters or caller identity. The existing stable report supplies one statement snapshot and decimal-string money. The server still executes the full finance report internally; this projection reduces transport/private detail, not SQL cost. Pagination and a dedicated optimized aggregation remain future performance work.
 
-No new schema or migration is introduced. The existing exact-finance report and ledger migrations must be installed on a separately approved target. Source remains 23 migrations plus baseline; the five pending identities inferred from the last recorded hosted ledger remain unchanged. No hosted schema/Auth/provider/deployment changes are part of this increment.
+No new source migration is introduced by the dashboard repair. The source manifest currently has 24 migrations plus baseline. A fresh November 4 inspection found six missing canonical identities; the hosted repair record documents their actual installation status. The operating endpoint uses existing tables and can show available sections independently while Finance remains unavailable.
 
 ## Failure and privacy contract
 
@@ -21,3 +21,9 @@ Recorded facts and the illustrative preview never share a visible panel. Returni
 Node dashboard tests preserve normal workspace/product behavior and explicit preview gating. Native database-backed HTTP tests verify the exact large-money overview DTO, omitted private row fields, no-store, unknown-filter rejection, anonymous/customer-admin/stale-session/demoted-owner denials. Existing invoice/receipt persistence Chromium now follows the persisted balance onto the owner landing page. Additional desktop/mobile Chromium checks use real fixture-backed overview data, explicit preview/return, ordinary-user denial and screenshots; separate transport fixtures test schema failure/retry, exact large amounts, invalid numeric DTO, revocation clearing, timeout and recovery. Fake responses verify presentation, not live provider behavior. All existing quality/native/browser/advisor/restore/dependency gates remain required before merge.
 
 Rollback may restore the former landing page while keeping finance security and exact-money contracts. No data or schema rollback is needed. Do not silently replace failed recorded data with the illustrative preview. Native Windows, hosted PostgREST/Auth, real provider, backup and release acceptance remain separate. See [Windows handoff](WINDOWS_HANDOFF.md), [finance semantics](FINANCE_LEDGER.md), [manual QA](MANUAL_QA.md) and [remaining M0–M12 work](../roadmap/CONTINUATION_HANDOFF_20261103.md).
+
+## Complete operating workspace repair (November 4)
+
+`GET /api/admin-management/dashboard` is mounted behind the current portal session and platform-admin guard. It accepts no filters, rechecks the current active owner after reading, returns no employee identities/contact information/integration secrets, and is not cached. Each module has its own sanitized availability result. Counts use PostgreSQL/PostgREST exact head counts rather than counting a truncated page; delivery returns at most six recent active projects through a field allowlist. Workforce counts are internal roster records, not customer employees or application roles. Active products are registry lifecycle states, not proof of live product health. Task completion excludes cancelled tasks; it is not employee productivity, utilization or a delivery forecast.
+
+Finance and operating reads have separate twelve-second deadlines and failure states. Stale operating responses from an earlier refresh are discarded. On a forbidden/session-expired response, recorded facts are cleared; current privileges are rechecked on future requests. The full layout remains visible when one module is unavailable. Normal customer/application pages and the explicit illustrative preview retain their existing boundaries.
