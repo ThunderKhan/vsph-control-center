@@ -1,3 +1,11 @@
+# Verified recorded-owner continuation — 4 November 2026
+
+**Code merge baseline: `9638eeb5b66e5e55d42fe00cfdb7849b47b25aad`.** [#61](https://github.com/ThunderKhan/vsph-control-center/pull/61) merged after all four CI checks passed: **148 Node / 38 native PostgreSQL / 48 active Chromium**, two intentional skips, both disposable helpers, quality/security/advisor/restore gates. The owner landing now reads persisted exact finance facts; the existing fictional preview is explicit opt-in. Default member/product views remain scoped. No new migration or hosted/provider/deployment operation occurred; the five pending identities inferred from the last recorded 19-entry ledger remain unchanged.
+
+[Current M0–M12 status, exact #58–#61 merges, tests/fixes, screenshots, migration boundary and remaining work](CONTINUATION_HANDOFF_20261104.md), [owner overview contract](../operations/OWNER_OVERVIEW.md), [Windows commands](../operations/WINDOWS_HANDOFF.md), [manual QA](../operations/MANUAL_QA.md). Previous cutoffs below are historical. Customer finance, new-identity invitations/recovery/offboarding, broader governance/reporting/retention and live operational release acceptance remain incomplete.
+
+---
+
 ## Recorded owner overview — 4 November 2026
 
 Entry main `dd71b7d6a465f468d1ee83d1e8a789378e557371` was verified with all four post-merge CI jobs successful and no open PRs. The prior consent/finance work remains intact. The owner's default dashboard now reads persisted exact finance facts through an owner-only allowlisted overview API; the historical fictional preview is explicitly opt-in. Normal member/product dashboards remain scoped. New native/browser checks cover the overview DTO, authorization, persistence, failure recovery, timeout, precision and mobile layouts. Local Node tests and all CI must pass before merge; no new migration or hosted operation is introduced. See [OWNER_OVERVIEW.md](../operations/OWNER_OVERVIEW.md). M9 advances only the owner's recorded finance landing; client reporting, broader enrollment/recovery, journal/search/retention and release gates remain incomplete.

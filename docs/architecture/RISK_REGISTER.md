@@ -1,3 +1,7 @@
+# Current verified source cutoff — 4 November 2026
+
+Recorded owner landing merged as `9638eeb5b66e5e55d42fe00cfdb7849b47b25aad` (#61), after complete isolated acceptance. New owner data is projected with nested allowlists, exact money, bounded UI requests, no fake fallback and request-time authorization. [Current remaining M0–M12 implementation and release risks](../roadmap/CONTINUATION_HANDOFF_20261104.md) supersede historical cutoffs below. No new migration or hosted operation. Five pending source identities remain inferred from the last 19-entry ledger; six moderate dev findings are unchanged. Client reporting, new-identity enrollment, recovery/step-up/offboarding, retention/accessibility/load/monitoring and real provider/backup/operations acceptance remain risks.
+
 ## Recorded owner landing — 4 November 2026
 
 Source replaces the default owner fictional preview with exact persisted finance facts; the preserved demo is explicit opt-in. The owner-only response excludes customer/project names and individual records. Failure/timeout/revocation clears earlier values, with no estimated fallback. No new schema or hosted action. The overview projection still executes the existing full finance report, so reduced DTO size is not a SQL load/performance claim. Broader reporting, client finance, new-identity enrollment/recovery/offboarding and live release gates remain incomplete. See ../operations/OWNER_OVERVIEW.md.
