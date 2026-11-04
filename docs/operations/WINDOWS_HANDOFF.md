@@ -212,3 +212,7 @@ The same install/Node/native-PostgreSQL/Chromium/lint/coverage/checksum/security
 ## Partial canonical history
 
 `npm run check:migrations` still checks only local source/checksum registration. The read-only readiness assessor now reports genuine pending canonical gaps without spuriously reclassifying existing aliases as legacy, while blocking marker drift/unknown/duplicate entries. [Read the target inspection/installation boundary](PARTIAL_MIGRATION_HISTORY.md); `staging:inspect` still requires an explicitly approved isolated target and TLS verification. Do not point it at a potentially live candidate by weakening its guards. The new logic is covered by Node and disposable native tests, with no new SQL migration.
+
+## November 4 database/dashboard repair
+
+The six previously missing source migrations are now installed on the existing configured project. Do not rerun the legacy installer or seed. Pull current main, restart the server, and use the [repair-specific Windows commands and acceptance workflow](HOSTED_REPAIR_20261104.md). The broader owner dashboard now displays independent real operating/finance modules. Existing finance records were not fabricated; the new ledger starts empty.
