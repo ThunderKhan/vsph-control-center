@@ -255,3 +255,5 @@ test('internal HRMS enforces own records, owner governance, workflow integrity a
 test('single-statement session reads retain live disable, expiry, role and revoke checks',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./session-performance-cases')(pool)});
 
 test('owner operating snapshots are bounded, coherent, session-scoped and degrade by module',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./owner-snapshot-cases')(pool)});
+
+test('real-account operator setup retries provider failures without overwriting users or mixing roles',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./role-account-cases')(pool)});

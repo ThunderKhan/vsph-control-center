@@ -28,7 +28,8 @@
     "db:package": "node scripts/build-database-install.js",
     "migrations:eol": "node scripts/migration-eol.js",
     "demo:local": "node scripts/demo-local.mjs",
-    "test:demo": "node --test tests/demo-local.test.mjs"
+    "test:demo": "node --test tests/demo-local.test.mjs",
+    "accounts:setup": "node scripts/setup-role-accounts.js"
   },
   "engines": {
     "node": ">=20.19"
