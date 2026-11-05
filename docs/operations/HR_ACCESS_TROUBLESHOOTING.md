@@ -23,3 +23,9 @@ Reviewed shared navigation and control styles, employee tables, HR governance, i
 Chromium acceptance covers the 15 existing authenticated navigation routes on desktop and mobile, attaches full-page screenshots and rejects visible main-content buttons below 44 px. Employee acceptance additionally measures non-overlapping row action geometry, verifies account-required controls stay disabled, and completes consent then owner appointment through the actual UI against isolated PostgreSQL with simulated Auth. This does not prove every possible populated production state or live Auth/email enrollment.
 
 Rollback: revert application files; no schema rollback or data repair is needed. Existing SQL authorization continues to protect old clients. No dependency versions were changed.
+
+## Verified merge and evidence
+
+[PR #79](https://github.com/ThunderKhan/vsph-control-center/pull/79) merged as `9e810d916c3a5efdb1526a14ffe1043cdba71cf9`. [Code CI and screenshot artifact](https://github.com/ThunderKhan/vsph-control-center/actions/runs/41977548164) passed all four jobs: 166 Node, 44 PostgreSQL and 68 Chromium passed with two intentional skips on both launchers, plus quality, dependency, advisor and synthetic restore checks. Thirty navigation screenshots cover desktop/mobile. The test Auth provider is simulated; the database is native PostgreSQL. No live Auth acceptance, hosted permission grant or email delivery is claimed.
+
+The broader screenshot pass also found standalone organization/product selectors touching their paging controls. The shared administrative stylesheet adds a 12 px vertical gap and wrapping 44 px breadcrumb targets; Chromium measures the selector/action separation on Customers, Products and My organizations at both viewports.

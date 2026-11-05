@@ -8,6 +8,8 @@ test('shared navigation survives module changes and repeated desktop/mobile togg
   if(info.project.name==='mobile'){await page.getByRole('button',{name:'Open navigation',exact:true}).click();await expect(page.locator('#workspaceSidebar')).toBeVisible();await expect(page.locator('.workspace-main')).toHaveJSProperty('inert',true);await page.keyboard.press('Escape');await expect(page.locator('#openMenu')).toBeFocused();}
   else{await expect(page.locator('#workspaceSidebar .sidebar-link[href="/hr/access"]')).toBeVisible();for(let n=0;n<3;n++)await page.locator('#sidebarToggle').click();const state=await page.locator('html').getAttribute('data-sidebar-state');await page.reload();await expect(page.locator('html')).toHaveAttribute('data-sidebar-state',state);}
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),path).toBe(true);
+  const paging={'/admin/customers':['#customer','#firstCustomers'],'/admin/products':['#product','#firstPage'],'/organizations':['#organization','#firstOrganizations']}[path];
+  if(paging){const field=await page.locator(paging[0]).boundingBox(),action=await page.locator(paging[1]).boundingBox();expect(action.y-field.y-field.height,path+' selector/action gap').toBeGreaterThanOrEqual(8);}
   const small=await page.locator('#portalContent button:visible').evaluateAll(items=>items.filter(e=>e.getBoundingClientRect().height<43.9).map(e=>e.textContent.trim()));
   expect(small,path+' has undersized button targets').toEqual([]);
   await info.attach('portal-'+path.replaceAll('/','-')+'-'+info.project.name,{body:await page.screenshot({fullPage:true}),contentType:'image/png'});

@@ -13,3 +13,10 @@ a.button{display:inline-flex;align-items:center;justify-content:center;text-deco
 .project-page input[type=checkbox],.project-page input[type=radio]{width:20px;height:20px;min-height:20px;padding:0;flex-shrink:0}
 .identity-actions,.project-page .actions{display:flex;align-items:center;flex-wrap:wrap;gap:12px}
 .identity-actions button,.project-page .actions button{margin:0}
+
+/* Standalone selectors and paging actions are not part of a form grid. */
+.project-page>label+button,.project-page .panel>label+button{margin-top:12px}
+.project-page>button+button{margin-inline-start:8px}
+.project-page>nav{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.project-page>nav a{display:inline-flex;align-items:center;min-height:44px;text-decoration:none}
+.project-page>nav a:hover{text-decoration:underline}
