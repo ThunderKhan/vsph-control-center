@@ -28,3 +28,8 @@ test('authenticated page denials retain navigation and status while API and anon
  try{const r=await fetch(origin+'/denied'),h=await r.text();assert.equal(r.status,403);assert.equal(r.headers.get('cache-control'),'no-store');assert.match(h,/id="workspaceSidebar"/);assert.match(h,/&lt;script&gt;Untrusted denial/);assert.doesNotMatch(h,/<script>Untrusted/);const api=await fetch(origin+'/api/denied');assert.equal(api.status,403);assert.deepEqual(await api.json(),{message:'Denied'});const publicError=await fetch(origin+'/anonymous');assert.equal(publicError.status,403);assert.equal(await publicError.text(),'Denied');const asset=await fetch(origin+'/asset.png');assert.equal(asset.status,403);assert.match(asset.headers.get('content-type'),/^image\/png/);assert.equal(await asset.text(),'Denied');}
  finally{await new Promise(r=>server.close(r));}
 });
+test('CRM header keeps identity escaped, real navigation, hidden owner controls and no synthetic counters',async()=>{
+ const html=await render('<html><head></head><body><main>Existing workflow</main></body></html>',{full_name:'<img src=x>',platform_role:'user'});
+ assert.match(html,/crm-workspace.css/);assert.match(html,/workspace-search.js/);assert.match(html,/id="workspaceSearch"/);assert.match(html,/id="topbarOnboard"[^>]*hidden/);assert.doesNotMatch(html,/<img/);assert.match(html,/Existing workflow/);
+ assert.equal((html.match(/id="openMenu"/g)||[]).length,1);
+});
