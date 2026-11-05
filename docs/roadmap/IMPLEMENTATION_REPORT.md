@@ -1,3 +1,7 @@
+## Real normal-portal role setup — 5 November 2026
+
+Added an explicit server-side operator command for real Supabase Auth test identities, normal `http://localhost:3000/login`, unique random private credentials, current owner password/MFA verification, bounded provider recovery, scoped retry keys, consent-bound HR appointment and a separate basic customer organization. The existing owner/password is preserved. No new migration, reset, shared password or email is required. Account creation cannot be executed from this session because Auth-admin credentials are available only in the operator's existing Windows `.env`; no hosted account creation is claimed. See [real role-account setup](../operations/REAL_ROLE_TEST_ACCOUNTS.md). Local Node tests: 167 pass; native SQL/provider-failure acceptance is required in CI.
+
 ## HR appointment prerequisite repair — 5 November 2026
 
 Baseline: verified main `4f9913b03986f2a94a62cb3a4c300652ca154313` (PR #78), no open PRs. Read-only hosted inspection confirms the reported employee has no matching login/profile or accepted consent link; this is an enrollment prerequisite, not a missing migration. Added owner-authorized readiness guidance and a consent-first appointment UI, retained transactional SQL authorization, and repaired shared action spacing, targets, wrapping and checkbox dimensions. No hosted mutation, new migration, email, credential or dependency change. New-identity employee enrollment remains outstanding; the roster alone cannot receive HR.

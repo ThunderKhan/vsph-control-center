@@ -3,7 +3,7 @@
 const {createRequire}=require('node:module');
 module.exports=function databaseBackedServer(pool,auth,credentialFactory){
  const allowedTables=new Set(['portal_sessions','app_sessions','profiles','applications','organizations',
-  'subscriptions','organization_app_access','organization_memberships','user_app_roles','music_requests','crm_contacts','projects','project_tasks','project_milestones','project_activity','internal_employees','internal_hr_managers']);
+  'subscriptions','organization_app_access','organization_memberships','user_app_roles','music_requests','crm_contacts','projects','project_tasks','project_milestones','project_activity','internal_employees','internal_hr_managers','audit_logs']);
  const identifier=value=>{if(!/^[a-z_]+$/.test(value))throw Error('Invalid test identifier');return '"'+value+'"'};
  function from(table){
   if(!allowedTables.has(table))throw Error('Unexpected fixture table');

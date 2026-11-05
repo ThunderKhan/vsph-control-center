@@ -176,3 +176,7 @@ Hosted migration update (2 November 2026): the user explicitly accepted the unte
 ## HR appointment usability — 5 November 2026
 
 The reported active roster row has no matching portal identity or accepted employee consent. Direct grant buttons concealed this prerequisite behind a generic denial. Owner-authorized readiness and guided consent now explain the boundary, while locked SQL remains authoritative. New-identity enrollment is still not implemented by this screen; never bypass it using Auth SQL inserts, owner identity reuse or synthetic consent. No migration is required. UI acceptance adds desktop/mobile screenshots and minimum target checks across 15 routes; populated live-state visual and Auth/email acceptance remain separate gates.
+
+## Explicit real test-account setup
+
+The operator-only command creates real hosted identities and scoped test records after existing owner verification. Its private local state and server-owned Auth metadata fence retries and foreign-account collisions; no web endpoint or shared password is added. Preserve its protected files for recovery. It cannot be executed without the operator's server configuration; live acceptance remains outstanding. A basic test customer receives no product entitlement and the owner receives no implicit product roles.
