@@ -24,3 +24,5 @@ body[data-portal-shell] .workspace-main>.crm-topbar{height:auto;min-height:104px
 body[data-portal-shell]:not(.auth-page) #portalContent h1{font-size:32px;line-height:40px;letter-spacing:-.035em}
 #portalContent .workspace .action{display:inline-flex;align-items:center;justify-content:center;min-height:44px;background:#0069C8;color:#fff;border:1px solid #0069C8;text-decoration:none}#portalContent .workspace .action.secondary{background:#fff;color:#00255A;border-color:#B9C9DA}#portalContent .record-form input{min-height:44px;border-color:#C5D1DF;border-radius:6px}
 @media(max-width:720px){body[data-portal-shell]:not(.auth-page) #portalContent h1{font-size:28px;line-height:36px}}
+/* Profile/HR headings keep one left edge rather than inheriting a flex toolbar. */
+#portalContent .account-page>header,#portalContent .hr-page>header{display:block}
