@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('node:path');
 const {db,check} = require('../db');
 const {portalSession} = require('../security');
+const {reviewHrAccess}=require('../services/employee-hr-readiness');
 const {rpcRoute,uuid} = require('../services/rpc');
 
 const router=express.Router();
@@ -80,12 +81,16 @@ router.post('/:id/update',rpcRoute(req=>{
  return command(req,'update',req.params.id,employeeFields(req.body,{update:true}));
 }));
 for(const action of ['grant_hr','revoke_hr']){
- router.post('/:id/'+action,rpcRoute(req=>{
+ router.post('/:id/'+action,rpcRoute(async req=>{
   if(!uuid(req.params.id))invalid('Invalid employee identifier.');
   const fields=roleFields(req.body);
   // Fail closed on an older target: no fallback to the historical email-only
   // HR grant RPC when consent/schema is missing. Revocation stays available.
-  if(action==='grant_hr')return db().rpc('internal_employee_identity',{p_actor:req.user.id,p_action:'grant_hr',p_id:req.params.id,p_data:{rosterVersion:fields.version,confirmed:true,currentHash:req.portalSession.token_hash}}).then(check);
+  if(action==='grant_hr'){
+   const readiness=await reviewHrAccess(db(),req);
+   if(!readiness.canGrant)invalid(readiness.message);
+   return db().rpc('internal_employee_identity',{p_actor:req.user.id,p_action:'grant_hr',p_id:req.params.id,p_data:{rosterVersion:fields.version,confirmed:true,currentHash:req.portalSession.token_hash}}).then(check);
+  }
   return command(req,action,req.params.id,fields);
  }));
 }

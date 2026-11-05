@@ -1,6 +1,7 @@
 const express=require('express'),path=require('node:path');
 const {db,check}=require('../db'),{portalSession}=require('../security');
 const {uuid,rpcRoute}=require('../services/rpc'),{rateLimit}=require('../http-security');
+const {reviewHrAccess}=require('../services/employee-hr-readiness');
 const {verifyIdentity,identityFailure}=require('../services/verify-identity');
 function invalid(){const e=Error('Review and confirm the current employee account-link state.');e.validation=true;throw e;}
 const version=value=>Number.isInteger(value)&&value>0&&value<=2147483647;
@@ -15,7 +16,12 @@ function validate(action,body){
 const command=(req,action,id=null,data={})=>db().rpc('internal_employee_identity',{p_actor:req.user.id,p_action:action,p_id:id,p_data:{...data,currentHash:req.portalSession.token_hash}}).then(check);
 const router=express.Router();router.use(portalSession,(req,res,next)=>{res.set('Cache-Control','no-store');next();});
 router.get('/mine',rpcRoute(req=>{if(Object.keys(req.query).length)invalid();return command(req,'inbox');}));
-router.get('/employees/:id',rpcRoute(req=>{if(!uuid(req.params.id)||Object.keys(req.query).length)invalid();return command(req,'manage',req.params.id);}));
+router.get('/employees/:id',rpcRoute(async req=>{
+ if(!uuid(req.params.id)||Object.keys(req.query).length)invalid();
+ const review=await command(req,'manage',req.params.id);
+ const access=check(await db().rpc('internal_employee_command',{p_actor:req.user.id,p_action:'access',p_id:null,p_data:{}}));
+ return access.role==='owner'?{...review,hrReadiness:await reviewHrAccess(db(),req,review)}:review;
+}));
 for(const action of ['request','renew','cancel','revoke'])router.post('/employees/:id/'+action,rpcRoute(req=>{
  if(!uuid(req.params.id))invalid();const data=validate(action,req.body);
  if(action==='request'){const key=req.get('Idempotency-Key');if(!uuid(key))invalid();return command(req,action,req.params.id,{...data,key});}

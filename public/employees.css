@@ -98,3 +98,7 @@
 @media(max-width:760px){.people-wizard{grid-template-columns:1fr}.people-steps{min-height:0}.people-steps ol{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.people-steps li{gap:7px}.people-steps li>span{width:33px;height:33px}.people-wizard-note{margin-top:20px}.people-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.people-overview{grid-template-columns:1fr}.people-form-grid{grid-template-columns:1fr}}
 @media(max-width:520px){.people-nav-return{width:100%}.people-header{flex-direction:column;align-items:start}.people-header .people-primary{width:100%}.people-panel{padding:18px}.people-metrics{gap:10px}.people-metric{padding:16px}.people-filters{grid-template-columns:1fr}.people-steps{padding:19px}.people-steps li strong{font-size:12px}.people-steps li small{font-size:10px}.people-wizard-panel{padding:18px}.people-review{grid-template-columns:1fr}.people-wizard-actions .people-small{order:2;width:100%}}
 @media(prefers-reduced-motion:reduce){.people-wizard-track>span{transition:none}}
+
+/* Row actions remain separate targets, including links, at every viewport. */
+.people-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:220px}
+.people-actions .people-secondary,.people-table td .people-secondary{min-height:44px;text-decoration:none;white-space:normal;text-align:center}

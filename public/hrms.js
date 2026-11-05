@@ -34,7 +34,13 @@
  }
  async function governance(){
   const q=new URLSearchParams();if(accessCursor)q.set('afterId',accessCursor);if($('accessSearch').value.trim())q.set('search',$('accessSearch').value.trim());const d=await api('/employees?'+q),rows=d.employees.slice(0,50);accessNext=d.employees.length>50?rows.at(-1).id:null;
-  const parent=$('hrAccessList');parent.replaceChildren();for(const employee of rows){const el=record(parent,employee.full_name,employee.email+' · '+label(employee.status)+' · '+(employee.is_hr?'HR manager':'No HR authority'));const link=text('a','Review identity link');link.href='/employees/'+employee.id+'/account-link';el.append(link);if(employee.is_hr||employee.status==='active'){const action=employee.is_hr?'revoke_hr':'grant_hr';el.append(button(employee.is_hr?'Revoke HR':'Grant HR',()=>{if(confirm((employee.is_hr?'Revoke':'Grant')+' HR authority for '+employee.email+'?'))run(async()=>{await api('/employees/'+employee.id+'/'+action,{version:employee.version,confirmed:true});await load();notice('HR authority updated.');});},true));}}if(!rows.length)parent.append(text('p','No matching employees.'));$('moreAccess').hidden=!accessNext;
+  const parent=$('hrAccessList');parent.replaceChildren();for(const employee of rows){
+   const el=record(parent,employee.full_name,employee.email+' · '+label(employee.status)+' · '+(employee.is_hr?'HR manager':'No HR authority'));
+   const actions=text('div','','hr-actions'),link=text('a',employee.is_hr?'Review identity link':'Review HR access','secondary');
+   link.href='/employees/'+employee.id+'/account-link';actions.append(link);
+   if(employee.is_hr)actions.append(button('Revoke HR',()=>{if(confirm('Revoke HR authority for '+employee.email+'?'))run(async()=>{await api('/employees/'+employee.id+'/revoke_hr',{version:employee.version,confirmed:true});await load();notice('HR authority updated.');});},true));
+   el.append(actions);
+  }if(!rows.length)parent.append(text('p','No matching employees.'));$('moreAccess').hidden=!accessNext;
  }
  async function load(){if(mode==='employee'){ownRecords(await api('/hrms/me'+(taskCursor?'?afterTaskId='+taskCursor:'')));const np=$('ownNotifications');np.replaceChildren();try{const notifications=await api('/notifications');for(const n of notifications.notifications||[])record(np,n.title||'Task notification',n.project_name+' · '+label(n.event_type));if(!np.childElementCount)np.append(text('p','No current authorized notifications.'));}catch{np.append(text('p','Task notifications are temporarily unavailable. Your saved work remains available.'));}}else if(mode==='management'){await management();}else await governance();$('hrContent').hidden=false;notice('Current authorized records loaded.');}
  $('refreshHr').addEventListener('click',()=>run(()=>load()));

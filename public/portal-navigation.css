@@ -190,3 +190,8 @@ body[data-portal-shell]{overflow:auto!important}.workspace-main>.workspace-topba
 
 /* Product sign-in backgrounds stay below the shared portal header. */
 body[data-portal-shell].auth-page .workspace-main>.workspace-topbar{position:relative;z-index:3}
+
+/* Keep common action targets usable across modules, including compact tables. */
+body[data-portal-shell] #portalContent button{min-height:44px;max-width:100%;white-space:normal}
+#portalContent .actions{flex-wrap:wrap;gap:12px}
+.workspace-topbar .topbar-onboard{min-height:44px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none}

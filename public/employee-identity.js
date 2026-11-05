@@ -11,7 +11,7 @@
   if(!r.ok){const e=Error(data.message||'Account-link operation unavailable.');e.data=data;throw e;}return data;
  }
  function button(title,fn){const b=node('button',title);b.type='button';b.onclick=()=>run(fn);return b;}
- async function run(fn){if(busy)return;busy=true;for(const b of document.querySelectorAll('main button'))b.disabled=true;try{await fn();}catch(e){message.textContent=e.message;}finally{busy=false;for(const b of document.querySelectorAll('main button'))b.disabled=false;}}
+ async function run(fn){if(busy)return;busy=true;const controls=[...document.querySelectorAll('main button')].filter(b=>!b.disabled);for(const b of controls)b.disabled=true;try{await fn();}catch(e){message.textContent=e.message;}finally{busy=false;for(const b of controls)if(b.isConnected)b.disabled=false;}}
  async function mutate(action,data){
   if(!confirm(action==='revoke'?'Revoke this account link and any linked HR grant? Customer/product/project assignments and the portal account remain separate.':'Confirm this employee identity request action?'))return;
   await api('/employees/'+employeeId+'/'+action,{...data,confirmed:true},action==='request'?requestKey:null);
@@ -23,6 +23,18 @@
   const actions=node('div');actions.className='identity-actions';
   if(data.link?.status==='linked')actions.append(button('Revoke account link',()=>mutate('revoke',{rosterVersion:e.version,linkVersion:data.link.version})));
   else if(['active','onboarding'].includes(e.status))actions.append(button('Request account link',()=>mutate('request',{rosterVersion:e.version})));
+  if(data.hrReadiness){
+   const readiness=data.hrReadiness,summary=node('section');summary.className='identity-readiness';summary.setAttribute('aria-label','HR appointment readiness');
+   summary.append(node('h3','HR appointment'),node('p',readiness.message));
+   if(readiness.canGrant)summary.append(button('Grant HR',async()=>{
+    if(!confirm('Grant internal HR administration to '+e.email+'? Customer and product roles remain separate.'))return;
+    const response=await fetch('/api/employees/'+e.id+'/grant_hr',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({version:e.version,confirmed:true})});
+    const result=await response.json().catch(()=>({}));if(!response.ok)throw Error(result.message||'HR grant failed. Refresh the current record.');
+    await load();message.textContent='HR authority granted. The employee can open the HR workspace on their next request.';
+   }));
+   const request=actions.querySelector('button');if(request&&data.link?.status!=='linked'&&!readiness.canRequest){request.disabled=true;request.title='Complete account enrollment or review the pending consent request first.';}
+   box.append(summary);
+  }
   box.append(actions);content.append(box);
   for(const r of data.requests){const row=node('article');row.className='panel';row.append(node('h2','Account-link request'),node('p',r.state+' · version '+r.version+' · expires '+new Date(r.expires_at).toLocaleString()),node('p','Request '+r.id));
    if(['pending','expired'].includes(r.state)){const a=node('div');a.className='identity-actions';for(const [action,label] of [['renew','Renew request'],['cancel','Cancel request']])a.append(button(label,()=>mutate(action,{rosterVersion:e.version,requestId:r.id,requestVersion:r.version})));row.append(a);}content.append(row);
