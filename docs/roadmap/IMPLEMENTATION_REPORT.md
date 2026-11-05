@@ -1,3 +1,9 @@
+## HR appointment prerequisite repair — 5 November 2026
+
+Baseline: verified main `4f9913b03986f2a94a62cb3a4c300652ca154313` (PR #78), no open PRs. Read-only hosted inspection confirms the reported employee has no matching login/profile or accepted consent link; this is an enrollment prerequisite, not a missing migration. Added owner-authorized readiness guidance and a consent-first appointment UI, retained transactional SQL authorization, and repaired shared action spacing, targets, wrapping and checkbox dimensions. No hosted mutation, new migration, email, credential or dependency change. New-identity employee enrollment remains outstanding; the roster alone cannot receive HR.
+
+See [HR appointment diagnosis, workflow and UI scope](../operations/HR_ACCESS_TROUBLESHOOTING.md). Local Node tests: 166 passed; syntax, lint and migration checks passed. PostgreSQL/Chromium and full CI results will be recorded after the PR run; no live employee acceptance is claimed.
+
 # Current HRMS and profile status — 4 November 2026
 
 Verified implementation main before this receipt/handoff follow-up: `5d895d55cea9b712f2a8a1ec8d107247109483f5`.

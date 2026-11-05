@@ -7,3 +7,9 @@
 .project-page input,.project-page select,.project-page textarea{min-width:0;max-width:100%}
 
 #ownershipConfirmed{width:20px;height:20px;min-height:20px;justify-self:start}
+
+/* Shared administrative controls: consistent targets without affecting text links. */
+a.button{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;gap:8px;max-width:100%;text-align:center}
+.project-page input[type=checkbox],.project-page input[type=radio]{width:20px;height:20px;min-height:20px;padding:0;flex-shrink:0}
+.identity-actions,.project-page .actions{display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+.identity-actions button,.project-page .actions button{margin:0}

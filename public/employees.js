@@ -53,7 +53,7 @@
  }
  async function changeHR(employee,action){
   const question=action==='grant_hr'
-   ?'Grant HR employee-management authority to '+employee.email+'? Only an existing active portal account matching this email is eligible.'
+   ?'Grant HR employee-management authority to '+employee.email+'? An active matching ordinary portal account and an accepted employee link are required.'
    :'Revoke HR employee-management authority from '+employee.email+'?';
   if(!window.confirm(question))return;
   await run(async()=>{
@@ -74,18 +74,18 @@
    const position=document.createElement('td');position.append(text('strong',employee.department),text('small',employee.job_title));
    const type=text('td',label[employee.employment_type]||employee.employment_type);
    const status=document.createElement('td'),pill=text('span',label[employee.status]||employee.status,'people-status');pill.dataset.state=employee.status;status.append(pill);
-   const access=text('td',employee.is_hr?'HR manager':'Roster only');
-   const actions=document.createElement('td');
+   const access=text('td',employee.is_hr?'HR manager':'No HR authority');
+   const actions=document.createElement('td'),group=text('div','','people-actions');actions.append(group);
    const canEdit=role==='owner'||!employee.is_hr;
-   if(canEdit){actions.append(makeButton('Edit',()=>edit(employee)));const a=text('a','Account link');a.href='/employees/'+employee.id+'/account-link';actions.append(a);}
-   if(role==='owner'&&employee.status==='active')actions.append(makeButton(employee.is_hr?'Revoke HR':'Grant HR',()=>changeHR(employee,employee.is_hr?'revoke_hr':'grant_hr')));
+   if(canEdit){group.append(makeButton('Edit',()=>edit(employee)));const a=text('a',role==='owner'&&!employee.is_hr?'Review HR access':'Account link','people-secondary');a.href='/employees/'+employee.id+'/account-link';group.append(a);}
+   if(role==='owner'&&employee.is_hr)group.append(makeButton('Revoke HR',()=>changeHR(employee,'revoke_hr')));
    if(!canEdit)actions.append(text('span','Owner managed','muted'));
    row.append(name,position,type,status,access,actions);parent.append(row);
   }
  }
  function drawManagers(list){
   const parent=$('hrManagers');parent.replaceChildren();
-  if(!list.length){parent.append(text('p','No HR managers assigned. Grant HR from an active employee row.','muted'));return;}
+  if(!list.length){parent.append(text('p','No HR managers assigned. Use Review HR access on an employee row to check account enrollment and consent before granting HR.','muted'));return;}
   for(const manager of list){
    const row=text('div','','people-hr-entry'),detail=document.createElement('div');
    detail.append(text('strong',manager.full_name),text('span',manager.email+' · '+manager.status+' roster · '+manager.account_status+' account'));
