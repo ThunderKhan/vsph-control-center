@@ -16,7 +16,7 @@ module.exports=async pool=>{
  // request. Retry must renew the same versioned request rather than duplicate it.
  let calls=0;const interrupted=async(...input)=>{calls++;if(calls===4)throw Error('Verification interrupted');return verify(...input);};
  await assert.rejects(setupRoleAccounts({...args,verify:interrupted}),/Verification interrupted/);
- await pool.query("update internal_employee_link_requests set expires_at=clock_timestamp()-interval '1 second' where issuer_id=$1 and state='pending'",[owner]);
+ await pool.query("update internal_employee_link_requests set created_at=clock_timestamp()-interval '8 days',expires_at=clock_timestamp()-interval '1 day' where issuer_id=$1 and state='pending'",[owner]);
  await pool.query("update internal_employees set job_title='Reviewed test title',version=version+1 where created_by=$1",[owner]);
  const accounts=await setupRoleAccounts(args);
  const renewed=(await pool.query("select r.version,r.roster_version,e.version employee_version from internal_employee_link_requests r join internal_employees e on e.id=r.employee_id where r.issuer_id=$1 and e.email=$2",[owner,accounts.hr.email])).rows[0];assert.equal(renewed.version,3);assert.equal(renewed.roster_version,renewed.employee_version-1);
