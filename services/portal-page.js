@@ -1,4 +1,5 @@
 const fs=require('node:fs/promises'),path=require('node:path');
+const {workspaceHeader}=require('./workspace-header');
 const root=path.resolve(__dirname,'..');
 const allowed=new Set(['dashboard.html','admin.html','app-home.html'].map(f=>path.join(root,'public',f)).concat(['auth','account-profile','customers','employee-identity','employee-onboarding','employees','finance-journal','finance','hr-access','hr-workspace','my-work','onboarding','organizations','products','projects','provisioning','search','sso-launch'].map(f=>path.join(root,'views',f+'.html'))));
 const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -18,9 +19,10 @@ async function render(html,user,notice){
   if(/<title>Administration/.test(html))html=html.replace(/<button[^>]*id="logoutButton"[\s\S]*?<\/button>/,'');
   html=html.replace(/(<body\b[^>]*>)/,match=>match+icons+'<a class="skip-link" href="#portalContent">Skip to content</a><div class="workspace-shell"><button id="navBackdrop" class="nav-backdrop" type="button" aria-label="Close navigation" hidden></button>'+side+'<div class="workspace-main">'+header+'<div id="portalContent" tabindex="-1">').replace('</body>','</div></div></div></body>');
  }
+ html=html.replace(/<header class="workspace-topbar"[\s\S]*?<\/header>/,()=>workspaceHeader(user,escape));
  html=html.replace(/<body\b([^>]*)>/,(_m,attrs)=>'<body'+attrs+' data-portal-shell="true" data-portal-owner="'+(user.platform_role==='super_admin')+'">');
  if(notice)html=html.replace(/(<div class="workspace-main"[^>]*>)/,match=>match+'<div class="portal-environment-notice" role="note">'+escape(notice)+'</div>');
- return html.replace('</head>',prepaint+'<link rel="stylesheet" href="/portal-navigation.css"><script defer src="/portal-navigation.js"></script></head>');
+ return html.replace('</head>',prepaint+'<link rel="stylesheet" href="/portal-navigation.css"><link rel="stylesheet" href="/crm-workspace.css"><script defer src="/portal-navigation.js"></script><script defer src="/workspace-search.js"></script></head>');
 }
 // Only reviewed authenticated HTML sendFile paths are decorated. APIs, public
 // login/invitation pages, assets and route authorization remain untouched.

@@ -180,3 +180,7 @@ The reported active roster row has no matching portal identity or accepted emplo
 ## Explicit real test-account setup
 
 The operator-only command creates real hosted identities and scoped test records after existing owner verification. Its private local state and server-owned Auth metadata fence retries and foreign-account collisions; no web endpoint or shared password is added. Preserve its protected files for recovery. It cannot be executed without the operator's server configuration; live acceptance remains outstanding. A basic test customer receives no product entitlement and the owner receives no implicit product roles.
+
+## CRM frontend port boundary
+
+The user-authorized source has multiple UI versions and browser-local identity state. Adapted layout/styles only, with VSPH server sessions, permission checks and live data retained. Header search queries only existing project ACL-backed records; source placeholder modules, counters and unsupported operations are excluded. CSP remains external-script-only and all names/search results render escaped text. Real hosted role-account execution is still gated by access to the operator's configured server, not by the chosen port.

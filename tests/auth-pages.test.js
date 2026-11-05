@@ -20,7 +20,8 @@ test('portal and every product use a single, non-public login template', () => {
   assert.ok(html.includes('id="authSubmit"'));
   assert.ok(html.includes('src="/auth-page.js"'));
   assert.ok(html.includes('src="/auth-config.js"'));
-  assert.ok(html.includes('src="/auth-background.js"'));
+  assert.ok(html.includes('href="/crm-auth.css"'));
+  assert.ok(!html.includes('src="/auth-background.js"'));
   assert.ok(server.includes("path.join(__dirname,'views','auth.html')"));
   assert.ok(server.includes("res.sendFile(authViews[application.code] || sharedAuthView)"));
   assert.ok(server.includes("app.get(['/', '/login'],optionalPortal,(req,res)=>{"));
