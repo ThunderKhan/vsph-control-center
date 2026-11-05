@@ -39,7 +39,7 @@ test('employee and HR routes are session-backed; HTML and APIs are not static ac
  assert.match(route,/check\(await db\(\)\.rpc\('internal_employee_command'/);
  assert.match(route,/Idempotency-Key/);
  assert.match(route,/router\.use\(portalSession\)/);
- const dashboard=read('views/partials/portal-sidebar.html');
+ const dashboard=read('views/partials/portal-navigation.html');
  assert.match(dashboard,/id="employeeNavContainer" hidden/);
  const script=read('public/portal-navigation.js');
  assert.match(script,/\/api\/hrms\/access/);

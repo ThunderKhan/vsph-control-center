@@ -18,23 +18,11 @@ test("authenticated project delivery workflow persists and denies an outsider", 
     },
   ]);
   await page.goto("/projects");
-  if (testInfo.project.name === "desktop") {
-    await page
-      .getByRole("button", { name: "Collapse sidebar", exact: true })
-      .click();
-    await expect(page.locator("html")).toHaveAttribute(
-      "data-sidebar-state",
-      "collapsed",
-    );
-    await page
-      .getByRole("button", { name: "Expand sidebar", exact: true })
-      .click();
-  } else {
-    await page
-      .getByRole("button", { name: "Open navigation", exact: true })
-      .click();
-    await expect(page.locator("body")).toHaveClass(/nav-open/);
-    await page.getByRole("button", { name: "Close menu", exact: true }).click();
+  await expect(page.locator("#workspaceSidebar")).toHaveCount(0);
+  if (testInfo.project.name === "mobile") {
+    await page.getByRole("button", { name: "Open navigation", exact: true }).click();
+    await expect(page.locator("#workspaceNavigation")).toBeVisible();
+    await page.keyboard.press("Escape");
   }
   await page.getByRole("button", { name: "New project", exact: true }).click();
   const form = page.locator("#createProjectForm");

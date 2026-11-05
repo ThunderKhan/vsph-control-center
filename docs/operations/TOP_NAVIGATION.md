@@ -1,0 +1,23 @@
+# Horizontal portal navigation — 5 November 2026
+
+The user's latest instruction replaces the sidebar/icon rail with CRM-style horizontal top navigation. It supersedes earlier requirements to keep a collapsible sidebar. The shared server header now owns one Main navigation on every authenticated page, including protected product logins and error pages. No side column is reserved. Existing dashboard business content remains unchanged.
+
+## Layout and behavior
+
+The upper row contains VSPH, authorized work search, application launcher, account/profile menu and server-backed sign out. The second row contains Overview, Applications, Projects, Search work, My organizations, People and Administration. People groups the employee's own work/employment and permitted HR tools. Administration groups current platform-owner tools. No product role or tenant entitlement is inferred from menu visibility.
+
+On smaller screens the menu opens downwards below the header. It is a nonmodal disclosure, not a side drawer: ordinary Tab navigation remains available, Escape closes the current dropdown or expanded mobile menu and returns focus to its opener. Enter/Space use native summary behavior; arrow keys/Home/End move through dropdown links. Clicking outside closes menus. Only one dropdown is open at a time. Current pages mark their exact link and parent section.
+
+Old `vsph.sidebar.collapsed` storage is ignored, so an old icon-rail preference cannot bring the sidebar back. The first-paint Applications/Overview distinction is preserved using a same-origin external script. CSP now uses `script-src 'self'` without an inline prepaint exception.
+
+## Permissions and regression checks
+
+Server authentication and route/API authorization are unchanged. Current HR capabilities are read from `/api/hrms/access`; a failed lookup shows a retry control and does not invent permission. Customer accounts cannot obtain internal HR/owner tools by opening a dropdown or guessing URLs. Profile edits, search and sign out retain their existing server APIs and privacy boundaries.
+
+Chromium acceptance covers 15 routes on desktop/mobile, full-width content, ignored legacy rail preferences, repeated mobile open/close, real People/Administration/Profile navigation, keyboard focus, sign out with an independently created session and existing cross-role/product/tenant denials. Screenshots are attached to browser CI. Native PostgreSQL, Node, syntax/lint/format/coverage, dependency, migration and synthetic restore checks remain required.
+
+No migration, account, provider, credential or hosting change is required. Rollback is an application-source revert; durable records are unaffected.
+
+## Local acceptance
+
+Pull main, run `npm ci`, `npm test`, `npm run check`, `npm run lint`, `npm run format:check` and `npm run dev`. Refresh with Ctrl+F5. Check Dashboard, Applications, Projects, People, Administration and Your profile. At 390px and 320px verify the menu opens below the header, no side rail returns and controls remain reachable. Recheck HR/employee/customer menus and direct URL denials. Open the account menu, follow Your profile and use Sign out.

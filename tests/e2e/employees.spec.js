@@ -8,10 +8,11 @@ test('owner onboards internal staff, sees persisted metrics, filters and cannot 
  page.on('dialog',dialog=>dialog.accept());
  await page.goto('/dashboard');
  if(info.project.name==='desktop'){
+  await page.locator('#peopleNavigation>summary').click();
   await expect(page.getByRole('link',{name:'Employee management'})).toBeVisible();
   await page.getByRole('link',{name:'New employee'}).click();
  } else {
-  // The compact/mobile sidebar is collapsed by default; direct protected route
+  // The mobile top menu is closed by default; direct protected route
   // navigation tests the same server-side access boundary without expanding it.
   await page.goto('/employees/onboarding');
  }

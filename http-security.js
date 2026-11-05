@@ -1,11 +1,5 @@
 const crypto = require('node:crypto');
-const fs = require('node:fs');
-const path = require('node:path');
-// Preserve the reviewed pre-paint sidebar preference without allowing arbitrary inline scripts.
-const dashboard = fs.readFileSync(path.join(__dirname, 'public/dashboard.html'), 'utf8');
-const hashes = [...dashboard.matchAll(/<script>([\s\S]*?)<\/script>/g)]
-  .map(match => "'sha256-" + crypto.createHash('sha256').update(match[1]).digest('base64') + "'");
-const csp = ["default-src 'self'", "script-src 'self' " + hashes.join(' '),
+const csp = ["default-src 'self'", "script-src 'self'",
   "style-src 'self' 'unsafe-inline'", "font-src 'self'",
   "img-src 'self' data:", "connect-src 'self'", "object-src 'none'", "base-uri 'none'",
   "frame-ancestors 'none'", "form-action 'self'"].join('; ');

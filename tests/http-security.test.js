@@ -2,23 +2,20 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const express=require('express');
 const {once}=require('node:events');
-const crypto=require('node:crypto');
-const fs=require('node:fs');
 const {securityHeaders,trustProxy,rateLimit,safeError}=require('../http-security');
 async function run(app,fn){const server=app.listen(0,'127.0.0.1');try{await once(server,'listening');await fn('http://127.0.0.1:'+server.address().port)}finally{await new Promise(r=>server.close(r))}}
 test('proxy trust is explicit and refuses hop counts / blanket trust',()=>{
  assert.equal(trustProxy(''),false);assert.deepEqual(trustProxy('loopback,10.0.0.0/8'),['loopback','10.0.0.0/8']);
  for(const value of ['true','1','false',' 2 '])assert.throws(()=>trustProxy(value),/TRUST_PROXY/);
 });
-test('headers protect login and all API errors; CSP permits only reviewed inline prepaint',async()=>{
+test('headers protect login and all API errors; CSP allows only same-origin external scripts',async()=>{
  const app=require('../server');await run(app,async origin=>{
   for(const route of ['/login','/api/auth/me','/api/workspaces']){
    const r=await fetch(origin+route);assert.equal(r.headers.get('x-frame-options'),'DENY');
    assert.equal(r.headers.get('referrer-policy'),'no-referrer');assert.equal(r.headers.get('x-content-type-options'),'nosniff');
    assert.match(r.headers.get('x-request-id'),/^[0-9a-f-]{36}$/);
    const csp=r.headers.get('content-security-policy');assert.match(csp,/frame-ancestors 'none'/);
-   const inline=fs.readFileSync('public/dashboard.html','utf8').match(/<script>([\s\S]*?)<\/script>/)[1];
-   assert.ok(csp.includes('sha256-'+crypto.createHash('sha256').update(inline).digest('base64')));
+   assert.equal(csp.split(';').find(s=>s.trim().startsWith('script-src')).trim(),"script-src 'self'");
    assert.doesNotMatch(csp.split(';').find(s=>s.trim().startsWith('script-src')),/unsafe-inline|unsafe-eval/);
    if(route.startsWith('/api'))assert.equal(r.headers.get('cache-control'),'no-store');
   }

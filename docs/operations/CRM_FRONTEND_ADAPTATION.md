@@ -1,3 +1,5 @@
+> **Current navigation:** the later user instruction replaces the sidebar with [horizontal top navigation](TOP_NAVIGATION.md). Sidebar/collapse details below describe the previous implementation. Role boundaries and account-testing limits still apply.
+
 # CRM frontend adaptation
 
 Source: [hrithik41/CRM](https://github.com/hrithik41/CRM), commit `43f1509dae60a5156837618fb5b726ec05b56946`, inspected at the user's direction as their boss's frontend. The classic Navbar, V2 sidebar, login split and shared input/table styles were read and compared at that pinned commit. The source also includes placeholder screens and browser-local user state; these are not security or backend implementations to transplant.

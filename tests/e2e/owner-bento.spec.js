@@ -37,7 +37,7 @@ test('VSPH bento charts, product selection and attention use authorized persiste
  await expect(page.locator('#mainContent')).toBeFocused();
  await page.getByRole('heading',{name:'Company overview',exact:true}).click();
  await page.evaluate(()=>{document.activeElement.blur();window.scrollTo({top:0,behavior:'instant'});});
- if(info.project.name==='desktop')await expect(page.locator('.wordmark-full')).toBeVisible();
+ if(info.project.name==='desktop')await expect(page.getByRole('link',{name:'VSPH home',exact:true})).toBeVisible();
  await info.attach('owner-bento-'+info.project.name,{body:await page.screenshot({fullPage:true}),contentType:'image/png'});
  await page.reload();await expect(page.locator('#ownerUpcomingMilestones')).toContainText(label);
  await expect(page.locator('#ownerCashChart')).toHaveAttribute('aria-label',/collected across 6 calendar months/);

@@ -4,22 +4,21 @@ const root=path.resolve(__dirname,'..');
 const allowed=new Set(['dashboard.html','admin.html','app-home.html'].map(f=>path.join(root,'public',f)).concat(['auth','account-profile','customers','employee-identity','employee-onboarding','employees','finance-journal','finance','hr-access','hr-workspace','my-work','onboarding','organizations','products','projects','provisioning','search','sso-launch'].map(f=>path.join(root,'views',f+'.html'))));
 const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const prepaint='<script src="/portal-prepaint.js"></script>';
-let template;
+let templates;
 async function render(html,user,notice){
- template??=await fs.readFile(path.join(root,'views/partials/portal-sidebar.html'),'utf8');
- let side=template.match(/<aside[\s\S]*<\/aside>/)[0],icons=template.match(/<svg class="icon-library"[\s\S]*?<\/svg>/)[0];
- side=side.replace('Your account',()=>escape(user.full_name||'Your account')).replace('Loading account',user.platform_role==='super_admin'?'Platform owner':'Workspace member');
- if(user.platform_role==='super_admin')side=side.replace('id="adminNavContainer" hidden','id="adminNavContainer"').replace('id="employeeNavContainer" hidden','id="employeeNavContainer"').replace(/(id="hrGovernanceNav"[^>]*?) hidden/,'$1');
+ templates??=await Promise.all(['portal-icons.html','portal-navigation.html'].map(file=>fs.readFile(path.join(root,'views/partials',file),'utf8')));
+ const icons=templates[0];let navigation=templates[1];
+ if(user.platform_role==='super_admin')navigation=navigation.replace('id="adminNavContainer" class="portal-disclosure" hidden','id="adminNavContainer" class="portal-disclosure"').replace('id="peopleNavigation" class="portal-disclosure" hidden','id="peopleNavigation" class="portal-disclosure"').replace('id="employeeNavContainer" hidden','id="employeeNavContainer"').replace(/(id="hrGovernanceNav"[^>]*?) hidden/,'$1').replace(/(id="topbarOnboard"[^>]*?) hidden/,'$1');
  // Existing main content and module scripts retain their identity and state.
- if(html.includes('<!-- portal:sidebar -->')){
-  html=html.replace('<!-- portal:sidebar -->',()=>side).replace('<!-- portal:icons -->',()=>icons);
+ if(html.includes('<!-- portal:shell -->')){
+  html=html.replace('<!-- portal:shell -->','').replace('<!-- portal:icons -->',()=>icons);
  }else{
-  const header='<header class="workspace-topbar"><div class="mobile-brand"><button id="openMenu" class="icon-button" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="workspaceSidebar"><svg class="icon" aria-hidden="true"><use href="#icon-menu"></use></svg></button><span>VSPH</span></div><div class="topbar-context">CONTROL CENTER</div><span id="topAccount" class="topbar-account">'+escape(user.full_name||'Your account')+'</span></header>';
-  // The old admin sign-out control is replaced by the common footer control.
+  const header='<header class="workspace-topbar"></header>';
+  // The old admin sign-out control is replaced by the common header control.
   if(/<title>Administration/.test(html))html=html.replace(/<button[^>]*id="logoutButton"[\s\S]*?<\/button>/,'');
-  html=html.replace(/(<body\b[^>]*>)/,match=>match+icons+'<a class="skip-link" href="#portalContent">Skip to content</a><div class="workspace-shell"><button id="navBackdrop" class="nav-backdrop" type="button" aria-label="Close navigation" hidden></button>'+side+'<div class="workspace-main">'+header+'<div id="portalContent" tabindex="-1">').replace('</body>','</div></div></div></body>');
+  html=html.replace(/(<body\b[^>]*>)/,match=>match+icons+'<a class="skip-link" href="#portalContent">Skip to content</a><div class="workspace-shell"><div class="workspace-main">'+header+'<div id="portalContent" tabindex="-1">').replace('</body>','</div></div></div></body>');
  }
- html=html.replace(/<header class="workspace-topbar"[\s\S]*?<\/header>/,()=>workspaceHeader(user,escape));
+ html=html.replace(/<header class="workspace-topbar"[\s\S]*?<\/header>/,()=>workspaceHeader(user,escape,navigation));
  html=html.replace(/<body\b([^>]*)>/,(_m,attrs)=>'<body'+attrs+' data-portal-shell="true" data-portal-owner="'+(user.platform_role==='super_admin')+'">');
  if(notice)html=html.replace(/(<div class="workspace-main"[^>]*>)/,match=>match+'<div class="portal-environment-notice" role="note">'+escape(notice)+'</div>');
  return html.replace('</head>',prepaint+'<link rel="stylesheet" href="/portal-navigation.css"><link rel="stylesheet" href="/crm-workspace.css"><script defer src="/portal-navigation.js"></script><script defer src="/workspace-search.js"></script></head>');

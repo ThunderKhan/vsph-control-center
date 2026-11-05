@@ -8,7 +8,7 @@ const root = path.join(__dirname, '..');
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 
 test('Overview and Applications use distinct protected routes and separate views', () => {
-  const html = read('public/dashboard.html')+read('views/partials/portal-sidebar.html');
+  const html = read('public/dashboard.html')+read('views/partials/portal-navigation.html');
   const server = read('server.js');
   const js = read('public/dashboard.js');
   for(const route of ["'/dashboard'","'/applications'","'/admin'"]) {
@@ -24,8 +24,8 @@ test('Overview and Applications use distinct protected routes and separate views
   assert.match(html, /href="\/dashboard"/);
   assert.match(html, /href="\/applications"/);
   assert.match(html, /href="\/admin"/);
-  assert.match(html, /id="topbarOnboard" class="topbar-onboard" href="\/admin\/onboarding" hidden/);
-  assert.match(html, /class="sidebar-link" href="\/admin\/onboarding"/);
+  assert.match(html, /id="topbarOnboard"[^>]*hidden/);
+  assert.match(html, /class="portal-link" href="\/admin\/onboarding"/);
   assert.match(js, /location.pathname/);
   assert.match(js, /renderAccessOverview/);
   assert.match(js, /\/contexts/);

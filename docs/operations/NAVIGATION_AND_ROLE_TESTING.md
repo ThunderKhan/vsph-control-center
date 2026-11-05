@@ -1,3 +1,5 @@
+> **Current navigation:** the later user instruction replaces the sidebar with [horizontal top navigation](TOP_NAVIGATION.md). Sidebar/collapse details below describe the previous implementation. Role boundaries and account-testing limits still apply.
+
 # Portal navigation and isolated role acceptance
 
 The authenticated portal uses one sidebar template (`views/partials/portal-sidebar.html`), one server renderer (`services/portal-page.js`) and one navigation controller (`public/portal-navigation.js`). The renderer decorates only reviewed HTML paths after existing route authentication/authorization; APIs, assets, anonymous login and invitation pages are unchanged. Current identity text is escaped. It does not grant permissions or cache authorization. Module HTML/content is preserved. Dashboard and Projects no longer own competing sidebar controllers.
