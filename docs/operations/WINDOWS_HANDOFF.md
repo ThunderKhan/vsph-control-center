@@ -248,3 +248,27 @@ npm run dev
 For the separate, disposable role-testing workspace, open another PowerShell terminal in the repository and run `npm run demo:local`, then open **http://127.0.0.1:3001/login**. Use the [exact role logins and manual acceptance workflow](NAVIGATION_AND_ROLE_TESTING.md). This is independent of normal localhost:3000 and uses simulated Auth; it creates no hosted users, sends no email and needs no Docker, AWS or paid resource. Ctrl+C removes its temporary database; page reloads within the running workspace preserve saved work. Do not run the legacy seed or reset.
 
 Additional verified commands: `npm run lint`, `npm run format:check`, `npm run test:coverage`, `npm run check:migrations`, `npm run test:db:local`, `npm run test:demo`, `npx playwright install chromium`, and `npm run test:e2e:db`. Run native helpers as an ordinary OS user. No standalone TypeScript typecheck script exists; `check` validates JavaScript syntax. Current CI: 162 Node, 44 PostgreSQL, one interactive smoke and 68 Chromium passed/two intentional skips per launcher; production audit clean, six moderate development findings unchanged.
+
+## HR appointment repair — 5 November 2026
+
+PR #79 removes the misleading direct grant path. Pull main and restart the server; no migration, seed or reset is needed for this repair.
+
+```powershell
+cd D:\Projects\vsph-control-center
+git switch main
+git pull --ff-only origin main
+npm ci
+npm test
+npm run check
+npm run lint
+npm run format:check
+npm run check:migrations
+npm run test:coverage
+npm run dev
+```
+
+For isolated PostgreSQL/Chromium, use the native helper commands and prerequisites documented above (`npm run test:db:local`, `npx playwright install chromium`, `npm run test:e2e:db`). They use disposable local data, not the hosted project.
+
+Owner: open Employees, search the employee, select **Review HR access**. Check the reported prerequisite. A roster with no matching account must not show an enabled grant or consent-request control. For an existing ordinary active account: request consent, log in separately as that employee, accept in **My employment** with password/MFA, then refresh as owner and grant. Verify HR cannot appoint HR, customer cannot open HR, staff cannot see another employee's records, and revocation removes HR access on the next request. Check row buttons remain separated at desktop/mobile sizes and the sidebar can collapse, expand and navigate throughout.
+
+The reported `ayan@vsph.test` has no hosted Auth identity/profile or accepted link at investigation time. Enrollment is still required; pulling this fix does not manufacture a login or accept consent. [Detailed diagnosis and limits](HR_ACCESS_TROUBLESHOOTING.md).
