@@ -1,3 +1,9 @@
+## Normal-portal setup recovery — 5 November 2026
+
+Verified baseline main `107d78b4cc19124f6569ea0a14ae1501a2b16f5a` (merged [PR #82](https://github.com/ThunderKhan/vsph-control-center/pull/82)), no open PRs. CRM adaptation accepted with 168 Node, 45 native PostgreSQL and 70 Chromium passed plus two intentional skips on both launchers; exact tested tree `102c14d1843ba503757ad566e7b1343ba97cc3e9`. Desktop/mobile screenshots inspected and login spacing/profile heading issues corrected before merge.
+
+Continuing the real-account workflow: explicit owner/authenticator selection, safe stage-specific diagnostics, bounded provider fetches, owner-bound private state, interruption handling, success after cleanup, strict calendar validation and versioned recovery of the same expired/stale consent request. Cancelled/revoked consent remains a manual governance boundary; fresh verification timestamps cannot be extended by later network delays. No schema, hosted data, provider credentials or frontend changes. Local Node tests: 172 pass; extended native expiry/roster-change/revocation acceptance is required in CI. Hosted Auth account creation still cannot be executed from this session; the configured Windows operator runs the documented command.
+
 ## CRM frontend adaptation and real account setup — 5 November 2026
 
 [PR #81](https://github.com/ThunderKhan/vsph-control-center/pull/81) merged as `3e9a7ad64e70582d6b8930b3f429811c2c98c4cd` after all four CI jobs passed: 167 Node, 45 native database cases, 68 Chromium passed with two intentional skips on each launcher, quality/dependency/advisor/restore and disposable helpers. `npm run accounts:setup -- --project-ref zbmerhexucqxazuxjmmw` operates on real Auth through the existing local `.env`; existing owner/password is preserved and HR, employee and basic customer receive private random credentials. Hosted execution is unavailable here and is not claimed.
