@@ -184,3 +184,7 @@ The operator-only command creates real hosted identities and scoped test records
 ## CRM frontend port boundary
 
 The user-authorized source has multiple UI versions and browser-local identity state. Adapted layout/styles only, with VSPH server sessions, permission checks and live data retained. Header search queries only existing project ACL-backed records; source placeholder modules, counters and unsupported operations are excluded. CSP remains external-script-only and all names/search results render escaped text. Real hosted role-account execution is still gated by access to the operator's configured server, not by the chosen port.
+
+## Role setup failure and retry boundaries
+
+Previously all CLI errors were suppressed into one message and multiple owners blocked selection. Safe typed diagnostics now identify the stage without printing raw dependency data; explicit owner/MFA-factor selection preserves fresh verification. Existing-run consent renewal uses current SQL versions, refuses cancelled/revoked consent and retains the actual verification timestamp. Requests are bounded and refuse redirects. No hosted account provisioning has been performed in this session; access to the configured operator environment remains the live execution gate.

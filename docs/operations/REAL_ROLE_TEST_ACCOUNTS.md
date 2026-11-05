@@ -19,3 +19,17 @@ Native integration tests cover partial provider failure/retry, duplicate prevent
 ## Execution boundary
 
 The connected Supabase management tools expose SQL but no Auth-admin user creation. This Work session has no access to the server key in the operator's Windows `.env`. Therefore the hosted accounts cannot be honestly reported as created here. The command performs that authorized action on the machine which already holds the server configuration, without transmitting its secrets. Review the private output rather than sharing passwords or `.env` contents in chat.
+
+## Owner selection and recovery
+
+If multiple active platform owners exist, select the account whose password you know:
+
+```powershell
+npm run accounts:setup -- --project-ref zbmerhexucqxazuxjmmw --owner-email "your-existing-owner@example.com"
+```
+
+Replace the example email with your actual portal-owner login. Existing accounts/passwords are never changed by selection. If the owner has several enrolled authenticators, setup lists their IDs/names and stops; rerun with `--factor-id UUID` for one listed authenticator. Password and TOTP entry remain hidden. `npm run accounts:setup -- --help` works without credentials or an interactive terminal.
+
+Failures now identify the stage and safe recovery instruction. Raw dependency errors, SQL details and credentials are never printed. Requests time out after 15 seconds per attempt and refuse redirects; any SDK retries receive the same per-attempt deadline. Provider failure still requires reuse of the same protected private state. New state binds to the selected owner; old state is bound only after its server-owned Auth markers have been validated successfully. A lock error never deletes another process's lock automatically.
+
+An expired or roster-stale pending consent from the exact same setup run is renewed through the existing owner/session/version-checked SQL workflow, then accepted only after fresh provider verification. Cancelled or previously revoked consent requires governance review and is not automatically overridden. Verification time is captured immediately after the provider check, so later network delays cannot manufacture fresh assurance. Success is printed only after temporary-session and lock cleanup completes.
