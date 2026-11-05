@@ -19,6 +19,6 @@ async function reviewHrAccess(database,req,review=null){
   consent_required:'Request an account link below. The employee must sign in to their own account and accept it in My employment before the owner can grant HR.',
   ready:'The employee is active and an account link has been accepted. The platform owner can now grant HR; the database rechecks eligibility when saving.'
  }[state];
- return {state,message,canGrant:state==='ready',canRequest:profiles.length>0&&['active','onboarding'].includes(employee.status)&&current.link?.status!=='linked'&&!pending};
+ return {rosterVersion:employee.version,state,message,canGrant:state==='ready',canRequest:profiles.length>0&&['active','onboarding'].includes(employee.status)&&current.link?.status!=='linked'&&!pending};
 }
 module.exports={reviewHrAccess};

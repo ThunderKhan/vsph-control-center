@@ -74,7 +74,7 @@
    const position=document.createElement('td');position.append(text('strong',employee.department),text('small',employee.job_title));
    const type=text('td',label[employee.employment_type]||employee.employment_type);
    const status=document.createElement('td'),pill=text('span',label[employee.status]||employee.status,'people-status');pill.dataset.state=employee.status;status.append(pill);
-   const access=text('td',employee.is_hr?'HR manager':'Roster only');
+   const access=text('td',employee.is_hr?'HR manager':'No HR authority');
    const actions=document.createElement('td'),group=text('div','','people-actions');actions.append(group);
    const canEdit=role==='owner'||!employee.is_hr;
    if(canEdit){group.append(makeButton('Edit',()=>edit(employee)));const a=text('a',role==='owner'&&!employee.is_hr?'Review HR access':'Account link','people-secondary');a.href='/employees/'+employee.id+'/account-link';group.append(a);}

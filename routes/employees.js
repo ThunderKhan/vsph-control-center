@@ -88,6 +88,7 @@ for(const action of ['grant_hr','revoke_hr']){
   // HR grant RPC when consent/schema is missing. Revocation stays available.
   if(action==='grant_hr'){
    const readiness=await reviewHrAccess(db(),req);
+   if(readiness.rosterVersion!==fields.version){const error=Error('Roster changed.');error.code='40001';throw error;}
    if(!readiness.canGrant)invalid(readiness.message);
    return db().rpc('internal_employee_identity',{p_actor:req.user.id,p_action:'grant_hr',p_id:req.params.id,p_data:{rosterVersion:fields.version,confirmed:true,currentHash:req.portalSession.token_hash}}).then(check);
   }
