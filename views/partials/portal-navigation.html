@@ -1,0 +1,32 @@
+<nav id="workspaceNavigation" class="portal-navigation" aria-label="Main">
+ <a class="portal-link" href="/dashboard" aria-label="Overview">Overview</a>
+ <a class="portal-link" href="/applications" aria-label="Applications">Applications</a>
+ <a class="portal-link" href="/projects" aria-label="Projects">Projects</a>
+ <a class="portal-link" href="/search" aria-label="Search work">Search work</a>
+ <a class="portal-link" href="/organizations" aria-label="My organizations">My organizations</a>
+ <details id="peopleNavigation" class="portal-disclosure" hidden>
+  <summary>People <span aria-hidden="true" class="nav-chevron"></span></summary>
+  <div class="portal-dropdown">
+   <a class="portal-link" id="myWorkNav" href="/my-work" aria-label="My work" hidden>My work</a>
+   <a class="portal-link" data-nav="employment" href="/employment" aria-label="My employment" hidden>My employment</a>
+   <div id="employeeNavContainer" hidden>
+    <a class="portal-link" href="/hr" aria-label="HR workspace">HR workspace</a>
+    <a class="portal-link" id="hrGovernanceNav" href="/hr/access" aria-label="HR access" hidden>HR access</a>
+    <a class="portal-link" href="/employees" aria-label="Employee management">Employees</a>
+    <a class="portal-link" href="/employees/onboarding" aria-label="New employee">New employee</a>
+   </div>
+  </div>
+ </details>
+ <details id="adminNavContainer" class="portal-disclosure" hidden>
+  <summary>Administration <span aria-hidden="true" class="nav-chevron"></span></summary>
+  <div class="portal-dropdown">
+   <a class="portal-link" href="/admin/customers" aria-label="Customers">Customers</a>
+   <a class="portal-link" href="/admin/products" aria-label="Product registry">Product registry</a>
+   <a class="portal-link" href="/admin/provisioning" aria-label="Provisioning recovery">Provisioning recovery</a>
+   <a class="portal-link" href="/admin/finance" aria-label="Finance">Finance</a>
+   <a class="portal-link" href="/admin/finance/journal" aria-label="Finance journal">Finance journal</a>
+   <a class="portal-link" id="adminNav" href="/admin" aria-label="Platform administration">Platform administration</a>
+   <a class="portal-link" href="/admin/onboarding" id="topbarOnboard" aria-label="New customer" hidden>New customer</a>
+  </div>
+ </details>
+</nav>

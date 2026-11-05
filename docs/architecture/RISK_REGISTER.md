@@ -188,3 +188,7 @@ The user-authorized source has multiple UI versions and browser-local identity s
 ## Role setup failure and retry boundaries
 
 Previously all CLI errors were suppressed into one message and multiple owners blocked selection. Safe typed diagnostics now identify the stage without printing raw dependency data; explicit owner/MFA-factor selection preserves fresh verification. Existing-run consent renewal uses current SQL versions, refuses cancelled/revoked consent and retains the actual verification timestamp. Requests are bounded and refuse redirects. No hosted account provisioning has been performed in this session; access to the configured operator environment remains the live execution gate.
+
+## Horizontal navigation permission boundary
+
+Top menus replace the retired icon rail at the user's instruction. They are presentation only; current server route/API checks remain authoritative. Old storage cannot reserve a sidebar column. Capability lookup failure remains visible with retry, keyboard/mobile navigation uses native disclosures, and inline prepaint is replaced by an external script under stricter CSP. No schema or account change is involved.

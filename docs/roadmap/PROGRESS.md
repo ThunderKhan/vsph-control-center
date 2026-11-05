@@ -1,3 +1,7 @@
+## Horizontal top navigation — 5 November 2026
+
+Baseline verified main `94b01b555c240c9e61735b92ea1c7a98bf65ff1a` ([PR #83](https://github.com/ThunderKhan/vsph-control-center/pull/83)), no open PRs. The user's latest instruction supersedes sidebar/collapse requirements. Replaced the side rail with full-width CRM-style top navigation, native People/Administration/account dropdowns and a downward-opening mobile menu. Existing dashboard content, search, profile, sign out and server permissions are preserved. Legacy collapse storage is ignored; inline prepaint is removed and CSP tightened to same-origin external scripts. No migration or hosted mutation. See [top navigation behavior and acceptance](../operations/TOP_NAVIGATION.md). Local Node tests pass; full native/browser CI is required before merging this presentation change.
+
 ## Normal-portal setup recovery — 5 November 2026
 
 Verified baseline main `107d78b4cc19124f6569ea0a14ae1501a2b16f5a` (merged [PR #82](https://github.com/ThunderKhan/vsph-control-center/pull/82)), no open PRs. CRM adaptation accepted with 168 Node, 45 native PostgreSQL and 70 Chromium passed plus two intentional skips on both launchers; exact tested tree `102c14d1843ba503757ad566e7b1343ba97cc3e9`. Desktop/mobile screenshots inspected and login spacing/profile heading issues corrected before merge.

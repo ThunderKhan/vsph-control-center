@@ -1,4 +1,4 @@
-// Parser-blocking same-origin script: restore layout before body paint without
-// expanding CSP to allow arbitrary inline code.
-try { document.documentElement.dataset.sidebarState=localStorage.getItem('vsph.sidebar.collapsed')==='true'?'collapsed':'expanded'; }
-catch { document.documentElement.dataset.sidebarState='expanded'; }
+// Preserve the applications/overview first paint. Side-rail preferences no longer
+// control layout: every authenticated page now uses horizontal top navigation.
+document.documentElement.dataset.workspaceView=['/applications','/applications/'].includes(location.pathname)?'applications':'overview';
+delete document.documentElement.dataset.sidebarState;
