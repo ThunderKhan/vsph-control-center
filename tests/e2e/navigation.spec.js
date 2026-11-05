@@ -45,6 +45,6 @@ test('top dropdown links navigate to real pages and logout revokes a separate se
  await page.locator('#peopleNavigation>summary').click();await page.getByRole('link',{name:'New employee',exact:true}).click();await expect(page).toHaveURL(/\/employees\/onboarding$/);
  if(info.project.name==='mobile')await page.getByRole('button',{name:'Open navigation',exact:true}).click();
  await page.locator('#adminNavContainer>summary').click();await page.getByRole('link',{name:'Customers',exact:true}).click();await expect(page).toHaveURL(/\/admin\/customers$/);
- await page.getByRole('button',{name:'Account menu',exact:true}).click();await page.getByRole('link',{name:'Open account profile',exact:true}).click();await expect(page).toHaveURL(/\/account\/profile$/);
+ await page.locator('.portal-account>summary[aria-label="Account menu"]').click();await page.getByRole('link',{name:'Open account profile',exact:true}).click();await expect(page).toHaveURL(/\/account\/profile$/);
  await page.getByRole('button',{name:'Sign out',exact:true}).click();await expect(page).toHaveURL(/\/login$/);expect((await context.request.get('/api/auth/me')).status()).toBe(401);
 });

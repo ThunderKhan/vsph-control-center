@@ -6,12 +6,6 @@
   <meta name="theme-color" content="#00255A">
   <title>Projects | VSPH Control Center</title>
   <link rel="stylesheet" href="/dashboard.css"><link rel="stylesheet" href="/projects.css">
-  <script>
-    document.documentElement.dataset.workspaceView = ['/applications','/applications/'].includes(location.pathname) ? 'applications' : 'overview';
-    // Apply the previous desktop preference before paint so the layout does not jump.
-    try { document.documentElement.dataset.sidebarState = localStorage.getItem('vsph.sidebar.collapsed') === 'true' ? 'collapsed' : 'expanded'; }
-    catch { document.documentElement.dataset.sidebarState = 'expanded'; }
-  </script>
 </head>
 <body class="workspace-body">
   <!-- portal:icons -->
@@ -19,23 +13,10 @@
   <a class="skip-link" href="#mainContent">Skip to content</a>
 
   <div class="workspace-shell">
-    <button id="navBackdrop" class="nav-backdrop" type="button" aria-label="Close navigation" hidden></button>
-    <!-- portal:sidebar -->
+    <!-- portal:shell -->
 
     <div class="workspace-main" id="mainContent">
-      <header class="workspace-topbar">
-        <div class="mobile-brand">
-          <button id="openMenu" type="button" class="icon-button" aria-label="Open navigation" aria-expanded="false" aria-controls="workspaceSidebar">
-            <svg class="icon"><use href="#icon-menu"></use></svg>
-          </button>
-          <span>VSPH</span>
-        </div>
-        <div class="topbar-context">CONTROL CENTER <span class="topbar-divider"></span> WORKSPACE</div>
-        <div class="topbar-actions">
-          <a id="topbarOnboard" class="topbar-onboard" href="/admin/onboarding" hidden>New customer</a>
-          <span class="topbar-account"><span class="topbar-account-dot"></span><span id="topAccount">Account</span></span>
-        </div>
-      </header>
+      <header class="workspace-topbar"></header>
 
       <main class="workspace-content project-workspace">
         <p class="section-kicker">WORKSPACE / PROJECTS</p>

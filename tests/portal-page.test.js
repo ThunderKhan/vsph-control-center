@@ -2,7 +2,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 test('every portal page receives exactly one shared top navigation without losing module content',async()=>{
  for(const file of ['public/dashboard.html','views/projects.html','public/admin.html','views/hr-workspace.html','views/my-work.html','views/onboarding.html','views/account-profile.html']){
   const html=await render(await fs.readFile(file,'utf8'),{full_name:'Owner',platform_role:'super_admin'});
-  assert.equal((html.match(/id="workspaceNavigation"/g)||[]).length,1,file);assert.equal((html.match(/id="logoutButton"/g)||[]).length,1,file);assert.match(html,/\/portal-navigation.js/);assert.match(html,/aria-controls="workspaceNavigation"/);assert.match(html,/href="\/hr\/access"/);assert.match(html,/<main\b/);
+  assert.equal((html.match(/id="workspaceNavigation"/g)||[]).length,1,file);assert.equal((html.match(/id="logoutButton"/g)||[]).length,1,file);assert.match(html,/\/portal-navigation.js/);assert.match(html,/aria-controls="workspaceNavigation"/);assert.match(html,/href="\/hr\/access"/);assert.match(html,/<main\b/);assert.equal((html.match(/class="workspace-main"/g)||[]).length,1,file);assert.equal((html.match(/id="openMenu"/g)||[]).length,1,file);assert.doesNotMatch(html,/portal:sidebar|id="navBackdrop"|<script>/,file);
  }
 });
 test('rendered identity and notices cannot inject HTML and non-owner links start hidden',async()=>{
