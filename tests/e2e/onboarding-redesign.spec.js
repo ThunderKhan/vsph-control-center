@@ -9,7 +9,7 @@ async function fillWizard(page,email){
  await page.locator('[name=fullName]').fill('Avery Shah');
  await page.locator('[name=email]').fill(email);
  await page.locator('#staffNext').click();
- await page.locator('[name=department]').fill('Engineering');
+ await page.locator('[name=department]').selectOption('Engineering');
  await page.locator('[name=jobTitle]').fill('Software Developer');
  await page.locator('[name=employmentType]').selectOption('intern');
  await page.locator('[name=startDate]').fill('2026-11-06');
