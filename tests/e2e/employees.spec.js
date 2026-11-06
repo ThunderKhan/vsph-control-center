@@ -48,6 +48,7 @@ test('owner onboards internal staff, sees persisted metrics, filters and cannot 
  await expect(page.locator('#createdEmployeeEmail')).toHaveText(email);
  await expect(page.locator('#copyEmployeeHandoffLabel')).toHaveText('Copy invitation link');
  await page.getByRole('link',{name:'Manage access'}).click();
+ await page.getByRole('dialog').getByRole('button',{name:'Leave page'}).click();
  await expect(page).toHaveURL(/\/employees\/[^/]+\/account-link$/);
  await page.goto('/employees');
  await expect(page.locator('#employeeRows')).toContainText(email);
