@@ -52,7 +52,7 @@
      <fieldset class="employee-access-options" aria-labelledby="employeeAccessLegend">
       <legend id="employeeAccessLegend">Employee login method</legend>
       <label class="employee-access-choice"><input type="radio" name="accessMethod" value="invite" checked><span><strong>Create invitation link · Recommended</strong><small>Employee receives a private single-use link and chooses their own password. Copy the link after creation.</small></span></label>
-      <label class="employee-access-choice"><input type="radio" name="accessMethod" value="email"><span><strong>Email invitation link</strong><small>Submit the new invitation to a configured provider. You'll receive a private backup link; provider acceptance does not guarantee inbox delivery.</small></span></label>
+      <label class="employee-access-choice"><input type="radio" name="accessMethod" value="email" id="employeeEmailOption" disabled><span><strong>Email invitation link</strong><small id="employeeEmailHint">Checking configured email delivery. Private invitation links remain available without email.</small></span></label>
       <label class="employee-access-choice"><input type="radio" name="accessMethod" value="temporary"><span><strong>Create temporary credentials</strong><small>Receive a one-time generated password for a private handoff. The employee must replace it at first sign-in.</small></span></label>
       <label class="employee-access-choice"><input type="radio" name="accessMethod" value="roster"><span><strong>Save employee roster only</strong><small>Do not create a login yet. Set up access later from the employee's Account link page.</small></span></label>
      </fieldset>

@@ -1,5 +1,5 @@
 const express=require('express'),path=require('node:path');
-const {db}=require('../db'),{portalSession}=require('../security'),{uuid,rpcRoute}=require('../services/rpc'),{rateLimit}=require('../http-security');
+const {db,check}=require('../db'),{portalSession}=require('../security'),{uuid,rpcRoute}=require('../services/rpc'),{rateLimit}=require('../http-security');
 const enrollment=require('../services/employee-enrollment');
 const mail=require('../services/employee-invitation-email');
 const router=express.Router();
@@ -31,6 +31,12 @@ async function issueWithDelivery(req,res,options){
    'The invitation was created but the email provider did not accept it. Copy the private link or explicitly reissue later.'}};
 }
 
+// Email readiness never exposes a provider URL, token, or any employee data.
+router.get('/delivery',portalSession,route(async req=>{
+ if(Object.keys(req.query).length)invalid();
+ check(await db().rpc('internal_employee_command',{p_actor:req.user.id,p_action:'access',p_id:null,p_data:{}}));
+ return {emailConfigured:mail.isConfigured()};
+}));
 router.get('/employees/:id',portalSession,route(async req=>{
  if(!uuid(req.params.id)||Object.keys(req.query).length)invalid();
  const review=await enrollment.command(db(),req.user.id,'review',req.params.id,{currentHash:req.portalSession.token_hash});

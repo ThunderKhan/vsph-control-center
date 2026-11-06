@@ -108,6 +108,21 @@
  form.addEventListener('submit',event=>{event.preventDefault();if(step===2)submit();else $('staffNext').click();});
  form.addEventListener('input',()=>{if(!busy)error('');});
  form.addEventListener('change',()=>{if(!busy&&step===2)$('staffNext').textContent=submitTitle();});
+ // Prevent selecting provider delivery before server-side configuration is known.
+ async function checkEmailAvailability(){
+  const option=$('employeeEmailOption'),hint=$('employeeEmailHint');
+  try{
+   const response=await fetch('/api/employee-enrollment/delivery',{credentials:'same-origin',cache:'no-store'});
+   const data=await response.json().catch(()=>({}));
+   option.disabled=!(response.ok&&data.emailConfigured===true);
+   hint.textContent=option.disabled?
+    'Email delivery is not configured. Use the private invitation link and configure an approved sender to email a reissued invitation later.':
+    'Submit this invitation to the configured email provider. A backup link will also be shown; inbox delivery is not guaranteed.';
+  }catch{
+   option.disabled=true;hint.textContent='Email delivery readiness could not be verified. Use the private invitation link.';
+  }
+ }
+ checkEmailAvailability();
  $('copyEmployeeHandoff').addEventListener('click',async()=>{
   const field=$('employeeHandoffValue');
   try{await navigator.clipboard.writeText(field.value);$('onboardDeliveryStatus').textContent='Private handoff copied. Deliver it only to the named employee.';}
