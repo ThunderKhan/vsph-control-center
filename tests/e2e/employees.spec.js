@@ -32,7 +32,7 @@ test('owner onboards internal staff, sees persisted metrics, filters and cannot 
  await page.locator('input[name=fullName]').fill('E2E Sample Employee');
  await page.locator('input[name=email]').fill(email);
  await page.locator('#staffNext').click();
- await page.locator('input[name=department]').fill('Engineering');
+ await page.locator('select[name=department]').selectOption('Engineering');
  await page.locator('input[name=jobTitle]').fill('Software Developer');
  await page.locator('select[name=employmentType]').selectOption('intern');
  await page.locator('input[name=startDate]').fill('2026-11-03');
