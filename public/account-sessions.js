@@ -56,8 +56,8 @@
   }
   document.addEventListener("vsph:identity-loaded", async () => {
     $("accountSessions").hidden = false;
-    $("revokeOtherSessions").onclick = () => {
-      if (confirm("Sign out your other portal and product sessions?"))
+    $("revokeOtherSessions").onclick = async () => {
+      if (await VSPHUI.confirm("Sign out your other portal and product sessions?",{title:"End other sessions?",confirmLabel:"Sign out others",danger:true}))
         act("/revoke-others");
     };
     try {

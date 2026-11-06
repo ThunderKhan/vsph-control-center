@@ -26,3 +26,14 @@ body[data-portal-shell] #portalContent button{min-height:44px;max-width:100%;whi
 /* Account actions sit inside the avatar menu. */
 .portal-account .portal-signout{display:flex;width:100%;min-height:44px;text-align:left;justify-content:flex-start;background:transparent;border:0;border-radius:6px;padding:12px 16px;font:500 14px/20px Inter,Arial,sans-serif;color:#00255A;cursor:pointer}
 .portal-account .portal-signout:hover{background:#EAF3FA}
+
+/* Account control: a single consistently rounded active and focus surface. */
+.crm-header-actions .portal-account{flex:none;min-width:0}
+.crm-header-actions .portal-account>summary{display:flex;align-items:center;gap:10px;min-height:48px;max-width:260px;padding:4px 10px 4px 4px;border:1px solid transparent;border-radius:999px;background:transparent;transition:background .16s ease,border-color .16s ease}
+.crm-header-actions .portal-account>summary:hover,.crm-header-actions .portal-account[open]>summary{background:#174A80;color:#fff;border-color:#3F76AB}
+.crm-header-actions .portal-account>summary:focus-visible{outline:3px solid #50C0E8;outline-offset:2px}
+.portal-account-chevron{width:8px;height:8px;border-right:1.7px solid #D5E6F7;border-bottom:1.7px solid #D5E6F7;transform:rotate(45deg);margin:-4px 3px 0 1px;flex:none;transition:transform .16s ease}
+.portal-account[open] .portal-account-chevron{transform:rotate(225deg);margin:4px 3px 0 1px}
+.crm-header-actions .portal-account .portal-dropdown{top:calc(100% + 10px);right:0;left:auto;min-width:260px;border-radius:12px;box-shadow:0 16px 35px #001b4126}
+@media(max-width:950px){.crm-header-actions .portal-account>summary{width:48px;max-width:48px;padding:2px;border-color:transparent;justify-content:center}.crm-header-actions .portal-account-chevron{display:none}.crm-header-actions .portal-account .portal-dropdown{right:0;max-width:min(300px,calc(100vw - 30px))}}
+@media(prefers-reduced-motion:reduce){.crm-header-actions .portal-account>summary,.portal-account-chevron{transition:none}}

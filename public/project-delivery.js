@@ -163,7 +163,7 @@
           box.append(
             action("Revoke selected installation", async () => {
               if (
-                confirm(
+                await VSPHUI.confirm(
                   "Revoke this installation for this project and hide its repository data?",
                 )
               )
@@ -218,7 +218,7 @@
           card.append(
             action("Disconnect " + c.full_name, async () => {
               if (
-                confirm(
+                await VSPHUI.confirm(
                   "Disconnect repository and hide retained delivery observations?",
                 )
               )

@@ -106,15 +106,14 @@
   $('copyEmployeeHandoffLabel').textContent='Copy invitation link';
  }
  function needsLeaveWarning(){return linkAvailable&&!linkCopied;}
- function confirmLeave(){
-  return !needsLeaveWarning()||window.confirm('This private invitation link has not been copied. Leaving now will remove the only displayed copy. Leave without copying?');
- }
- // Link interception covers portal navigation injected outside this page's markup.
- document.addEventListener('click',event=>{
+ // Navigation needs an application-styled decision. Browser unload warnings remain
+ // native by platform design for tab close and reload, where custom UI is impossible.
+ document.addEventListener('click',async event=>{
   const anchor=event.target.closest?.('a[href]');
-  if(!anchor||!linkAvailable||event.defaultPrevented)return;
-  if(!confirmLeave()){event.preventDefault();event.stopImmediatePropagation();return;}
-  clearInvitation();
+  if(!anchor||!linkAvailable||event.defaultPrevented||!needsLeaveWarning())return;
+  event.preventDefault();event.stopImmediatePropagation();
+  if(!await VSPHUI.confirm('This private invitation link has not been copied. Leaving will hide its only displayed copy.',{title:'Leave without copying?',confirmLabel:'Leave page',danger:true}))return;
+  const href=anchor.href;clearInvitation();location.assign(href);
  },true);
  window.addEventListener('beforeunload',event=>{
   if(!needsLeaveWarning())return;

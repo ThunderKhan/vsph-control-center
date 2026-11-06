@@ -40,7 +40,7 @@ test('repetitive introductory labels and cards disappear, but operational safety
  assert.doesNotMatch(read('public/admin.html'),/class="admin-purpose"|Back to overview/);
  assert.match(read('views/finance.html'),/Manual cash ledger — INR only/);
  assert.match(read('views/finance-journal.html'),/Read-only history/);
- assert.match(read('views/employees.html'),/id="employeeEditForm"|id="hrGovernance"/);
+ assert.match(read('views/employees.html'),/id="employeeEditForm"/);
  assert.match(read('views/employee-onboarding.html'),/id="employeeOnboardForm"|id="onboardError"/);
 });
 test('step panels and sidebar are intrinsically sized without old fixed minimum heights',()=>{

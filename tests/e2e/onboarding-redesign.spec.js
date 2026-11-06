@@ -62,19 +62,17 @@ test('completed invitation stays readable after copying, with warning only befor
  await expect(field).toBeVisible();
  const invitation=await field.inputValue();
  expect(invitation).toMatch(/\/employee-enrollment#/);
- const warnings=[];
- page.on('dialog',dialog=>{warnings.push(dialog.message());void dialog.dismiss();});
  await page.getByRole('link',{name:'Manage access'}).click();
+ await expect(page.getByRole('dialog')).toContainText('not been copied');
+ await page.getByRole('dialog').getByRole('button',{name:'Cancel'}).click();
  await expect(page).toHaveURL(/\/employees\/onboarding$/);
- expect(warnings).toHaveLength(1);
- expect(warnings[0]).toContain('not been copied');
  await page.getByRole('button',{name:'Copy invitation link'}).click();
  await expect(page.locator('#copyEmployeeHandoffLabel')).toHaveText('Copied');
  await expect(field).toHaveValue(invitation);
  expect(await page.evaluate(()=>navigator.clipboard.readText())).toBe(invitation);
  await page.getByRole('link',{name:'Manage access'}).click();
  await expect(page).toHaveURL(/\/employees\/[^/]+\/account-link$/);
- expect(warnings).toHaveLength(1);
+ await expect(page.getByRole('dialog')).toHaveCount(0);
  await expect(page.locator('#employeeHandoffValue')).toHaveCount(0);
 });
 

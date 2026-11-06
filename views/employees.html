@@ -26,12 +26,7 @@
    <div class="people-panel-head"><h2 id="deptTitle">Department allocation</h2><small>Active + on leave</small></div>
    <div id="departmentChart" aria-live="polite" class="people-dept"></div>
   </section>
-  <section class="people-panel" aria-labelledby="peopleAccessTitle">
-   <div class="people-panel-head"><h2 id="peopleAccessTitle">Your permissions</h2></div>
-   <strong id="staffRole" class="people-access-role">—</strong>
-   <p id="staffAuthority" class="muted">Verifying permissions…</p>
-   <p class="people-small">Owner: onboard, edit, govern HR. HR: onboard and edit ordinary employees only. Neither role implicitly grants customer/project/product access.</p>
-  </section>
+
  </div>
  <section class="people-panel" aria-labelledby="staffDirectoryTitle">
   <div class="people-panel-head"><div><h2 id="staffDirectoryTitle">Staff directory</h2></div><button id="refreshEmployees" class="people-secondary">Refresh</button></div>
@@ -39,7 +34,7 @@
    <label for="employeeSearch">Search employees<input id="employeeSearch" type="search" placeholder="Name, email, department or title" maxlength="80" autocomplete="off"></label>
    <label for="employeeStatus">Employee status<select id="employeeStatus"><option value="all">All statuses</option><option value="onboarding">Onboarding</option><option value="active">Active</option><option value="on_leave">On leave</option><option value="inactive">Inactive</option></select></label>
   </div>
-  <div class="people-table-wrap"><table class="people-table"><thead><tr><th scope="col">Employee</th><th scope="col">Department / title</th><th scope="col">Type</th><th scope="col">Status</th><th scope="col">Access</th><th scope="col">Action</th></tr></thead><tbody id="employeeRows"><tr><td colspan="6">Loading…</td></tr></tbody></table></div>
+  <div class="people-table-wrap"><table class="people-table"><thead><tr><th scope="col">Employee</th><th scope="col">Department / title</th><th scope="col">Type</th><th scope="col">Status</th><th scope="col">Access</th><th scope="col">Manage</th></tr></thead><tbody id="employeeRows"><tr><td colspan="6">Loading…</td></tr></tbody></table></div>
   <div class="people-page-actions"><button id="firstEmployeePage" class="people-secondary" type="button">First page</button><span id="employeePageSummary">Showing up to 50 per page</span><button id="nextEmployeePage" class="people-secondary" type="button" disabled>Next page</button></div>
  </section>
  <section class="people-panel" id="employeeEditPanel" aria-labelledby="editEmployeeTitle" hidden>
@@ -68,15 +63,7 @@
    <button class="people-danger" type="submit">Confirm employee removal</button>
   </form>
  </section>
- <section class="people-panel" id="removedEmployeeHistory" aria-labelledby="removedEmployeeTitle" hidden>
-  <div class="people-panel-head"><div><h2 id="removedEmployeeTitle">Removed employees</h2><p class="muted">Owner audit history · latest 100 records</p></div><button class="people-secondary" type="button" id="refreshRemovedEmployees">Refresh history</button></div>
-  <div id="removedEmployeeRows" class="people-removal-history" aria-live="polite"></div>
- </section>
- <section class="people-panel" id="hrGovernance" aria-labelledby="hrTitle" hidden>
-  <div class="people-panel-head"><div><h2 id="hrTitle">HR authority</h2></div></div>
-  <p class="people-small">An employee must be marked <strong>Active</strong> and must already have an active VSPH portal account with the exact same email and have accepted its account link before an owner can grant new HR privileges. This page never creates login accounts.</p>
-  <div id="hrManagers" class="people-hr-list"></div>
- </section>
+
 </div>
 </body>
 </html>

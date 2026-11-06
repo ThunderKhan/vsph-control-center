@@ -38,7 +38,7 @@
    const el=record(parent,employee.full_name,employee.email+' · '+label(employee.status)+' · '+(employee.is_hr?'HR manager':'No HR authority'));
    const actions=text('div','','hr-actions'),link=text('a',employee.is_hr?'Review identity link':'Review HR access','secondary');
    link.href='/employees/'+employee.id+'/account-link';actions.append(link);
-   if(employee.is_hr)actions.append(button('Revoke HR',()=>{if(confirm('Revoke HR authority for '+employee.email+'?'))run(async()=>{await api('/employees/'+employee.id+'/revoke_hr',{version:employee.version,confirmed:true});await load();notice('HR authority updated.');});},true));
+   if(employee.is_hr)actions.append(button('Revoke HR',async()=>{if(await VSPHUI.confirm('Revoke HR authority for '+employee.email+'?'))run(async()=>{await api('/employees/'+employee.id+'/revoke_hr',{version:employee.version,confirmed:true});await load();notice('HR authority updated.');});},true));
    el.append(actions);
   }if(!rows.length)parent.append(text('p','No matching employees.'));$('moreAccess').hidden=!accessNext;
  }

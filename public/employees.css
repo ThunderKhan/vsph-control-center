@@ -202,3 +202,19 @@
 .people-removal-entry p{margin:7px 0 0}
 .people-removal-reason{font-size:13px;line-height:1.6;color:#344A66;overflow-wrap:anywhere}
 @media(max-width:640px){.people-remove-panel .people-danger{width:100%}}
+
+/* Single full-width department visualization, no redundant permissions sidebar. */
+.people-overview{display:block;min-width:0}
+.people-overview>.people-panel{width:100%;min-height:0}
+.people-dept-row{grid-template-columns:minmax(125px,190px) minmax(0,1fr) 34px;gap:16px}
+.people-actions{display:block;min-width:0}
+.people-table td:last-child{min-width:110px}
+.people-manage-trigger{display:inline-flex;align-items:center;gap:8px;justify-content:center;border-radius:8px;border:1px solid #BDD0E5;background:#FFF;color:#00255A;padding:10px 13px;font:600 13px/20px Inter,Arial,sans-serif;min-height:44px;cursor:pointer;white-space:nowrap}
+.people-manage-trigger:hover,.people-manage-trigger[aria-expanded=true]{background:#EAF3FA;border-color:#0069C8}
+.people-manage-trigger::after{content:'';width:6px;height:6px;border-bottom:1.5px solid currentColor;border-right:1.5px solid currentColor;transform:rotate(45deg);margin-top:-3px}
+.people-manage-menu{position:fixed;z-index:1000;width:222px;max-width:calc(100vw - 24px);padding:6px;background:#FFF;color:#00255A;border:1px solid #CBD9E7;border-radius:10px;box-shadow:0 16px 40px #001b412b;display:grid;gap:2px}
+.people-manage-menu [role=menuitem]{display:flex;align-items:center;min-height:42px;width:100%;padding:10px 12px;box-sizing:border-box;text-align:left;background:transparent;border:0;border-radius:7px;color:#00255A;font:500 13px/20px Inter,Arial,sans-serif;text-decoration:none;cursor:pointer}
+.people-manage-menu [role=menuitem]:hover,.people-manage-menu [role=menuitem]:focus-visible{background:#EAF3FA}
+.people-manage-menu .people-manage-danger{color:#A32735}
+.people-manage-divider{height:1px;background:#E2E8F0;margin:4px 6px}
+@media(max-width:600px){.people-dept-row{grid-template-columns:minmax(95px,1fr) minmax(80px,2fr) 30px;gap:10px}.people-overview .people-panel{padding:18px}}

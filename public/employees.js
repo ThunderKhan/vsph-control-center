@@ -60,34 +60,72 @@
   $('employeeRemovePanel').scrollIntoView({block:'nearest',behavior:'auto'});
   $('employeeRemovalReason').focus();
  }
- function drawRemoved(items){
-  const parent=$('removedEmployeeRows');parent.replaceChildren();
-  if(!items.length){parent.append(text('p','No employee removals have been recorded.','people-small'));return;}
-  for(const entry of items){
-   const card=text('article','','people-removal-entry');
-   const header=text('div','','people-removal-person');
-   header.append(text('strong',entry.full_name),text('span',entry.email));
-   const actor=text('p','Removed by '+(entry.removed_by_name||entry.removed_by_email||'Authorized owner or HR manager'),'people-small');
-   const time=entry.removed_at?new Date(entry.removed_at).toLocaleString():'Timestamp unavailable';
-   const when=text('p',time,'people-small');
-   const reason=text('p',entry.removal_reason,'people-removal-reason');
-   card.append(header,actor,when,reason);parent.append(card);
-  }
- }
- async function loadRemovalHistory(){
-  const result=await api('/removals');
-  drawRemoved(result.employees||[]);
- }
  async function changeHR(employee,action){
   const question=action==='grant_hr'
    ?'Grant HR employee-management authority to '+employee.email+'? An active matching ordinary portal account and an accepted employee link are required.'
    :'Revoke HR employee-management authority from '+employee.email+'?';
-  if(!window.confirm(question))return;
+  if(!await VSPHUI.confirm(question,{title:action==='grant_hr'?'Grant HR access?':'Revoke HR access?',confirmLabel:action==='grant_hr'?'Grant access':'Revoke access',danger:action!=='grant_hr'}))return;
   await run(async()=>{
    await api('/'+employee.id+'/'+action,{version:employee.version,confirmed:true});
    successNotice='HR permission updated.';await load(cursor);
   });
  }
+ let activeManage=null;
+ function closeManage(restore=false){
+  if(!activeManage)return;
+  const {menu,trigger}=activeManage;
+  activeManage=null;menu.remove();trigger.setAttribute('aria-expanded','false');
+  if(restore&&trigger.isConnected)trigger.focus();
+ }
+ function openManage(trigger,employee,role){
+  if(activeManage?.trigger===trigger){closeManage(true);return;}
+  closeManage();
+  const menu=text('div','','people-manage-menu');menu.setAttribute('role','menu');
+  menu.setAttribute('aria-label','Manage '+employee.full_name);
+  const add=(label,fn,{danger=false,link=false}={})=>{
+   const item=link?text('a',label):text('button',label);
+   if(!link)item.type='button';
+   item.setAttribute('role','menuitem');
+   if(danger)item.classList.add('people-manage-danger');
+   if(link)item.href=fn;
+   else item.addEventListener('click',()=>{closeManage();fn();});
+   if(link)item.addEventListener('click',()=>closeManage());
+   menu.append(item);
+  };
+  add('Edit employee',()=>edit(employee));
+  add(role==='owner'&&!employee.is_hr?'Review HR access':'Account & access','/employees/'+encodeURIComponent(employee.id)+'/account-link',{link:true});
+  if(role==='owner'&&employee.is_hr)add('Revoke HR authority',()=>changeHR(employee,'revoke_hr'),{danger:true});
+  if(!employee.is_owner){
+   const divider=text('div','','people-manage-divider');divider.setAttribute('role','separator');menu.append(divider);
+   add('Remove employee',()=>beginRemoval(employee),{danger:true});
+  }
+  document.body.append(menu);
+  trigger.setAttribute('aria-expanded','true');
+  activeManage={menu,trigger};
+  const place=()=>{
+   if(!activeManage||activeManage.menu!==menu)return;
+   const rect=trigger.getBoundingClientRect(),width=menu.offsetWidth,height=menu.offsetHeight;
+   menu.style.left=Math.max(12,Math.min(window.innerWidth-width-12,rect.right-width))+'px';
+   const below=rect.bottom+6,above=rect.top-height-6;
+   menu.style.top=(below+height<=window.innerHeight-12||above<12?Math.min(below,window.innerHeight-height-12):above)+'px';
+  };
+  place();menu.querySelector('[role=menuitem]')?.focus();
+ }
+ document.addEventListener('click',event=>{
+  if(activeManage&&!activeManage.menu.contains(event.target)&&!activeManage.trigger.contains(event.target))closeManage();
+ });
+ document.addEventListener('keydown',event=>{
+  if(!activeManage)return;
+  if(event.key==='Escape'){event.preventDefault();closeManage(true);return;}
+  if(!['ArrowDown','ArrowUp','Home','End'].includes(event.key))return;
+  const links=[...activeManage.menu.querySelectorAll('[role=menuitem]')];if(!links.length)return;
+  event.preventDefault();
+  const index=links.indexOf(document.activeElement);
+  const next=event.key==='Home'?0:event.key==='End'?links.length-1:event.key==='ArrowDown'?(index+1)%links.length:(index-1+links.length)%links.length;
+  links[next].focus();
+ });
+ document.addEventListener('scroll',()=>closeManage(),true);
+ window.addEventListener('resize',()=>closeManage());
  function drawEmployees(records,role){
   const parent=$('employeeRows');parent.replaceChildren();
   const hasMore=records.length>50,items=records.slice(0,50);
@@ -104,22 +142,13 @@
    const access=text('td',employee.is_hr?'HR manager':'No HR authority');
    const actions=document.createElement('td'),group=text('div','','people-actions');actions.append(group);
    const canEdit=role==='owner'||!employee.is_hr;
-   if(canEdit){group.append(makeButton('Edit',()=>edit(employee)));const a=text('a',role==='owner'&&!employee.is_hr?'Review HR access':'Account link','people-secondary');a.href='/employees/'+employee.id+'/account-link';group.append(a);}
-   if(role==='owner'&&employee.is_hr)group.append(makeButton('Revoke HR',()=>changeHR(employee,'revoke_hr')));
-   if(canEdit&&!employee.is_owner)group.append(makeButton('Remove',()=>beginRemoval(employee)));
-   if(!canEdit)actions.append(text('span','Owner managed','muted'));
+   if(canEdit){
+    const trigger=makeButton('Manage',()=>openManage(trigger,employee,role));
+    trigger.className='people-manage-trigger';trigger.setAttribute('aria-haspopup','menu');
+    trigger.setAttribute('aria-expanded','false');trigger.setAttribute('aria-label','Manage '+employee.full_name);
+    group.append(trigger);
+   }else actions.append(text('span','Owner managed','muted'));
    row.append(name,position,type,status,access,actions);parent.append(row);
-  }
- }
- function drawManagers(list){
-  const parent=$('hrManagers');parent.replaceChildren();
-  if(!list.length){parent.append(text('p','No HR managers assigned. Use Review HR access on an employee row to check account enrollment and consent before granting HR.','muted'));return;}
-  for(const manager of list){
-   const row=text('div','','people-hr-entry'),detail=document.createElement('div');
-   detail.append(text('strong',manager.full_name),text('span',manager.email+' · '+manager.status+' roster · '+manager.account_status+' account'));
-   row.append(detail);
-   if(manager.status!=='inactive')row.append(makeButton('Revoke HR',()=>changeHR({id:manager.employee_id,version:manager.version,email:manager.email,is_hr:true},'revoke_hr')));
-   parent.append(row);
   }
  }
  async function load(afterId=null){
@@ -136,17 +165,6 @@
    current=result;cursor=afterId;
    drawStats(result.counts);drawDepartments(result.departments||[]);
    drawEmployees(result.employees||[],result.role);
-   $('staffRole').textContent=result.role==='owner'?'Platform owner':'HR manager';
-   $('staffAuthority').textContent=result.role==='owner'
-    ?'Full internal workforce governance, including HR assignments.'
-    :'Employee onboarding and ordinary staff updates. HR role administration remains owner-only.';
-   $('hrGovernance').hidden=!result.canManageHr;
-   if(result.canManageHr)drawManagers(result.hrManagers||[]);
-   $('removedEmployeeHistory').hidden=!result.canManageHr;
-   if(result.canManageHr){
-    try{await loadRemovalHistory();}
-    catch(error){$('removedEmployeeRows').textContent='Removal history unavailable: '+error.message;}
-   }
    if(requestedEditId){
     const match=(result.employees||[]).find(employee=>employee.id===requestedEditId);
     if(match){
@@ -154,22 +172,22 @@
      if(result.role==='owner'||!match.is_hr)edit(match);
     }
    }
-   info(successNotice||'Showing current records from the employee database.');
+   const done=successNotice;successNotice='';info(done||'Showing current records from the employee database.');if(done)VSPHUI.toast(done);
   }catch(error){if(currentLoad===searchVersion){info(error.message);$('employeeRows').replaceChildren();$('employeeRows').append(document.createElement('tr'));$('nextEmployeePage').disabled=true;}}
   finally{if(currentLoad===searchVersion)$('employeeRows').setAttribute('aria-busy','false');}
  }
  async function run(action){
   if(busy)return;busy=true;const controls=[...document.querySelectorAll('main button')].filter(x=>!x.disabled);
   for(const control of controls)control.disabled=true;
-  try{await action();}catch(error){successNotice='';info(error.message);}
+  try{await action();}catch(error){successNotice='';info(error.message);VSPHUI.toast(error.message,{type:'error'});}
   finally{busy=false;for(const control of controls)if(control.id!=='nextEmployeePage')control.disabled=false;}
  }
- $('employeeEditForm').addEventListener('submit',event=>{
+ $('employeeEditForm').addEventListener('submit',async event=>{
   event.preventDefault();
   if(!selected||busy)return;
   const form=$('employeeEditForm');
   if(!form.reportValidity())return;
-  if(!window.confirm('Save changes to '+selected.email+'? Roster status does not automatically disable a portal login.'))return;
+  if(!await VSPHUI.confirm('Save changes to '+selected.email+'? Roster status does not automatically disable a portal login.',{title:'Save employee changes?',confirmLabel:'Save changes'}))return;
   const body={
    fullName:form.elements.fullName.value,department:form.elements.department.value,
    jobTitle:form.elements.jobTitle.value,employmentType:form.elements.employmentType.value,
@@ -185,12 +203,12 @@
  $('cancelRemoveEmployee').addEventListener('click',()=>{
   removing=null;$('employeeRemovePanel').hidden=true;
  });
- $('employeeRemoveForm').addEventListener('submit',event=>{
+ $('employeeRemoveForm').addEventListener('submit',async event=>{
   event.preventDefault();
   if(!removing||busy||!event.currentTarget.reportValidity())return;
   const employee=removing,reason=$('employeeRemovalReason').value.trim();
   if(reason.length<8||reason.length>500){info('Provide a removal reason between 8 and 500 characters.');return;}
-  if(!window.confirm('Remove '+employee.full_name+' ('+employee.email+') from the workforce? This archives their roster record and disables employee-only access.'))return;
+  if(!await VSPHUI.confirm('This archives the workforce record and revokes employee-only access. The owner will retain an audit record.',{title:'Remove '+employee.full_name+'?',confirmLabel:'Remove employee',danger:true,fields:[{label:'Employee',value:employee.email},{label:'Reason',value:reason}]}))return;
   run(async()=>{
    await api('/'+employee.id+'/remove',{version:employee.version,reason,confirmed:true});
    removing=null;$('employeeRemovePanel').hidden=true;
@@ -198,7 +216,6 @@
    await load(null);
   });
  });
- $('refreshRemovedEmployees').addEventListener('click',()=>run(loadRemovalHistory));
 
  $('refreshEmployees').addEventListener('click',()=>{successNotice='';load(cursor);});
  $('firstEmployeePage').addEventListener('click',()=>load(null));

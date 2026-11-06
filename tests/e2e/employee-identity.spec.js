@@ -7,8 +7,8 @@ test('owner requests existing employee consent, candidate verifies MFA, link per
  const body={fullName:'Consent employee '+info.project.name,email:'link-'+info.project.name+'@fixture.test',department:'Engineering',jobTitle:'Developer',employmentType:'intern',startDate:'2026-11-03'};
  const created=await context.request.post('/api/employees',{headers:{'Idempotency-Key':randomUUID()},data:body});expect(created.status()).toBe(201);const employee=await created.json();
  const edit={...body,status:'active',version:1,confirmed:true};delete edit.email;expect((await context.request.post('/api/employees/'+employee.id+'/update',{data:edit})).status()).toBe(200);
- await page.goto('/employees/'+employee.id+'/account-link');await expect(page.locator('#identityContent')).toContainText(body.email);page.on('dialog',d=>d.accept());
- await page.getByRole('button',{name:'Request account link',exact:true}).click();await expect(page.locator('#identityContent')).toContainText('pending');
+ await page.goto('/employees/'+employee.id+'/account-link');await expect(page.locator('#identityContent')).toContainText(body.email);
+ await page.getByRole('button',{name:'Request account link',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'Continue'}).click();await expect(page.locator('#identityContent')).toContainText('pending');
  await context.clearCookies();await context.addCookies([cookie('fixture-link-'+info.project.name)]);
  await page.goto('/employment');await expect(page.locator('#identityContent')).toContainText(body.fullName);
  await page.getByLabel('Confirm your password',{exact:true}).fill('fixture-password-only');await page.getByLabel('I agree to link my existing account to this employee record.').check();await page.getByRole('button',{name:'Accept account link',exact:true}).click();
@@ -21,7 +21,7 @@ test('owner requests existing employee consent, candidate verifies MFA, link per
  await info.attach('employee-consent-'+info.project.name+'-isolated',{body:await page.screenshot({fullPage:true}),contentType:'image/png'});
  await context.clearCookies();await context.addCookies([cookie('fixture-admin-session')]);
  expect((await context.request.post('/api/employees/'+employee.id+'/grant_hr',{data:{version:2,confirmed:true}})).status()).toBe(200);
- await page.goto('/employees/'+employee.id+'/account-link');await page.getByRole('button',{name:'Revoke employee account link',exact:true}).click();await expect(page.locator('#identityContent')).toContainText('Not linked');
+ await page.goto('/employees/'+employee.id+'/account-link');await page.getByRole('button',{name:'Revoke employee account link',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'Continue'}).click();await expect(page.locator('#identityContent')).toContainText('Not linked');
  await context.clearCookies();await context.addCookies([cookie('fixture-link-'+info.project.name)]);await page.goto('/employment');await expect(page.locator('#identityContent')).toContainText('No active employment link');
  expect((await context.request.get('/api/employees')).status()).toBe(403);expect((await context.request.get('/api/auth/me')).status()).toBe(200);
 });

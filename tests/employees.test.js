@@ -45,7 +45,7 @@ test('employee and HR routes are session-backed; HTML and APIs are not static ac
  assert.match(script,/\/api\/hrms\/access/);
  const overview=read('views/employees.html'),onboarding=read('views/employee-onboarding.html');
  assert.match(overview,/id="employeeRows"/);
- assert.match(overview,/id="hrGovernance"/);
+ assert.doesNotMatch(overview,/id="hrGovernance"|id="removedEmployeeHistory"|Your permissions/);
  assert.doesNotMatch(overview,/people-info|aria-label="Breadcrumb"|Back to overview/);
  assert.doesNotMatch(onboarding,/Nothing is saved until you confirm/);
  assert.doesNotMatch(onboarding,/people-info|PEOPLE \/ INTERNAL ONBOARDING|Back to employees/);

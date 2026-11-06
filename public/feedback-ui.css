@@ -1,0 +1,30 @@
+/* Shared confirmation dialogs and non-blocking feedback, using VSPH tokens. */
+.vsph-ui-dialog{position:fixed;inset:0;max-width:min(520px,calc(100vw - 32px));width:100%;max-height:calc(100dvh - 32px);padding:0;border:1px solid #DDE5EF;border-radius:16px;background:#fff;color:#00255A;box-shadow:0 24px 72px #001b4140;overflow:auto;font-family:Inter,Arial,sans-serif;z-index:2000}
+.vsph-ui-dialog::backdrop{background:rgba(0,21,46,.65);backdrop-filter:blur(2px)}
+.vsph-ui-dialog-card{padding:28px;display:grid;gap:18px}
+.vsph-ui-dialog-head{display:flex;align-items:center;gap:12px}
+.vsph-ui-dialog-mark{display:grid;place-items:center;flex:none;width:40px;height:40px;border-radius:12px;background:#EAF3FA;color:#0069C8;font-weight:700}
+.vsph-ui-dialog:has(.is-danger) .vsph-ui-dialog-mark{background:#FCECEE;color:#9F2333}
+.vsph-ui-dialog-title{font-size:21px!important;line-height:1.3;letter-spacing:-.02em;font-weight:700;margin:0!important;color:#00255A!important}
+.vsph-ui-dialog-copy{font-size:14px;line-height:1.65;margin:0;color:#435875;overflow-wrap:anywhere}
+.vsph-ui-dialog-fields{border:1px solid #E0E8F2;border-radius:10px;background:#F8FAFC;padding:10px 16px;margin:0;display:grid;gap:0}
+.vsph-ui-dialog-field{display:grid;grid-template-columns:minmax(90px,36%) minmax(0,1fr);gap:12px;padding:10px 0;border-bottom:1px solid #E0E8F2;font-size:13px}
+.vsph-ui-dialog-field:last-child{border:0}
+.vsph-ui-dialog-field dt{color:#536984;font-weight:600}
+.vsph-ui-dialog-field dd{color:#00255A;margin:0;overflow-wrap:anywhere;white-space:pre-wrap}
+.vsph-ui-dialog-input-label{display:grid;gap:8px;font-size:13px;font-weight:600;color:#00255A}
+.vsph-ui-dialog-textarea{width:100%;min-height:100px;max-width:100%;resize:vertical;padding:12px;font:14px/1.5 Inter,Arial,sans-serif;border:1px solid #AFC4DB;border-radius:9px}
+.vsph-ui-dialog-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px}
+.vsph-ui-dialog-actions button{min-height:44px;min-width:100px;padding:10px 17px;border-radius:9px;font:600 13px/1.5 Inter,Arial,sans-serif;cursor:pointer}
+.vsph-ui-dialog-cancel{background:#fff;border:1px solid #C3D1E0;color:#00255A}
+.vsph-ui-dialog-accept{background:#0069C8;border:1px solid #0069C8;color:#fff}
+.vsph-ui-dialog-accept.is-danger{background:#A52D3D;border-color:#A52D3D}
+.vsph-ui-dialog :focus-visible,.vsph-toast :focus-visible{outline:3px solid #50C0E8;outline-offset:2px}
+.vsph-toast-region{position:fixed;bottom:24px;right:24px;z-index:2200;display:grid;gap:10px;width:min(380px,calc(100vw - 32px));pointer-events:none}
+.vsph-toast{display:flex;align-items:start;gap:12px;padding:15px 14px;border-radius:12px;border:1px solid #D8E5EE;background:#fff;color:#00255A;box-shadow:0 12px 35px #001b4126;font:500 13px/1.5 Inter,Arial,sans-serif;pointer-events:auto}
+.vsph-toast-symbol{display:grid;place-items:center;flex:0 0 26px;height:26px;border-radius:50%;color:#147459;background:#E8F5EF;font-weight:700}
+.vsph-toast.is-error .vsph-toast-symbol{background:#FFE9EC;color:#A52D3D}
+.vsph-toast-copy{flex:1;min-width:0;overflow-wrap:anywhere}
+.vsph-toast-close{min-height:30px!important;min-width:30px;padding:0;border:0;background:transparent;color:#65788D;font:22px/1 Arial,sans-serif;cursor:pointer}
+@media(max-width:520px){.vsph-ui-dialog-card{padding:20px}.vsph-toast-region{left:16px;right:16px;bottom:16px;width:auto}}
+@media(prefers-reduced-motion:reduce){.vsph-ui-dialog::backdrop{backdrop-filter:none}}

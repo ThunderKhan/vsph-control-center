@@ -13,7 +13,7 @@
  function button(title,fn){const b=node('button',title);b.type='button';b.onclick=()=>run(fn);return b;}
  async function run(fn){if(busy)return;busy=true;const controls=[...document.querySelectorAll('main button')].filter(b=>!b.disabled);for(const b of controls)b.disabled=true;try{await fn();}catch(e){message.textContent=e.message;}finally{busy=false;for(const b of controls)if(b.isConnected)b.disabled=false;}}
  async function mutate(action,data){
-  if(!confirm(action==='revoke'?'Revoke this account link and any linked HR grant? Customer/product/project assignments and the portal account remain separate.':'Confirm this employee identity request action?'))return;
+  if(!await VSPHUI.confirm(action==='revoke'?'Revoke this account link and any linked HR grant? Customer/product/project assignments and the portal account remain separate.':'Confirm this employee identity request action?'))return;
   await api('/employees/'+employeeId+'/'+action,{...data,confirmed:true},action==='request'?requestKey:null);
   if(action==='request')requestKey=crypto.randomUUID();await load();message.textContent='Account-link request change saved.';
  }
@@ -56,7 +56,7 @@
    section.setAttribute('aria-label','HR appointment readiness');
    section.append(node('strong','HR authority'),node('p',readiness.message));
    if(readiness.canGrant)section.append(button('Grant HR',async()=>{
-    if(!confirm('Grant internal HR administration to '+e.email+'? Customer and product roles remain separate.'))return;
+    if(!await VSPHUI.confirm('Grant internal HR administration to '+e.email+'? Customer and product roles remain separate.'))return;
     const response=await fetch('/api/employees/'+e.id+'/grant_hr',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({version:e.version,confirmed:true})});
     const result=await response.json().catch(()=>({}));
     if(!response.ok)throw Error(result.message||'HR grant failed. Refresh the current record.');
@@ -119,7 +119,7 @@
   panel.append(node('p','Share the private link only with the named employee. Email submission is optional when an approved sender is configured; provider acceptance is not proof of inbox delivery. Activate the roster separately before assigning work.'));
   const actions=node('div');actions.className='identity-actions';
   async function issue(delivery='manual'){
-   if(!confirm((delivery==='email'?'Submit an email invitation for ':'Create or reissue a private invitation for ')+employee.email+'? No HR or customer access is granted.'))return;
+   if(!await VSPHUI.confirm((delivery==='email'?'Submit an email invitation for ':'Create or reissue a private invitation for ')+employee.email+'? No HR or customer access is granted.'))return;
    const result=await api(r?'/'+r.id+'/renew':'/employees/'+employee.id,{rosterVersion:employee.version,confirmed:true,...(delivery==='email'?{delivery:'email'}:{}),...(r?{version:r.version}:{})},r?null:requestKey,'/api/employee-enrollment');
    requestKey=crypto.randomUUID();await load();message.textContent=result.emailDelivery?.message||result.message;
    if(result.url){const secret=node('section');secret.className='panel';secret.append(node('h2','Private employee setup link'),node('p','Copy now and deliver privately. This link is shown only for this issuance; refreshing clears it.'));
@@ -131,13 +131,13 @@
    if(data.emailDeliveryAvailable)actions.append(button(r?'Reissue and email invitation':'Email login invitation',()=>issue('email')));
    else panel.append(node('p','Email sending is not configured. Use the private link now, or configure the approved employee email webhook before reissuing for email delivery.'));
   }
-  if(r&&['provisioning','ready','expired','accepting','recovery_required'].includes(r.state))actions.append(button('Cancel login invitation',async()=>{if(!confirm('Cancel this employee login invitation? Existing accepted accounts are unaffected.'))return;await api('/'+r.id+'/cancel',{rosterVersion:employee.version,version:r.version,confirmed:true},null,'/api/employee-enrollment');await load();}));
+  if(r&&['provisioning','ready','expired','accepting','recovery_required'].includes(r.state))actions.append(button('Cancel login invitation',async()=>{if(!await VSPHUI.confirm('Cancel this employee login invitation? Existing accepted accounts are unaffected.'))return;await api('/'+r.id+'/cancel',{rosterVersion:employee.version,version:r.version,confirmed:true},null,'/api/employee-enrollment');await load();}));
   if(r&&['accepting','recovery_required'].includes(r.state))panel.append(node('p','Password setup needs operator reconciliation. The new portal identity remains disabled. Automatic retries are blocked to prevent a late provider request changing an active password.'));
   if(temporary&&!temporary.message&&(!r||['provisioning','ready','expired','cancelled'].includes(r.state)))actions.append(button('Create temporary credentials',()=>createCredentials(employee,data,null)));
   panel.append(actions);return panel;
  }
  async function createCredentials(employee,enrollment,credential){
-  if(!confirm((credential?'Reissue':'Create')+' private temporary credentials for '+employee.email+'? The employee must choose a different personal password before access. No email will be sent.'))return;
+  if(!await VSPHUI.confirm((credential?'Reissue':'Create')+' private temporary credentials for '+employee.email+'? The employee must choose a different personal password before access. No email will be sent.'))return;
   const result=await api('/employees/'+employee.id,{rosterVersion:employee.version,confirmed:true,...(credential?{credentialVersion:credential.version}:{}),...(enrollment?.enrollment?{enrollmentVersion:enrollment.enrollment.version}:{})},requestKey,'/api/employee-credentials');requestKey=crypto.randomUUID();await load();message.textContent=result.message;
   if(result.temporaryPassword){const panel=node('section');panel.className='panel';panel.append(node('h2','Private temporary credentials'),node('p','Shown once. Give these only to the named employee in person or through a trusted private channel. HR should never ask for their later personal password.'));
    const details='Sign in: '+result.loginUrl+'\nWork email: '+result.email+'\nTemporary password: '+result.temporaryPassword+'\nExpires: '+new Date(result.expiresAt).toLocaleString()+'\nYou must change this temporary password at first sign-in.';
@@ -147,7 +147,7 @@
  function credentialPanel(employee,enrollment,credential){
   const panel=node('section');panel.className='identity-readiness';panel.append(node('h3','Temporary employee credentials'),node('p','Status: '+credential.state+' · expires '+new Date(credential.expiresAt).toLocaleString()),node('p','The temporary password is never displayed again after refresh. The employee must replace it before portal access. Reissue invalidates earlier temporary passwords and password-setup sessions. Activate the roster separately before assigned-work access.'));
   const actions=node('div');actions.className='identity-actions';if(credential.canReissue)actions.append(button('Reissue temporary credentials',()=>createCredentials(employee,enrollment,credential)));
-  const r=enrollment?.enrollment;if(r&&!['accepted','cancelled'].includes(r.state))actions.append(button('Cancel temporary credentials',async()=>{if(!confirm('Cancel these temporary employee credentials?'))return;await api('/'+r.id+'/cancel',{rosterVersion:employee.version,version:r.version,confirmed:true},null,'/api/employee-enrollment');await load();}));panel.append(actions);return panel;
+  const r=enrollment?.enrollment;if(r&&!['accepted','cancelled'].includes(r.state))actions.append(button('Cancel temporary credentials',async()=>{if(!await VSPHUI.confirm('Cancel these temporary employee credentials?'))return;await api('/'+r.id+'/cancel',{rosterVersion:employee.version,version:r.version,confirmed:true},null,'/api/employee-enrollment');await load();}));panel.append(actions);return panel;
  }
  function personal(data){
   $('identityTitle').textContent='My employment';

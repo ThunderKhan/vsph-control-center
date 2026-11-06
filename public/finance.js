@@ -172,7 +172,7 @@
     projectId:form.elements.projectId.value||null,amountPaise:rupeesToPaise(form.elements.amountRupees.value.trim()),
     issuedOn:form.elements.issuedOn.value,dueOn:form.elements.dueOn.value};
    if(data.dueOn<data.issuedOn)throw Error('The due date cannot precede the issue date.');
-   if(!window.confirm('Create '+data.reference+' for '+fmt(data.amountPaise)+'? This records an invoice, not a payment.'))return;
+   if(!await VSPHUI.confirm('Create '+data.reference+' for '+fmt(data.amountPaise)+'? This records an invoice, not a payment.'))return;
    const key=requestKey('invoice',data);
    await api('/invoices',data,{'Idempotency-Key':key});
    pending.invoice=null;form.reset();form.elements.issuedOn.value=dateToday();form.elements.dueOn.value=dateToday();
@@ -190,7 +190,7 @@
     amountPaise:rupeesToPaise(form.elements.amountRupees.value.trim()),
     receivedOn:form.elements.receivedOn.value};
    if(payload.receivedOn>dateToday())throw Error('Cash cannot be recorded before it was received.');
-   if(!window.confirm('Record '+fmt(payload.amountPaise)+' cash received against the selected invoice?'))return;
+   if(!await VSPHUI.confirm('Record '+fmt(payload.amountPaise)+' cash received against the selected invoice?'))return;
    const key=requestKey('payment',{invoice,...payload});
    await api('/invoices/'+encodeURIComponent(invoice)+'/payments',{...payload,idempotencyKey:key});
    pending.payment=null;form.reset();form.elements.receivedOn.value=dateToday();
@@ -198,16 +198,16 @@
   });
  });
  async function reversePayment(p){
-  const reason=window.prompt('Reverse receipt '+p.payment_reference+'? Enter a correction reason (at least 8 characters).');
-  if(reason===null)return;
-  if(!window.confirm('Reverse this recorded receipt? The correction will be audited.'))return;
+  const reason=await VSPHUI.prompt('Reverse receipt '+p.payment_reference+'? Enter a correction reason (at least 8 characters).');
+  if(!reason)return;
+  if(!await VSPHUI.confirm('Reverse this recorded receipt? The correction will be audited.'))return;
   run(async()=>{await api('/payments/'+encodeURIComponent(p.id)+'/reverse',{reason,confirmed:true});
    report=await api('/');draw();message('Receipt reversed. Totals recalculated.');});
  }
  async function voidInvoice(i){
-  const reason=window.prompt('Void invoice '+i.reference+'? Enter a reason (at least 8 characters).');
-  if(reason===null)return;
-  if(!window.confirm('Void this invoice? Unreversed receipts prevent voiding.'))return;
+  const reason=await VSPHUI.prompt('Void invoice '+i.reference+'? Enter a reason (at least 8 characters).');
+  if(!reason)return;
+  if(!await VSPHUI.confirm('Void this invoice? Unreversed receipts prevent voiding.'))return;
   run(async()=>{await api('/invoices/'+encodeURIComponent(i.id)+'/void',{version:i.version,reason,confirmed:true});
    report=await api('/');draw();message('Invoice voided. Totals recalculated.');});
  }

@@ -35,7 +35,9 @@ test('removal requires confirmation and exposes audit history only through a ded
  assert.match(route,/router\.post\('\/:id\/remove'/);
  assert.match(route,/router\.get\('\/removals'/);
  assert.match(ui,/Confirm employee removal|employeeRemoveForm/);
- assert.match(view,/id="removedEmployeeHistory"[^>]*hidden/);
+ assert.doesNotMatch(view,/removedEmployeeHistory|hrGovernance|peopleAccessTitle/);
+ assert.match(read('public/admin.html'),/data-tab="permissions"/);
+ assert.match(read('public/admin.html'),/data-audit-view="removals"/);
  assert.match(sql,/employee\.removed/);
  assert.match(sql,/removed_at is null/);
  assert.match(sql,/public\.internal_employee_command\(p_actor,'update'/);
