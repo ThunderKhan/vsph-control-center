@@ -3,6 +3,7 @@ const path = require('node:path');
 const {db,check} = require('../db');
 const {portalSession} = require('../security');
 const {reviewHrAccess}=require('../services/employee-hr-readiness');
+const {canonicalDepartment}=require('../services/employee-departments');
 const {rpcRoute,uuid} = require('../services/rpc');
 const {rateLimit} = require('../http-security');
 
@@ -36,6 +37,8 @@ function employeeFields(body,{update=false}={}){
   employmentType:body.employmentType,
   startDate:dateField(body.startDate)
  };
+ fields.department=canonicalDepartment(fields.department);
+ if(!fields.department)invalid('Choose a department from the approved list.');
  if(!allowedTypes.has(fields.employmentType))invalid('Choose a supported employment type.');
  if(update){
   if(!Number.isSafeInteger(body.version)||body.version<1||body.version>2147483647||!allowedStatuses.has(body.status)||body.confirmed!==true)
