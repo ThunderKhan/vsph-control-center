@@ -52,8 +52,8 @@ test('employee and HR routes are session-backed; HTML and APIs are not static ac
  assert.match(onboarding,/value="invite" checked/);
  assert.match(onboarding,/value="temporary"/);
  assert.match(onboarding,/value="roster"/);
- assert.match(read('public/employee-onboarding.js'),/api\\/employee-enrollment\\/employees/);
- assert.match(read('public/employee-onboarding.js'),/api\\/employee-credentials\\/employees/);
+ assert.ok(read('public/employee-onboarding.js').includes('api/employee-enrollment/employees/'));
+ assert.ok(read('public/employee-onboarding.js').includes('api/employee-credentials/employees/'));
  assert.match(read('public/employees.css'),/#00255A/);
  assert.match(read('public/employees.css'),/#0069C8/);
 });
