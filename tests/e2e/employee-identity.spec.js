@@ -21,7 +21,7 @@ test('owner requests existing employee consent, candidate verifies MFA, link per
  await info.attach('employee-consent-'+info.project.name+'-isolated',{body:await page.screenshot({fullPage:true}),contentType:'image/png'});
  await context.clearCookies();await context.addCookies([cookie('fixture-admin-session')]);
  expect((await context.request.post('/api/employees/'+employee.id+'/grant_hr',{data:{version:2,confirmed:true}})).status()).toBe(200);
- await page.goto('/employees/'+employee.id+'/account-link');await page.getByRole('button',{name:'Revoke employee account link',exact:true}).click();await expect(page.locator('#identityContent')).toContainText('No accepted account link');
+ await page.goto('/employees/'+employee.id+'/account-link');await page.getByRole('button',{name:'Revoke employee account link',exact:true}).click();await expect(page.locator('#identityContent')).toContainText('Not linked');
  await context.clearCookies();await context.addCookies([cookie('fixture-link-'+info.project.name)]);await page.goto('/employment');await expect(page.locator('#identityContent')).toContainText('No active employment link');
  expect((await context.request.get('/api/employees')).status()).toBe(403);expect((await context.request.get('/api/auth/me')).status()).toBe(200);
 });
