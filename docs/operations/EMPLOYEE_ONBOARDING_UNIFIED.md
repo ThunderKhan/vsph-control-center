@@ -16,12 +16,14 @@ records are preserved and can be managed from `/employees`.
 
 ## Available creation methods
 
-| Method | Action | Employee receives | Activated when |
-| --- | --- | --- | --- |
-| Invitation (default) | Create a disabled new portal identity and single-use seven-day link | Private setup URL displayed once | Employee accepts and chooses their password |
-| Email invitation | Same as invitation, plus optional provider submission | Email submission attempted and backup URL displayed once | Employee accepts and chooses their password |
-| Temporary credentials | Create 24-hour random credentials | Email, login URL and temporary password displayed once | Employee signs in and replaces the password |
-| Roster only | Create an internal employment record | No login credentials | A later governed enrollment or consent-link process |
+- **Invitation (default):** Create a disabled portal identity and a seven-day
+  single-use setup link. The employee chooses a password to activate it.
+- **Email invitation:** The same invitation, with explicit submission to an
+  approved email provider. A manual backup link is shown once.
+- **Temporary credentials:** Generate a 24-hour password for private handoff.
+  The employee must replace it at their first sign-in.
+- **Roster only:** Create the employment record without login credentials.
+  Set up access later through governed enrollment or consent linking.
 
 The issuer never chooses the final employee password in the invitation
 flow. The temporary-password flow forces a personal password before any
