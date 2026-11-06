@@ -26,3 +26,15 @@ test('required asterisks remain inline and confirmation checkbox is centered',()
  assert.match(css,/\.people-confirm\{display:flex;align-items:center/);
  assert.match(css,/\.people-confirm input\[type=checkbox\]\{[^}]+margin:0/);
 });
+
+test('both onboarding cards are compact and remove redundant descriptions without sacrificing progress',()=>{
+ const html=read('views/employee-onboarding.html'),css=read('public/employees.css');
+ assert.match(html,/aria-label="Onboarding progress"/);
+ for(const step of ['Identity','Position','Review'])assert.ok(html.includes('<strong>'+step+'</strong>'),step);
+ assert.doesNotMatch(html,/people-wizard-note|Only platform owners and explicitly authorized HR managers/);
+ assert.doesNotMatch(html,/role="note"|aria-label="Breadcrumb"|Nothing is saved until you confirm/);
+ assert.doesNotMatch(html,/Add a real staff roster record|Use the employee's own professional identity/);
+ assert.match(css,/\.people-steps\{[^}]+padding:26px 24px/);
+ assert.doesNotMatch(css,/\.people-steps\{[^}]*min-height/);
+ assert.doesNotMatch(css,/\.people-wizard-panel\{[^}]*min-height/);
+});

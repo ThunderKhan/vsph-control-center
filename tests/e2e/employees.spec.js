@@ -17,6 +17,16 @@ test('owner onboards internal staff, sees persisted metrics, filters and cannot 
   await page.goto('/employees/onboarding');
  }
  await expect(page).toHaveURL(/\/employees\/onboarding$/);
+ await expect(page.locator('.people-shell [aria-label="Breadcrumb"]')).toHaveCount(0);
+ await expect(page.locator('.people-info,.people-wizard-note')).toHaveCount(0);
+ await expect(page.locator('.people-steps li')).toHaveCount(3);
+ const heights=await page.evaluate(()=>{
+  const blue=document.querySelector('.people-steps').getBoundingClientRect();
+  const white=document.querySelector('.people-wizard-panel').getBoundingClientRect();
+  return {blue:blue.height,white:white.height,viewport:window.innerWidth};
+ });
+ expect(heights.blue).toBeLessThan(390);
+ expect(heights.white).toBeLessThan(heights.viewport<760?540:450);
  await page.locator('input[name=fullName]').fill('E2E Sample Employee');
  await page.locator('input[name=email]').fill(email);
  await page.locator('#staffNext').click();

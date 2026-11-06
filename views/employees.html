@@ -9,12 +9,10 @@
 </head>
 <body>
 <div class="people-shell">
- <nav class="people-nav" aria-label="Breadcrumb"><a href="/account/profile">Your profile</a> · <a href="/dashboard">VSPH Control Center</a><span>/</span> Internal operations <span>/</span> Employees <a class="people-nav-return" href="/dashboard">Back to overview</a></nav>
  <header class="people-header">
-  <div><p class="eyebrow">PEOPLE / INTERNAL WORKFORCE</p><h1>Employee management<span class="brand-dot">.</span></h1><p class="muted">VSPH staff records, onboarding progress, departments and HR responsibilities.</p></div>
+  <div><h1>Employee management<span class="brand-dot">.</span></h1></div>
   <a class="people-primary" href="/employees/onboarding">+ Onboard employee</a>
  </header>
- <div class="people-info" role="note">This is the <strong>VSPH internal employee roster</strong>, not your clients' employee directory. Roster status does not grant or revoke portal/product access. All counts below come from persisted records, not sample figures.</div>
  <p id="peopleMessage" class="people-message" role="status" aria-live="polite">Loading employee records…</p>
  <section class="people-metrics" aria-label="Employee summary">
   <article class="people-metric"><span>Employees</span><strong id="staffTotal">—</strong><small>Recorded workforce</small></article>
@@ -36,7 +34,7 @@
   </section>
  </div>
  <section class="people-panel" aria-labelledby="staffDirectoryTitle">
-  <div class="people-panel-head"><div><h2 id="staffDirectoryTitle">Staff directory</h2><p class="muted">Search, filter and review current employee records.</p></div><button id="refreshEmployees" class="people-secondary">Refresh</button></div>
+  <div class="people-panel-head"><div><h2 id="staffDirectoryTitle">Staff directory</h2></div><button id="refreshEmployees" class="people-secondary">Refresh</button></div>
   <div class="people-filters">
    <label for="employeeSearch">Search employees<input id="employeeSearch" type="search" placeholder="Name, email, department or title" maxlength="80" autocomplete="off"></label>
    <label for="employeeStatus">Employee status<select id="employeeStatus"><option value="all">All statuses</option><option value="onboarding">Onboarding</option><option value="active">Active</option><option value="on_leave">On leave</option><option value="inactive">Inactive</option></select></label>
@@ -61,7 +59,7 @@
   </form>
  </section>
  <section class="people-panel" id="hrGovernance" aria-labelledby="hrTitle" hidden>
-  <div class="people-panel-head"><div><h2 id="hrTitle">HR authority</h2><p class="muted">Owner-only role governance</p></div></div>
+  <div class="people-panel-head"><div><h2 id="hrTitle">HR authority</h2></div></div>
   <p class="people-small">An employee must be marked <strong>Active</strong> and must already have an active VSPH portal account with the exact same email and have accepted its account link before an owner can grant new HR privileges. This page never creates login accounts.</p>
   <div id="hrManagers" class="people-hr-list"></div>
  </section>
