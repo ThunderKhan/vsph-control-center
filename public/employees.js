@@ -124,7 +124,7 @@
   const next=event.key==='Home'?0:event.key==='End'?links.length-1:event.key==='ArrowDown'?(index+1)%links.length:(index-1+links.length)%links.length;
   links[next].focus();
  });
- document.addEventListener('scroll',()=>closeManage(),true);
+ // The floating menu remains stable while a keyboard or automation client scrolls a menuitem into view.
  window.addEventListener('resize',()=>closeManage());
  function drawEmployees(records,role){
   const parent=$('employeeRows');parent.replaceChildren();
