@@ -271,7 +271,7 @@
     },
     {
       "path": "supabase/migrations/20261106142000_employee_removal_audit.sql",
-      "sha256": "e60e60b1bd7faf2ccfa40faf50aa7be9b6c29689105d3ba3f0d9c45ab3dd5d55",
+      "sha256": "e00bf62828997a2e97b80714bdd233da963e824ba6011e5b0036f691a7d58f88",
       "version": "20261106142000",
       "name": "employee_removal_audit",
       "requires": [

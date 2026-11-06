@@ -258,7 +258,7 @@ begin
   if authority->>'role'<>'owner' or p_id is not null or p_data<>'{}'::jsonb then
    raise exception 'Owner permission required' using errcode='42501';
   end if;
-  return jsonb_build_object('employees',coalesce((select jsonb_agg(to_jsonb(h) order by h.removed_at desc,h.id),'[]'::jsonb)
+  return jsonb_build_object('employees',coalesce((select jsonb_agg(to_jsonb(h) order by h.removed_at desc,h.id)
    from (select e.id,e.full_name,e.email,e.department,e.job_title,e.removal_reason,
     e.removed_at,e.removed_by,p.full_name removed_by_name,p.email removed_by_email
     from public.internal_employees e left join public.profiles p on p.id=e.removed_by
