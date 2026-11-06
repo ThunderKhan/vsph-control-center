@@ -55,3 +55,28 @@ test('duplicate work email is explained and links to the existing employee witho
  await expect(page).toHaveURL(new RegExp('/employees/'+saved.id+'/account-link$'));
  await expect(page.getByRole('button',{name:'Create login invitation',exact:true})).toBeVisible();
 });
+
+test('polished step navigation keeps progress and focus synchronized, including keyboard use',async({page,context},info)=>{
+ test.skip(!process.env.PROJECT_E2E_DATABASE,'Requires isolated PostgreSQL and simulated Auth');
+ await context.addCookies([{name:'vsph.portal.sid',value:'fixture-admin-session',url:'http://127.0.0.1:3100',httpOnly:true,sameSite:'Lax'}]);
+ await page.goto('/employees/onboarding');
+ const progress=page.locator('#staffProgressBar');
+ await expect(progress).toHaveAttribute('aria-valuenow','33');
+ await expect(page.locator('[data-staff-step="0"]')).toHaveAttribute('aria-current','step');
+ await page.locator('[name=fullName]').fill('Test Focus');
+ await page.locator('[name=email]').fill('focus-'+info.project.name+'@fixture.test');
+ await page.locator('#staffNext').focus();
+ await page.keyboard.press('Enter');
+ await expect(page.locator('[data-staff-panel="1"] legend')).toBeFocused();
+ await expect(progress).toHaveAttribute('aria-valuenow','67');
+ await expect(page.locator('.people-wizard-panel')).toHaveAttribute('aria-labelledby','wizardTitle-1');
+ await expect(page.locator('[data-staff-step="1"]')).toHaveAttribute('aria-current','step');
+ await page.locator('#staffPrevious').click();
+ await expect(page.locator('[data-staff-panel="0"] legend')).toBeFocused();
+ await expect(progress).toHaveAttribute('aria-valuenow','33');
+ await expect(page.locator('.people-wizard-panel')).toHaveAttribute('aria-labelledby','wizardTitle-0');
+ const input=page.locator('[name=email]');
+ await expect(input).toHaveCSS('min-height','48px');
+ await expect(page.locator('#staffNext')).toHaveCSS('min-height','44px');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});

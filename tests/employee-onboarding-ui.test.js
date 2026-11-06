@@ -38,3 +38,21 @@ test('both onboarding cards are compact and remove redundant descriptions withou
  assert.doesNotMatch(css,/\.people-steps\{[^}]*min-height/);
  assert.doesNotMatch(css,/\.people-wizard-panel\{[^}]*min-height/);
 });
+
+test('polish adds labeled step progress, correct section headings, and explicit submission feedback',()=>{
+ const html=read('views/employee-onboarding.html');
+ const script=read('public/employee-onboarding.js');
+ const css=read('public/employees.css');
+ assert.match(html,/id="staffProgressBar"[^>]+role="progressbar"[^>]+aria-valuenow="33"/);
+ for(const index of [0,1,2])assert.ok(html.includes('id="wizardTitle-'+index+'" tabindex="-1"'));
+ assert.match(html,/data-staff-step="0" class="current" aria-current="step"/);
+ assert.match(html,/id="onboardComplete"[^>]+tabindex="-1"/);
+ assert.match(script,/setAttribute\('aria-valuenow',String\(progress\)\)/);
+ assert.match(script,/setAttribute\('aria-current','step'\)/);
+ assert.match(script,/legends\[step\]\.focus\(\)/);
+ assert.match(script,/textContent='Creating…'/);
+ assert.match(script,/removeAttribute\('aria-busy'\)/);
+ assert.match(script,/setAttribute\('aria-invalid','true'\)/);
+ assert.match(css,/\.people-wizard-step label\{font-size:14px/);
+ assert.match(css,/prefers-reduced-motion:reduce/);
+});
