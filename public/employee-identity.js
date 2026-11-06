@@ -72,7 +72,7 @@
   }
  }
  function credentialPanel(employee,enrollment,credential){
-  const panel=node('section');panel.className='identity-readiness';panel.append(node('h3','Temporary employee credentials'),node('p','Status: '+credential.state+' · expires '+new Date(credential.expiresAt).toLocaleString()),node('p','The temporary password is never displayed again after refresh. The employee must replace it before portal access. Reissue invalidates earlier temporary passwords and password-setup sessions.'));
+  const panel=node('section');panel.className='identity-readiness';panel.append(node('h3','Temporary employee credentials'),node('p','Status: '+credential.state+' · expires '+new Date(credential.expiresAt).toLocaleString()),node('p','The temporary password is never displayed again after refresh. The employee must replace it before portal access. Reissue invalidates earlier temporary passwords and password-setup sessions. Activate the roster separately before assigned-work access.'));
   const actions=node('div');actions.className='identity-actions';if(credential.canReissue)actions.append(button('Reissue temporary credentials',()=>createCredentials(employee,enrollment,credential)));
   const r=enrollment?.enrollment;if(r&&!['accepted','cancelled'].includes(r.state))actions.append(button('Cancel temporary credentials',async()=>{if(!confirm('Cancel these temporary employee credentials?'))return;await api('/'+r.id+'/cancel',{rosterVersion:employee.version,version:r.version,confirmed:true},null,'/api/employee-enrollment');await load();}));panel.append(actions);return panel;
  }

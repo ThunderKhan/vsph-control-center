@@ -51,7 +51,7 @@ begin
   perform public.internal_employee_enrollment(p_actor,'review',e.id,jsonb_build_object('currentHash',p_data->>'currentHash'));
   if not exists(select 1 from public.portal_sessions where user_id=p_actor and token_hash=p_data->>'currentHash' and expires_at>clock_timestamp()) then raise exception 'Session expired while waiting' using errcode='42501';end if;
   if p_action='review' then
-   return jsonb_build_object('credential',case when t.id is null then null else jsonb_build_object('id',t.id,'version',t.version,'state',case when r.state not in('accepting','accepted') or r.account_blocked then 'revoked' when t.state='ready' and t.expires_at<=clock_timestamp() then 'expired' else t.state end,'expiresAt',t.expires_at,'canReissue',t.state='ready' and r.state='accepting' and not r.account_blocked and (authority='owner' or r.issuer_id=p_actor)) end);
+   return jsonb_build_object('credential',case when t.id is null then null else jsonb_build_object('id',t.id,'version',t.version,'state',case when r.state not in('accepting','accepted') or r.account_blocked then 'revoked' when t.state='ready' and t.expires_at<=clock_timestamp() then 'expired' else t.state end,'expiresAt',t.expires_at,'canReissue',t.state='ready' and r.state in('accepting','cancelled') and not r.account_blocked and (authority='owner' or r.issuer_id=p_actor)) end);
   end if;
   if e.version is distinct from (p_data->>'rosterVersion')::integer or (authority<>'owner' and r.issuer_id<>p_actor) then raise exception 'Review current credential authority and roster' using errcode='40001';end if;
  end if;
@@ -73,9 +73,9 @@ begin
    insert into public.internal_employee_temporary_credentials(enrollment_id,state,temporary_hash,operation_id) values(r.id,'issuing',p_data->>'temporaryHash',operation) returning * into t;
   else
    if t.version is distinct from (p_data->>'version')::integer then raise exception 'Credentials changed' using errcode='40001';end if;
-   if t.state<>'ready' or r.state<>'accepting' then raise exception 'Credential operation requires recovery' using errcode='42501';end if;
+   if t.state<>'ready' or r.state not in('accepting','cancelled') then raise exception 'Credential operation requires recovery' using errcode='42501';end if;
    prior:=true;
-   update public.internal_employee_enrollments set issuer_id=p_actor,roster_version=e.version,expires_at=clock_timestamp()+interval '7 days',acceptance_id=operation,version=version+1 where id=r.id;
+   update public.internal_employee_enrollments set state='accepting',issuer_id=p_actor,roster_version=e.version,expires_at=clock_timestamp()+interval '7 days',acceptance_id=operation,version=version+1 where id=r.id;
    update public.internal_employee_temporary_credentials set state='issuing',temporary_hash=p_data->>'temporaryHash',operation_id=operation,version=version+1,expires_at=clock_timestamp()+interval '24 hours',setup_hash=null,setup_expires_at=null where id=t.id returning * into t;
   end if;
  else
