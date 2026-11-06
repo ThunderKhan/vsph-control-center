@@ -41,4 +41,5 @@ async function replacePassword({client,setupHash,password}){
   return {message:'Your personal password is set. Sign in again to open your employee workspace.'};
  }catch(e){if(e.enrollmentPassword||e.credentialStepUp)throw e;try{await command(client,null,'failed',record.id,{nonce});}catch{/* No unsafe retry. */}throw unavailable();}
 }
-module.exports={COOKIE,command,createTemporary,temporaryLogin,replacePassword};
+async function logoutTemporary(client,raw){if(!raw)return;try{await command(client,null,'logout',null,{setupHash:hash(raw)});}catch(e){if(!['42501','40001','PGRST202','42883'].includes(e.code))throw e;}}
+module.exports={COOKIE,command,logoutTemporary,createTemporary,temporaryLogin,replacePassword};

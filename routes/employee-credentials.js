@@ -12,7 +12,7 @@ router.post('/employees/:id',portalSession,rateLimit({limit:20,windowMs:900000})
 router.get('/status',route(req=>{if(Object.keys(req.query).length)invalid();return credentials.command(db(),null,'status',null,{setupHash:hashToken(req.cookies?.[credentials.COOKIE])});}));
 router.post('/replace',rateLimit({limit:10,windowMs:900000}),route(async(req,res)=>{
  const b=req.body;if(!b||typeof b!=='object'||Array.isArray(b)||Object.keys(b).some(k=>!['password','confirmed'].includes(k))||b.confirmed!==true||typeof b.password!=='string'||b.password.length<12||b.password.length>128)invalid();
- const result=await credentials.replacePassword({client:db(),setupHash:hashToken(req.cookies?.[credentials.COOKIE]),password:b.password});res.clearCookie(credentials.COOKIE,{path:'/api/employee-credentials',sameSite:'lax',secure:process.env.NODE_ENV==='production'});return result;
+ const result=await credentials.replacePassword({client:db(),setupHash:hashToken(req.cookies?.[credentials.COOKIE]),password:b.password});res.clearCookie(credentials.COOKIE,{path:'/',sameSite:'lax',secure:process.env.NODE_ENV==='production'});return result;
 }));
 function page(req,res){res.set('Cache-Control','no-store').set('Referrer-Policy','no-referrer').sendFile(path.join(__dirname,'..','views','employee-password.html'));}
 module.exports={router,page};
