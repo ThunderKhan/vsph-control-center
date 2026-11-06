@@ -58,6 +58,20 @@
    <button type="submit" class="people-primary">Save employee changes</button>
   </form>
  </section>
+ <section class="people-panel people-remove-panel" id="employeeRemovePanel" aria-labelledby="removeEmployeeTitle" hidden>
+  <div class="people-panel-head"><div><h2 id="removeEmployeeTitle">Remove employee</h2><p id="removeEmployeeIdentity" class="muted"></p></div><button id="cancelRemoveEmployee" class="people-secondary" type="button">Cancel</button></div>
+  <p class="people-small">Removal archives this employee's workforce record. The owner can review the audit history.</p>
+  <form id="employeeRemoveForm">
+   <label class="people-remove-label" for="employeeRemovalReason">Reason for removal</label>
+   <textarea id="employeeRemovalReason" name="reason" minlength="8" maxlength="500" required rows="3"></textarea>
+   <label class="people-confirm"><input id="employeeRemovalConfirmed" type="checkbox" required> I confirm this employee should be removed.</label>
+   <button class="people-danger" type="submit">Confirm employee removal</button>
+  </form>
+ </section>
+ <section class="people-panel" id="removedEmployeeHistory" aria-labelledby="removedEmployeeTitle" hidden>
+  <div class="people-panel-head"><div><h2 id="removedEmployeeTitle">Removed employees</h2><p class="muted">Owner audit history · latest 100 records</p></div><button class="people-secondary" type="button" id="refreshRemovedEmployees">Refresh history</button></div>
+  <div id="removedEmployeeRows" class="people-removal-history" aria-live="polite"></div>
+ </section>
  <section class="people-panel" id="hrGovernance" aria-labelledby="hrTitle" hidden>
   <div class="people-panel-head"><div><h2 id="hrTitle">HR authority</h2></div></div>
   <p class="people-small">An employee must be marked <strong>Active</strong> and must already have an active VSPH portal account with the exact same email and have accepted its account link before an owner can grant new HR privileges. This page never creates login accounts.</p>

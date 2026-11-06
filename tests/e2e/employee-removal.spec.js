@@ -1,0 +1,40 @@
+const {test,expect}=require('@playwright/test');
+const crypto=require('node:crypto');
+const origin='http://127.0.0.1:3100';
+
+test('authorized HR removal is audited for the owner and hidden from the ordinary directory',async({page,context},info)=>{
+ test.skip(!process.env.PROJECT_E2E_DATABASE,'Requires isolated employee database');
+ test.setTimeout(65000);
+ const email='remove-'+info.project.name+'-'+crypto.randomBytes(5).toString('hex')+'@fixture.test';
+ await context.addCookies([{name:'vsph.portal.sid',value:'fixture-hrms-hr-'+info.project.name,url:origin,httpOnly:true,sameSite:'Lax'}]);
+ const body={fullName:'Removal Test Employee',email,department:'Engineering',jobTitle:'Tester',employmentType:'intern',startDate:'2026-11-06'};
+ const create=await context.request.post('/api/employees',{headers:{Origin:origin,'Idempotency-Key':crypto.randomUUID()},data:body});
+ expect(create.status()).toBe(201);
+ const created=await create.json();
+ await page.goto('/employees');
+ await page.locator('#employeeSearch').fill(email);
+ const employeeRow=page.locator('#employeeRows tr').filter({hasText:email});
+ await expect(employeeRow).toBeVisible();
+ await employeeRow.getByRole('button',{name:'Remove',exact:true}).click();
+ await expect(page.locator('#employeeRemovePanel')).toBeVisible();
+ await expect(page.locator('#removeEmployeeIdentity')).toContainText(email);
+ await page.locator('#employeeRemovalReason').fill('Fixed-term employment completed');
+ await page.locator('#employeeRemovalConfirmed').check();
+ page.once('dialog',d=>d.accept());
+ await page.getByRole('button',{name:'Confirm employee removal'}).click();
+ await expect(page.locator('#peopleMessage')).toContainText('Employee removed');
+ await expect(employeeRow).toHaveCount(0);
+ expect((await context.request.get('/api/employees/removals')).status()).toBe(403);
+ expect((await context.request.post('/api/employees/'+created.id+'/remove',{headers:{Origin:origin},
+  data:{version:1,reason:'Second removal is forbidden',confirmed:true}})).status()).not.toBe(200);
+ await context.clearCookies();
+ await context.addCookies([{name:'vsph.portal.sid',value:'fixture-admin-session',url:origin,httpOnly:true,sameSite:'Lax'}]);
+ await page.goto('/employees');
+ await expect(page.locator('#removedEmployeeHistory')).toBeVisible();
+ await expect(page.locator('#removedEmployeeRows')).toContainText(email);
+ await expect(page.locator('#removedEmployeeRows')).toContainText('Fixed-term employment completed');
+ const history=await context.request.get('/api/employees/removals');
+ expect(history.status()).toBe(200);
+ expect((await history.json()).employees.some(e=>e.id===created.id)).toBe(true);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});

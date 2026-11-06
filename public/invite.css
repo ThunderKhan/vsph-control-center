@@ -18,3 +18,22 @@ button:disabled{opacity:.5;cursor:not-allowed}.error{color:#B42318;background:#F
 /* Employee consent remains a compact checkbox with a full-size label target. */
 .employee-enrollment-consent{display:flex;align-items:flex-start;gap:12px;min-height:44px;font-size:14px;line-height:1.5}.employee-enrollment-consent input{width:20px;height:20px;padding:0;flex:none;margin:0}
 #enrollmentForm>p,#enrollmentMessage{font-size:14px;line-height:1.6;overflow-wrap:anywhere}
+
+/* Employee setup: full-width actions and accessible password controls. */
+.employee-enrollment-page .invite-card{width:min(560px,100%)}
+.employee-enrollment-page .invite-return{display:flex;width:100%;min-height:48px;margin-top:10px;padding:12px 16px;justify-content:center;text-align:center;font-size:13px}
+.employee-enrollment-page .enrollment-password-wrap{position:relative}
+.employee-enrollment-page .enrollment-password-wrap input{padding-right:56px}
+.employee-enrollment-page button.enrollment-password-toggle{position:absolute;inset-block:0;right:4px;display:grid;place-items:center;width:44px;height:auto;min-height:44px;padding:10px;margin:0;border:0;border-radius:8px;background:transparent;color:#536984}
+.employee-enrollment-page button.enrollment-password-toggle:hover{background:#EAF3FA;color:#00255A}
+.employee-enrollment-page .enrollment-password-toggle svg{width:21px;height:21px}
+.employee-enrollment-page .enrollment-password-toggle.is-visible svg{opacity:.55}
+.employee-enrollment-page .enrollment-password-help{margin:7px 0 0;font-size:12px;color:#536984;line-height:1.5}
+.employee-enrollment-page .enrollment-strength{margin:12px 0 18px}
+.employee-enrollment-page .enrollment-strength-track{height:6px;overflow:hidden;border-radius:99px;background:#E5EDF5}
+.employee-enrollment-page .enrollment-strength-track span{display:block;width:0;height:100%;background:#C2413B;border-radius:inherit;transition:width .16s ease,background .16s ease}
+.employee-enrollment-page #enrollmentStrengthFill[data-level="2"]{background:#B07920}
+.employee-enrollment-page #enrollmentStrengthFill[data-level="3"]{background:#0D7CA3}
+.employee-enrollment-page #enrollmentStrengthFill[data-level="4"]{background:#16815D}
+.employee-enrollment-page .enrollment-strength p{margin:7px 0 0;color:#536984;font-size:12px;line-height:1.5}
+@media(prefers-reduced-motion:reduce){.employee-enrollment-page .enrollment-strength-track span{transition:none}}

@@ -185,3 +185,20 @@
  .people-completion-recovery button{width:100%}
 }
 @media(prefers-reduced-motion:reduce){.people-review-edit{transition:none!important}}
+
+/* Removal confirmation and owner-only audit history. */
+.people-remove-panel{border-color:#E5CBD0}
+.people-remove-panel .people-remove-label{display:block;font-size:13px;font-weight:600;color:#00255A;margin:16px 0 8px}
+.people-remove-panel textarea{box-sizing:border-box;display:block;width:100%;min-height:100px;resize:vertical;border:1px solid #B8CDDF;border-radius:8px;font:14px/1.6 Inter,Arial,sans-serif;padding:12px;color:#00255A;background:#FFF;margin-bottom:16px}
+.people-remove-panel textarea:focus-visible{outline:3px solid #50C0E8;outline-offset:2px}
+.people-danger{display:inline-flex;align-items:center;justify-content:center;min-height:44px;margin-top:18px;padding:11px 18px;border:1px solid #A82D3D;border-radius:8px;color:#FFF;background:#A82D3D;font:600 13px/1.5 Inter,Arial,sans-serif;cursor:pointer}
+.people-danger:hover{background:#851D2B}
+.people-danger:focus-visible{outline:3px solid #50C0E8;outline-offset:2px}
+.people-removal-history{display:grid;gap:10px}
+.people-removal-entry{border:1px solid #E1E8F0;border-radius:10px;padding:16px;background:#FBFCFF;min-width:0}
+.people-removal-person{display:grid;gap:3px}
+.people-removal-person strong{font-size:14px;color:#00255A}
+.people-removal-person span{font-size:12px;color:#536984;overflow-wrap:anywhere}
+.people-removal-entry p{margin:7px 0 0}
+.people-removal-reason{font-size:13px;line-height:1.6;color:#344A66;overflow-wrap:anywhere}
+@media(max-width:640px){.people-remove-panel .people-danger{width:100%}}

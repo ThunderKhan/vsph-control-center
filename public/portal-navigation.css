@@ -22,3 +22,7 @@ body[data-portal-shell] #portalContent button{min-height:44px;max-width:100%;whi
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 .crm-header-actions .portal-dropdown a{display:flex;width:auto;height:auto;place-items:initial;justify-content:flex-start;border:0;color:#00255A}
 @media(max-width:360px){.crm-header-row{padding-inline:16px}.crm-header-actions{gap:8px}.crm-brand-group{gap:8px}.crm-brand{font-size:20px}}
+
+/* Account actions sit inside the avatar menu. */
+.portal-account .portal-signout{display:flex;width:100%;min-height:44px;text-align:left;justify-content:flex-start;background:transparent;border:0;border-radius:6px;padding:12px 16px;font:500 14px/20px Inter,Arial,sans-serif;color:#00255A;cursor:pointer}
+.portal-account .portal-signout:hover{background:#EAF3FA}

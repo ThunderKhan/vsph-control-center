@@ -5,6 +5,8 @@ test('employee enrollment proof rejects forged roles, missing consent, weak pass
  for(const extra of [{token:'bad'},{id:'bad'},{purpose:'customer'},{password:'secret'}])assert.throws(()=>proof({...b,...extra}));
  for(const extra of [{password:'short',confirmed:true},{password:'long-password-2026',confirmed:false},{password:'long-password-2026',confirmed:true,hr:true}])assert.throws(()=>proof({...b,...extra},true));
  assert.equal(proof({...b,password:'long-password-2026',confirmed:true},true).confirmed,true);
+ assert.equal(proof({...b,password:'eight888',confirmed:true},true).confirmed,true);
+ assert.throws(()=>proof({...b,password:'short77',confirmed:true},true));
 });
 test('provider provisioning refuses an existing unrelated, confirmed or mismatched identity without altering credentials',async()=>{
  const record={id:randomUUID(),authUserId:randomUUID(),email:'staff@fixture.test'};

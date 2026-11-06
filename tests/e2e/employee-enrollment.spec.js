@@ -14,6 +14,15 @@ test('owner creates an employee login invitation and the employee chooses a pass
  const employeeContext=await browser.newContext({viewport:info.project.name==='mobile'?{width:390,height:844}:{width:1280,height:800}}),employee=await employeeContext.newPage();
  try{
   await employee.goto(url);await expect(employee.locator('#enrollmentForm')).toBeVisible();expect(new URL(employee.url()).hash).toBe('');await expect(employee.locator('#enrollmentInfo')).toContainText(email);
+  await expect(employee.locator('#enrollmentPassword')).toHaveAttribute('minlength','8');
+  await employee.locator('#enrollmentPassword').fill('abcdefgh');
+  await expect(employee.locator('#enrollmentStrengthText')).toContainText('Weak');
+  await employee.getByRole('button',{name:'Show new password'}).click();
+  await expect(employee.locator('#enrollmentPassword')).toHaveAttribute('type','text');
+  await employee.getByRole('button',{name:'Hide new password'}).click();
+  await expect(employee.locator('#enrollmentPassword')).toHaveAttribute('type','password');
+  const primary=await employee.locator('#enrollmentSubmit').boundingBox(),secondary=await employee.getByRole('link',{name:'Go to sign in'}).boundingBox();
+  expect(Math.abs(primary.width-secondary.width)).toBeLessThan(2);
   await employee.getByLabel('New password',{exact:true}).fill('private-employee-password-2026');await employee.getByLabel('Confirm password',{exact:true}).fill('private-employee-password-2026');await employee.locator('#enrollmentConsent').check();await employee.getByRole('button',{name:'Create my login',exact:true}).click();await expect(employee.locator('#enrollmentMessage')).toContainText('Your employee account is ready');
   await info.attach('employee-password-setup-'+info.project.name,{body:await employee.screenshot({fullPage:true}),contentType:'image/png'});
   await employee.getByRole('link',{name:'Go to sign in',exact:true}).click();await employee.locator('#email').fill(email);await employee.locator('#password').fill('private-employee-password-2026');await employee.locator('#authSubmit').click();await expect(employee).toHaveURL(/\/dashboard$/);await expect(employee.locator('html')).toHaveAttribute('data-navigation-ready','true');

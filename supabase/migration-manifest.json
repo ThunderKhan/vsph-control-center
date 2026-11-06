@@ -268,6 +268,16 @@
       "requires": [
         "supabase/migrations/20261106054740_internal_employee_enrollment.sql"
       ]
+    },
+    {
+      "path": "supabase/migrations/20261106142000_employee_removal_audit.sql",
+      "sha256": "e60e60b1bd7faf2ccfa40faf50aa7be9b6c29689105d3ba3f0d9c45ab3dd5d55",
+      "version": "20261106142000",
+      "name": "employee_removal_audit",
+      "requires": [
+        "supabase/migrations/20261106063206_internal_employee_temporary_credentials.sql",
+        "supabase/migrations/20261103165522_internal_employee_identity_links.sql"
+      ]
     }
   ],
   "note": "Historical Music filenames share version 20261030. Reconcile hosted ledger explicitly; do not silently rename or repair history."

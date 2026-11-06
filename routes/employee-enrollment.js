@@ -52,7 +52,7 @@ for(const action of ['renew','cancel'])router.post('/:id/'+action,portalSession,
  return enrollment.command(db(),req.user.id,'cancel',req.params.id,{...req.body,currentHash:req.portalSession.token_hash});
 }));
 const publicLimit=rateLimit({limit:20,windowMs:15*60*1000});
-function proof(body,accept=false){fields(body,accept?['id','token','password','confirmed']:['id','token']);if(!uuid(body.id)||typeof body.token!=='string'||!/^[A-Za-z0-9_-]{43}$/.test(body.token))invalid();if(accept&&(body.confirmed!==true||typeof body.password!=='string'||body.password.length<12||body.password.length>128))invalid();return body;}
+function proof(body,accept=false){fields(body,accept?['id','token','password','confirmed']:['id','token']);if(!uuid(body.id)||typeof body.token!=='string'||!/^[A-Za-z0-9_-]{43}$/.test(body.token))invalid();if(accept&&(body.confirmed!==true||typeof body.password!=='string'||body.password.length<8||body.password.length>128))invalid();return body;}
 router.post('/inspect',publicLimit,route(req=>{const b=proof(req.body);return enrollment.command(db(),null,'inspect',b.id,{tokenHash:enrollment.hash(b.token)});}));
 router.post('/accept',publicLimit,route(req=>{const b=proof(req.body,true);return enrollment.accept({client:db(),...b});}));
 function page(req,res){res.set('Cache-Control','no-store').set('Referrer-Policy','no-referrer').sendFile(path.join(__dirname,'..','views','employee-enrollment.html'));}

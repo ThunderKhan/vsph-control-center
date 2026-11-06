@@ -4,6 +4,7 @@ const {db,check} = require('../db');
 const {portalSession} = require('../security');
 const {reviewHrAccess}=require('../services/employee-hr-readiness');
 const {rpcRoute,uuid} = require('../services/rpc');
+const {rateLimit} = require('../http-security');
 
 const router=express.Router();
 router.use(portalSession);
@@ -55,6 +56,23 @@ function command(req,action,id=null,data={}) {
  return db().rpc('internal_employee_command',{p_actor:req.user.id,p_action:action,p_id:id,p_data:data}).then(check);
 }
 router.get('/access',rpcRoute(req=>command(req,'access')));
+// Removal is a separate, audited workforce operation; ordinary HR cannot inspect owner history.
+router.get('/removals',rpcRoute(req=>{
+ if(Object.keys(req.query).length)invalid('Invalid removal-history filters.');
+ return db().rpc('internal_employee_removal',{p_actor:req.user.id,p_action:'history',p_id:null,p_data:{}}).then(check);
+}));
+router.post('/:id/remove',rateLimit({limit:12,windowMs:15*60*1000}),rpcRoute(req=>{
+ if(!uuid(req.params.id))invalid('Invalid employee identifier.');
+ const body=req.body;
+ if(!body||Array.isArray(body)||typeof body!=='object'||
+    Object.keys(body).length!==3||Object.keys(body).some(k=>!['version','reason','confirmed'].includes(k))||
+    !Number.isInteger(body.version)||body.version<1||body.version>2147483647||
+    body.confirmed!==true||typeof body.reason!=='string'||body.reason.trim().length<8||
+    body.reason.trim().length>500||control.test(body.reason))
+  invalid('Confirm the current employee version and provide a removal reason (8–500 characters).');
+ return db().rpc('internal_employee_removal',{p_actor:req.user.id,p_action:'remove',p_id:req.params.id,
+  p_data:{version:body.version,reason:body.reason.trim(),confirmed:true}}).then(check);
+}));
 router.get('/',rpcRoute(req=>{
  const keys=Object.keys(req.query);
  if(keys.some(k=>!['afterId','status','search'].includes(k))||
