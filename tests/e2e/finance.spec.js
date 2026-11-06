@@ -4,7 +4,6 @@ test('owner records INR invoice, receipt and persistent real totals; outsider is
  test.setTimeout(55000);
  const org='ffffffff-1111-4111-8111-111111111111',date=new Date().toISOString().slice(0,10);
  await context.addCookies([{name:'vsph.portal.sid',value:'fixture-admin-session',url:'http://127.0.0.1:3100',httpOnly:true,sameSite:'Lax'}]);
- page.on('dialog',d=>d.accept());
  await page.goto('/admin/finance');
  await expect(page.locator('#financeStatus')).toContainText('Live ledger loaded');
  await expect(page.locator('#finCollected')).toContainText('₹0.00');
@@ -15,6 +14,7 @@ test('owner records INR invoice, receipt and persistent real totals; outsider is
  await page.locator('#financeInvoiceForm [name=dueOn]').fill(date);
  await page.locator('#financeInvoiceForm [name=confirmed]').check();
  await page.getByRole('button',{name:'Save invoice'}).click();
+ await page.getByRole('dialog').getByRole('button',{name:'Continue'}).click();
  await expect(page.locator('#financeStatus')).toContainText('Invoice saved');
  await expect(page.locator('#finInvoiced')).toHaveText('₹100.00');
  await expect(page.locator('#finCollected')).toHaveText('₹0.00');
@@ -27,6 +27,7 @@ test('owner records INR invoice, receipt and persistent real totals; outsider is
  await page.locator('#financePaymentForm [name=receivedOn]').fill(date);
  await page.locator('#financePaymentForm [name=confirmed]').check();
  await page.getByRole('button',{name:'Record receipt'}).click();
+ await page.getByRole('dialog').getByRole('button',{name:'Continue'}).click();
  await expect(page.locator('#financeStatus')).toContainText('Receipt recorded');
  await expect(page.locator('#finCollected')).toHaveText('₹30.00');
  await expect(page.locator('#finOutstanding')).toHaveText('₹70.00');

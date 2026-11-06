@@ -39,11 +39,11 @@ test("product registry persists versioned metadata and truthful readiness", asyn
     .click();
   await expect(page.locator("#observation")).toContainText("unavailable");
   await expect(page.locator("main")).toHaveAttribute("aria-busy", "false");
-  page.on("dialog", (d) => d.accept());
   await page
     .getByLabel("Lifecycle", { exact: true })
     .selectOption("maintenance");
   await page.getByRole("button", { name: "Save product", exact: true }).click();
+  await page.getByRole("dialog").getByRole("button",{name:"Continue"}).click();
   await expect(page.locator("#message")).toContainText("atomic audit");
   await page.reload();
   await page.locator("#product").selectOption({

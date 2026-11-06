@@ -58,18 +58,19 @@ test("customer workspace queues scoped invitations and rotates or cancels them w
   await expect(page.locator("#invitations")).toContainText(
     "developer@fixture.test",
   );
-  page.on("dialog", (d) => d.accept());
   await page
     .getByRole("button", {
       name: "Reissue developer@fixture.test",
       exact: true,
     })
     .click();
+  await page.getByRole("dialog").getByRole("button",{name:"Continue"}).click();
   await expect(page.locator("#message")).toContainText("updated");
   await expect(page.locator("#detail")).toHaveAttribute("aria-busy", "false");
   await page
     .getByRole("button", { name: "Cancel developer@fixture.test", exact: true })
     .click();
+  await page.getByRole("dialog").getByRole("button",{name:"Continue"}).click();
   await expect(page.locator("#invitations")).toContainText("revoked");
   await page.reload();
   await page.locator("#customer").selectOption(org);

@@ -50,13 +50,13 @@ test("refreshing entitlement versions preserves the selected customer and produc
   await page.locator("#subOrg").selectOption(target);
   await page.locator("#subApp").selectOption(music.id);
   await page.locator("#subStatus").selectOption("active");
-  page.on("dialog", (d) => d.accept());
   for (const plan of ["selection-plan", "selection-plan-2"]) {
     await page.locator("#subPlan").fill(plan);
     await page
       .locator("#subscriptionForm")
       .getByRole("button", { name: "Save subscription", exact: true })
       .click();
+    await page.getByRole("dialog").getByRole("button",{name:"Save subscription"}).click();
     await expect(page.locator("#globalMessage")).toHaveText(
       "Subscription saved.",
     );

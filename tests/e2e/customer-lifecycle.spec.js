@@ -44,13 +44,13 @@ test("customer lifecycle confirms impact, persists terms and revokes access safe
   await page.locator("#customer").selectOption(org);
   await expect(page.locator("#impact")).toContainText("pending invitations");
   await expect(page.locator("#detail")).toHaveAttribute("aria-busy", "false");
-  page.on("dialog", (d) => d.accept());
   await page
     .getByLabel("Organization lifecycle", { exact: true })
     .selectOption("suspended");
   await page
     .getByRole("button", { name: "Review and save lifecycle", exact: true })
     .click();
+  await page.getByRole("dialog").getByRole("button",{name:"Continue"}).click();
   await expect(page.locator("#state")).toContainText("suspended");
   await expect(page.locator("#detail")).toHaveAttribute("aria-busy", "false");
   await page
@@ -59,6 +59,7 @@ test("customer lifecycle confirms impact, persists terms and revokes access safe
   await page
     .getByRole("button", { name: "Review and save lifecycle", exact: true })
     .click();
+  await page.getByRole("dialog").getByRole("button",{name:"Continue"}).click();
   await expect(page.locator("#state")).toContainText("active");
   await expect(page.locator("#detail")).toHaveAttribute("aria-busy", "false");
   await page
@@ -71,6 +72,7 @@ test("customer lifecycle confirms impact, persists terms and revokes access safe
   await page
     .getByRole("button", { name: "Review and save entitlement", exact: true })
     .click();
+  await page.getByRole("dialog").getByRole("button",{name:"Continue"}).click();
   await expect(page.locator("#products")).toContainText("renewed");
   await expect(page.locator("#products")).toContainText("revoked");
   await page.reload();
