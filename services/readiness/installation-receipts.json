@@ -36,5 +36,13 @@
     "requires": [
       "20261106054740"
     ]
+  },
+  {
+    "version": "20261106070538",
+    "name": "vsph_employee_temporary_credentials_20261106",
+    "sqlSha256": "d1bfd7707399e0a46d647523baec1e58ef5f1c7b3e9109652203669a9425a9cd",
+    "requires": [
+      "20261106063206"
+    ]
   }
 ]
