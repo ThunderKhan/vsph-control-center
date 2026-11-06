@@ -1,3 +1,5 @@
+> The reviewed migration is now installed in the configured target. See [installation evidence and normal localhost acceptance](EMPLOYEE_ENROLLMENT_INSTALL_20261106.md). Live Auth acceptance remains a separate verification boundary.
+
 # Employee login enrollment
 
 Creating an employee still saves an idempotent roster record without silently granting account access. The completion screen now links directly to **Set up employee login**. Owners and current HR managers can create a new-account invitation from the employee's Account link page. Existing portal accounts continue through credential/MFA consent linking; their passwords are never reset by enrollment. HR cannot invite protected owner/HR records or appoint HR managers.

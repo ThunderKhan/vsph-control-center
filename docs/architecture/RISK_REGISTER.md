@@ -1,3 +1,7 @@
+## Enrollment installation boundary — 6 November 2026
+
+Canonical employee enrollment and its exact transport receipt are installed, with matching preservation fingerprints for 15 tables and live anonymous PostgREST denial. No existing user, credential, tenant entitlement, subscription or roster row was changed. This resolves the schema availability gate; successful live Auth provisioning/acceptance, private handoff verification and governed ambiguous-password reconciliation remain separate risks. See [installed evidence](../operations/EMPLOYEE_ENROLLMENT_INSTALL_20261106.md). No staging, production deployment or hosted disaster-recovery readiness is inferred.
+
 ## Employee enrollment — 6 November 2026
 
 New-account enrollment isolates password setup from existing identity linking. Private manual invitation handoff is a capability: issuers must verify the recipient; no automatic email ownership proof or email delivery is claimed. Ambiguous external password writes quarantine the disabled profile and block automatic retries; governed operator reconciliation remains necessary. Existing identities are never reset/adopted. Isolated native/browser tests cannot establish hosted Auth delivery, provider ownership markers or production acceptance; target schema installation and real-identity acceptance remain separate gates. See [operator guide](../operations/EMPLOYEE_ENROLLMENT.md).

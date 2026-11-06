@@ -1,0 +1,942 @@
+{
+  "projectRef": "zbmerhexucqxazuxjmmw",
+  "sourceMerge": "3d04ded503b01493806b77db430f627a1eaa5885",
+  "verification": {
+    "table": {
+      "rls": true,
+      "anonAccess": false,
+      "serverSelect": true,
+      "authenticatedAccess": false
+    },
+    "receipt": {
+      "name": "vsph_employee_enrollment_20261106",
+      "version": "20261106061540",
+      "sqlSha256": "6cb7d4a442457d4ec55af20895cce9c9c59f74241f5c4471158294eaa0fb3276"
+    },
+    "canonical": {
+      "name": "internal_employee_enrollment",
+      "version": "20261106054740",
+      "sourceMarker": "-- vsph-source-sha256: 82bac868400957c56c285fb1dde87441db38ad19a0a0348d2e57fd47b3914a65"
+    },
+    "functions": [
+      {
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "internal_employee_enrollment(uuid,text,uuid,jsonb)",
+        "anonExecute": false,
+        "serverExecute": true,
+        "authenticatedExecute": false
+      },
+      {
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "internal_employee_enrollment_activation_guard()",
+        "anonExecute": false,
+        "serverExecute": true,
+        "authenticatedExecute": false
+      },
+      {
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "internal_employee_enrollment_revoke()",
+        "anonExecute": false,
+        "serverExecute": true,
+        "authenticatedExecute": false
+      },
+      {
+        "config": [
+          "search_path=\"\""
+        ],
+        "definer": true,
+        "signature": "set_profile_status(uuid,uuid,text)",
+        "anonExecute": false,
+        "serverExecute": true,
+        "authenticatedExecute": false
+      }
+    ],
+    "ledgerCount": 33,
+    "enrollmentCount": 0
+  },
+  "preservation": {
+    "before": [
+      {
+        "name": "profiles",
+        "count": 9,
+        "fingerprint": "bd9757a7d9f988f8554330f9b650644f"
+      },
+      {
+        "name": "organizations",
+        "count": 8,
+        "fingerprint": "6b72e112c06de82fe43fbe6d19988826"
+      },
+      {
+        "name": "subscriptions",
+        "count": 9,
+        "fingerprint": "37d457f644626dfb3cc195e4d510a5e1"
+      },
+      {
+        "name": "crm_contacts",
+        "count": 4,
+        "fingerprint": "3484dd738e02ad0b60833c82adbd808e"
+      },
+      {
+        "name": "music_requests",
+        "count": 3,
+        "fingerprint": "5489b0497a4b25878437dbbd0ca46ded"
+      },
+      {
+        "name": "internal_employees",
+        "count": 6,
+        "fingerprint": "47f9819d0cd70965aebd4d42b2f3cb07"
+      },
+      {
+        "name": "organization_memberships",
+        "count": 7,
+        "fingerprint": "2709ea88d647bdc4437334ed46f86b52"
+      },
+      {
+        "name": "organization_app_access",
+        "count": 9,
+        "fingerprint": "1e6ba921b5b1b9d73f9f534e27ed3ced"
+      },
+      {
+        "name": "user_app_roles",
+        "count": 8,
+        "fingerprint": "6a24f5ea2513e434ffe44b10ae115ed9"
+      },
+      {
+        "name": "app_sessions",
+        "count": 1,
+        "fingerprint": "831d2d5e9b863be2e660145b9f980221"
+      },
+      {
+        "name": "portal_sessions",
+        "count": 14,
+        "fingerprint": "13ddac1bc0de6cd9b9581842c53541cd"
+      },
+      {
+        "name": "applications",
+        "count": 2,
+        "fingerprint": "de13267a6cf08013381cf392a8182f61"
+      },
+      {
+        "name": "internal_employee_identity_links",
+        "count": 2,
+        "fingerprint": "b4f3db8424b9f47a643f1e3fdbd4d3f2"
+      },
+      {
+        "name": "internal_hr_managers",
+        "count": 1,
+        "fingerprint": "68261b45a1f0509791d2dc4c05792a49"
+      },
+      {
+        "name": "auth.users",
+        "count": 9,
+        "fingerprint": "e1cc6226c53d8b4dee64f6e5e21fdb27"
+      }
+    ],
+    "after": [
+      {
+        "name": "profiles",
+        "count": 9,
+        "fingerprint": "bd9757a7d9f988f8554330f9b650644f"
+      },
+      {
+        "name": "organizations",
+        "count": 8,
+        "fingerprint": "6b72e112c06de82fe43fbe6d19988826"
+      },
+      {
+        "name": "subscriptions",
+        "count": 9,
+        "fingerprint": "37d457f644626dfb3cc195e4d510a5e1"
+      },
+      {
+        "name": "crm_contacts",
+        "count": 4,
+        "fingerprint": "3484dd738e02ad0b60833c82adbd808e"
+      },
+      {
+        "name": "music_requests",
+        "count": 3,
+        "fingerprint": "5489b0497a4b25878437dbbd0ca46ded"
+      },
+      {
+        "name": "internal_employees",
+        "count": 6,
+        "fingerprint": "47f9819d0cd70965aebd4d42b2f3cb07"
+      },
+      {
+        "name": "organization_memberships",
+        "count": 7,
+        "fingerprint": "2709ea88d647bdc4437334ed46f86b52"
+      },
+      {
+        "name": "organization_app_access",
+        "count": 9,
+        "fingerprint": "1e6ba921b5b1b9d73f9f534e27ed3ced"
+      },
+      {
+        "name": "user_app_roles",
+        "count": 8,
+        "fingerprint": "6a24f5ea2513e434ffe44b10ae115ed9"
+      },
+      {
+        "name": "app_sessions",
+        "count": 1,
+        "fingerprint": "831d2d5e9b863be2e660145b9f980221"
+      },
+      {
+        "name": "portal_sessions",
+        "count": 14,
+        "fingerprint": "13ddac1bc0de6cd9b9581842c53541cd"
+      },
+      {
+        "name": "applications",
+        "count": 2,
+        "fingerprint": "de13267a6cf08013381cf392a8182f61"
+      },
+      {
+        "name": "internal_employee_identity_links",
+        "count": 2,
+        "fingerprint": "b4f3db8424b9f47a643f1e3fdbd4d3f2"
+      },
+      {
+        "name": "internal_hr_managers",
+        "count": 1,
+        "fingerprint": "68261b45a1f0509791d2dc4c05792a49"
+      },
+      {
+        "name": "auth.users",
+        "count": 9,
+        "fingerprint": "e1cc6226c53d8b4dee64f6e5e21fdb27"
+      }
+    ],
+    "unchanged": true
+  },
+  "catalog": {
+    "roles": [
+      "authenticated",
+      "anon",
+      "service_role"
+    ],
+    "tables": [
+      {
+        "rls": true,
+        "name": "account_profile_preferences",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "app_roles",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "app_sessions",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "applications",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "audit_logs",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "crm_contacts",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "finance_invoices",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "finance_payment_reversals",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "finance_payments",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "github_webhook_receipts",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "internal_attendance",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "internal_employee_enrollments",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "internal_employee_identity_links",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "internal_employee_link_requests",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "internal_employees",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "internal_hr_managers",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "internal_leave_requests",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "invitation_outbox",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "membership_invitations",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "music_requests",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "organization_app_access",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "organization_memberships",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "organization_owner_transfer_grants",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "organizations",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "portal_sessions",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "product_health_observations",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "profiles",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "project_activity",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "project_comments",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "project_deliverables",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "project_delivery_events",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "project_delivery_links",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "project_delivery_records",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "project_github_installations",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "project_memberships",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "project_milestones",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "project_notification_outbox",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "project_notification_preferences",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "project_notifications",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "project_products",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "project_repositories",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "project_tasks",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "projects",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "provisioning_jobs",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "sso_launch_codes",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "subscriptions",
+        "browserAccess": false
+      },
+      {
+        "rls": true,
+        "name": "user_app_roles",
+        "browserAccess": false
+      }
+    ],
+    "functions": [
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.owner_dashboard_snapshot(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.account_profile(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.hrms_access(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.internal_self_service(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.internal_hrms(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.finance_journal(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.finance_report(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.internal_employee_identity(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.internal_workforce_authority(uuid)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.internal_employee_identity_lifecycle()",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.internal_employee_enrollment(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.internal_employee_enrollment_revoke()",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.internal_employee_enrollment_activation_guard()",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.project_search(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.finance_command(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.internal_employee_command(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.internal_hr_profile_disabled()",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.organization_ownership(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.consume_sso_launch_code(text)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.set_profile_status(uuid,uuid,text)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.provisioning_command(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.project_command(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.delivery_command(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.notification_command(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.project_report(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.session_command(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.customer_command(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.product_command(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.customer_lifecycle(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.organization_command(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.organization_invitation(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.organization_invitation_core(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.delegated_invitation_authority(uuid,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.provisioning_core_command(uuid,text,uuid,jsonb)",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      },
+      {
+        "exists": true,
+        "definer": true,
+        "signature": "public.guard_product_session_organization()",
+        "browserExecute": false,
+        "serviceExecute": true,
+        "fixedSearchPath": true
+      }
+    ],
+    "historyExists": true,
+    "sessionPublicId": true,
+    "productVisibility": true,
+    "historyDescriptors": [
+      {
+        "name": "vsph_verified_baseline",
+        "version": "20261030000000",
+        "markerSha256": "af8f9083cd4a48229d85de03a3bf59f56b123c59ad0f48d2690bcfabf8562a94"
+      },
+      {
+        "name": "music_sso_launch_codes",
+        "version": "20261030000100",
+        "markerSha256": "d17716a1ea2997525f67d7ad35f36e55fc51accdc248ccbef7b493dc3a6bda4d"
+      },
+      {
+        "name": "music_staff_musician_roles",
+        "version": "20261030000200",
+        "markerSha256": "237244247e978fb7e733e3e9066704856697b14aff90d9961661a413949a65c8"
+      },
+      {
+        "name": "atomic_profile_status",
+        "version": "20261031000100",
+        "markerSha256": "e87383d1926d909d809f8c7e68b6cf8726838b1e64a1a8a5050c9edf9eb26e15"
+      },
+      {
+        "name": "durable_provisioning",
+        "version": "20261031000200",
+        "markerSha256": "7aca5f4ad5d3fd8e5a4dc88b0f74a37decfa019100cb348ee65e87d7cdf52f7b"
+      },
+      {
+        "name": "projects",
+        "version": "20261031000300",
+        "markerSha256": "6a6a2a919f6fccf12a837084a525a37736363490e2ac3e3171a1651d94390955"
+      },
+      {
+        "name": "invitation_disable_revocation",
+        "version": "20261031000400",
+        "markerSha256": "814d5eb0a38c248ff1b67f819ed39cd4d549fefa8aef4f6885d6346ac44e3dbf"
+      },
+      {
+        "name": "project_delivery",
+        "version": "20261031000500",
+        "markerSha256": "599d6b98a3d46251ac5e8d242d6bb0f90404c940b7958cb164da8da2a0ca4d39"
+      },
+      {
+        "name": "project_notifications",
+        "version": "20261031000600",
+        "markerSha256": "f1454fc04c887cf9ae6ae70a7518972d4155ebd093919b5ed1b37eac817a8905"
+      },
+      {
+        "name": "self_service_sessions",
+        "version": "20261031000700",
+        "markerSha256": "570645e673e33e89706356f723e04a483b5ea5e9fd312c5737d9d588c3c54295"
+      },
+      {
+        "name": "overdue_milestone_notifications",
+        "version": "20261031065919",
+        "markerSha256": "2d7ec75af218d2b8373414a83e306cbdb0cdf8912d228e0d9036dd1b11ef34ea"
+      },
+      {
+        "name": "member_governance",
+        "version": "20261101052745",
+        "markerSha256": "8e5c846dc4407e16a21583d012cf2e160542bf5b82e51384ba180d882b633135"
+      },
+      {
+        "name": "product_registry",
+        "version": "20261101053314",
+        "markerSha256": "303b7c692f15194c87efaa2543cb4bfb8227291f1fefa3bf38b18e53d8d60a22"
+      },
+      {
+        "name": "customer_lifecycle",
+        "version": "20261101054139",
+        "markerSha256": "fb330d5897b30574189c61a0d1ab1dcd33115bda5e95e878560d0771f3da51ae"
+      },
+      {
+        "name": "organization_workspace",
+        "version": "20261103050509",
+        "markerSha256": "4ccf1444f52ef37ea513c585f4b8085bfbeb213aa7d970c75150e2c079f7d0dd"
+      },
+      {
+        "name": "delegated_organization_invitations",
+        "version": "20261103051256",
+        "markerSha256": "1c5851a165aa54f523fe4fd93eeca3def170892de85fdc9f9157700d05e6efea"
+      },
+      {
+        "name": "delegated_invitation_profile_locks",
+        "version": "20261103053129",
+        "markerSha256": "cf717c31cfbc110449ded2d5dba86d67cd0c2424c279739c5fae8ce27f6cdd3f"
+      },
+      {
+        "name": "organization_owner_transfer",
+        "version": "20261103062727",
+        "markerSha256": "01d698d90f8c07bf3eb68a2bbf896c96f6a404ab70aabb4c69db5ce71c71e9b5"
+      },
+      {
+        "name": "project_work_search",
+        "version": "20261103072229",
+        "markerSha256": "8c14f9c3ce6a950fa3fbe1e8d5054ea514ccd358617788a984f76e3cdda4092c"
+      },
+      {
+        "name": "internal_employee_governance",
+        "version": "20261103110000",
+        "markerSha256": "81eba7a3cb009fb519abafe1c701d5bf00538b58a3750df86c62c6d2058c9e52"
+      },
+      {
+        "name": "internal_hr_lock_order",
+        "version": "20261103155930",
+        "markerSha256": "256d761e00ef1d87f302ea0138d14eb771d52ffdb7b1f29f595c9d552b1d1665"
+      },
+      {
+        "name": "internal_employee_identity_links",
+        "version": "20261103165522",
+        "markerSha256": "839fa83ac5a1753ade851270db7d0a208bef818fd4cc97d8f984e3b1d4371c3e"
+      },
+      {
+        "name": "finance_ledger",
+        "version": "20261103170000",
+        "markerSha256": "619873d390eec7d784ced78f4ca2f3c1d1fa46e6ac13945ad6aeef9c384f11ec"
+      },
+      {
+        "name": "finance_exact_snapshot_report",
+        "version": "20261103171835",
+        "markerSha256": "1c4f012cf7910ca3adc8c0134250803cc5cb8b0a2081bfc7390ac037e32e6f62"
+      },
+      {
+        "name": "finance_journal",
+        "version": "20261104053000",
+        "markerSha256": "bf3cac661f781a53a73d30d75410e9cbca0258ee2f54990dcd551de765c948ec"
+      },
+      {
+        "name": "vsph_canonical_forward_repair_20261104",
+        "version": "20261104070249",
+        "markerSha256": "7c72b69f6a2c59562e730e8da54199ba6cacad42961fd50f3c49ba7e7372cd62"
+      },
+      {
+        "name": "account_profile_preferences",
+        "version": "20261104091848",
+        "markerSha256": "4f6fd13e10f5bbca8a7405020a8a6062f00e135c6f7774b62f066775579bafab"
+      },
+      {
+        "name": "internal_hrms_self_service",
+        "version": "20261104093317",
+        "markerSha256": "fd72a8ef9b4020fba370f0593eeb94f20b9881c3baed4162f2c5a632f33a430b"
+      },
+      {
+        "name": "vsph_hrms_profiles_20261104",
+        "version": "20261104103649",
+        "markerSha256": "af28c4185c0100d502b9753037d85e24dd3379ee65a9dba79f58715e256e97a1"
+      },
+      {
+        "name": "owner_dashboard_snapshot",
+        "version": "20261104153559",
+        "markerSha256": "efe9fe431fd0814f817b76d80a83df5979df8028478bd09578fbfcaacded43e2"
+      },
+      {
+        "name": "vsph_owner_snapshot_20261104",
+        "version": "20261104155549",
+        "markerSha256": "1fa18fc4a89d9225e65560847208a6ea89110353e62ae19a4b567186fb7d08f0"
+      },
+      {
+        "name": "internal_employee_enrollment",
+        "version": "20261106054740",
+        "markerSha256": "a53a21d9f59057818a70e7162d55164ada3407d8b3175c1fd1faaf32c925df7c"
+      },
+      {
+        "name": "vsph_employee_enrollment_20261106",
+        "version": "20261106061540",
+        "markerSha256": "6cb7d4a442457d4ec55af20895cce9c9c59f74241f5c4471158294eaa0fb3276"
+      }
+    ]
+  },
+  "postgrestAnonymous": [
+    {
+      "path": "rpc/internal_employee_enrollment",
+      "status": 401,
+      "code": "42501"
+    },
+    {
+      "path": "internal_employee_enrollments",
+      "status": 401,
+      "code": "42501"
+    }
+  ],
+  "liveAuthAcceptanceVerified": false,
+  "emailSent": false,
+  "identitiesCreated": false,
+  "releaseReady": false,
+  "readiness": {
+    "pending": [],
+    "blockers": [],
+    "catalogChecksPassed": true,
+    "historyReconciled": true,
+    "releaseReady": false
+  }
+}

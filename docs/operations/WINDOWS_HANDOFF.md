@@ -1,3 +1,7 @@
+# Employee login enrollment — 6 November 2026
+
+The new employee-enrollment migration is installed in the configured database; do not run bootstrap, seed or reset. Pull main, install dependencies and restart at localhost:3000. Use **People → Employees → account link → Create login invitation**, or the onboarding completion's **Set up employee login**. Privately hand the once-shown link to the named employee to choose a password. No email/SMTP or fixture server is required. Existing accounts use consent linking; roster activation and owner-only HR grants remain separate. See [installed evidence and acceptance](EMPLOYEE_ENROLLMENT_INSTALL_20261106.md). Live Auth acceptance from this session is not claimed.
+
 # Current HRMS handoff — 4 November 2026
 
 The configured database has the reviewed profile/HRMS migrations installed. Do not rerun the legacy installer or seed. Pull `main`, install dependencies and restart the portal using the commands below. See [installation evidence](HRMS_INSTALL_20261104.md) and the [owner/HR/employee walkthrough](HRMS_WORKSPACES.md). Older installation cutoffs in this historical guide are superseded by that evidence. Live Auth/MFA and hosted restore are still separate acceptance gates.
