@@ -52,7 +52,7 @@
   const caption=node('p',linked?'The employee has accepted their personal account link. HR authority and customer or project access still require separate approval.':'Account linking and HR permissions are governed independently.');
   caption.className='identity-muted';access.append(caption);
   if(data.hrReadiness){
-   const readiness=data.hrReadiness,section=node('div');section.className='identity-permission';
+   const readiness=data.hrReadiness,section=node('section');section.className='identity-permission';
    section.setAttribute('aria-label','HR appointment readiness');
    section.append(node('strong','HR authority'),node('p',readiness.message));
    if(readiness.canGrant)section.append(button('Grant HR',async()=>{
