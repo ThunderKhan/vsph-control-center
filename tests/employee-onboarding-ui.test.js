@@ -68,7 +68,7 @@ test('redesign isolates the wizard from a compact completion state and preserves
  assert.match(html,/class="people-review-edit" data-edit-step="1"/);
  assert.match(html,/id="onboardComplete"[^>]*hidden/);
  assert.match(js,/function finishEdit\(apply\)/);
- assert.match(js,/textContent='Discard changes'/);
+ assert.match(js,/textContent=editing\?'Discard changes':'Previous'/);
  assert.match(js,/step===2\?'Create employee':'Continue'/);
  assert.match(js,/window\.addEventListener\('beforeunload'/);
  assert.match(js,/window\.addEventListener\('pagehide',clearInvitation\)/);
