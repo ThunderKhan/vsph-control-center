@@ -252,7 +252,7 @@
     },
     {
       "path": "supabase/migrations/20261106054740_internal_employee_enrollment.sql",
-      "sha256": "c40a222ef3f35f495da04884a12a66ca09795d7d2b09f0bf5910b0d8b6c52015",
+      "sha256": "82bac868400957c56c285fb1dde87441db38ad19a0a0348d2e57fd47b3914a65",
       "version": "20261106054740",
       "name": "internal_employee_enrollment",
       "requires": [

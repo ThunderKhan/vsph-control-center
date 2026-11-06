@@ -220,5 +220,3 @@ end;
 $$;
 revoke all on function public.set_profile_status(uuid,uuid,text) from public,anon,authenticated;
 grant execute on function public.set_profile_status(uuid,uuid,text) to service_role;
-
-
