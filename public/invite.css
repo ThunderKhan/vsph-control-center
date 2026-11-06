@@ -15,3 +15,6 @@ button:disabled{opacity:.5;cursor:not-allowed}.error{color:#B42318;background:#F
 .invite-instructions p{font-size:13px;line-height:1.75;color:#61778C;margin:0 0 14px}
 .invite-return{display:inline-flex;align-items:center;justify-content:center;min-height:44px;margin-top:8px;border:1px solid #BFD6E9;border-radius:8px;padding:10px 16px;color:#0069C8;text-decoration:none;font-size:12px;font-weight:700}
 .invite-return:hover{background:#F1F7FC}
+/* Employee consent remains a compact checkbox with a full-size label target. */
+.employee-enrollment-consent{display:flex;align-items:flex-start;gap:12px;min-height:44px;font-size:14px;line-height:1.5}.employee-enrollment-consent input{width:20px;height:20px;padding:0;flex:none;margin:0}
+#enrollmentForm>p,#enrollmentMessage{font-size:14px;line-height:1.6;overflow-wrap:anywhere}

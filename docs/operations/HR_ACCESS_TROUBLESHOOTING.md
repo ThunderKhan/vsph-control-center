@@ -1,3 +1,5 @@
+> New identities now have a separate [employee enrollment workflow](EMPLOYEE_ENROLLMENT.md). The existing-account limitations below describe the consent-link path; enrollment requires its own reviewed migration.
+
 # HR appointment and shared control repair — 5 November 2026
 
 ## Observed cause

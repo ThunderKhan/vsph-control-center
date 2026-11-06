@@ -1,3 +1,5 @@
+> New identities now have a separate [employee enrollment workflow](EMPLOYEE_ENROLLMENT.md). The existing-account limitations below describe the consent-link path; enrollment requires its own reviewed migration.
+
 # Existing employee account consent
 
 The employee roster now supports a durable request/accept/revoke workflow for **existing active ordinary portal identities**. It does not create an Auth user, send an email, reset a password, activate employment or grant a customer, product, project or HR role. New-identity email invitations remain a separate unimplemented workflow; no customer invitation purpose is reused.
