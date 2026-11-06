@@ -1,3 +1,5 @@
+> **Unified onboarding update (6 November 2026):** Temporary credentials can now be selected directly in the `/employees/onboarding` wizard, as well as on the employee's account-link page. The forced password replacement and restricted setup cookie are unchanged.
+
 # HR-issued temporary employee credentials
 
 Owners and current HR managers can choose **Create temporary credentials** on the employee's Account link page. This is an alternative to the existing private setup invitation. It only enrolls new ordinary employee identities; it never resets an existing active account, assigns products/projects or grants HR authority. Existing identities retain the credential/MFA consent-link workflow. Owner-only HR appointment and explicit roster activation remain separate.
