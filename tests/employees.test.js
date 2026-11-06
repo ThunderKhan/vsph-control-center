@@ -10,6 +10,10 @@ test('employee onboarding validates and normalizes only supported fields',()=>{
  const result=employeeFields(sample());
  assert.equal(result.email,'avery@example.test');
  assert.equal(result.fullName,'Avery Patel');
+  assert.equal(employeeFields({...sample(),department:'  engineering  '}).department,'Engineering');
+  for(const department of ['Design','Development','Other','Engineering Department','Unlisted']){
+   assert.throws(()=>employeeFields({...sample(),department}),/approved list/);
+  }
  for(const invalid of [
   {...sample(),role:'super_admin'},
   {...sample(),email:'invalid'},
@@ -19,7 +23,7 @@ test('employee onboarding validates and normalizes only supported fields',()=>{
   {...sample(),department:''},
   {...sample(),email:'a@b.test',password:'not-permitted'}
  ])assert.throws(()=>employeeFields(invalid));
- const edit={fullName:'Updated',department:'Design',jobTitle:'Designer',employmentType:'part_time',
+ const edit={fullName:'Updated',department:'Marketing',jobTitle:'Designer',employmentType:'part_time',
   startDate:'2026-11-04',status:'on_leave',version:3,confirmed:true};
  assert.equal(employeeFields(edit,{update:true}).status,'on_leave');
  assert.throws(()=>employeeFields({...edit,email:'changed@example.test'},{update:true}));
