@@ -261,3 +261,5 @@ test('real-account operator setup retries provider failures without overwriting 
 test('new employee enrollment preserves Auth ownership, capability isolation, retries and concurrency',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./employee-enrollment-cases')(pool)});
 
 test('temporary HR credentials cannot bypass personal password setup, expiry, revocation and race fencing',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./employee-credentials-cases')(pool)});
+
+test('supervised notification batch uses durable native queues with duplicate and revoked-access guards',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./worker-cases.js')(pool);});
