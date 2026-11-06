@@ -18,6 +18,8 @@ SQL stores only temporary-password and setup-cookie hashes, not delivery credent
 
 ## Migration and acceptance
 
+The configured project installation is complete; see [verified installation evidence](EMPLOYEE_TEMPORARY_CREDENTIALS_INSTALL_20261106.md). Live Auth acceptance remains separate.
+
 `20261106063206_internal_employee_temporary_credentials.sql` depends on the existing employee-enrollment migration. It adds one server-only RLS table and command function. It does not backfill/reset existing identities or alter existing tables. Reviewed installation is required before offering this mode; existing active logins and private invitations remain functioning on older targets.
 
 Native PostgreSQL/Express tests cover actual normal-login responses with a simulated Auth provider, missing/revoked credentials, full portal denial before replacement, password reuse denial, one-winner replacement, safe reissue, stale setup cookies, expiry, provider failures, accepted identity linkage and role isolation. Chromium tests exercise the same normal sign-in/forced-change flow on desktop/mobile; existing invitation, employee, product, navigation and governance tests remain required. These are isolated-provider evidence, not a live Auth acceptance or email-delivery claim.
