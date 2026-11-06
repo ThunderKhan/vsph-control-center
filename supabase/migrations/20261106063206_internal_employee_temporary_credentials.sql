@@ -20,7 +20,7 @@ create function public.internal_employee_credentials(p_actor uuid,p_action text,
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare
  r public.internal_employee_enrollments;t public.internal_employee_temporary_credentials;
- e public.internal_employees;target uuid;authority text;operation uuid;fresh boolean;prior boolean:=false;
+ e public.internal_employees;initial_issuer uuid;initial_email text;target uuid;authority text;operation uuid;fresh boolean;prior boolean:=false;
  manager boolean:=p_action in('review','begin','ready');
 begin
  if p_action is null or p_action not in('review','begin','ready','login','status','reserve','finish','reject','failed','logout') or jsonb_typeof(p_data) is distinct from 'object'
@@ -32,8 +32,10 @@ begin
   else select * into t from public.internal_employee_temporary_credentials where setup_hash=p_data->>'setupHash';end if;
   select * into r from public.internal_employee_enrollments where id=t.enrollment_id;target:=r.employee_id;
  end if;
+ initial_issuer:=r.issuer_id;select email into initial_email from public.internal_employees where id=target;
  perform 1 from public.profiles u where u.id in(p_actor,r.issuer_id,r.auth_user_id) or u.email=(select email from public.internal_employees where id=target)
  order by case when u.platform_role='super_admin' then 0 else 1 end,u.id for update;
+ if (select issuer_id from public.internal_employee_enrollments where employee_id=target) is distinct from initial_issuer then raise exception 'Issuer changed; refresh before retry' using errcode='40001';end if;
  if manager then
   perform 1 from public.portal_sessions where user_id=p_actor and token_hash=p_data->>'currentHash' and expires_at>clock_timestamp() for update;
   if not found then raise exception 'Current portal session required' using errcode='42501';end if;
@@ -43,6 +45,7 @@ begin
  select * into e from public.internal_employees where id=target;
  if not found and p_action='logout' then return jsonb_build_object('saved',true);end if;
  if not found then raise exception 'Credential setup unavailable' using errcode='42501';end if;
+ if e.email is distinct from initial_email then raise exception 'Identity changed; refresh before retry' using errcode='40001';end if;
  select * into r from public.internal_employee_enrollments where employee_id=target for update;
  select * into t from public.internal_employee_temporary_credentials where enrollment_id=r.id for update;
  if manager then
