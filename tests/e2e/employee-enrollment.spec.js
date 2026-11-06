@@ -21,3 +21,37 @@ test('owner creates an employee login invitation and the employee chooses a pass
   await employee.goto(url);await expect(employee.locator('#enrollmentForm')).toBeHidden();await expect(employee.locator('#enrollmentMessage')).not.toHaveText('');
  }finally{await employeeContext.close();}
 });
+
+test('duplicate work email is explained and links to the existing employee without creating another roster row',async({page,context},info)=>{
+ test.skip(!process.env.PROJECT_E2E_DATABASE,'Requires isolated PostgreSQL and simulated Auth');
+ const origin='http://127.0.0.1:3100';
+ const email='duplicate-'+info.project.name+'-'+crypto.randomBytes(5).toString('hex')+'@fixture.test';
+ await context.addCookies([{name:'vsph.portal.sid',value:'fixture-admin-session',url:origin,httpOnly:true,sameSite:'Lax'}]);
+ const details={fullName:'Previously enrolled employee',email,department:'Engineering',jobTitle:'Developer',employmentType:'intern',startDate:'2026-11-06'};
+ const response=await context.request.post('/api/employees',{headers:{Origin:origin,'Idempotency-Key':crypto.randomUUID()},data:details});
+ expect(response.status()).toBe(201);
+ const saved=await response.json();
+ await page.goto('/employees/onboarding');
+ await page.locator('[name=fullName]').fill(details.fullName);
+ await page.locator('[name=email]').fill(details.email);
+ await page.locator('#staffNext').click();
+ await page.locator('[name=department]').fill(details.department);
+ await page.locator('[name=jobTitle]').fill(details.jobTitle);
+ await page.locator('[name=employmentType]').selectOption(details.employmentType);
+ await page.locator('[name=startDate]').fill(details.startDate);
+ await page.locator('#staffNext').click();
+ await page.locator('#employeeConfirmed').check();
+ await page.locator('#staffNext').click();
+ await expect(page.locator('#onboardError')).toContainText('already belongs to an employee');
+ await expect(page.locator('#onboardError')).not.toContainText('reload and reconcile');
+ const link=page.locator('#existingEmployeeLink');
+ await expect(link).toBeVisible();
+ await expect(link).toHaveAttribute('href','/employees/'+saved.id+'/account-link');
+ const directory=await context.request.get('/api/employees?search='+encodeURIComponent(email));
+ expect(directory.status()).toBe(200);
+ const data=await directory.json();
+ expect(data.employees.filter(employee=>employee.email===email)).toHaveLength(1);
+ await link.click();
+ await expect(page).toHaveURL(new RegExp('/employees/'+saved.id+'/account-link$'));
+ await expect(page.getByRole('button',{name:'Create login invitation',exact:true})).toBeVisible();
+});

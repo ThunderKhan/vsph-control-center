@@ -5,7 +5,12 @@
  const panels=[...document.querySelectorAll('[data-staff-panel]')];
  const steps=[...document.querySelectorAll('[data-staff-step]')];
  let step=0,busy=false,pending=null;
- const error=message=>{$('onboardError').textContent=message||'';$('onboardError').hidden=!message;};
+ const error=(message,existingId)=>{
+  $('onboardError').textContent=message||'';$('onboardError').hidden=!message;
+  const link=$('existingEmployeeLink');
+  link.hidden=!existingId;
+  if(existingId)link.href='/employees/'+encodeURIComponent(existingId)+'/account-link';
+ };
  function values(){
   return {fullName:form.elements.fullName.value.trim(),email:form.elements.email.value.trim().toLowerCase(),
    department:form.elements.department.value.trim(),jobTitle:form.elements.jobTitle.value.trim(),
@@ -36,20 +41,17 @@
   $('staffStep').textContent='STEP '+(step+1)+' OF 3';
   const progress=[33,67,100][step];$('staffProgress').textContent=progress+'% COMPLETE';$('staffProgressFill').style.width=progress+'%';
   $('staffPrevious').disabled=step===0;
-  $('staffNext').textContent=step===2?submitTitle():'Continue';
+  $('staffNext').textContent=step===2?'Create employee':'Continue';
   if(step===2){drawReview();$('employeeConfirmed').checked=false;}
  }
- function selectedMethod(){return form.elements.accessMethod.value;}
- function submitTitle(){
-  return {invite:'Save and create invitation',email:'Save and email invitation',temporary:'Save and issue credentials',roster:'Save employee record'}[selectedMethod()]||'Save employee';
- }
+
  function showHandoff(title,note,value){
   $('employeeHandoffTitle').textContent=title;$('employeeHandoffNote').textContent=note;
   $('employeeHandoffValue').value=value;$('employeeHandoffPanel').hidden=false;
  }
  async function submit(){
   if(busy||!validPage(2))return;
-  const payload=values(),method=selectedMethod(),signature=JSON.stringify(payload);
+  const payload=values(),signature=JSON.stringify(payload);
   if(pending?.signature!==signature)pending={signature,key:crypto.randomUUID()};
   busy=true;$('staffNext').disabled=true;$('staffPrevious').disabled=true;error('');
   try{
@@ -57,38 +59,35 @@
     headers:{'Content-Type':'application/json','Idempotency-Key':pending.key},body:JSON.stringify(payload)});
    if(response.status===401){location.assign('/login');return;}
    const result=await response.json().catch(()=>({}));
-   if(!response.ok)throw Error(result.code==='SCHEMA_NOT_READY'?'The reviewed employee migration must be installed before saving records.':result.message||'Employee onboarding could not be saved.');
+   if(!response.ok){
+    if(result.code==='EMPLOYEE_EXISTS'&&result.employeeId){
+     error(result.message||'This work email already belongs to an employee.',result.employeeId);
+     return;
+    }
+    throw Error(result.code==='SCHEMA_NOT_READY'?'The reviewed employee migration must be installed before saving records.':result.message||'Employee onboarding could not be saved.');
+   }
    $('setupEmployeeLogin').href='/employees/'+result.id+'/account-link';
    pending=null;form.hidden=true;$('onboardComplete').hidden=false;$('employeeHandoffPanel').hidden=true;
    $('employeeHandoffValue').value='';
    $('onboardCompleteMessage').textContent='Employee '+payload.fullName+' ('+payload.email+') was saved as Onboarding.';
-   if(method==='roster'){
-    $('onboardDeliveryStatus').textContent='Roster saved without a login. Use Set up employee login to invite this employee later.';
-    return;
-   }
    $('onboardDeliveryStatus').textContent='Creating the employee login handoff…';
    try{
-    const temporary=method==='temporary';
-    const endpoint=temporary?'/api/employee-credentials/employees/':'/api/employee-enrollment/employees/';
-    const fields={rosterVersion:result.version,confirmed:true,...(method==='email'?{delivery:'email'}:{})};
-    const issuedResponse=await fetch(endpoint+result.id,{method:'POST',credentials:'same-origin',cache:'no-store',
-     headers:{'Content-Type':'application/json','Idempotency-Key':crypto.randomUUID()},body:JSON.stringify(fields)});
+    const issuedResponse=await fetch('/api/employee-enrollment/employees/'+result.id,{
+     method:'POST',credentials:'same-origin',cache:'no-store',
+     headers:{'Content-Type':'application/json','Idempotency-Key':crypto.randomUUID()},
+     body:JSON.stringify({rosterVersion:result.version,confirmed:true})
+    });
     const issued=await issuedResponse.json().catch(()=>({}));
     if(!issuedResponse.ok)throw Error(issued.message||'Account setup could not be completed.');
     if(issued.replayed){
-     $('onboardDeliveryStatus').textContent='This employee setup was already created. Open Set up employee login to review or explicitly reissue its private link.';
+     $('onboardDeliveryStatus').textContent='An invitation was already created. Open Set up employee login to review or explicitly reissue a private link.';
      return;
     }
-    if(temporary&&issued.temporaryPassword){
-     const details='Sign in: '+issued.loginUrl+'\nWork email: '+issued.email+'\nTemporary password: '+issued.temporaryPassword+'\nExpires: '+new Date(issued.expiresAt).toLocaleString()+'\nReplace this password on first sign-in.';
-     showHandoff('Generated temporary credentials','Only share with the named employee through a trusted private channel. The temporary password is shown once.',details);
-     $('onboardDeliveryStatus').textContent='Temporary credentials created. The employee must replace their password before receiving a portal session.';
-    }else if(!temporary&&issued.url){
-     showHandoff('Private employee setup link','Shown once. Copy and deliver privately to the named employee. Refreshing this page removes the link.',issued.url);
-     $('onboardDeliveryStatus').textContent=issued.emailDelivery?.message||
-      'Invitation created. No email was sent; share this private link with the employee.';
+    if(issued.url){
+     showHandoff('Private employee setup link','Shown once. Share privately with the named employee. Refreshing this page removes the link.',issued.url);
+     $('onboardDeliveryStatus').textContent='Invitation created. Copy the private link and deliver it to the employee; no email was sent.';
     }else{
-     $('onboardDeliveryStatus').textContent='The account setup requires review. Open Set up employee login to inspect its current state.';
+     $('onboardDeliveryStatus').textContent='Account setup needs review. Open Set up employee login to inspect its current state.';
     }
    }catch(setupError){
     $('onboardDeliveryStatus').textContent='The employee record was saved, but login setup did not complete: '+setupError.message+
@@ -107,22 +106,6 @@
  // No accidental GET submission or password/capability in URLs.
  form.addEventListener('submit',event=>{event.preventDefault();if(step===2)submit();else $('staffNext').click();});
  form.addEventListener('input',()=>{if(!busy)error('');});
- form.addEventListener('change',()=>{if(!busy&&step===2)$('staffNext').textContent=submitTitle();});
- // Prevent selecting provider delivery before server-side configuration is known.
- async function checkEmailAvailability(){
-  const option=$('employeeEmailOption'),hint=$('employeeEmailHint');
-  try{
-   const response=await fetch('/api/employee-enrollment/delivery',{credentials:'same-origin',cache:'no-store'});
-   const data=await response.json().catch(()=>({}));
-   option.disabled=!(response.ok&&data.emailConfigured===true);
-   hint.textContent=option.disabled?
-    'Email delivery is not configured. Use the private invitation link and configure an approved sender to email a reissued invitation later.':
-    'Submit this invitation to the configured email provider. A backup link will also be shown; inbox delivery is not guaranteed.';
-  }catch{
-   option.disabled=true;hint.textContent='Email delivery readiness could not be verified. Use the private invitation link.';
-  }
- }
- checkEmailAvailability();
  $('copyEmployeeHandoff').addEventListener('click',async()=>{
   const field=$('employeeHandoffValue');
   try{await navigator.clipboard.writeText(field.value);$('onboardDeliveryStatus').textContent='Private handoff copied. Deliver it only to the named employee.';}

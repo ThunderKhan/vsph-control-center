@@ -13,7 +13,7 @@
  <header class="people-header">
   <div><p class="eyebrow">PEOPLE / INTERNAL ONBOARDING</p><h1>Onboard an employee<span class="brand-dot">.</span></h1><p class="muted">Add a real staff roster record with a reviewable, auditable workflow.</p></div>
  </header>
- <div class="people-info" role="note"><strong>Invitation-first onboarding.</strong> Save the internal roster record, then create a one-time employee setup link in the same workflow (recommended). You can alternatively issue temporary credentials or save the roster alone. No employee gains HR, customer, or product access automatically.</div>
+ <div class="people-info" role="note"><strong>One secure onboarding flow.</strong> Create the employee and generate a single-use setup link to share privately. The employee sets their own password. Email delivery can be configured later. HR, owner, customer, and product access are not granted automatically.</div>
  <div class="people-wizard">
   <aside class="people-steps" aria-label="Onboarding progress">
    <p class="eyebrow">SETUP CHECKLIST</p>
@@ -32,42 +32,36 @@
      <legend id="wizardTitle">Employee identity</legend>
      <p class="muted">Use the employee's own professional identity. Their email is a unique roster identifier.</p>
      <div class="people-form-grid">
-      <label>Full name <em>*</em><input name="fullName" maxlength="150" placeholder="e.g. Avery Shah" autocomplete="name" required></label>
-      <label>Work email <em>*</em><input type="email" name="email" maxlength="190" placeholder="avery@company.example" autocomplete="email" required></label>
+      <label><span class="people-field-title">Full name <em aria-hidden="true">*</em></span><input name="fullName" maxlength="150" placeholder="e.g. Avery Shah" autocomplete="name" required></label>
+      <label><span class="people-field-title">Work email <em aria-hidden="true">*</em></span><input type="email" name="email" maxlength="190" placeholder="avery@company.example" autocomplete="email" required></label>
      </div>
     </fieldset>
     <fieldset class="people-wizard-step" data-staff-panel="1" hidden>
      <legend>Employment details</legend><p class="muted">These details power the actual employee directory and workforce counts.</p>
      <div class="people-form-grid">
-      <label>Department <em>*</em><input name="department" maxlength="100" placeholder="e.g. Engineering" required></label>
-      <label>Job title <em>*</em><input name="jobTitle" maxlength="120" placeholder="e.g. Software Developer" required></label>
-      <label>Employment type<select name="employmentType" required><option value="full_time">Full-time</option><option value="part_time">Part-time</option><option value="intern">Intern</option><option value="contract">Contract</option></select></label>
-      <label>Start date <em>*</em><input type="date" name="startDate" required></label>
+      <label><span class="people-field-title">Department <em aria-hidden="true">*</em></span><input name="department" maxlength="100" placeholder="e.g. Engineering" required></label>
+      <label><span class="people-field-title">Job title <em aria-hidden="true">*</em></span><input name="jobTitle" maxlength="120" placeholder="e.g. Software Developer" required></label>
+      <label><span class="people-field-title">Employment type <em aria-hidden="true">*</em></span><select name="employmentType" required><option value="full_time">Full-time</option><option value="part_time">Part-time</option><option value="intern">Intern</option><option value="contract">Contract</option></select></label>
+      <label><span class="people-field-title">Start date <em aria-hidden="true">*</em></span><input type="date" name="startDate" required></label>
      </div>
     </fieldset>
     <fieldset class="people-wizard-step" data-staff-panel="2" hidden>
      <legend>Review employee onboarding</legend>
-     <p class="muted">Review the employee record and choose how the employee will create their login.</p>
+     <p class="muted">Review the details, then create the employee and a one-time setup link.</p>
      <dl id="employeeReview" class="people-review"></dl>
-     <fieldset class="employee-access-options" aria-labelledby="employeeAccessLegend">
-      <legend id="employeeAccessLegend">Employee login method</legend>
-      <label class="employee-access-choice"><input type="radio" name="accessMethod" value="invite" checked><span><strong>Create invitation link · Recommended</strong><small>Employee receives a private single-use link and chooses their own password. Copy the link after creation.</small></span></label>
-      <label class="employee-access-choice"><input type="radio" name="accessMethod" value="email" id="employeeEmailOption" disabled><span><strong>Email invitation link</strong><small id="employeeEmailHint">Checking configured email delivery. Private invitation links remain available without email.</small></span></label>
-      <label class="employee-access-choice"><input type="radio" name="accessMethod" value="temporary"><span><strong>Create temporary credentials</strong><small>Receive a one-time generated password for a private handoff. The employee must replace it at first sign-in.</small></span></label>
-      <label class="employee-access-choice"><input type="radio" name="accessMethod" value="roster"><span><strong>Save employee roster only</strong><small>Do not create a login yet. Set up access later from the employee's Account link page.</small></span></label>
-     </fieldset>
-     <label class="people-confirm"><input id="employeeConfirmed" type="checkbox" required> I confirm these internal staff details and the selected login method.</label>
+     <p class="employee-onboard-note">The link will be displayed once for private sharing. No email is sent automatically.</p>
+     <label class="people-confirm"><input id="employeeConfirmed" type="checkbox" required><span>I confirm that the employee details provided are correct.</span></label>
     </fieldset>
     <p id="onboardError" class="people-message people-error" role="alert" aria-live="assertive" hidden></p>
+    <a id="existingEmployeeLink" class="people-secondary" href="/employees" hidden>Review existing employee</a>
     <div class="people-wizard-actions">
       <button type="button" id="staffPrevious" class="people-secondary" disabled>Previous</button>
-      <span class="people-small">Nothing is saved until you confirm.</span>
       <button type="button" id="staffNext" class="people-primary">Continue</button>
     </div>
    </form>
    <section id="onboardComplete" class="people-complete" hidden aria-live="polite">
     <span class="people-complete-icon" aria-hidden="true">✓</span>
-    <h2>Employee onboarding saved.</h2>
+    <h2>Employee created.</h2>
     <p id="onboardCompleteMessage">The staff record was saved as Onboarding.</p>
     <p id="onboardDeliveryStatus" class="people-small" role="status"></p>
     <section id="employeeHandoffPanel" class="employee-handoff" hidden aria-label="Private employee login handoff">

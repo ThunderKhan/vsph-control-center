@@ -10,26 +10,37 @@ internal workforce access.
 
 The integrated experience is served at `/employees/onboarding`. The
 administrator supplies full name, work email, department, title, employment
-type, and start date; reviews the saved roster details; and selects an access
-method. The **default** is a one-time invitation link. Existing employee
-records are preserved and can be managed from `/employees`.
+type, and start date; reviews the details; and confirms creation. The wizard
+has **one onboarding method**: save the roster, then issue a seven-day,
+single-use private setup link. The employee chooses a password to activate
+their own account. The link appears only once, for HR to copy and hand off
+privately. Existing employee records are preserved under `/employees`.
 
-## Available creation methods
+## One-step invitation workflow
 
-- **Invitation (default):** Create a disabled portal identity and a seven-day
-  single-use setup link. The employee chooses a password to activate it.
-- **Email invitation:** The same invitation, with explicit submission to an
-  approved email provider. A manual backup link is shown once.
-- **Temporary credentials:** Generate a 24-hour password for private handoff.
-  The employee must replace it at their first sign-in.
-- **Roster only:** Create the employment record without login credentials.
-  Set up access later through governed enrollment or consent linking.
+The `Create employee` button initiates two guarded server operations:
+an idempotent roster insert, followed by an enrollment invitation with a
+disabled Auth identity. If the second operation fails, the roster remains
+saved and the UI provides a recovery link. Neither operation silently
+creates a duplicate employee.
 
-The issuer never chooses the final employee password in the invitation
-flow. The temporary-password flow forces a personal password before any
-ordinary portal session is granted. Neither workflow grants HR, owner,
+When an email already exists in the roster, the create endpoint returns
+`409 EMPLOYEE_EXISTS` with the existing employee ID to an authorized
+owner or HR manager. The wizard displays a `Review existing employee`
+link to the account-link page instead of recommending an unsafe retry.
+Other database conflicts retain their guarded error handling.
+
+Advanced account management still supports optional email delivery,
+temporary 24-hour credentials with forced replacement, roster-only API
+creation, existing-account consent links, and explicit reissue/cancellation
+through existing authorized routes. These are deliberately not offered
+as competing choices during new-employee onboarding.
+
+The issuer never chooses the employee's password in the new-employee
+wizard. The separate temporary-password recovery flow forces a personal
+password before ordinary portal access. Neither flow grants HR, owner,
 customer, project, or product access. A new roster remains **Onboarding**
-until the authorized manager explicitly activates it.
+until an authorized manager explicitly activates it.
 
 The account-link page at `/employees/:id/account-link` retains invitation
 review, cancellation, reissue, existing-account consent, and credential
@@ -54,9 +65,10 @@ tracking. Do not configure an untrusted endpoint; it receives the
 single-use setup capability. These settings are distinct from the
 customer invitation dispatcher settings.
 
-Email is **opt-in**. With no approved webhook, the manual invitation
-option works normally, while email mode returns `EMAIL_NOT_CONFIGURED`
-before consuming an invitation. A 2xx webhook response means **request
+Email is **opt-in** on the separate account-link page, not in the new
+employee wizard. With no approved webhook, manual invitations work normally,
+while the advanced email route returns `EMAIL_NOT_CONFIGURED` before
+consuming an invitation. A 2xx webhook response means **request
 submitted**, not confirmed mailbox delivery. A failed or timed-out
 webhook request leaves the new link available for private manual
 handoff with a clear warning. The server does not automatically retry
@@ -94,10 +106,12 @@ Run `npm test`, `npm run lint`, `npm run check`,
 `npm run check:migrations`, and the isolated database and browser
 suites through the existing GitHub Actions checks. The core browser
 test covers invitation-first onboarding, one-time link handoff,
-password acceptance, and denied HR/customer access. The roster-only
-test deliberately selects the no-login option. Unit tests exercise
-email opt-in, unsafe endpoint rejection, simulated provider acceptance,
-and failure reporting.
+password acceptance, and denied HR/customer access. The directory test now uses the unified wizard and checks its private
+invitation handoff. A separate browser regression verifies duplicate-email
+recovery links and single roster rows. The advanced temporary-credential
+browser test creates the roster through the API before issuing credentials.
+Unit tests exercise email opt-in, unsafe endpoint rejection, simulated
+provider acceptance, UI invariants, and failure reporting.
 
 A live provider delivery test and a live Supabase Auth acceptance
 test require explicit authorization and a designated real test user.

@@ -26,10 +26,12 @@ test('owner onboards internal staff, sees persisted metrics, filters and cannot 
  await page.locator('input[name=startDate]').fill('2026-11-03');
  await page.locator('#staffNext').click();
  await expect(page.locator('#employeeReview')).toContainText(email);
- await page.locator('[name=accessMethod][value=roster]').check();
+ await expect(page.locator('[name=accessMethod]')).toHaveCount(0);
  await page.locator('#employeeConfirmed').check();
+ await expect(page.locator('#staffNext')).toHaveText('Create employee');
  await page.locator('#staffNext').click();
  await expect(page.locator('#onboardComplete')).toBeVisible();
+ await expect(page.locator('#employeeHandoffValue')).toContainText('/employee-enrollment#');
  await expect(page.locator('#onboardCompleteMessage')).toContainText('Onboarding');
  await page.getByRole('link',{name:'View employee dashboard'}).click();
  await expect(page.locator('#employeeRows')).toContainText(email);

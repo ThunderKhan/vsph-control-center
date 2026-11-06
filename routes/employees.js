@@ -72,7 +72,19 @@ router.post('/',rpcRoute(async(req,res)=>{
  const data=employeeFields(req.body);
  const key=req.get('Idempotency-Key');
  if(!uuid(key))invalid('A UUID Idempotency-Key is required to safely create employees.');
- const result=await command(req,'create',key,data);
+ let result;
+ try{result=await command(req,'create',key,data);}
+ catch(cause){
+  if(cause.code!=='23505')throw cause;
+  // SQL enforces unique work emails. Identify this specific conflict through
+  // the authorized workforce command; never silently reuse an identity.
+  const directory=await command(req,'list',null,{search:data.email});
+  const existing=directory.employees?.find(employee=>employee.email===data.email);
+  if(!existing)throw cause;
+  res.status(409);
+  return {code:'EMPLOYEE_EXISTS',employeeId:existing.id,
+   message:'This work email already belongs to an employee. Review that record and continue account setup instead of creating a duplicate.'};
+ }
  res.status(result.replayed?200:201);
  return {...result,message:'Employee roster onboarding saved. No login account or email invitation was created.'};
 }));
