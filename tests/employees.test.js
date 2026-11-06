@@ -48,7 +48,12 @@ test('employee and HR routes are session-backed; HTML and APIs are not static ac
  assert.match(overview,/id="hrGovernance"/);
  assert.match(overview,/counts below come from persisted records/);
  assert.match(onboarding,/Nothing is saved until you confirm/);
- assert.match(onboarding,/does not create a portal identity/);
+ assert.match(onboarding,/Invitation-first onboarding/);
+ assert.match(onboarding,/value="invite" checked/);
+ assert.match(onboarding,/value="temporary"/);
+ assert.match(onboarding,/value="roster"/);
+ assert.match(read('public/employee-onboarding.js'),/api\\/employee-enrollment\\/employees/);
+ assert.match(read('public/employee-onboarding.js'),/api\\/employee-credentials\\/employees/);
  assert.match(read('public/employees.css'),/#00255A/);
  assert.match(read('public/employees.css'),/#0069C8/);
 });
