@@ -33,7 +33,7 @@ test('authorized HR removal is audited for the owner and hidden from the ordinar
  await context.addCookies([{name:'vsph.portal.sid',value:'fixture-admin-session',url:origin,httpOnly:true,sameSite:'Lax'}]);
  await page.goto('/admin?tab=audit&view=removals');
  await expect(page.locator('#auditRemovalsView')).toBeVisible();
- const tile=page.getByRole('button',{name:'View removal details for Removal Test Employee'});
+ const tile=page.locator('#auditRemovalGrid .audit-removal-card').filter({hasText:email});
  await expect(tile).toBeVisible();
  await tile.click();
  await expect(page.getByRole('dialog')).toContainText(email);
