@@ -36,27 +36,64 @@
   $('staffStep').textContent='STEP '+(step+1)+' OF 3';
   const progress=[33,67,100][step];$('staffProgress').textContent=progress+'% COMPLETE';$('staffProgressFill').style.width=progress+'%';
   $('staffPrevious').disabled=step===0;
-  $('staffNext').textContent=step===2?'Save employee':'Continue';
+  $('staffNext').textContent=step===2?submitTitle():'Continue';
   if(step===2){drawReview();$('employeeConfirmed').checked=false;}
+ }
+ function selectedMethod(){return form.elements.accessMethod.value;}
+ function submitTitle(){
+  return {invite:'Save and create invitation',email:'Save and email invitation',temporary:'Save and issue credentials',roster:'Save employee record'}[selectedMethod()]||'Save employee';
+ }
+ function showHandoff(title,note,value){
+  $('employeeHandoffTitle').textContent=title;$('employeeHandoffNote').textContent=note;
+  $('employeeHandoffValue').value=value;$('employeeHandoffPanel').hidden=false;
  }
  async function submit(){
   if(busy||!validPage(2))return;
-  const payload=values(),signature=JSON.stringify(payload);
+  const payload=values(),method=selectedMethod(),signature=JSON.stringify(payload);
   if(pending?.signature!==signature)pending={signature,key:crypto.randomUUID()};
-  busy=true;$('staffNext').disabled=true;$('staffPrevious').disabled=true;
-  error('');
+  busy=true;$('staffNext').disabled=true;$('staffPrevious').disabled=true;error('');
   try{
-   const response=await fetch('/api/employees',{
-    method:'POST',credentials:'same-origin',cache:'no-store',
-    headers:{'Content-Type':'application/json','Idempotency-Key':pending.key},body:JSON.stringify(payload)
-   });
+   const response=await fetch('/api/employees',{method:'POST',credentials:'same-origin',cache:'no-store',
+    headers:{'Content-Type':'application/json','Idempotency-Key':pending.key},body:JSON.stringify(payload)});
    if(response.status===401){location.assign('/login');return;}
    const result=await response.json().catch(()=>({}));
    if(!response.ok)throw Error(result.code==='SCHEMA_NOT_READY'?'The reviewed employee migration must be installed before saving records.':result.message||'Employee onboarding could not be saved.');
    $('setupEmployeeLogin').href='/employees/'+result.id+'/account-link';
-   pending=null;
-   $('employeeOnboardForm').hidden=true;$('onboardComplete').hidden=false;
-   $('onboardCompleteMessage').textContent='Employee '+payload.fullName+' ('+payload.email+') was saved as Onboarding. No account or invitation was created.';
+   pending=null;form.hidden=true;$('onboardComplete').hidden=false;$('employeeHandoffPanel').hidden=true;
+   $('employeeHandoffValue').value='';
+   $('onboardCompleteMessage').textContent='Employee '+payload.fullName+' ('+payload.email+') was saved as Onboarding.';
+   if(method==='roster'){
+    $('onboardDeliveryStatus').textContent='Roster saved without a login. Use Set up employee login to invite this employee later.';
+    return;
+   }
+   $('onboardDeliveryStatus').textContent='Creating the employee login handoff…';
+   try{
+    const temporary=method==='temporary';
+    const endpoint=temporary?'/api/employee-credentials/employees/':'/api/employee-enrollment/employees/';
+    const fields={rosterVersion:result.version,confirmed:true,...(method==='email'?{delivery:'email'}:{})};
+    const issuedResponse=await fetch(endpoint+result.id,{method:'POST',credentials:'same-origin',cache:'no-store',
+     headers:{'Content-Type':'application/json','Idempotency-Key':crypto.randomUUID()},body:JSON.stringify(fields)});
+    const issued=await issuedResponse.json().catch(()=>({}));
+    if(!issuedResponse.ok)throw Error(issued.message||'Account setup could not be completed.');
+    if(issued.replayed){
+     $('onboardDeliveryStatus').textContent='This employee setup was already created. Open Set up employee login to review or explicitly reissue its private link.';
+     return;
+    }
+    if(temporary&&issued.temporaryPassword){
+     const details='Sign in: '+issued.loginUrl+'\nWork email: '+issued.email+'\nTemporary password: '+issued.temporaryPassword+'\nExpires: '+new Date(issued.expiresAt).toLocaleString()+'\nReplace this password on first sign-in.';
+     showHandoff('Generated temporary credentials','Only share with the named employee through a trusted private channel. The temporary password is shown once.',details);
+     $('onboardDeliveryStatus').textContent='Temporary credentials created. The employee must replace their password before receiving a portal session.';
+    }else if(!temporary&&issued.url){
+     showHandoff('Private employee setup link','Shown once. Copy and deliver privately to the named employee. Refreshing this page removes the link.',issued.url);
+     $('onboardDeliveryStatus').textContent=issued.emailDelivery?.message||
+      'Invitation created. No email was sent; share this private link with the employee.';
+    }else{
+     $('onboardDeliveryStatus').textContent='The account setup requires review. Open Set up employee login to inspect its current state.';
+    }
+   }catch(setupError){
+    $('onboardDeliveryStatus').textContent='The employee record was saved, but login setup did not complete: '+setupError.message+
+     ' Use Set up employee login to inspect or recover. Do not create a duplicate employee.';
+   }
   }catch(failure){error(failure.message);}
   finally{busy=false;$('staffNext').disabled=false;$('staffPrevious').disabled=step===0;}
  }
@@ -70,8 +107,15 @@
  // No accidental GET submission or password/capability in URLs.
  form.addEventListener('submit',event=>{event.preventDefault();if(step===2)submit();else $('staffNext').click();});
  form.addEventListener('input',()=>{if(!busy)error('');});
+ form.addEventListener('change',()=>{if(!busy&&step===2)$('staffNext').textContent=submitTitle();});
+ $('copyEmployeeHandoff').addEventListener('click',async()=>{
+  const field=$('employeeHandoffValue');
+  try{await navigator.clipboard.writeText(field.value);$('onboardDeliveryStatus').textContent='Private handoff copied. Deliver it only to the named employee.';}
+  catch{field.focus();field.select();$('onboardDeliveryStatus').textContent='Select and copy the private handoff details.';}
+ });
  $('onboardAnother').addEventListener('click',()=>{
-  form.reset();pending=null;$('onboardComplete').hidden=true;form.hidden=false;showStep(0);
+  form.reset();pending=null;$('employeeHandoffValue').value='';$('employeeHandoffPanel').hidden=true;
+  $('onboardDeliveryStatus').textContent='';$('onboardComplete').hidden=true;form.hidden=false;showStep(0);
  });
  showStep(0);
 })();

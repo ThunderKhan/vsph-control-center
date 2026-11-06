@@ -5,8 +5,9 @@ test('owner creates an employee login invitation and the employee chooses a pass
  await context.addCookies([{name:'vsph.portal.sid',value:'fixture-admin-session',url:origin,httpOnly:true,sameSite:'Lax'}]);page.on('dialog',d=>d.accept());
  await page.goto('/employees/onboarding');await page.locator('[name=fullName]').fill('New employee '+info.project.name);await page.locator('[name=email]').fill(email);await page.locator('#staffNext').click();
  await page.locator('[name=department]').fill('Engineering');await page.locator('[name=jobTitle]').fill('Developer');await page.locator('[name=employmentType]').selectOption('intern');await page.locator('[name=startDate]').fill('2026-11-06');await page.locator('#staffNext').click();await page.locator('#employeeConfirmed').check();await page.locator('#staffNext').click();
- await page.getByRole('link',{name:'Set up employee login',exact:true}).click();await expect(page.getByRole('button',{name:'Create login invitation',exact:true})).toBeVisible();
- await page.getByRole('button',{name:'Create login invitation',exact:true}).click();const field=page.getByLabel('Employee setup link',{exact:true});await expect(field).toBeVisible();const url=await field.inputValue();expect(url).toContain('/employee-enrollment#');
+ const field=page.getByLabel('One-time handoff details',{exact:true});await expect(field).toBeVisible();const url=await field.inputValue();expect(url).toContain('/employee-enrollment#');
+ await page.getByRole('link',{name:'Set up employee login',exact:true}).click();
+ await expect(page.getByRole('button',{name:'Reissue login invitation',exact:true})).toBeVisible();
  await page.reload();await expect(page.getByLabel('Employee setup link',{exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Reissue login invitation',exact:true})).toBeVisible();
  const employeeContext=await browser.newContext({viewport:info.project.name==='mobile'?{width:390,height:844}:{width:1280,height:800}}),employee=await employeeContext.newPage();
  try{

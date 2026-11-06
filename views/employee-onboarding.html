@@ -13,7 +13,7 @@
  <header class="people-header">
   <div><p class="eyebrow">PEOPLE / INTERNAL ONBOARDING</p><h1>Onboard an employee<span class="brand-dot">.</span></h1><p class="muted">Add a real staff roster record with a reviewable, auditable workflow.</p></div>
  </header>
- <div class="people-info" role="note"><strong>Internal record only.</strong> Adding a new employee stores their information as <strong>Onboarding</strong>. It does not create a portal identity, grant product/project access, send an email, or assign HR permissions.</div>
+ <div class="people-info" role="note"><strong>Invitation-first onboarding.</strong> Save the internal roster record, then create a one-time employee setup link in the same workflow (recommended). You can alternatively issue temporary credentials or save the roster alone. No employee gains HR, customer, or product access automatically.</div>
  <div class="people-wizard">
   <aside class="people-steps" aria-label="Onboarding progress">
    <p class="eyebrow">SETUP CHECKLIST</p>
@@ -47,9 +47,16 @@
     </fieldset>
     <fieldset class="people-wizard-step" data-staff-panel="2" hidden>
      <legend>Review employee onboarding</legend>
-     <p class="muted">Please verify the identity and role before storing this record.</p>
+     <p class="muted">Review the employee record and choose how the employee will create their login.</p>
      <dl id="employeeReview" class="people-review"></dl>
-     <label class="people-confirm"><input id="employeeConfirmed" type="checkbox" required> I confirm these VSPH internal staff details are correct.</label>
+     <fieldset class="employee-access-options" aria-labelledby="employeeAccessLegend">
+      <legend id="employeeAccessLegend">Employee login method</legend>
+      <label class="employee-access-choice"><input type="radio" name="accessMethod" value="invite" checked><span><strong>Create invitation link · Recommended</strong><small>Employee receives a private single-use link and chooses their own password. Copy the link after creation.</small></span></label>
+      <label class="employee-access-choice"><input type="radio" name="accessMethod" value="email"><span><strong>Email invitation link</strong><small>Submit the new invitation to a configured provider. You'll receive a private backup link; provider acceptance does not guarantee inbox delivery.</small></span></label>
+      <label class="employee-access-choice"><input type="radio" name="accessMethod" value="temporary"><span><strong>Create temporary credentials</strong><small>Receive a one-time generated password for a private handoff. The employee must replace it at first sign-in.</small></span></label>
+      <label class="employee-access-choice"><input type="radio" name="accessMethod" value="roster"><span><strong>Save employee roster only</strong><small>Do not create a login yet. Set up access later from the employee's Account link page.</small></span></label>
+     </fieldset>
+     <label class="people-confirm"><input id="employeeConfirmed" type="checkbox" required> I confirm these internal staff details and the selected login method.
     </fieldset>
     <p id="onboardError" class="people-message people-error" role="alert" aria-live="assertive" hidden></p>
     <div class="people-wizard-actions">
@@ -60,9 +67,17 @@
    </form>
    <section id="onboardComplete" class="people-complete" hidden aria-live="polite">
     <span class="people-complete-icon" aria-hidden="true">✓</span>
-    <h2>Employee recorded.</h2>
+    <h2>Employee onboarding saved.</h2>
     <p id="onboardCompleteMessage">The staff record was saved as Onboarding.</p>
-    <p class="people-small">Portal access, formal invitations, project assignments and HR privileges are separate controlled workflows. This employee does not gain them automatically.</p>
+    <p id="onboardDeliveryStatus" class="people-small" role="status"></p>
+    <section id="employeeHandoffPanel" class="employee-handoff" hidden aria-label="Private employee login handoff">
+     <h3 id="employeeHandoffTitle">Private employee setup link</h3>
+     <p id="employeeHandoffNote" class="people-small"></p>
+     <label for="employeeHandoffValue">One-time handoff details</label>
+     <textarea id="employeeHandoffValue" rows="5" readonly spellcheck="false"></textarea>
+     <button id="copyEmployeeHandoff" type="button" class="people-secondary">Copy private handoff</button>
+    </section>
+    <p class="people-small">Roster activation, HR authority, and customer/project/product access stay separately controlled. The employee cannot use an invitation until they choose their password.</p>
     <div class="people-wizard-actions"><a id="setupEmployeeLogin" class="people-primary" href="/employees">Set up employee login</a><a class="people-secondary" href="/employees">View employee dashboard</a><button type="button" id="onboardAnother" class="people-secondary">Onboard another</button></div>
    </section>
   </section>

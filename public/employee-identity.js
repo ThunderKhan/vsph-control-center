@@ -42,22 +42,26 @@
   for(const r of data.requests){const row=node('article');row.className='panel';row.append(node('h2','Account-link request'),node('p',r.state+' · version '+r.version+' · expires '+new Date(r.expires_at).toLocaleString()),node('p','Request '+r.id));
    if(['pending','expired'].includes(r.state)){const a=node('div');a.className='identity-actions';for(const [action,label] of [['renew','Renew request'],['cancel','Cancel request']])a.append(button(label,()=>mutate(action,{rosterVersion:e.version,requestId:r.id,requestVersion:r.version})));row.append(a);}content.append(row);
   }
-  content.append(node('p','Latest 20 requests. Existing HR grants predating account consent are preserved for owner review. Existing accounts retain their own password. New-account invitations are handed privately to the employee; no email is sent automatically.'));
+  content.append(node('p','Latest 20 requests. Existing HR grants predating account consent are preserved for owner review. Existing accounts retain their own password. New-account invitations default to manual private handoff; authorized issuers can opt into configured email delivery.'));
  }
  function enrollmentPanel(employee,data,temporary){
   const panel=node('section');panel.className='identity-readiness';panel.append(node('h3','Employee login invitation'));
   const r=data.enrollment;panel.append(node('p',r?'Status: '+r.state+' · expires '+new Date(r.expiresAt).toLocaleString():'Create a new ordinary portal account for this work email. The employee will choose their password and accept the employment link.'));
-  panel.append(node('p','Share links privately only with the named employee. No email is sent automatically. Onboarding employees can sign in and review their employment; activate their roster separately before assigning active employee workflows.'));
+  panel.append(node('p','Share the private link only with the named employee. Email submission is optional when an approved sender is configured; provider acceptance is not proof of inbox delivery. Activate the roster separately before assigning work.'));
   const actions=node('div');actions.className='identity-actions';
-  async function issue(){
-   if(!confirm('Create or reissue a private sign-in invitation for '+employee.email+'? No HR or customer access is granted.'))return;
-   const result=await api(r?'/'+r.id+'/renew':'/employees/'+employee.id,{rosterVersion:employee.version,confirmed:true,...(r?{version:r.version}:{})},r?null:requestKey,'/api/employee-enrollment');
-   requestKey=crypto.randomUUID();await load();message.textContent=result.message;
+  async function issue(delivery='manual'){
+   if(!confirm((delivery==='email'?'Submit an email invitation for ':'Create or reissue a private invitation for ')+employee.email+'? No HR or customer access is granted.'))return;
+   const result=await api(r?'/'+r.id+'/renew':'/employees/'+employee.id,{rosterVersion:employee.version,confirmed:true,...(delivery==='email'?{delivery:'email'}:{}),...(r?{version:r.version}:{})},r?null:requestKey,'/api/employee-enrollment');
+   requestKey=crypto.randomUUID();await load();message.textContent=result.emailDelivery?.message||result.message;
    if(result.url){const secret=node('section');secret.className='panel';secret.append(node('h2','Private employee setup link'),node('p','Copy now and deliver privately. This link is shown only for this issuance; refreshing clears it.'));
     const label=node('label','Employee setup link'),input=node('textarea');input.readOnly=true;input.value=result.url;input.rows=4;label.append(input);secret.append(label,button('Copy private link',async()=>{try{await navigator.clipboard.writeText(result.url);message.textContent='Copied. Deliver only to the named employee.';}catch{input.focus();input.select();message.textContent='Select and copy the private link.';}}));content.prepend(secret);
    }
   }
-  if(!r||['provisioning','ready','expired','cancelled'].includes(r.state))actions.append(button(r?'Reissue login invitation':'Create login invitation',issue));
+  if(!r||['provisioning','ready','expired','cancelled'].includes(r.state)){
+   actions.append(button(r?'Reissue login invitation':'Create login invitation',()=>issue('manual')));
+   if(data.emailDeliveryAvailable)actions.append(button(r?'Reissue and email invitation':'Email login invitation',()=>issue('email')));
+   else panel.append(node('p','Email sending is not configured. Use the private link now, or configure the approved employee email webhook before reissuing for email delivery.'));
+  }
   if(r&&['provisioning','ready','expired','accepting','recovery_required'].includes(r.state))actions.append(button('Cancel login invitation',async()=>{if(!confirm('Cancel this employee login invitation? Existing accepted accounts are unaffected.'))return;await api('/'+r.id+'/cancel',{rosterVersion:employee.version,version:r.version,confirmed:true},null,'/api/employee-enrollment');await load();}));
   if(r&&['accepting','recovery_required'].includes(r.state))panel.append(node('p','Password setup needs operator reconciliation. The new portal identity remains disabled. Automatic retries are blocked to prevent a late provider request changing an active password.'));
   if(temporary&&!temporary.message&&(!r||['provisioning','ready','expired','cancelled'].includes(r.state)))actions.append(button('Create temporary credentials',()=>createCredentials(employee,data,null)));
