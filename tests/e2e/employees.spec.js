@@ -43,9 +43,13 @@ test('owner onboards internal staff, sees persisted metrics, filters and cannot 
  await expect(page.locator('#staffNext')).toHaveText('Create employee');
  await page.locator('#staffNext').click();
  await expect(page.locator('#onboardComplete')).toBeVisible();
+ await expect(page.locator('#onboardingWizard')).toBeHidden();
  await expect(page.locator('#employeeHandoffValue')).toHaveValue(/\/employee-enrollment#/);
- await expect(page.locator('#onboardCompleteMessage')).toContainText('Onboarding');
- await page.getByRole('link',{name:'View employee dashboard'}).click();
+ await expect(page.locator('#createdEmployeeEmail')).toHaveText(email);
+ await expect(page.locator('#copyEmployeeHandoffLabel')).toHaveText('Copy invitation link');
+ await page.getByRole('link',{name:'Manage access'}).click();
+ await expect(page).toHaveURL(/\/employees\/[^/]+\/account-link$/);
+ await page.goto('/employees');
  await expect(page.locator('#employeeRows')).toContainText(email);
  await expect(page.locator('#staffOnboarding')).not.toHaveText('—');
  await page.locator('#employeeSearch').fill(email);

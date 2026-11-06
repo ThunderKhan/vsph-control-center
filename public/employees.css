@@ -108,3 +108,80 @@
 .employee-handoff textarea{box-sizing:border-box;width:100%;min-width:0;resize:vertical;font:13px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;border:1px solid #B8CDDF;border-radius:8px;background:#FFF;color:#00255A;padding:12px;overflow-wrap:anywhere;word-break:break-word}
 .employee-handoff .people-secondary{justify-self:start}
 .employee-handoff[hidden]{display:none}
+
+
+/* Employee onboarding redesign: focused review and one-time invitation handoff. */
+.people-onboarding-shell{max-width:1280px}
+.people-onboarding-shell .people-wizard{grid-template-columns:minmax(235px,.72fr) minmax(0,1.6fr);gap:24px}
+.people-onboarding-shell .people-wizard-panel{padding:32px}
+.people-review-sections{display:grid;gap:22px;margin:0 0 20px}
+.people-review-section{min-width:0}
+.people-review-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 10px}
+.people-review-heading h3{font-size:15px;font-weight:600;letter-spacing:-.01em;margin:0;color:#00255A}
+.people-review-edit{appearance:none;border:1px solid transparent;background:transparent;color:#0069C8;font:600 13px/1.5 Inter,Arial,sans-serif;min-width:44px;min-height:44px;border-radius:8px;padding:9px 12px;cursor:pointer}
+.people-review-edit:hover{background:#EAF3FA;border-color:#C6DDEC}
+.people-review-edit:focus-visible{outline:3px solid #50C0E8;outline-offset:2px}
+.people-review-sections .people-review{margin:0}
+.people-review-sections .people-review>div{background:#F6F8FB;border:1px solid #E5EDF5}
+.people-review-sections .people-review dd{font-weight:600;line-height:1.5}
+.people-onboarding-shell .employee-onboard-note{font-size:13px;line-height:1.5;margin:8px 0 18px}
+.people-onboarding-shell .people-confirm{font-size:13px;line-height:1.5}
+.people-onboarding-shell .people-error{min-height:0}
+.people-onboarding-shell .people-wizard-actions{margin-top:22px}
+.people-completion-shell{max-width:680px;margin:20px auto 56px;outline:none}
+.people-completion-card{background:#FFF;border:1px solid #DDE5EF;border-radius:16px;padding:clamp(22px,4vw,40px);display:grid;gap:24px}
+.people-completion-heading{text-align:center;display:grid;justify-items:center;gap:8px}
+.people-completion-heading h2{font-size:clamp(25px,3.1vw,30px);letter-spacing:-.035em;line-height:1.25;margin:4px 0 0;color:#00255A}
+.people-completion-heading p{font-size:14px;line-height:1.55;color:#536984;margin:0;max-width:450px}
+.people-complete-icon{background:#E7F5FC;color:#0069C8;border-radius:50%;width:56px;height:56px;font-size:26px}
+.people-completion-person{display:flex;align-items:center;gap:14px;border-block:1px solid #E2EAF2;padding:19px 0;min-width:0}
+.people-completion-avatar{display:grid;place-items:center;flex:0 0 44px;height:44px;background:#EAF3FA;color:#00255A;font-size:14px;font-weight:700;border-radius:10px;letter-spacing:.03em}
+.people-completion-person-data{display:grid;gap:4px;min-width:0;flex:1}
+.people-completion-person-data strong{font-size:15px;line-height:1.4;overflow-wrap:anywhere}
+.people-completion-person-data span,.people-completion-person-data small{color:#536984;font-size:13px;line-height:1.4;overflow-wrap:anywhere}
+.people-completion-person .people-status{flex:none;text-transform:capitalize;font-size:12px}
+.people-completion-feedback{font-size:13px;line-height:1.6;color:#325778;margin:0}
+.people-completion-feedback:empty{display:none}
+.people-completion-shell .employee-handoff{padding:20px;gap:12px;background:#F4F9FD;border:1px solid #CCDDEA;border-radius:12px}
+.people-completion-shell .people-handoff-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.people-completion-shell .people-handoff-heading h3{font-size:15px;font-weight:600;color:#00255A;margin:0}
+.people-completion-shell .employee-handoff label{font-size:13px;color:#344A66}
+.people-completion-shell .employee-handoff textarea{min-height:80px;max-width:100%;resize:vertical;background:#FFF;padding:12px 14px;line-height:1.6;border-radius:8px}
+.people-completion-shell .employee-handoff .people-primary{width:100%;font-size:14px;gap:9px}
+.people-completion-shell .employee-handoff .people-small{margin:0;font-size:12px;line-height:1.5}
+.people-handoff-privacy{color:#536984}
+.people-completion-recovery{background:#FFF9EF;border:1px solid #E8D6B5;border-radius:10px;padding:16px;display:grid;gap:14px}
+.people-completion-recovery p{margin:0;color:#634E2B;font-size:14px;line-height:1.6}
+.people-completion-recovery button{justify-self:start}
+.people-completion-actions{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.people-completion-actions .people-secondary{font-size:13px}
+.people-completion-shell:focus{outline:none}
+@media(max-width:1024px){
+ .people-onboarding-shell .people-wizard{grid-template-columns:minmax(0,1fr)}
+ .people-onboarding-shell .people-steps{padding:16px 20px}
+ .people-onboarding-shell .people-steps .eyebrow{margin:0 0 12px}
+ .people-onboarding-shell .people-steps ol{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+ .people-onboarding-shell .people-steps li{gap:9px}
+ .people-onboarding-shell .people-steps li>span{width:34px;height:34px}
+ .people-onboarding-shell .people-steps li strong{font-size:13px}
+ .people-onboarding-shell .people-steps li small{font-size:11px}
+}
+@media(max-width:640px){
+ .people-onboarding-shell{padding:20px 16px 44px}
+ .people-onboarding-shell .people-header{margin-bottom:16px}
+ .people-onboarding-shell .people-steps{display:none}
+ .people-onboarding-shell .people-wizard-panel{padding:20px}
+ .people-onboarding-shell .people-wizard-step legend{font-size:22px}
+ .people-onboarding-shell .people-wizard-top{font-size:11px;letter-spacing:.025em}
+ .people-onboarding-shell .people-review{grid-template-columns:minmax(0,1fr)}
+ .people-onboarding-shell .people-wizard-actions{gap:10px}
+ .people-onboarding-shell .people-wizard-actions button{flex:1}
+ .people-completion-shell{margin:4px auto 32px}
+ .people-completion-card{border-radius:12px;padding:22px 18px;gap:20px}
+ .people-completion-person{flex-wrap:wrap}
+ .people-completion-person .people-status{margin-left:58px}
+ .people-completion-actions{flex-direction:column;align-items:stretch}
+ .people-completion-actions .people-secondary{width:100%}
+ .people-completion-recovery button{width:100%}
+}
+@media(prefers-reduced-motion:reduce){.people-review-edit{transition:none!important}}

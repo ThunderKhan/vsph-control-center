@@ -8,11 +8,11 @@
 <script defer src="/employee-onboarding.js"></script>
 </head>
 <body>
-<div class="people-shell">
+<div class="people-shell people-onboarding-shell">
  <header class="people-header">
-  <div><h1>Onboard an employee<span class="brand-dot">.</span></h1></div>
+  <h1>Onboard an employee<span class="brand-dot">.</span></h1>
  </header>
- <div class="people-wizard">
+ <div id="onboardingWizard" class="people-wizard">
   <aside class="people-steps" aria-label="Onboarding progress">
    <p class="eyebrow">SETUP CHECKLIST</p>
    <ol>
@@ -43,34 +43,70 @@
     </fieldset>
     <fieldset class="people-wizard-step" data-staff-panel="2" hidden>
      <legend id="wizardTitle-2" tabindex="-1">Review employee onboarding</legend>
-     <dl id="employeeReview" class="people-review"></dl>
-     <p class="employee-onboard-note">The link will be displayed once for private sharing. No email is sent automatically.</p>
+     <div id="employeeReview" class="people-review-sections">
+      <section class="people-review-section" aria-labelledby="reviewIdentityTitle">
+       <div class="people-review-heading">
+        <h3 id="reviewIdentityTitle">Employee identity</h3>
+        <button type="button" class="people-review-edit" data-edit-step="0" aria-label="Edit employee identity">Edit</button>
+       </div>
+       <dl id="employeeReviewIdentity" class="people-review"></dl>
+      </section>
+      <section class="people-review-section" aria-labelledby="reviewPositionTitle">
+       <div class="people-review-heading">
+        <h3 id="reviewPositionTitle">Employment details</h3>
+        <button type="button" class="people-review-edit" data-edit-step="1" aria-label="Edit employment details">Edit</button>
+       </div>
+       <dl id="employeeReviewPosition" class="people-review"></dl>
+      </section>
+     </div>
+     <p class="employee-onboard-note">After creation, the private setup link will be shown once. No email is sent automatically.</p>
      <label class="people-confirm"><input id="employeeConfirmed" type="checkbox" required><span>I confirm that the employee details provided are correct.</span></label>
     </fieldset>
     <p id="onboardError" class="people-message people-error" role="alert" aria-live="assertive" hidden></p>
     <a id="existingEmployeeLink" class="people-secondary" href="/employees" hidden>Review existing employee</a>
     <div class="people-wizard-actions">
-      <button type="button" id="staffPrevious" class="people-secondary" disabled>Previous</button>
-      <button type="button" id="staffNext" class="people-primary">Continue</button>
+     <button type="button" id="staffPrevious" class="people-secondary" disabled>Previous</button>
+     <button type="button" id="staffNext" class="people-primary">Continue</button>
     </div>
    </form>
-   <section id="onboardComplete" class="people-complete" hidden aria-live="polite" tabindex="-1">
-    <span class="people-complete-icon" aria-hidden="true">✓</span>
-    <h2>Employee created.</h2>
-    <p id="onboardCompleteMessage">The staff record was saved as Onboarding.</p>
-    <p id="onboardDeliveryStatus" class="people-small" role="status"></p>
-    <section id="employeeHandoffPanel" class="employee-handoff" hidden aria-label="Private employee login handoff">
-     <h3 id="employeeHandoffTitle">Private employee setup link</h3>
-     <p id="employeeHandoffNote" class="people-small"></p>
-     <label for="employeeHandoffValue">One-time handoff details</label>
-     <textarea id="employeeHandoffValue" rows="5" readonly spellcheck="false"></textarea>
-     <button id="copyEmployeeHandoff" type="button" class="people-secondary">Copy private handoff</button>
-    </section>
-    <p class="people-small">Roster activation, HR authority, and customer/project/product access stay separately controlled. The employee cannot use an invitation until they choose their password.</p>
-    <div class="people-wizard-actions"><a id="setupEmployeeLogin" class="people-primary" href="/employees">Set up employee login</a><a class="people-secondary" href="/employees">View employee dashboard</a><button type="button" id="onboardAnother" class="people-secondary">Onboard another</button></div>
-   </section>
   </section>
  </div>
+
+ <section id="onboardComplete" class="people-completion-shell" hidden tabindex="-1" aria-labelledby="completeTitle">
+  <div class="people-completion-card">
+   <div class="people-completion-heading">
+    <span id="completeIcon" class="people-complete-icon" aria-hidden="true">✓</span>
+    <h2 id="completeTitle">Employee created</h2>
+    <p id="completeDescription">Share the private setup link to continue onboarding.</p>
+   </div>
+   <div id="createdEmployeeSummary" class="people-completion-person" hidden>
+    <span id="createdEmployeeInitials" class="people-completion-avatar" aria-hidden="true"></span>
+    <div class="people-completion-person-data">
+     <strong id="createdEmployeeName"></strong>
+     <span id="createdEmployeeEmail"></span>
+     <small id="createdEmployeePosition"></small>
+    </div>
+    <span id="createdEmployeeStatus" class="people-status" hidden></span>
+   </div>
+   <p id="onboardDeliveryStatus" class="people-completion-feedback" role="status" aria-live="polite"></p>
+   <section id="employeeHandoffPanel" class="employee-handoff" hidden aria-label="Private employee login handoff">
+    <div class="people-handoff-heading"><h3>Private setup link</h3></div>
+    <label for="employeeHandoffValue">Invitation URL</label>
+    <textarea id="employeeHandoffValue" rows="3" readonly spellcheck="false" autocomplete="off"></textarea>
+    <button id="copyEmployeeHandoff" type="button" class="people-primary"><span id="copyEmployeeHandoffLabel">Copy invitation link</span></button>
+    <p id="employeeInviteExpiry" class="people-small" hidden></p>
+    <p class="people-small people-handoff-privacy">Shown once. Share privately with the employee. No email has been sent.</p>
+   </section>
+   <section id="onboardRecovery" class="people-completion-recovery" hidden aria-label="Account setup recovery">
+    <p id="onboardRecoveryMessage"></p>
+    <button id="checkEmployeeStatus" class="people-primary" type="button" hidden>Check status</button>
+   </section>
+   <div id="completeActions" class="people-completion-actions">
+    <a id="setupEmployeeLogin" class="people-secondary" href="/employees" hidden>Manage access</a>
+    <button type="button" id="onboardAnother" class="people-secondary">Onboard another</button>
+   </div>
+  </div>
+ </section>
 </div>
 </body>
 </html>

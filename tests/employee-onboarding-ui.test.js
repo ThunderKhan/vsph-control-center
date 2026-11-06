@@ -56,3 +56,28 @@ test('polish adds labeled step progress, correct section headings, and explicit 
  assert.match(css,/\.people-wizard-step label\{font-size:14px/);
  assert.match(css,/prefers-reduced-motion:reduce/);
 });
+
+test('redesign isolates the wizard from a compact completion state and preserves one-time secrets',()=>{
+ const html=read('views/employee-onboarding.html'),js=read('public/employee-onboarding.js'),css=read('public/employees.css');
+ for(const id of ['onboardingWizard','employeeReviewIdentity','employeeReviewPosition','onboardComplete',
+  'onboardRecovery','checkEmployeeStatus','employeeHandoffValue','copyEmployeeHandoff','setupEmployeeLogin']){
+  assert.match(html,new RegExp('id="'+id+'"'),id);
+ }
+ assert.match(html,/id="employeeHandoffValue"[^>]*readonly/);
+ assert.match(html,/class="people-review-edit" data-edit-step="0"/);
+ assert.match(html,/class="people-review-edit" data-edit-step="1"/);
+ assert.match(html,/id="onboardComplete"[^>]*hidden/);
+ assert.match(js,/function finishEdit\(apply\)/);
+ assert.match(js,/textContent='Discard changes'/);
+ assert.match(js,/step===2\?'Create employee':'Continue'/);
+ assert.match(js,/window\.addEventListener\('beforeunload'/);
+ assert.match(js,/window\.addEventListener\('pagehide',clearInvitation\)/);
+ assert.match(js,/linkAvailable&&!linkCopied/);
+ assert.match(js,/function unknownResult\(data\)/);
+ assert.match(js,/async function checkExisting\(email\)/);
+ assert.match(js,/Idempotency-Key/);
+ assert.doesNotMatch(js,/localStorage|sessionStorage/);
+ assert.match(css,/\.people-completion-shell\{max-width:680px/);
+ assert.match(css,/@media\(max-width:1024px\)/);
+ assert.match(css,/@media\(max-width:640px\)/);
+});
