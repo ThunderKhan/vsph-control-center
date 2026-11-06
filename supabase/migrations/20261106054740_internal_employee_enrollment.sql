@@ -158,3 +158,66 @@ end$$;
 revoke all on function public.internal_employee_enrollment_activation_guard() from public,anon,authenticated;
 grant execute on function public.internal_employee_enrollment_activation_guard() to service_role;
 create trigger internal_employee_enrollment_activation_guard before update of status on public.profiles for each row execute function public.internal_employee_enrollment_activation_guard();
+
+-- Preserve explicit disable even when the new profile is already disabled.
+-- After durable provisioning: explicit account disable also revokes outstanding enrollment.
+create or replace function public.set_profile_status(
+ p_actor uuid, p_target uuid, p_status text
+) returns uuid
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+ v_previous text;
+ v_role text;
+ v_sessions integer := 0;
+ v_codes integer := 0;
+ v_invites integer := 0;
+ v_enrollments integer := 0;
+begin
+ if p_status is null or p_status not in ('active','disabled') then
+  raise exception 'Invalid account status' using errcode = '22023';
+ end if;
+ -- Recheck the actor in the same transaction as the mutation, not just HTTP middleware.
+ perform 1 from public.profiles where id=p_actor and status='active'
+  and platform_role='super_admin' for update;
+ if not found then raise exception 'Platform administrator required' using errcode='42501'; end if;
+ if p_actor=p_target and p_status='disabled' then
+  raise exception 'Self-disable is not permitted' using errcode='22023';
+ end if;
+ select status, platform_role into v_previous, v_role from public.profiles where id=p_target for update;
+ if not found then raise exception 'Account not found' using errcode='P0002'; end if;
+ if v_role='super_admin' then
+  raise exception 'Platform administrator lifecycle requires governed recovery' using errcode='VS001';
+ end if;
+ if p_status='disabled' then
+  update public.internal_employee_enrollments set state='cancelled',account_blocked=true,version=version+1
+   where auth_user_id=p_target and state<>'accepted' and not account_blocked;
+  get diagnostics v_enrollments = row_count;
+  delete from public.portal_sessions where user_id=p_target;
+  get diagnostics v_sessions = row_count;
+  -- app_sessions cascade through portal_sessions; outstanding Music codes do not have that FK.
+  delete from public.sso_launch_codes where user_id=p_target;
+  get diagnostics v_codes = row_count;
+  update public.membership_invitations set state='revoked',token_hash=null,account_blocked=true
+   where user_id=p_target and state<>'accepted' and not account_blocked;
+  get diagnostics v_invites = row_count;
+  update public.invitation_outbox set state='revoked',encrypted_delivery=null
+   where invitation_id in (select id from public.membership_invitations where user_id=p_target and state='revoked');
+  update public.provisioning_jobs set state='revoked'
+   where id in (select job_id from public.membership_invitations where user_id=p_target and state='revoked');
+ end if;
+ if v_previous=p_status and v_sessions=0 and v_codes=0 and v_invites=0 and v_enrollments=0 then return p_target; end if;
+ update public.profiles set status=p_status where id=p_target;
+ insert into public.audit_logs(actor_user_id,action,target_type,target_id,details)
+ values(p_actor,'user.status_changed','user',p_target::text,
+  jsonb_build_object('before_status',v_previous,'status',p_status,
+   'revoked_portal_sessions',v_sessions,'revoked_launch_codes',v_codes,'revoked_invitations',v_invites,'revoked_employee_enrollments',v_enrollments));
+ return p_target;
+end;
+$$;
+revoke all on function public.set_profile_status(uuid,uuid,text) from public,anon,authenticated;
+grant execute on function public.set_profile_status(uuid,uuid,text) to service_role;
+
+
