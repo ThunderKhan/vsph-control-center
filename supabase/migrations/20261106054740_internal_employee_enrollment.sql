@@ -92,6 +92,7 @@ begin
    -- Never automatically retry an ambiguous external password write.
    if r.state='accepting' and r.acceptance_id=(p_data->>'acceptanceId')::uuid then
     update public.internal_employee_enrollments set state='recovery_required',version=version+1 where id=r.id;
+    insert into public.audit_logs(action,target_type,target_id,details) values('employee.enrollment_failed','internal_employee',e.id::text,jsonb_build_object('enrollmentId',r.id,'recoveryRequired',true));
    end if;
    return jsonb_build_object('recoveryRequired',true);
   end if;
