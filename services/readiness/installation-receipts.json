@@ -28,5 +28,13 @@
     "requires": [
       "20261104153559"
     ]
+  },
+  {
+    "version": "20261106061540",
+    "name": "vsph_employee_enrollment_20261106",
+    "sqlSha256": "6cb7d4a442457d4ec55af20895cce9c9c59f74241f5c4471158294eaa0fb3276",
+    "requires": [
+      "20261106054740"
+    ]
   }
 ]
