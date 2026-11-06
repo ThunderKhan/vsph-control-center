@@ -15,15 +15,15 @@
  </header>
  <p id="peopleMessage" class="people-message" role="status" aria-live="polite">Loading employee records…</p>
  <section class="people-metrics" aria-label="Employee summary">
-  <article class="people-metric"><span>Employees</span><strong id="staffTotal">—</strong><small>Recorded workforce</small></article>
-  <article class="people-metric"><span>Active</span><strong id="staffActive">—</strong><small>Current staff</small></article>
-  <article class="people-metric"><span>Onboarding</span><strong id="staffOnboarding">—</strong><small>Pending internal setup</small></article>
-  <article class="people-metric"><span>On leave</span><strong id="staffLeave">—</strong><small>Roster status</small></article>
-  <article class="people-metric"><span>HR managers</span><strong id="staffHr">—</strong><small>Explicit assignments</small></article>
+  <article class="people-metric"><span>Employees</span><strong id="staffTotal">—</strong></article>
+  <article class="people-metric"><span>Active</span><strong id="staffActive">—</strong></article>
+  <article class="people-metric"><span>Onboarding</span><strong id="staffOnboarding">—</strong></article>
+  <article class="people-metric"><span>On leave</span><strong id="staffLeave">—</strong></article>
+  <article class="people-metric"><span>HR managers</span><strong id="staffHr">—</strong></article>
  </section>
  <div class="people-overview">
   <section class="people-panel" aria-labelledby="deptTitle">
-   <div class="people-panel-head"><h2 id="deptTitle">Department allocation</h2><small>Active + on leave</small></div>
+   <div class="people-panel-head"><h2 id="deptTitle">Department allocation</h2></div>
    <div id="departmentChart" aria-live="polite" class="people-dept"></div>
   </section>
 
@@ -42,7 +42,7 @@
   <form id="employeeEditForm">
    <div class="people-form-grid">
     <label>Full name<input name="fullName" required maxlength="150"></label>
-    <label>Department<input name="department" required maxlength="100"></label>
+    <label>Department<select name="department" required><option value="" disabled selected>Select a department</option><option value="Engineering">Engineering</option><option value="Marketing">Marketing</option><option value="Human Resources">Human Resources</option><option value="Finance">Finance</option><option value="Customer Support">Customer Support</option><option value="Sales &amp; Business Development">Sales &amp; Business Development</option></select></label>
     <label>Job title<input name="jobTitle" required maxlength="120"></label>
     <label>Employment type<select name="employmentType"><option value="full_time">Full-time</option><option value="part_time">Part-time</option><option value="intern">Intern</option><option value="contract">Contract</option></select></label>
     <label>Start date<input name="startDate" type="date" required></label>
