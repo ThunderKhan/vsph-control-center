@@ -47,6 +47,7 @@ begin
  if not found then raise exception 'Credential setup unavailable' using errcode='42501';end if;
  if e.email is distinct from initial_email then raise exception 'Identity changed; refresh before retry' using errcode='40001';end if;
  select * into r from public.internal_employee_enrollments where employee_id=target for update;
+ if r.issuer_id is distinct from initial_issuer then raise exception 'Enrollment appeared or issuer changed; refresh' using errcode='40001';end if;
  select * into t from public.internal_employee_temporary_credentials where enrollment_id=r.id for update;
  if manager then
   authority:=public.internal_workforce_authority(p_actor);

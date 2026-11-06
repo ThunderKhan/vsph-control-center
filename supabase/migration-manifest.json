@@ -262,7 +262,7 @@
     },
     {
       "path": "supabase/migrations/20261106063206_internal_employee_temporary_credentials.sql",
-      "sha256": "5560cef565182dd9ffe612ea97666da308410a39d578e0412bab6b40c149bd8a",
+      "sha256": "f00a1aa0d2df8d4095cf5650829ba2065822bdaf5e6d3f27b46d1a0c1b3394e9",
       "version": "20261106063206",
       "name": "internal_employee_temporary_credentials",
       "requires": [
