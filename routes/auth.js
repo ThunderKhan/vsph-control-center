@@ -9,9 +9,19 @@ router.post('/login',async(req,res,next)=>{
  try{
   const email=String(req.body.email||'').trim().toLowerCase();const password=String(req.body.password||'');
   if(!email||!password)return res.status(400).json({message:'Email and password are required.'});
-  const {user:authUser}=await verifyIdentity({email,password,totpCode:req.body.totpCode,totpFactorId:req.body.totpFactorId});
+  const {user:authUser,assurance}=await verifyIdentity({email,password,totpCode:req.body.totpCode,totpFactorId:req.body.totpFactorId});
   const user=check(await db().from('profiles').select('*').eq('id',authUser.id).eq('status','active').maybeSingle());
-  if(!user)return res.status(403).json({message:'Account is not enabled.'});
+  if(!user){
+   const temporary=require('../services/employee-credentials'),raw=newToken();
+   if(await temporary.temporaryLogin({client:db(),user:authUser,assurance,setupHash:hashToken(raw),passwordHash:hashToken(password)})){
+    res.clearCookie('vsph.portal.sid',{path:'/',sameSite:'lax',secure:process.env.NODE_ENV==='production'});
+    for(const name of applicationCookieNames(req.cookies))res.clearCookie(name,{path:'/',sameSite:'lax',secure:process.env.NODE_ENV==='production'});
+    res.cookie(temporary.COOKIE,raw,{...cookieOptions(),path:'/api/employee-credentials',maxAge:600000});
+    return res.json({passwordChangeRequired:true,redirect:'/employee-password'});
+   }
+   return res.status(403).json({message:'Account is not enabled or temporary credentials are unavailable.'});
+  }
+  res.clearCookie('vsph.employee.setup',{path:'/api/employee-credentials',sameSite:'lax',secure:process.env.NODE_ENV==='production'});
   const raw=newToken();const token_hash=hashToken(raw);
   check(await db().from('portal_sessions').insert({token_hash,user_id:user.id,expires_at:expiry()}));
   res.cookie('vsph.portal.sid',raw,cookieOptions());
@@ -52,6 +62,7 @@ router.post('/logout',async(req,res,next)=>{
   if(raw)check(await db().from('portal_sessions').delete().eq('token_hash',hashToken(raw)));
   res.clearCookie('vsph.portal.sid',{path:'/',sameSite:'lax',secure:process.env.NODE_ENV==='production'});
   for(const name of applicationCookieNames(req.cookies))res.clearCookie(name,{path:'/',sameSite:'lax',secure:process.env.NODE_ENV==='production'});
+  res.clearCookie('vsph.employee.setup',{path:'/api/employee-credentials',sameSite:'lax',secure:process.env.NODE_ENV==='production'});
   res.json({message:'Signed out.'});
  }catch(err){next(err)}
 });

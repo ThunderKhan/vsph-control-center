@@ -26,7 +26,7 @@ module.exports=async pool=>{
   // A native second connection and durable reservation allow only one external password write.
   const before=provider.events.filter(e=>e==='password').length;
   const concurrent=await Promise.all([1,2].map(()=>send('/accept',{...invite,password:'employee-password-2026',confirmed:true},null)));
-  assert.deepEqual(concurrent.map(r=>r.status).sort(),[200,409]);assert.equal(provider.events.filter(e=>e==='password').length,before+1);
+  assert.equal(concurrent.filter(r=>r.status===200).length,1);assert.ok(concurrent.every(r=>[200,403,409].includes(r.status)),'A losing accept conflicts while pending or denies after completed activation');assert.equal(provider.events.filter(e=>e==='password').length,before+1);
   assert.equal((await send('/accept',{...invite,password:'replay-password-2026',confirmed:true},null)).status,403);
   const logged=await fetch(base+'/api/auth/login',{method:'POST',headers:{Origin:'http://localhost:3000','Content-Type':'application/json'},body:JSON.stringify({email:row.email,password:'employee-password-2026'})});assert.equal(logged.status,200);assert.equal((await logged.json()).user.platformRole,'user');
   assert.equal((await pool.query('select status from profiles where id=$1',[row.auth_user_id])).rows[0].status,'active');

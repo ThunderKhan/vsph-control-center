@@ -1,3 +1,7 @@
+## Temporary employee credentials — 6 November 2026
+
+HR temporarily knows an initial password, so private handoff and mandatory personal replacement are required. Pending identities stay disabled and receive only a scoped ten-minute cookie, never an ordinary portal session. Reissue is limited to durable ready states; ambiguous provider writes remain quarantined. Existing active identities, product roles and HR appointment are not reset or granted. Automated email and existing-account/MFA recovery require separate provider configuration/acceptance. See [workflow and related gaps](../operations/EMPLOYEE_TEMPORARY_CREDENTIALS.md).
+
 ## Enrollment installation boundary — 6 November 2026
 
 Canonical employee enrollment and its exact transport receipt are installed, with matching preservation fingerprints for 15 tables and live anonymous PostgREST denial. No existing user, credential, tenant entitlement, subscription or roster row was changed. This resolves the schema availability gate; successful live Auth provisioning/acceptance, private handoff verification and governed ambiguous-password reconciliation remain separate risks. See [installed evidence](../operations/EMPLOYEE_ENROLLMENT_INSTALL_20261106.md). No staging, production deployment or hosted disaster-recovery readiness is inferred.

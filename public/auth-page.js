@@ -166,12 +166,12 @@
         // Only the backend chooses the destination after a valid app-scoped login.
         window.location.assign(data.redirect);
       } else {
-        await request('/api/auth/login', {
+        const data=await request('/api/auth/login', {
           email: email.value.trim(),
           password: password.value,
           ...(totpCode.value?{totpCode:totpCode.value,totpFactorId:totpFactor.value}:{})
         });
-        window.location.assign('/dashboard');
+        window.location.assign(data.passwordChangeRequired===true?'/employee-password':'/dashboard');
       }
     } catch (error) {
       if(error.code==='MFA_REQUIRED'&&Array.isArray(error.factors)){

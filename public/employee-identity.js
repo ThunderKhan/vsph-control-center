@@ -17,7 +17,7 @@
   await api('/employees/'+employeeId+'/'+action,{...data,confirmed:true},action==='request'?requestKey:null);
   if(action==='request')requestKey=crypto.randomUUID();await load();message.textContent='Account-link request change saved.';
  }
- function manager(data,enrollment){
+ function manager(data,enrollment,temporary){
   const e=data.employee,box=node('section');box.className='panel';box.append(node('h2',e.fullName),node('p',e.email+' · '+e.status+' · roster version '+e.version));
   box.append(node('p',data.link?.status==='linked'?'Account link accepted. A new HR grant remains an owner-only action.':'No accepted account link. Request consent from the matching active ordinary portal account.'));
   const actions=node('div');actions.className='identity-actions';
@@ -35,7 +35,8 @@
    const request=actions.querySelector('button');if(request&&data.link?.status!=='linked'&&!readiness.canRequest){request.disabled=true;request.title='Complete account enrollment or review the pending consent request first.';}
    box.append(summary);
   }
-  if(enrollment?.available&&data.link?.status!=='linked')box.append(enrollmentPanel(e,enrollment));
+  if(temporary?.credential)box.append(credentialPanel(e,enrollment,temporary.credential));
+  else if(enrollment?.available&&data.link?.status!=='linked')box.append(enrollmentPanel(e,enrollment,temporary));
   else if(enrollment?.message)box.append(node('p',enrollment.message));
   box.append(actions);content.append(box);
   for(const r of data.requests){const row=node('article');row.className='panel';row.append(node('h2','Account-link request'),node('p',r.state+' · version '+r.version+' · expires '+new Date(r.expires_at).toLocaleString()),node('p','Request '+r.id));
@@ -43,7 +44,7 @@
   }
   content.append(node('p','Latest 20 requests. Existing HR grants predating account consent are preserved for owner review. Existing accounts retain their own password. New-account invitations are handed privately to the employee; no email is sent automatically.'));
  }
- function enrollmentPanel(employee,data){
+ function enrollmentPanel(employee,data,temporary){
   const panel=node('section');panel.className='identity-readiness';panel.append(node('h3','Employee login invitation'));
   const r=data.enrollment;panel.append(node('p',r?'Status: '+r.state+' · expires '+new Date(r.expiresAt).toLocaleString():'Create a new ordinary portal account for this work email. The employee will choose their password and accept the employment link.'));
   panel.append(node('p','Share links privately only with the named employee. No email is sent automatically. Onboarding employees can sign in and review their employment; activate their roster separately before assigning active employee workflows.'));
@@ -59,7 +60,21 @@
   if(!r||['provisioning','ready','expired','cancelled'].includes(r.state))actions.append(button(r?'Reissue login invitation':'Create login invitation',issue));
   if(r&&['provisioning','ready','expired','accepting','recovery_required'].includes(r.state))actions.append(button('Cancel login invitation',async()=>{if(!confirm('Cancel this employee login invitation? Existing accepted accounts are unaffected.'))return;await api('/'+r.id+'/cancel',{rosterVersion:employee.version,version:r.version,confirmed:true},null,'/api/employee-enrollment');await load();}));
   if(r&&['accepting','recovery_required'].includes(r.state))panel.append(node('p','Password setup needs operator reconciliation. The new portal identity remains disabled. Automatic retries are blocked to prevent a late provider request changing an active password.'));
+  if(temporary&&!temporary.message&&(!r||['provisioning','ready','expired','cancelled'].includes(r.state)))actions.append(button('Create temporary credentials',()=>createCredentials(employee,data,null)));
   panel.append(actions);return panel;
+ }
+ async function createCredentials(employee,enrollment,credential){
+  if(!confirm((credential?'Reissue':'Create')+' private temporary credentials for '+employee.email+'? The employee must choose a different personal password before access. No email will be sent.'))return;
+  const result=await api('/employees/'+employee.id,{rosterVersion:employee.version,confirmed:true,...(credential?{credentialVersion:credential.version}:{}),...(enrollment?.enrollment?{enrollmentVersion:enrollment.enrollment.version}:{})},requestKey,'/api/employee-credentials');requestKey=crypto.randomUUID();await load();message.textContent=result.message;
+  if(result.temporaryPassword){const panel=node('section');panel.className='panel';panel.append(node('h2','Private temporary credentials'),node('p','Shown once. Give these only to the named employee in person or through a trusted private channel. HR should never ask for their later personal password.'));
+   const details='Sign in: '+result.loginUrl+'\nWork email: '+result.email+'\nTemporary password: '+result.temporaryPassword+'\nExpires: '+new Date(result.expiresAt).toLocaleString()+'\nYou must change this temporary password at first sign-in.';
+   const label=node('label','Employee credential handoff'),field=node('textarea');field.readOnly=true;field.rows=8;field.value=details;label.append(field);panel.append(label,button('Copy handoff details',async()=>{try{await navigator.clipboard.writeText(details);message.textContent='Copied. Deliver privately to the named employee.';}catch{field.focus();field.select();message.textContent='Select and copy the private handoff details.';}}));content.prepend(panel);
+  }
+ }
+ function credentialPanel(employee,enrollment,credential){
+  const panel=node('section');panel.className='identity-readiness';panel.append(node('h3','Temporary employee credentials'),node('p','Status: '+credential.state+' · expires '+new Date(credential.expiresAt).toLocaleString()),node('p','The temporary password is never displayed again after refresh. The employee must replace it before portal access. Reissue invalidates earlier temporary passwords and password-setup sessions.'));
+  const actions=node('div');actions.className='identity-actions';if(credential.canReissue)actions.append(button('Reissue temporary credentials',()=>createCredentials(employee,enrollment,credential)));
+  const r=enrollment?.enrollment;if(r&&!['accepted','cancelled'].includes(r.state))actions.append(button('Cancel temporary credentials',async()=>{if(!confirm('Cancel these temporary employee credentials?'))return;await api('/'+r.id+'/cancel',{rosterVersion:employee.version,version:r.version,confirmed:true},null,'/api/employee-enrollment');await load();}));panel.append(actions);return panel;
  }
  function personal(data){
   $('identityTitle').textContent='My employment';
@@ -81,6 +96,6 @@
   }
   if(!data.employment.length&&!data.requests.length)content.append(node('p','No active employment link or eligible account-link request is available. Ask VSPH to review your roster/account mapping.'));
  }
- async function load(){const n=++revision;content.replaceChildren();content.setAttribute('aria-busy','true');try{const data=await api(employeeId?'/employees/'+employeeId:'/mine');let enrollment;if(employeeId){try{enrollment=await api('/employees/'+employeeId,null,null,'/api/employee-enrollment');}catch(error){enrollment={message:error.message};}}if(n!==revision)return;employeeId?manager(data,enrollment):personal(data);message.textContent='Showing current authorized account-link information.';}catch(e){if(n===revision){content.replaceChildren();message.textContent=e.message;}}finally{if(n===revision)content.setAttribute('aria-busy','false');}}
+ async function load(){const n=++revision;content.replaceChildren();content.setAttribute('aria-busy','true');try{const data=await api(employeeId?'/employees/'+employeeId:'/mine');let enrollment,temporary;if(employeeId){try{enrollment=await api('/employees/'+employeeId,null,null,'/api/employee-enrollment');}catch(error){enrollment={message:error.message};}try{temporary=await api('/employees/'+employeeId,null,null,'/api/employee-credentials');}catch(error){temporary={message:error.message};}}if(n!==revision)return;employeeId?manager(data,enrollment,temporary):personal(data);message.textContent='Showing current authorized account-link information.';}catch(e){if(n===revision){content.replaceChildren();message.textContent=e.message;}}finally{if(n===revision)content.setAttribute('aria-busy','false');}}
  $('refreshIdentity').onclick=()=>run(load);load();
 })();
