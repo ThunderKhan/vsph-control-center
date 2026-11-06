@@ -16,24 +16,24 @@
   <aside class="people-steps" aria-label="Onboarding progress">
    <p class="eyebrow">SETUP CHECKLIST</p>
    <ol>
-    <li data-staff-step="0" class="current"><span>01</span><div><strong>Identity</strong><small>Name and work email</small></div></li>
+    <li data-staff-step="0" class="current" aria-current="step"><span>01</span><div><strong>Identity</strong><small>Name and work email</small></div></li>
     <li data-staff-step="1"><span>02</span><div><strong>Position</strong><small>Team and employment details</small></div></li>
     <li data-staff-step="2"><span>03</span><div><strong>Review</strong><small>Confirm and save</small></div></li>
    </ol>
   </aside>
-  <section class="people-panel people-wizard-panel" aria-labelledby="wizardTitle">
+  <section class="people-panel people-wizard-panel" aria-labelledby="wizardTitle-0">
    <div class="people-wizard-top"><span id="staffStep">STEP 1 OF 3</span><span id="staffProgress">33% COMPLETE</span></div>
-   <div class="people-wizard-track"><span id="staffProgressFill" style="width:33%"></span></div>
+   <div id="staffProgressBar" class="people-wizard-track" role="progressbar" aria-label="Onboarding completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="33"><span id="staffProgressFill" style="width:33%"></span></div>
    <form id="employeeOnboardForm" novalidate>
     <fieldset class="people-wizard-step" data-staff-panel="0">
-     <legend id="wizardTitle">Employee identity</legend>
+     <legend id="wizardTitle-0" tabindex="-1">Employee identity</legend>
      <div class="people-form-grid">
       <label><span class="people-field-title">Full name <em aria-hidden="true">*</em></span><input name="fullName" maxlength="150" placeholder="e.g. Avery Shah" autocomplete="name" required></label>
       <label><span class="people-field-title">Work email <em aria-hidden="true">*</em></span><input type="email" name="email" maxlength="190" placeholder="avery@company.example" autocomplete="email" required></label>
      </div>
     </fieldset>
     <fieldset class="people-wizard-step" data-staff-panel="1" hidden>
-     <legend>Employment details</legend>
+     <legend id="wizardTitle-1" tabindex="-1">Employment details</legend>
      <div class="people-form-grid">
       <label><span class="people-field-title">Department <em aria-hidden="true">*</em></span><input name="department" maxlength="100" placeholder="e.g. Engineering" required></label>
       <label><span class="people-field-title">Job title <em aria-hidden="true">*</em></span><input name="jobTitle" maxlength="120" placeholder="e.g. Software Developer" required></label>
@@ -42,7 +42,7 @@
      </div>
     </fieldset>
     <fieldset class="people-wizard-step" data-staff-panel="2" hidden>
-     <legend>Review employee onboarding</legend>
+     <legend id="wizardTitle-2" tabindex="-1">Review employee onboarding</legend>
      <dl id="employeeReview" class="people-review"></dl>
      <p class="employee-onboard-note">The link will be displayed once for private sharing. No email is sent automatically.</p>
      <label class="people-confirm"><input id="employeeConfirmed" type="checkbox" required><span>I confirm that the employee details provided are correct.</span></label>
@@ -54,7 +54,7 @@
       <button type="button" id="staffNext" class="people-primary">Continue</button>
     </div>
    </form>
-   <section id="onboardComplete" class="people-complete" hidden aria-live="polite">
+   <section id="onboardComplete" class="people-complete" hidden aria-live="polite" tabindex="-1">
     <span class="people-complete-icon" aria-hidden="true">✓</span>
     <h2>Employee created.</h2>
     <p id="onboardCompleteMessage">The staff record was saved as Onboarding.</p>
