@@ -37,6 +37,8 @@ app.use((req,res,next)=>{
 });
 app.use('/api/auth',require('./routes/auth'));
 app.use('/api/invitations',require('./routes/invitations'));
+app.use('/api/employee-credentials',require('./routes/employee-credentials').router);
+app.get('/employee-password',require('./routes/employee-credentials').page);
 app.use('/api/employee-enrollment',require('./routes/employee-enrollment').router);
 app.get('/employee-enrollment',require('./routes/employee-enrollment').page);
 

@@ -42,7 +42,7 @@ test('product login remains server-protected and app sessions stay separate', ()
   assert.ok(js.includes("'/api/auth/app-login'"));
   assert.ok(js.includes('organizationId: organizationSelect.value'));
   assert.ok(js.includes("window.location.assign(data.redirect)"));
-  assert.ok(js.includes("window.location.assign('/dashboard')"));
+  assert.ok(js.includes("data.passwordChangeRequired===true?'/employee-password':'/dashboard'"));
   assert.ok(js.includes("response.status === 401"));
   assert.ok(js.includes("window.location.replace('/login')"));
 });
