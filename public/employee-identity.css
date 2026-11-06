@@ -1,3 +1,5 @@
 .identity-actions{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}.identity-state{color:#536984;font-size:14px}.identity-request{border-top:1px solid #dce3ec;padding:18px 0}.identity-code{font-family:monospace;overflow-wrap:anywhere}.identity-confirm{display:flex;align-items:start;gap:12px}.identity-confirm input{width:20px;min-height:20px;flex-shrink:0}.identity-form{max-width:580px}.identity-form select{width:100%}
 
 .identity-readiness{margin-top:24px;padding:20px;border:1px solid #CCD5DF;border-radius:12px;background:#fff}.identity-readiness h3{margin:0 0 12px}.identity-readiness p{line-height:1.6}.identity-actions button:disabled{opacity:.6;cursor:not-allowed}
+
+.identity-readiness textarea{width:100%;min-height:100px;padding:12px;border:1px solid #CCD5DF;border-radius:8px;font:14px/1.5 Inter,Arial,sans-serif;color:#00255A;overflow-wrap:anywhere}

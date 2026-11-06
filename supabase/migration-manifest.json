@@ -249,6 +249,16 @@
         "supabase/migrations/20261103110000_internal_employee_governance.sql",
         "supabase/migrations/20261031000700_self_service_sessions.sql"
       ]
+    },
+    {
+      "path": "supabase/migrations/20261106054740_internal_employee_enrollment.sql",
+      "sha256": "82bac868400957c56c285fb1dde87441db38ad19a0a0348d2e57fd47b3914a65",
+      "version": "20261106054740",
+      "name": "internal_employee_enrollment",
+      "requires": [
+        "supabase/migrations/20261103165522_internal_employee_identity_links.sql",
+        "supabase/migrations/20261031000300_projects.sql"
+      ]
     }
   ],
   "note": "Historical Music filenames share version 20261030. Reconcile hosted ledger explicitly; do not silently rename or repair history."

@@ -53,6 +53,7 @@
    if(response.status===401){location.assign('/login');return;}
    const result=await response.json().catch(()=>({}));
    if(!response.ok)throw Error(result.code==='SCHEMA_NOT_READY'?'The reviewed employee migration must be installed before saving records.':result.message||'Employee onboarding could not be saved.');
+   $('setupEmployeeLogin').href='/employees/'+result.id+'/account-link';
    pending=null;
    $('employeeOnboardForm').hidden=true;$('onboardComplete').hidden=false;
    $('onboardCompleteMessage').textContent='Employee '+payload.fullName+' ('+payload.email+') was saved as Onboarding. No account or invitation was created.';

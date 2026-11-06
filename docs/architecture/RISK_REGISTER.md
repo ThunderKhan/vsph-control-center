@@ -1,3 +1,7 @@
+## Employee enrollment — 6 November 2026
+
+New-account enrollment isolates password setup from existing identity linking. Private manual invitation handoff is a capability: issuers must verify the recipient; no automatic email ownership proof or email delivery is claimed. Ambiguous external password writes quarantine the disabled profile and block automatic retries; governed operator reconciliation remains necessary. Existing identities are never reset/adopted. Isolated native/browser tests cannot establish hosted Auth delivery, provider ownership markers or production acceptance; target schema installation and real-identity acceptance remain separate gates. See [operator guide](../operations/EMPLOYEE_ENROLLMENT.md).
+
 # Current HRMS risk and installation cutoff — 4 November 2026
 
 Profiles/HRMS source is merged through PR #72 (`5d895d55cea9b712f2a8a1ec8d107247109483f5`). Both new source migrations are installed on the existing configured target, with exact receipt recognition and unchanged existing-data fingerprints; [installation evidence](../operations/HRMS_INSTALL_20261104.md) supersedes older pending-migration statements below. Native authorization/concurrency/provider-failure tests, two authenticated Chromium launchers and full synthetic restore CI pass. The receipt guard now hashes nested SQL safely; a failed initial attempt installed nothing.

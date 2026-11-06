@@ -72,7 +72,8 @@ async function start(pool,{interactive=false}={}) {
    await pool.query("insert into portal_sessions(token_hash,user_id,expires_at) values($1,$2,now()+interval '2 hours')",[hashToken('fixture-link-'+layout),id]);
   }
   const identity=require('../fixtures/identity-provider')(async email=>(await pool.query('select id,email from profiles where email=$1',[email])).rows[0],{mfaEmails:['mfa@fixture.test','customer-owner@fixture.test','link-desktop@fixture.test','link-mobile@fixture.test']});
-  const app = require("../database/http-fixture")(pool,undefined,identity);
+  const enrollmentProvider=require("../fixtures/employee-enrollment-provider")(pool,identity);
+  const app = require("../database/http-fixture")(pool,enrollmentProvider.auth,enrollmentProvider.factory);
   if(interactive)app.locals.environmentNotice='Isolated test workspace. Disposable records and simulated Auth; no hosted customer data.';
   const server = app.listen(Number(process.env.PORT || 3100), "127.0.0.1");
   await require('node:events').once(server,'listening');

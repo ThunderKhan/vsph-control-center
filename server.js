@@ -37,6 +37,8 @@ app.use((req,res,next)=>{
 });
 app.use('/api/auth',require('./routes/auth'));
 app.use('/api/invitations',require('./routes/invitations'));
+app.use('/api/employee-enrollment',require('./routes/employee-enrollment').router);
+app.get('/employee-enrollment',require('./routes/employee-enrollment').page);
 
 app.use('/api/account/profile',require('./routes/profile').router);
 app.use('/api/hrms',require('./routes/hrms').router);
