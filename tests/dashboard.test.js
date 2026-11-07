@@ -18,6 +18,9 @@ test('Overview and Applications use distinct protected routes and separate views
   assert.ok(server.includes("app.get('/applications.html',(req,res)=>res.redirect(302,'/applications'))"));
   assert.ok(server.includes("app.get('/admin.html',(req,res)=>res.redirect(302,'/admin'))"));
   assert.match(html, /id="accessGrid"/);
+  assert.match(html, /id="myWorkShortcut"[^>]*href="\/my-work" hidden/);
+  assert.match(html, /id="overviewDetails"[^>]*hidden/);
+  assert.doesNotMatch(html, /Two sign-ins\. One workspace\.|HOW IT WORKS|Account active/);
   assert.match(html, /id="appGrid"/);
   assert.match(html, /data-view="overview"/);
   assert.match(html, /data-view="applications"/);
@@ -66,7 +69,7 @@ function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=fal
     querySelectorAll(){return[];}
     focus(){}
   }
-  const ids=['appGrid','appSearch','errorMessage','emptyMessage','logoutButton','avatar','sideName','sideRole','topAccount','welcomeMessage','adminNavContainer','adminOverviewPanel','topbarOnboard','appCount','featureAppCount','workspaceCount','navBackdrop','openMenu','closeMenu','sidebarToggle','workspaceSidebar','spotlightPanel','accessGrid','libraryCount','employeeNavContainer','hrGovernanceNav','myWorkNav'];
+  const ids=['appGrid','appSearch','errorMessage','emptyMessage','logoutButton','avatar','sideName','sideRole','topAccount','welcomeMessage','adminNavContainer','adminOverviewPanel','overviewDetails','topbarOnboard','appCount','featureAppCount','workspaceCount','navBackdrop','openMenu','closeMenu','sidebarToggle','workspaceSidebar','spotlightPanel','accessGrid','libraryCount','employeeNavContainer','hrGovernanceNav','myWorkNav'];
   const nodes=new Map(ids.map(id=>[id,new Element(id)]));
   const visibleViews=[];
   for(const name of ['overview','applications']){
@@ -123,6 +126,7 @@ test('Overview uses real product roles and customer contexts rather than repeati
   assert.equal(fixture.nodes.get('appCount').textContent,'2');
   assert.equal(fixture.nodes.get('workspaceCount').textContent,'3');
   assert.equal(fixture.nodes.get('adminOverviewPanel').hidden,false);
+  assert.equal(fixture.nodes.get('overviewDetails').hidden,false);
   assert.equal(fixture.nodes.get('topbarOnboard').hidden,false);
   assert.equal(fixture.nodes.get('accessGrid').children.length,2);
   assert.equal(fixture.nodes.get('appGrid').children.length,0);
