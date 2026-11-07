@@ -52,5 +52,13 @@
     "requires": [
       "20261106142000"
     ]
+  },
+  {
+    "version": "20261107021021",
+    "name": "vsph_internal_work_activity_install_20261107",
+    "sqlSha256": "251470b342a85816c3a479e660d83c1bb7a9f393da44460c93f7621f297fec55",
+    "requires": [
+      "20261107010000"
+    ]
   }
 ]

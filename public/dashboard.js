@@ -199,6 +199,7 @@
       byId('welcomeMessage').textContent = 'Welcome back, ' + firstName + '. Your applications are ready when you are.';
       const isPlatformAdmin = user.platformRole === 'super_admin';
       byId('adminOverviewPanel').hidden = !isPlatformAdmin;
+      byId('overviewDetails').hidden = !isPlatformAdmin;
       byId('topbarOnboard').hidden = !isPlatformAdmin;
       // Owner defaults to persisted facts. The preserved fictional preview is
       // opt-in, and neither owner view borrows customer-product permissions.

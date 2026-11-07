@@ -204,8 +204,8 @@
             <div>
               <h1 id="pageTitle">Your workspace<span class="title-period">.</span></h1>
               <p class="page-lead" id="welcomeMessage">Applications and access, all in one place.</p>
+              <a id="myWorkShortcut" class="work-activity-shortcut" href="/my-work" hidden>View your work activity <span aria-hidden="true">→</span></a>
             </div>
-            <span class="account-status"><svg class="icon"><use href="#icon-check"></use></svg> Account active</span>
           </div>
         </section>
 
@@ -251,16 +251,7 @@
           </div>
         </section>
 
-        <section class="overview-details" data-view="overview" aria-label="How the workspace works">
-          <article class="overview-help">
-            <p class="section-kicker">HOW IT WORKS</p>
-            <h2>Two sign-ins. One workspace.</h2>
-            <ol class="access-steps">
-              <li><span>01</span><div><strong>Portal access</strong><p>Sign in once to see the products assigned to your account.</p></div></li>
-              <li><span>02</span><div><strong>Product verification</strong><p>Choose a customer workspace and verify your password for that application.</p></div></li>
-              <li><span>03</span><div><strong>Work securely</strong><p>Each product enforces your role and customer permissions.</p></div></li>
-            </ol>
-          </article>
+        <section id="overviewDetails" class="overview-details" data-view="overview" aria-label="Platform administration" hidden>
           <article class="overview-manage" id="adminOverviewPanel" hidden>
             <p class="section-kicker">PLATFORM ADMINISTRATION</p>
             <h2>Manage access across VSPH.</h2>
