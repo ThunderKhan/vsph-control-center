@@ -32,7 +32,7 @@ test('dashboard removes the educational card and its active-account badge withou
 test('My Work shortcut is permission-controlled, never inferred from matching names',()=>{
  const nav=read('public/portal-navigation.js');
  const html=read('public/dashboard.html');
- assert.match(html,/id="myWorkShortcut"[^>]*href="\/my-work" hidden/);
+ assert.match(html,/id="myWorkShortcut"[^>]*href="\/dashboard#employeeDashboardWork" hidden/);
  assert.match(nav,/shortcut\.hidden=f\.employee!==true/);
  assert.doesNotMatch(nav,/name.*employee|name.*profile.*employee/);
  assert.match(nav,/catch\{const shortcut=\$\('myWorkShortcut'\);if\(shortcut\)shortcut\.hidden=true/);
