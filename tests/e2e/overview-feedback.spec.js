@@ -33,3 +33,24 @@ test('linked employees see work activity first on the dashboard; customers canno
  await expect(page.locator('.crm-avatar-status')).toHaveCount(1);
  expect((await context.request.get('/my-work')).status()).toBe(403);
 });
+
+test('linked account still onboarding gets an explanatory dashboard rather than a silently missing heatmap',async({page,context},info)=>{
+ test.skip(!process.env.PROJECT_E2E_DATABASE,'Requires isolated native PostgreSQL');
+ await context.addCookies([cookie('fixture-hrms-staff-'+info.project.name)]);
+ await page.route('**/api/hrms/access',route=>route.fulfill({
+  status:200,contentType:'application/json',body:JSON.stringify({employee:false,management:false,governHr:false,pendingLink:false})
+ }));
+ await page.route('**/api/employee-identity/mine',route=>route.fulfill({
+  status:200,contentType:'application/json',
+  body:JSON.stringify({employment:[{status:'onboarding'}],requests:[]})
+ }));
+ await page.goto('/dashboard');
+ await expect(page.locator('#employeeDashboard')).toBeVisible();
+ await expect(page.locator('#employeeActivitySetup')).toBeVisible();
+ await expect(page.locator('#employeeActivitySetupTitle')).toHaveText('Your employee record is still onboarding');
+ await expect(page.locator('#workActivity')).toBeHidden();
+ await expect(page.locator('.work-activity-day')).toHaveCount(0);
+ await expect(page.locator('#employeeActivitySetupAction')).toHaveAttribute('href','/employment');
+ await page.unroute('**/api/hrms/access');
+ await page.unroute('**/api/employee-identity/mine');
+});
