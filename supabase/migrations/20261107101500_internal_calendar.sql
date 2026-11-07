@@ -122,8 +122,9 @@ begin
   return jsonb_build_object('deleted',true,'id',p_id);
  end if;
 
- if p_id is null or (select count(*) from jsonb_object_keys(p_data)) <>
-     case when p_action='create' then 11 else 12 end then
+ if p_id is null or
+    (p_action='create' and (select count(*) from jsonb_object_keys(p_data))<>11) or
+    (p_action='save' and (select count(*) from jsonb_object_keys(p_data))<>12) then
   raise exception 'Invalid event fields' using errcode='22023';
  end if;
  for k in select jsonb_object_keys(p_data) loop
