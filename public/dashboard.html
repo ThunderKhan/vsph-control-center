@@ -36,7 +36,12 @@
               </div>
               <a href="/my-work#ownTasks">Open my tasks</a>
             </div>
-            <div id="workActivity" class="hr-activity-section" aria-label="Your recorded task completion activity" data-state="loading"></div>
+            <div id="workActivity" class="hr-activity-section" aria-label="Your recorded task completion activity" data-state="loading" hidden></div>
+            <div id="employeeActivitySetup" class="employee-activity-setup" role="status" hidden>
+              <strong id="employeeActivitySetupTitle">Employee access is not ready</strong>
+              <p id="employeeActivitySetupMessage">Your work activity will appear when your employee account is active.</p>
+              <a id="employeeActivitySetupAction" href="/employment">Review employee account</a>
+            </div>
             <p class="employee-activity-note">Activity tracks recorded task completions, not working hours or employee performance.</p>
           </section>
           <nav class="employee-dashboard-actions" aria-label="Employee workspace shortcuts">
