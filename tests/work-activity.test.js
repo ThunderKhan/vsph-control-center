@@ -26,7 +26,7 @@ test('activity reproduces supplied sizing and timing without importing React',()
  assert.match(css,/450ms cubic-bezier\(\.22,1,\.36,1\)/);
  assert.match(css,/140ms cubic-bezier\(\.22,1,\.36,1\)/);
  assert.match(css,/prefers-reduced-motion:reduce/);
- assert.doesNotMatch(source,/github-contributions-api|api\.github\.com|Math\.random|react|motion\/react/i);
+ assert.doesNotMatch(source,/github-contributions-api|api\.github\.com|Math\.random|from ['"]react|require\(['"]react|motion\/react/i);
 });
 
 test('activity API is session-scoped, self-only and refuses client query filters',()=>{
