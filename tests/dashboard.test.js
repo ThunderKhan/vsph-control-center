@@ -54,7 +54,7 @@ function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=fal
   class Element{
     constructor(id=''){
       this.id=id; this.children=[]; this.attributes={}; this.value=''; this.textContent='';
-      this.hidden=['emptyMessage','errorMessage','adminNavContainer','adminOverviewPanel','topbarOnboard','navBackdrop','employeeDashboard','employeeActivitySetup','workActivity'].includes(id);
+      this.hidden=['emptyMessage','errorMessage','adminNavContainer','adminOverviewPanel','topbarOnboard','navBackdrop','employeeDashboard','employeeActivitySetup','workActivity','employeeDashboardActions'].includes(id);
       this.disabled=false; this.events={}; this.style={setProperty(){}};
       this.classList={add(){},remove(){},toggle(){},contains(){return false}};
     }
@@ -69,7 +69,7 @@ function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=fal
     querySelectorAll(){return[];}
     focus(){}
   }
-  const ids=['appGrid','appSearch','errorMessage','emptyMessage','logoutButton','avatar','sideName','sideRole','topAccount','welcomeMessage','adminNavContainer','adminOverviewPanel','overviewDetails','topbarOnboard','appCount','featureAppCount','workspaceCount','navBackdrop','openMenu','closeMenu','sidebarToggle','workspaceSidebar','spotlightPanel','accessGrid','libraryCount','employeeNavContainer','hrGovernanceNav','myWorkNav','employeeDashboard','employeeDashboardWelcome','workActivity','employeeActivitySetup','employeeActivitySetupTitle','employeeActivitySetupMessage','employeeActivitySetupAction'];
+  const ids=['appGrid','appSearch','errorMessage','emptyMessage','logoutButton','avatar','sideName','sideRole','topAccount','welcomeMessage','adminNavContainer','adminOverviewPanel','overviewDetails','topbarOnboard','appCount','featureAppCount','workspaceCount','navBackdrop','openMenu','closeMenu','sidebarToggle','workspaceSidebar','spotlightPanel','accessGrid','libraryCount','employeeNavContainer','hrGovernanceNav','myWorkNav','employeeDashboard','employeeDashboardWelcome','employeeDashboardActions','workActivity','employeeActivitySetup','employeeActivitySetupTitle','employeeActivitySetupMessage','employeeActivitySetupAction'];
   const nodes=new Map(ids.map(id=>[id,new Element(id)]));
   const visibleViews=[];
   for(const name of ['overview','applications']){
@@ -186,6 +186,7 @@ test('linked staff get the dashboard-first heatmap without loading customer appl
  assert.equal(fixture.visibleViews[0].hidden,true);
  assert.equal(fixture.activity.loads,1);
  assert.equal(fixture.nodes.get('workActivity').hidden,false);
+ assert.equal(fixture.nodes.get('employeeDashboardActions').hidden,false);
  assert.equal(fixture.nodes.get('employeeActivitySetup').hidden,true);
  assert.ok(fixture.calls.some(x=>x.url==='/api/hrms/access'));
  assert.equal(fixture.calls.some(x=>x.url==='/api/apps'),false);
@@ -217,6 +218,7 @@ test('accepted link to onboarding roster shows actionable employee-first setup w
  assert.equal(f.nodes.get('employeeDashboard').hidden,false);
  assert.equal(f.nodes.get('employeeActivitySetup').hidden,false);
  assert.equal(f.nodes.get('employeeActivitySetupTitle').textContent,'Your employee record is still onboarding');
+ assert.equal(f.nodes.get('employeeDashboardActions').hidden,true);
  assert.match(f.nodes.get('employeeActivitySetupMessage').textContent,/HR must change your roster status to Active/);
  assert.equal(f.nodes.get('employeeActivitySetupAction').textContent,'View your employment record');
  assert.equal(f.nodes.get('workActivity').hidden,true);
@@ -229,6 +231,7 @@ test('pending identity-link requests have a safe acceptance next step',async()=>
  await settle();
  assert.equal(f.nodes.get('employeeDashboard').hidden,false);
  assert.equal(f.nodes.get('employeeActivitySetup').hidden,false);
+ assert.equal(f.nodes.get('employeeDashboardActions').hidden,true);
  assert.match(f.nodes.get('employeeActivitySetupMessage').textContent,/Review and accept/);
  assert.equal(f.nodes.get('workActivity').hidden,true);
  assert.equal(f.activity.loads,0);
