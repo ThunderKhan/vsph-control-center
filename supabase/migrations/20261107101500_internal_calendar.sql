@@ -123,7 +123,7 @@ begin
  end if;
 
  if p_id is null or (select count(*) from jsonb_object_keys(p_data)) <>
-     case when p_action='create' then 10 else 11 end then
+     case when p_action='create' then 11 else 12 end then
   raise exception 'Invalid event fields' using errcode='22023';
  end if;
  for k in select jsonb_object_keys(p_data) loop
