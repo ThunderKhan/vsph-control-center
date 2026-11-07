@@ -170,7 +170,7 @@
    if(!Number.isSafeInteger(total)||total<0)throw Error('Invalid task total.');
    header.textContent=total+' recorded task completion'+(total===1?'':'s')+' · Last 12 months';
    card.setAttribute('aria-label',header.textContent);
-   card.style.minWidth='0'; // Keeps the original 320px design scale without horizontal overflow.
+   card.style.setProperty('--activity-ideal-min-width',MIN_CARD_WIDTH+'px'); // Responsive down to smaller screens.
    rendered=false;widthLast=-1;
    drawProjects();draw();
    root.dataset.state='loaded';
