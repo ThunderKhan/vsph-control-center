@@ -120,7 +120,10 @@
   const duration=Date.parse(current.endAt)-Date.parse(current.startAt);
   if(!Number.isFinite(duration)||duration<=0)return;
   try{
-   await save({...current,startAt:target.toISOString(),endAt:new Date(target.getTime()+duration).toISOString()},current.id);
+   await save({title:current.title,description:current.description||'',category:current.category,
+    color:current.color,scope:current.scope,tags:current.tags||[],attendees:current.attendees||[],
+    meetUrl:current.meetUrl||'',version:current.version,startAt:target.toISOString(),
+    endAt:new Date(target.getTime()+duration).toISOString()},current.id);
    await load();
   }catch(err){$('calendarStatus').textContent=err.message;}
  }
