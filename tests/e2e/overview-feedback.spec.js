@@ -51,6 +51,7 @@ test('linked account still onboarding gets an explanatory dashboard rather than 
  await expect(page.locator('#workActivity')).toBeHidden();
  await expect(page.locator('.work-activity-day')).toHaveCount(0);
  await expect(page.locator('#employeeActivitySetupAction')).toHaveAttribute('href','/employment');
+ await expect(page.locator('#employeeDashboardActions')).toBeHidden();
  await page.unroute('**/api/hrms/access');
  await page.unroute('**/api/employee-identity/mine');
 });
