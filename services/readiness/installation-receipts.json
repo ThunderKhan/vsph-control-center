@@ -60,5 +60,13 @@
     "requires": [
       "20261107010000"
     ]
+  },
+  {
+    "version": "20261107045703",
+    "name": "vsph_internal_calendar_install_20261107",
+    "sqlSha256": "d6f5daefebfdac33ca6a73737139fa348d8e60195bf66dfa4e74cf254a43a264",
+    "requires": [
+      "20261107101500"
+    ]
   }
 ]

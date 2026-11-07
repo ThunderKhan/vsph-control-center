@@ -45,6 +45,8 @@ function verifyManifest(
 const tables = [
   "internal_leave_requests",
   "internal_attendance",
+  "internal_calendar_events",
+  "internal_calendar_attendees",
   "account_profile_preferences",
   "internal_employee_link_requests",
   "internal_employee_identity_links",
@@ -97,6 +99,7 @@ const signatures = [
   "public.account_profile(uuid,text,uuid,jsonb)",
   "public.hrms_access(uuid,text,uuid,jsonb)",
   "public.internal_self_service(uuid,text,uuid,jsonb)",
+  "public.internal_calendar(uuid,text,uuid,jsonb)",
   "public.internal_work_activity(uuid,text)",
   "public.internal_hrms(uuid,text,uuid,jsonb)",
   "public.finance_journal(uuid,text,uuid,jsonb)",

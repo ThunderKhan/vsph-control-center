@@ -287,6 +287,15 @@
       "requires": [
         "supabase/migrations/20261104093317_internal_hrms_self_service.sql"
       ]
+    },
+    {
+      "path": "supabase/migrations/20261107101500_internal_calendar.sql",
+      "sha256": "dbcdf21b93481c5c458e1acb0ec811756f90abbb211ea60ad68555c25dd1b892",
+      "version": "20261107101500",
+      "name": "internal_calendar",
+      "requires": [
+        "supabase/migrations/20261104093317_internal_hrms_self_service.sql"
+      ]
     }
   ],
   "note": "Historical Music filenames share version 20261030. Reconcile hosted ledger explicitly; do not silently rename or repair history."

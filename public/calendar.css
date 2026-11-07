@@ -1,0 +1,76 @@
+/* VSPH calendar. Adapted from the supplied 21st.dev EventManager layouts.
+   Tokens and hierarchy follow DESIGN.md; no framework or sample event data. */
+.employee-calendar{margin-top:24px;background:#fff;border:1px solid #DDE5EF;border-radius:16px;padding:24px;min-width:0;color:#00255A}
+#employeeCalendar[hidden]{display:none!important}
+.calendar-heading,.calendar-toolbar,.calendar-period,.calendar-heading-actions,.calendar-filters,.calendar-form-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.calendar-heading,.calendar-toolbar{justify-content:space-between;margin-bottom:20px}
+.calendar-heading h2{font-size:24px;font-weight:600;line-height:1.3;margin:0;letter-spacing:-.025em}
+.calendar-period{gap:8px}
+.calendar-period strong{font-size:21px;font-weight:600;letter-spacing:-.025em;min-width:180px}
+.calendar-period button,.calendar-view-tabs button,.calendar-form-actions button,.calendar-dialog-head button,.calendar-heading button{border:1px solid #CBD8E8;background:#fff;color:#00255A;border-radius:8px;padding:10px 14px;min-height:44px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.calendar-period button:first-of-type,.calendar-period button:last-of-type{width:44px;font-size:25px;line-height:1;padding:0}
+.calendar-period button:hover,.calendar-view-tabs button:hover,.calendar-form-actions button:hover{background:#F1F2F2}
+.employee-calendar .calendar-primary,.calendar-form-actions .calendar-primary{background:#0069C8;color:#fff;border-color:#0069C8}
+.employee-calendar .calendar-primary:hover,.calendar-form-actions .calendar-primary:hover{background:#0059AB;color:#fff}
+.calendar-view-tabs{display:flex;border:1px solid #DDE5EF;padding:4px;border-radius:10px;gap:4px;background:#F7F9FC}
+.calendar-view-tabs button{border:0;min-height:36px;padding:8px 14px;background:transparent}
+.calendar-view-tabs button[aria-pressed="true"]{background:#00255A;color:white}
+.calendar-filters{margin-bottom:12px;align-items:stretch;gap:8px}
+.calendar-filters input,.calendar-filters select{font:inherit;font-size:13px;min-height:44px;border:1px solid #D1DFED;border-radius:8px;background:#fff;color:#00255A;padding:10px 12px;min-width:128px}
+.calendar-filters input{flex:1;min-width:190px}
+.calendar-filters select{max-width:185px}
+.calendar-status{min-height:18px;margin:0 0 8px;font-size:12px;color:#536984}
+.calendar-grid{min-width:0;overflow-x:auto}
+.calendar-month,.calendar-week-grid,.calendar-day-grid{min-width:550px;border:1px solid #DDE5EF;border-radius:12px;overflow:hidden;background:#fff}
+.calendar-month{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.calendar-day-head{text-align:center;font-size:12px;font-weight:600;padding:12px 6px;background:#F1F2F2;border-right:1px solid #DDE5EF;border-bottom:1px solid #DDE5EF}
+.calendar-month-cell{position:relative;min-width:0;min-height:108px;padding:8px;border-right:1px solid #DDE5EF;border-bottom:1px solid #DDE5EF;transition:background-color 220ms ease}
+.calendar-month-cell:hover,.calendar-timeline-cell:hover{background:#F4F9FD}
+.calendar-month-cell[data-outside="true"]{background:#F7F9FC}
+.calendar-date-number{display:grid;place-items:center;width:27px;height:27px;font-size:12px;font-weight:600;color:#00255A;border-radius:50%;margin-bottom:6px}
+.calendar-month-cell[data-outside="true"] .calendar-date-number{color:#8190A5}
+.calendar-date-number[data-today="true"]{background:#0069C8;color:#fff}
+.calendar-events{display:grid;gap:4px;min-width:0}
+.calendar-event{box-sizing:border-box;display:block;max-width:100%;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:5px 7px;border:0;border-left:3px solid var(--event-edge);border-radius:5px;background:var(--event-bg);color:#00255A;font:inherit;font-weight:600;font-size:11px;line-height:1.3;cursor:pointer;animation:calendar-event-enter 220ms ease both}
+.calendar-event:hover{filter:brightness(.96);transform:translateY(-1px)}
+.calendar-event:focus-visible,.calendar-period button:focus-visible,.calendar-view-tabs button:focus-visible,.calendar-form-actions button:focus-visible,.calendar-filters input:focus-visible,.calendar-filters select:focus-visible{outline:3px solid #50C0E8;outline-offset:2px}
+.calendar-event[data-color="blue"]{--event-edge:#0069C8;--event-bg:#DCEBFB}
+.calendar-event[data-color="green"]{--event-edge:#26865D;--event-bg:#E1F1E9}
+.calendar-event[data-color="purple"]{--event-edge:#6A59A9;--event-bg:#EEEAF8}
+.calendar-event[data-color="orange"]{--event-edge:#AE6E2B;--event-bg:#FFF0D9}
+.calendar-event[data-color="pink"]{--event-edge:#B05F87;--event-bg:#F9EAF1}
+.calendar-event[data-color="red"]{--event-edge:#BC5757;--event-bg:#FCEAEA}
+.calendar-event[data-editable="true"]{cursor:grab}
+.calendar-more{font-size:11px;font-weight:600;color:#496785;background:transparent;border:none;text-align:left;cursor:pointer;padding:5px}
+.calendar-week-grid{display:grid;grid-template-columns:70px repeat(7,minmax(80px,1fr));max-height:540px;overflow:auto}
+.calendar-day-grid{display:grid;grid-template-columns:70px minmax(280px,1fr);max-height:540px;overflow:auto;min-width:350px}
+.calendar-time-head{background:#F1F2F2;border-right:1px solid #DDE5EF;border-bottom:1px solid #DDE5EF;padding:12px 5px;text-align:center;font-size:12px;font-weight:600;position:sticky;top:0;z-index:1}
+.calendar-timeline-time{border-right:1px solid #DDE5EF;border-bottom:1px solid #DDE5EF;color:#66798F;font-size:11px;padding:8px}
+.calendar-timeline-cell{border-right:1px solid #DDE5EF;border-bottom:1px solid #DDE5EF;min-height:56px;padding:4px;min-width:0;transition:background-color 200ms ease}
+.calendar-timeline-cell .calendar-event{margin-bottom:3px}
+.calendar-list{display:grid;gap:12px}
+.calendar-list-group{border:1px solid #DDE5EF;border-radius:12px;overflow:hidden}
+.calendar-list-group h3{margin:0;padding:12px 14px;background:#F1F2F2;font-size:13px}
+.calendar-list-group .calendar-event{margin:8px 12px;width:calc(100% - 24px);max-width:none;text-align:left;padding:12px}
+.calendar-empty{padding:34px 16px;text-align:center;font-size:13px;color:#66798F}
+@keyframes calendar-event-enter{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.calendar-dialog{box-sizing:border-box;border:1px solid #D8E4F0;background:#fff;color:#00255A;border-radius:16px;max-width:min(520px,calc(100vw - 24px));width:100%;max-height:90vh;overflow:auto;padding:24px;box-shadow:0 22px 65px rgba(0,37,90,.21)}
+.calendar-dialog::backdrop{background:rgba(0,20,52,.48)}
+.calendar-dialog:not([open]){display:none}
+.calendar-dialog-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.calendar-dialog-head h2{font-size:22px;letter-spacing:-.025em;margin:0}
+.calendar-dialog-head button{font-size:24px!important;width:44px;line-height:1;padding:0}
+.calendar-dialog form{display:grid;gap:14px}
+.calendar-dialog label{display:grid;gap:6px;color:#00255A;font-size:12px;font-weight:600}
+.calendar-dialog input,.calendar-dialog textarea,.calendar-dialog select{box-sizing:border-box;width:100%;min-width:0;min-height:44px;font:inherit;font-size:13px;border:1px solid #C7D8E8;border-radius:8px;background:#fff;color:#00255A;padding:10px 12px}
+.calendar-dialog textarea{resize:vertical;min-height:70px}
+.calendar-dialog input:disabled,.calendar-dialog select:disabled,.calendar-dialog textarea:disabled{background:#F1F2F2;color:#50647C}
+.calendar-form-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.calendar-form-actions{justify-content:flex-end;margin-top:8px}
+.calendar-form-spacer{flex:1}
+.calendar-form-actions .calendar-danger{color:#AE3F3F;border-color:#EBC4C4}
+.calendar-form-error{margin:0;color:#A62C2C;font-size:12px}
+#calendarJoin{color:#0069C8;font-size:13px;font-weight:600}
+@media(max-width:730px){.employee-calendar{padding:16px}.calendar-toolbar{align-items:flex-start;gap:12px}.calendar-view-tabs{overflow-x:auto;width:100%}.calendar-view-tabs button{flex:1}.calendar-filters select{flex:1;min-width:120px}.calendar-month-cell{min-height:92px}.calendar-period strong{font-size:18px;min-width:145px}}
+@media(max-width:430px){.calendar-form-pair{grid-template-columns:1fr}.calendar-dialog{padding:16px}}
+@media(prefers-reduced-motion:reduce){.calendar-event,.calendar-month-cell,.calendar-timeline-cell{animation:none!important;transition:none!important;transform:none!important}}

@@ -220,6 +220,8 @@
           byId('employeeDashboardWelcome').textContent = 'Welcome back, ' + firstName + '. Your work, at a glance.';
           document.title = 'My dashboard | VSPH Control Center';
           window.VSPHWorkActivity?.load();
+          byId('employeeCalendar').hidden = false;
+          window.VSPHCalendar?.mount();
           return;
         }
 
