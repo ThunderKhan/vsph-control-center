@@ -18,7 +18,7 @@ test('Overview and Applications use distinct protected routes and separate views
   assert.ok(server.includes("app.get('/applications.html',(req,res)=>res.redirect(302,'/applications'))"));
   assert.ok(server.includes("app.get('/admin.html',(req,res)=>res.redirect(302,'/admin'))"));
   assert.match(html, /id="accessGrid"/);
-  assert.match(html, /id="myWorkShortcut"[^>]*href="\/my-work" hidden/);
+  assert.match(html, /id="myWorkShortcut"[^>]*href="\/dashboard#employeeDashboardWork" hidden/);
   assert.match(html, /id="overviewDetails"[^>]*hidden/);
   assert.doesNotMatch(html, /Two sign-ins\. One workspace\.|HOW IT WORKS|Account active/);
   assert.match(html, /id="appGrid"/);
@@ -54,7 +54,7 @@ function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=fal
   class Element{
     constructor(id=''){
       this.id=id; this.children=[]; this.attributes={}; this.value=''; this.textContent='';
-      this.hidden=['emptyMessage','errorMessage','adminNavContainer','adminOverviewPanel','topbarOnboard','navBackdrop','employeeDashboard','employeeActivitySetup','workActivity','employeeDashboardActions','employeeCalendar'].includes(id);
+      this.hidden=['emptyMessage','errorMessage','adminNavContainer','adminOverviewPanel','topbarOnboard','navBackdrop','employeeDashboard','employeeActivitySetup','workActivity','employeeDashboardWork','employeeCalendar'].includes(id);
       this.disabled=false; this.events={}; this.style={setProperty(){}};
       this.classList={add(){},remove(){},toggle(){},contains(){return false}};
     }
@@ -69,7 +69,7 @@ function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=fal
     querySelectorAll(){return[];}
     focus(){}
   }
-  const ids=['appGrid','appSearch','errorMessage','emptyMessage','logoutButton','avatar','sideName','sideRole','topAccount','welcomeMessage','adminNavContainer','adminOverviewPanel','overviewDetails','topbarOnboard','appCount','featureAppCount','workspaceCount','navBackdrop','openMenu','closeMenu','sidebarToggle','workspaceSidebar','spotlightPanel','accessGrid','libraryCount','employeeNavContainer','hrGovernanceNav','myWorkNav','employeeDashboard','employeeDashboardWelcome','employeeDashboardActions','employeeCalendar','workActivity','employeeActivitySetup','employeeActivitySetupTitle','employeeActivitySetupMessage','employeeActivitySetupAction'];
+  const ids=['appGrid','appSearch','errorMessage','emptyMessage','logoutButton','avatar','sideName','sideRole','topAccount','welcomeMessage','adminNavContainer','adminOverviewPanel','overviewDetails','topbarOnboard','appCount','featureAppCount','workspaceCount','navBackdrop','openMenu','closeMenu','sidebarToggle','workspaceSidebar','spotlightPanel','accessGrid','libraryCount','employeeNavContainer','hrGovernanceNav','myWorkNav','employeeDashboard','employeeDashboardWelcome','employeeDashboardWork','employeeCalendar','workActivity','employeeActivitySetup','employeeActivitySetupTitle','employeeActivitySetupMessage','employeeActivitySetupAction'];
   const nodes=new Map(ids.map(id=>[id,new Element(id)]));
   const visibleViews=[];
   for(const name of ['overview','applications']){
@@ -111,7 +111,7 @@ function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=fal
     getItem(key){if(blockedStorage)throw Error('Storage blocked');return stored.get(key)||null;}
   };
   const window={innerWidth:1280,location,localStorage,matchMedia:()=>({matches:true}),addEventListener(){},
-   VSPHWorkActivity:{load(){activity.loads++;}},VSPHCalendar:{mount(){activity.calendarMounts=(activity.calendarMounts||0)+1;}}};
+   VSPHWorkActivity:{load(){activity.loads++;}},VSPHCalendar:{mount(){activity.calendarMounts=(activity.calendarMounts||0)+1;}},VSPHHRMS:{mountEmployee(){activity.hrmsMounts=(activity.hrmsMounts||0)+1;}}};
   vm.runInNewContext(read('public/dashboard.js'),{document,window,fetch,console,URLSearchParams,AbortSignal:{timeout(){return {};}}});
   return{nodes,calls,activity,location,visibleViews,links,document,stored,window};
 }
@@ -188,7 +188,8 @@ test('linked staff get the dashboard-first heatmap without loading customer appl
  assert.equal(fixture.nodes.get('workActivity').hidden,false);
  assert.equal(fixture.nodes.get('employeeCalendar').hidden,false);
  assert.equal(fixture.activity.calendarMounts,1);
- assert.equal(fixture.nodes.get('employeeDashboardActions').hidden,false);
+ assert.equal(fixture.nodes.get('employeeDashboardWork').hidden,false);
+ assert.equal(fixture.activity.hrmsMounts,1);
  assert.equal(fixture.nodes.get('employeeActivitySetup').hidden,true);
  assert.ok(fixture.calls.some(x=>x.url==='/api/hrms/access'));
  assert.equal(fixture.calls.some(x=>x.url==='/api/apps'),false);
@@ -220,7 +221,7 @@ test('accepted link to onboarding roster shows actionable employee-first setup w
  assert.equal(f.nodes.get('employeeDashboard').hidden,false);
  assert.equal(f.nodes.get('employeeActivitySetup').hidden,false);
  assert.equal(f.nodes.get('employeeActivitySetupTitle').textContent,'Your employee record is still onboarding');
- assert.equal(f.nodes.get('employeeDashboardActions').hidden,true);
+ assert.equal(f.nodes.get('employeeDashboardWork').hidden,true);
  assert.match(f.nodes.get('employeeActivitySetupMessage').textContent,/HR must change your roster status to Active/);
  assert.equal(f.nodes.get('employeeActivitySetupAction').textContent,'View your employment record');
  assert.equal(f.nodes.get('workActivity').hidden,true);
@@ -233,7 +234,7 @@ test('pending identity-link requests have a safe acceptance next step',async()=>
  await settle();
  assert.equal(f.nodes.get('employeeDashboard').hidden,false);
  assert.equal(f.nodes.get('employeeActivitySetup').hidden,false);
- assert.equal(f.nodes.get('employeeDashboardActions').hidden,true);
+ assert.equal(f.nodes.get('employeeDashboardWork').hidden,true);
  assert.match(f.nodes.get('employeeActivitySetupMessage').textContent,/Review and accept/);
  assert.equal(f.nodes.get('workActivity').hidden,true);
  assert.equal(f.activity.loads,0);
