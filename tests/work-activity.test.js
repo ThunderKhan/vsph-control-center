@@ -4,14 +4,17 @@ const fs=require('node:fs');
 const path=require('node:path');
 const read=file=>fs.readFileSync(path.join(__dirname,'..',file),'utf8');
 
-test('employee work page mounts activity under the employee summary, not on the profile form',()=>{
- const html=read('views/my-work.html');
- assert.match(html,/id="employeeName"/);
- assert.match(html,/id="workActivity"/);
- assert.ok(html.indexOf('id="employeeDetails"')<html.indexOf('id="workActivity"'));
- assert.ok(html.indexOf('id="workActivity"')<html.indexOf('id="ownTasks"'));
- assert.match(html,/work-activity\.js/);
- assert.match(html,/work-activity\.css/);
+test('heatmap is the first employee dashboard widget and absent from work forms and account profile',()=>{
+ const dashboard=read('public/dashboard.html');
+ const work=read('views/my-work.html');
+ assert.match(dashboard,/id="employeeDashboard"[^>]*hidden/);
+ assert.match(dashboard,/id="employeeDashboardTitle"/);
+ assert.match(dashboard,/id="workActivity"[^>]*data-state="loading"/);
+ assert.ok(dashboard.indexOf('id="workActivity"')<dashboard.indexOf('id="ownerOverview"'));
+ assert.match(dashboard,/work-activity\.js/);
+ assert.match(dashboard,/work-activity\.css/);
+ assert.doesNotMatch(work,/id="workActivity"|work-activity\.js|work-activity\.css/);
+ assert.doesNotMatch(read('public/hrms.js'),/VSPHWorkActivity/);
  assert.doesNotMatch(read('views/account-profile.html'),/workActivity/);
 });
 
