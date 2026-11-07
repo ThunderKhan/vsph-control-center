@@ -41,7 +41,18 @@
   selected=employee;
   const form=$('employeeEditForm');
   form.elements.fullName.value=employee.full_name;
-  form.elements.department.value=employee.department;
+  const departmentField=form.elements.department;
+  departmentField.querySelector('option[data-legacy-department]')?.remove();
+  if(![...departmentField.options].some(option=>option.value===employee.department&&option.value)){
+   // Legacy values stay unchanged until an authorized employee edit explicitly reassigns them.
+   const legacy=document.createElement('option');
+   legacy.value='';
+   legacy.textContent='Current: '+employee.department+' (select an approved department)';
+   legacy.disabled=true;
+   legacy.dataset.legacyDepartment='true';
+   departmentField.insertBefore(legacy,departmentField.firstChild);
+   departmentField.value='';
+  }else departmentField.value=employee.department;
   form.elements.jobTitle.value=employee.job_title;
   form.elements.employmentType.value=employee.employment_type;
   form.elements.startDate.value=employee.start_date;

@@ -35,7 +35,7 @@
     <fieldset class="people-wizard-step" data-staff-panel="1" hidden>
      <legend id="wizardTitle-1" tabindex="-1">Employment details</legend>
      <div class="people-form-grid">
-      <label><span class="people-field-title">Department <em aria-hidden="true">*</em></span><input name="department" maxlength="100" placeholder="e.g. Engineering" required></label>
+      <label><span class="people-field-title">Department <em aria-hidden="true">*</em></span><select name="department" required><option value="" disabled selected>Select a department</option><option value="Engineering">Engineering</option><option value="Marketing">Marketing</option><option value="Human Resources">Human Resources</option><option value="Finance">Finance</option><option value="Customer Support">Customer Support</option><option value="Sales &amp; Business Development">Sales &amp; Business Development</option></select></label>
       <label><span class="people-field-title">Job title <em aria-hidden="true">*</em></span><input name="jobTitle" maxlength="120" placeholder="e.g. Software Developer" required></label>
       <label><span class="people-field-title">Employment type <em aria-hidden="true">*</em></span><select name="employmentType" required><option value="full_time">Full-time</option><option value="part_time">Part-time</option><option value="intern">Intern</option><option value="contract">Contract</option></select></label>
       <label><span class="people-field-title">Start date <em aria-hidden="true">*</em></span><input type="date" name="startDate" required></label>

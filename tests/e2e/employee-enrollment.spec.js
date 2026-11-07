@@ -4,7 +4,7 @@ test('owner creates an employee login invitation and the employee chooses a pass
  const origin='http://127.0.0.1:3100',email='enrollment-'+info.project.name+'-'+crypto.randomBytes(5).toString('hex')+'@fixture.test';
  await context.addCookies([{name:'vsph.portal.sid',value:'fixture-admin-session',url:origin,httpOnly:true,sameSite:'Lax'}]);
  await page.goto('/employees/onboarding');await page.locator('[name=fullName]').fill('New employee '+info.project.name);await page.locator('[name=email]').fill(email);await page.locator('#staffNext').click();
- await page.locator('[name=department]').fill('Engineering');await page.locator('[name=jobTitle]').fill('Developer');await page.locator('[name=employmentType]').selectOption('intern');await page.locator('[name=startDate]').fill('2026-11-06');await page.locator('#staffNext').click();await page.locator('#employeeConfirmed').check();await page.locator('#staffNext').click();
+ await page.locator('[name=department]').selectOption('Engineering');await page.locator('[name=jobTitle]').fill('Developer');await page.locator('[name=employmentType]').selectOption('intern');await page.locator('[name=startDate]').fill('2026-11-06');await page.locator('#staffNext').click();await page.locator('#employeeConfirmed').check();await page.locator('#staffNext').click();
  const field=page.getByLabel('Invitation URL',{exact:true});await expect(field).toBeVisible();const url=await field.inputValue();expect(url).toContain('/employee-enrollment#');
  await expect(page.locator('#onboardingWizard')).toBeHidden();
  await expect(page.locator('#onboardComplete')).toBeVisible();
@@ -46,7 +46,7 @@ test('duplicate work email is explained and links to the existing employee witho
  await page.locator('[name=fullName]').fill(details.fullName);
  await page.locator('[name=email]').fill(details.email);
  await page.locator('#staffNext').click();
- await page.locator('[name=department]').fill(details.department);
+ await page.locator('[name=department]').selectOption(details.department);
  await page.locator('[name=jobTitle]').fill(details.jobTitle);
  await page.locator('[name=employmentType]').selectOption(details.employmentType);
  await page.locator('[name=startDate]').fill(details.startDate);
