@@ -29,7 +29,8 @@
     "migrations:eol": "node scripts/migration-eol.js",
     "demo:local": "node scripts/demo-local.mjs",
     "test:demo": "node --test tests/demo-local.test.mjs",
-    "accounts:setup": "node scripts/setup-role-accounts.js"
+    "accounts:setup": "node scripts/setup-role-accounts.js",
+    "workers": "node scripts/run-workers.js"
   },
   "engines": {
     "node": ">=20.19"

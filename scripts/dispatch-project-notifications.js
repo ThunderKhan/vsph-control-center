@@ -1,22 +1,8 @@
-require("dotenv").config();
-const { db, check } = require("../db");
-async function main() {
-  for (const action of ["scan", "dispatch"]) {
-    const result = await db()
-      .rpc("notification_command", {
-        p_actor: null,
-        p_action: action,
-        p_id: null,
-        p_data: {},
-      })
-      .then(check);
-    console.log(JSON.stringify(result));
-  }
-}
-if (require.main === module)
-  main().catch(() => {
-    console.error(
-      "Project notification batch failed. Inspect durable outbox state.",
-    );
-    process.exitCode = 1;
-  });
+require('dotenv').config({ quiet: true });
+const { notificationBatch } = require('../services/workers/notifications');
+if (require.main === module) notificationBatch().then(() => {
+  console.log(JSON.stringify({ completed: true }));
+}).catch(() => {
+  console.error('Project notification batch failed. Inspect durable outbox state.');
+  process.exitCode = 1;
+});

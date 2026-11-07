@@ -267,3 +267,5 @@ test('employee removal archives records, revokes employee links and exposes owne
  const {createRequire}=await import('node:module');
  await createRequire(import.meta.url)('./employee-removal-cases.js')(pool);
 });
+
+test('supervised notification batch uses durable native queues with duplicate and revoked-access guards',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./worker-cases.js')(pool);});

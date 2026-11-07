@@ -9,6 +9,7 @@ async function main() {
   for (let n = 0; n < 14; n++) {
     const result = await tick({ command });
     if (!result.processed) break;
+    if (result.error) throw Error("GitHub synchronization needs retry.");
     console.log(JSON.stringify(result));
   }
 }
