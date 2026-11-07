@@ -7,6 +7,7 @@
   <title>Workspace | VSPH Control Center</title>
   <link rel="stylesheet" href="/dashboard.css">
   <link rel="stylesheet" href="/work-activity.css">
+  <link rel="stylesheet" href="/calendar.css">
   <link rel="stylesheet" href="/executive-dashboard.css">
   <link rel="stylesheet" href="/owner-overview.css">
 
@@ -49,6 +50,58 @@
             <a href="/my-work#ownAttendance"><span><strong>Attendance</strong><small>View check-ins and workday records</small></span><span aria-hidden="true">↗</span></a>
             <a href="/my-work#ownLeave"><span><strong>Leave requests</strong><small>Submit and review your requests</small></span><span aria-hidden="true">↗</span></a>
           </nav>
+          <section id="employeeCalendar" class="employee-calendar" aria-labelledby="employeeCalendarTitle" hidden>
+            <header class="calendar-heading">
+              <h2 id="employeeCalendarTitle">Calendar</h2>
+              <div class="calendar-heading-actions">
+                <button id="calendarNew" type="button" class="calendar-primary">New event</button>
+              </div>
+            </header>
+            <div class="calendar-toolbar">
+              <div class="calendar-period">
+                <strong id="calendarPeriod" aria-live="polite"></strong>
+                <button id="calendarPrevious" type="button" aria-label="Previous period">‹</button>
+                <button id="calendarToday" type="button">Today</button>
+                <button id="calendarNext" type="button" aria-label="Next period">›</button>
+              </div>
+              <div id="calendarViews" class="calendar-view-tabs" role="group" aria-label="Calendar view">
+                <button type="button" data-calendar-view="month" aria-pressed="true">Month</button>
+                <button type="button" data-calendar-view="week" aria-pressed="false">Week</button>
+                <button type="button" data-calendar-view="day" aria-pressed="false">Day</button>
+                <button type="button" data-calendar-view="list" aria-pressed="false">List</button>
+              </div>
+            </div>
+            <div class="calendar-filters">
+              <input id="calendarSearch" type="search" aria-label="Search events" placeholder="Search events">
+              <select id="calendarFilterCategory" aria-label="Filter by category"><option value="">All categories</option><option value="meeting">Meetings</option><option value="task">Tasks</option><option value="reminder">Reminders</option><option value="personal">Personal</option></select>
+              <select id="calendarFilterColor" aria-label="Filter by color"><option value="">All colors</option><option value="blue">Blue</option><option value="green">Green</option><option value="purple">Purple</option><option value="orange">Orange</option><option value="pink">Pink</option><option value="red">Red</option></select>
+              <select id="calendarFilterTag" aria-label="Filter by tag"><option value="">All tags</option></select>
+            </div>
+            <p id="calendarStatus" class="calendar-status" role="status" aria-live="polite"></p>
+            <div id="calendarGrid" class="calendar-grid" aria-live="off"></div>
+          </section>
+          <dialog id="calendarDialog" class="calendar-dialog" aria-labelledby="calendarDialogTitle">
+            <form id="calendarForm" novalidate>
+              <div class="calendar-dialog-head"><h2 id="calendarDialogTitle">New event</h2><button id="calendarClose" type="button" aria-label="Close">×</button></div>
+              <label>Title<input name="title" required maxlength="120" autocomplete="off"></label>
+              <label>Description<textarea name="description" maxlength="1000" rows="2"></textarea></label>
+              <div class="calendar-form-pair">
+                <label>Starts<input name="startAt" type="datetime-local" required></label>
+                <label>Ends<input name="endAt" type="datetime-local" required></label>
+              </div>
+              <div class="calendar-form-pair">
+                <label>Category<select name="category"><option value="meeting">Meeting</option><option value="task">Task</option><option value="reminder">Reminder</option><option value="personal">Personal</option></select></label>
+                <label>Color<select name="color"><option value="blue">Blue</option><option value="green">Green</option><option value="purple">Purple</option><option value="orange">Orange</option><option value="pink">Pink</option><option value="red">Red</option></select></label>
+              </div>
+              <label>Visibility<select name="scope" id="calendarScope"><option value="personal">Personal</option><option value="team">Team meeting</option></select></label>
+              <label id="calendarAttendeesField">Attendees (employee emails)<input name="attendees" type="text" placeholder="colleague@company.com" autocomplete="off"></label>
+              <label>Tags (comma-separated)<input name="tags" maxlength="255" autocomplete="off"></label>
+              <label>Google Meet link<input name="meetUrl" type="url" maxlength="300" placeholder="https://meet.google.com/..." autocomplete="off"></label>
+              <a id="calendarJoin" href="#" target="_blank" rel="noopener noreferrer" hidden>Join meeting</a>
+              <p id="calendarFormError" class="calendar-form-error" role="alert" hidden></p>
+              <div class="calendar-form-actions"><button id="calendarDelete" type="button" class="calendar-danger" hidden>Delete</button><span class="calendar-form-spacer"></span><button id="calendarCancel" type="button">Cancel</button><button id="calendarSave" type="submit" class="calendar-primary">Save</button></div>
+            </form>
+          </dialog>
         </section>
 
         <section id="ownerOverview" class="owner-overview" hidden aria-labelledby="ownerOverviewTitle">
@@ -337,6 +390,7 @@
   <script defer src="/owner-bento.js"></script>
   <script defer src="/owner-overview.js"></script>
   <script defer src="/work-activity.js"></script>
+  <script defer src="/calendar.js"></script>
   <script defer src="/dashboard.js"></script>
 </body>
 </html>
