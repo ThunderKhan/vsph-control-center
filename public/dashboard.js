@@ -198,28 +198,66 @@
       byId('topAccount').textContent = name;
       byId('welcomeMessage').textContent = 'Welcome back, ' + firstName + '. Your applications are ready when you are.';
       const isPlatformAdmin = user.platformRole === 'super_admin';
-      // Only a session-scoped, accepted employee identity may see personal work.
-      // A matching name or the platform owner role is not an employee grant.
+      // Employee activity is authorized by the current session-bound HR access RPC,
+      // never by matching a display name to a roster record.
       if (!isApplicationsView && !isPlatformAdmin) {
-        let employeeAccess = false;
+        let accessFlags = null;
         try {
           const r = await fetch('/api/hrms/access', {
-            credentials: 'same-origin',
-            cache: 'no-store',
+            credentials: 'same-origin', cache: 'no-store',
             signal: AbortSignal.timeout(8000)
           });
           if (r.status === 401) { window.location.replace('/login'); return; }
-          employeeAccess = r.ok && (await r.json()).employee === true;
+          if (r.ok) accessFlags = await r.json();
         } catch {
-          // Fail closed: a temporary access-check error must not show HR data.
+          // Fail closed: a failed permission query must not unlock employee data.
         }
-        if (employeeAccess) {
+        if (accessFlags?.employee === true) {
           for (const section of document.querySelectorAll('[data-view="overview"]')) section.hidden = true;
           byId('employeeDashboard').hidden = false;
+          byId('workActivity').hidden = false;
           byId('employeeDashboardWelcome').textContent = 'Welcome back, ' + firstName + '. Your work, at a glance.';
           document.title = 'My dashboard | VSPH Control Center';
           window.VSPHWorkActivity?.load();
           return;
+        }
+
+        // The self-only identity inbox distinguishes accepted onboarding links
+        // from customer accounts. Onboarding never gains access to private tasks.
+        if (accessFlags && (accessFlags.pendingLink === true || accessFlags.employee === false)) {
+          try {
+            const r = await fetch('/api/employee-identity/mine', {
+              credentials: 'same-origin', cache: 'no-store',
+              signal: AbortSignal.timeout(8000)
+            });
+            if (r.status === 401) { window.location.replace('/login'); return; }
+            if (r.ok) {
+              const inbox = await r.json();
+              const employment = Array.isArray(inbox.employment) ? inbox.employment : [];
+              const requests = Array.isArray(inbox.requests) ? inbox.requests : [];
+              const onboarding = employment.find(record => record.status === 'onboarding');
+              const pending = requests.length > 0;
+              if (onboarding || pending) {
+                for (const section of document.querySelectorAll('[data-view="overview"]')) section.hidden = true;
+                byId('employeeDashboard').hidden = false;
+                byId('employeeDashboardWelcome').textContent = 'Welcome back, ' + firstName + '. Your employee account is being set up.';
+                byId('employeeActivitySetup').hidden = false;
+                byId('employeeActivitySetupTitle').textContent = onboarding
+                  ? 'Your employee record is still onboarding'
+                  : 'Your employee account link needs acceptance';
+                byId('employeeActivitySetupMessage').textContent = onboarding
+                  ? 'Your account link is accepted, but HR must change your roster status to Active. Work activity is unavailable until then.'
+                  : 'Review and accept your employee account-link invitation to enable authorized work activity.';
+                byId('employeeActivitySetupAction').textContent = onboarding
+                  ? 'View your employment record' : 'Review your account-link request';
+                document.title = 'My dashboard | VSPH Control Center';
+                return;
+              }
+            }
+          } catch {
+            // The inbox is private and read-only. Failure leaves the ordinary
+            // workspace visible rather than assuming an employee identity.
+          }
         }
       }
       byId('adminOverviewPanel').hidden = !isPlatformAdmin;
