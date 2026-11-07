@@ -21,7 +21,7 @@ async function render(html,user,notice){
  html=html.replace(/<header class="workspace-topbar"[\s\S]*?<\/header>/,()=>workspaceHeader(user,escape,navigation));
  html=html.replace(/<body\b([^>]*)>/,(_m,attrs)=>'<body'+attrs+' data-portal-shell="true" data-portal-owner="'+(user.platform_role==='super_admin')+'">');
  if(notice)html=html.replace(/(<div class="workspace-main"[^>]*>)/,match=>match+'<div class="portal-environment-notice" role="note">'+escape(notice)+'</div>');
- return html.replace('</head>',prepaint+'<link rel="stylesheet" href="/portal-navigation.css"><link rel="stylesheet" href="/crm-workspace.css"><script defer src="/portal-navigation.js"></script><script defer src="/workspace-search.js"></script></head>');
+ return html.replace('</head>',prepaint+'<link rel="stylesheet" href="/feedback-ui.css"><script src="/feedback-ui.js"></script><link rel="stylesheet" href="/portal-navigation.css"><link rel="stylesheet" href="/crm-workspace.css"><script defer src="/portal-navigation.js"></script><script defer src="/workspace-search.js"></script></head>');
 }
 // Only reviewed authenticated HTML sendFile paths are decorated. APIs, public
 // login/invitation pages, assets and route authorization remain untouched.

@@ -22,7 +22,7 @@ async function issue({client,actor,sessionHash,employeeId,enrollmentId,version,r
  await provision(client,record);
  await command(client,actor,'ready',record.id,{currentHash:sessionHash,confirmed:true,rosterVersion,version:record.version});
  const link=new URL('/employee-enrollment',base);link.hash=new URLSearchParams({enrollment_id:record.id,token}).toString();
- return {id:record.id,version:record.version+1,url:link.toString(),delivery:'private_manual_handoff',message:'Share this private link only with the named employee through a trusted channel. No email was sent. The employee chooses their password; HR authority is not granted.'};
+ return {id:record.id,version:record.version+1,recipientEmail:record.email,url:link.toString(),delivery:'private_manual_handoff',message:'Share this private link only with the named employee through a trusted channel. No email was sent. The employee chooses their password; HR authority is not granted.'};
 }
 async function accept({client,id,token,password}){
  const acceptanceId=crypto.randomUUID(),proof={tokenHash:hash(token),acceptanceId};

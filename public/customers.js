@@ -139,7 +139,7 @@
         box.append(
           action("Save membership for " + m.email, async () => {
             if (
-              !confirm(
+              !await VSPHUI.confirm(
                 "Confirm membership change. Suspension revokes customer product access and sessions.",
               )
             )
@@ -165,7 +165,7 @@
           box.append(
             action("Save " + p.code + " role for " + m.email, async () => {
               if (
-                !confirm(
+                !await VSPHUI.confirm(
                   "Confirm explicit product role change. Existing customer product sessions will be revoked.",
                 )
               )
@@ -198,7 +198,7 @@
               a === "reissue" ? "Reissue " + i.email : "Cancel " + i.email,
               async () => {
                 if (
-                  !confirm(
+                  !await VSPHUI.confirm(
                     a === "reissue"
                       ? "Invalidate the old link and queue a new invitation?"
                       : "Cancel this invitation?",
@@ -237,9 +237,9 @@
     message.textContent =
       "Lifecycle/entitlement saved atomically. Affected product sessions were revoked.";
   }
-  $("saveStatus").onclick = () => {
+  $("saveStatus").onclick = async () => {
     if (
-      !confirm(
+      !await VSPHUI.confirm(
         "Apply this organization lifecycle? Suspension/closure revokes product sessions, Music codes and pending invitations. Reactivation does not restore revoked access sessions.",
       )
     )
@@ -265,7 +265,7 @@
     }
   }
   $("entitlement").elements.applicationId.onchange = showTerms;
-  $("entitlement").onsubmit = (e) => {
+  $("entitlement").onsubmit = async (e) => {
     e.preventDefault();
     const f = e.target,
       data = {
@@ -281,7 +281,7 @@
           : null,
       };
     if (
-      !confirm(
+      !await VSPHUI.confirm(
         "Save grant and terms together? Existing product sessions will be revoked. Payment is not processed.",
       )
     )

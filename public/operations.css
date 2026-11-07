@@ -20,3 +20,11 @@ a.button{display:inline-flex;align-items:center;justify-content:center;text-deco
 .project-page>nav{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:24px}
 .project-page>nav a{display:inline-flex;align-items:center;min-height:44px;text-decoration:none}
 .project-page>nav a:hover{text-decoration:underline}
+
+/* Impeccable-style final pass: consistent feedback on shared administrative controls. */
+.project-page button:not(:disabled),.project-page a.button,.project-page input,.project-page select,.project-page textarea{transition:border-color .18s ease,background-color .18s ease,box-shadow .18s ease}
+.project-page button:not(:disabled):hover,.project-page a.button:hover{border-color:#0069C8;background:#F1F7FD}
+.project-page button.primary:not(:disabled):hover{background:#0053A3;color:#FFF}
+.project-page input:focus-visible,.project-page select:focus-visible,.project-page textarea:focus-visible{border-color:#0069C8}
+.project-page button:not(:disabled):active{filter:brightness(.94)}
+@media(prefers-reduced-motion:reduce){.project-page button,.project-page a.button,.project-page input,.project-page select,.project-page textarea{transition:none!important}}

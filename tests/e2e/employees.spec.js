@@ -10,27 +10,47 @@ test('owner onboards internal staff, sees persisted metrics, filters and cannot 
  if(info.project.name==='desktop'){
   await page.locator('#peopleNavigation>summary').click();
   await expect(page.getByRole('link',{name:'Employee management'})).toBeVisible();
-  await page.getByRole('link',{name:'New employee'}).click();
+  await expect(page.getByRole('link',{name:'New employee'})).toHaveCount(0);
+  await page.getByRole('link',{name:'Employee management'}).click();
+  await page.getByRole('link',{name:/Onboard employee/}).click();
  } else {
   // The mobile top menu is closed by default; direct protected route
   // navigation tests the same server-side access boundary without expanding it.
   await page.goto('/employees/onboarding');
  }
  await expect(page).toHaveURL(/\/employees\/onboarding$/);
+ await expect(page.locator('.people-shell [aria-label="Breadcrumb"]')).toHaveCount(0);
+ await expect(page.locator('.people-info,.people-wizard-note')).toHaveCount(0);
+ await expect(page.locator('.people-steps li')).toHaveCount(3);
+ const heights=await page.evaluate(()=>{
+  const blue=document.querySelector('.people-steps').getBoundingClientRect();
+  const white=document.querySelector('.people-wizard-panel').getBoundingClientRect();
+  return {blue:blue.height,white:white.height,viewport:window.innerWidth};
+ });
+ expect(heights.blue).toBeLessThan(390);
+ expect(heights.white).toBeLessThan(heights.viewport<760?540:450);
  await page.locator('input[name=fullName]').fill('E2E Sample Employee');
  await page.locator('input[name=email]').fill(email);
  await page.locator('#staffNext').click();
- await page.locator('input[name=department]').fill('Engineering');
+ await page.locator('select[name=department]').selectOption('Engineering');
  await page.locator('input[name=jobTitle]').fill('Software Developer');
  await page.locator('select[name=employmentType]').selectOption('intern');
  await page.locator('input[name=startDate]').fill('2026-11-03');
  await page.locator('#staffNext').click();
  await expect(page.locator('#employeeReview')).toContainText(email);
+ await expect(page.locator('[name=accessMethod]')).toHaveCount(0);
  await page.locator('#employeeConfirmed').check();
+ await expect(page.locator('#staffNext')).toHaveText('Create employee');
  await page.locator('#staffNext').click();
  await expect(page.locator('#onboardComplete')).toBeVisible();
- await expect(page.locator('#onboardCompleteMessage')).toContainText('Onboarding');
- await page.getByRole('link',{name:'View employee dashboard'}).click();
+ await expect(page.locator('#onboardingWizard')).toBeHidden();
+ await expect(page.locator('#employeeHandoffValue')).toHaveValue(/\/employee-enrollment#/);
+ await expect(page.locator('#createdEmployeeEmail')).toHaveText(email);
+ await expect(page.locator('#copyEmployeeHandoffLabel')).toHaveText('Copy invitation link');
+ await page.getByRole('link',{name:'Manage access'}).click();
+ await page.getByRole('dialog').getByRole('button',{name:'Leave page'}).click();
+ await expect(page).toHaveURL(/\/employees\/[^/]+\/account-link$/);
+ await page.goto('/employees');
  await expect(page.locator('#employeeRows')).toContainText(email);
  await expect(page.locator('#staffOnboarding')).not.toHaveText('—');
  await page.locator('#employeeSearch').fill(email);
@@ -39,18 +59,20 @@ test('owner onboards internal staff, sees persisted metrics, filters and cannot 
  await expect(page.locator('#employeeRows')).not.toContainText(email);
  await page.locator('#employeeStatus').selectOption('all');
  await expect(page.locator('#employeeRows')).toContainText(email);
- await page.getByRole('button',{name:'Edit',exact:true}).last().click();
+ await page.locator('#employeeRows').getByRole('button',{name:/Manage/}).last().click();
+ await page.getByRole('menuitem',{name:'Edit employee'}).click();
  await expect(page.locator('#employeeEditPanel')).toBeVisible();
  await page.locator('#employeeEditForm select[name=status]').selectOption('active');
  await page.locator('#employeeEditForm input[name=confirmed]').check();
  await page.getByRole('button',{name:'Save employee changes'}).click();
+ await page.getByRole('dialog').getByRole('button',{name:'Save changes'}).click();
  await expect(page.locator('#peopleMessage')).toContainText('updated');
  await expect(page.locator('#employeeRows')).toContainText('Active');
- const review=page.getByRole('link',{name:'Review HR access',exact:true});await expect(review).toHaveCount(1);
- const controls=await page.locator('.people-actions').first().locator('button,a').evaluateAll(items=>items.map(e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,height:r.height,underline:getComputedStyle(e).textDecorationLine};}));
- expect(controls.every(c=>c.height>=44&&c.underline==='none')).toBe(true);
- for(let i=1;i<controls.length;i++)expect(controls[i].x>=controls[i-1].right+7||controls[i].y>=controls[i-1].bottom+7).toBe(true);
- await review.click();
+ const controls=await page.locator('.people-actions').first().locator('button').evaluateAll(items=>items.map(e=>({height:e.getBoundingClientRect().height}))); 
+ expect(controls.every(c=>c.height>=44)).toBe(true);
+ await page.locator('#employeeRows').getByRole('button',{name:/Manage/}).first().click();
+ await expect(page.getByRole('menuitem',{name:'Review HR access'})).toBeVisible();
+ await page.getByRole('menuitem',{name:'Review HR access'}).click();
  await expect(page.getByRole('region',{name:'HR appointment readiness'})).toContainText('No matching active ordinary portal account');
  await expect(page.getByRole('button',{name:'Request account link',exact:true})).toBeDisabled();
  await expect(page.getByRole('button',{name:'Grant HR',exact:true})).toHaveCount(0);
@@ -95,13 +117,15 @@ test('owner can appoint HR only for a matching existing employee identity; HR ca
  await page.goto('/employees/'+person.id+'/account-link');
  await expect(page.getByRole('button',{name:'Grant HR',exact:true})).toBeVisible();
  await page.getByRole('button',{name:'Grant HR',exact:true}).click();
+ await page.getByRole('dialog').getByRole('button',{name:'Continue'}).click();
  await expect(page.locator('#identityMessage')).toContainText('HR authority granted');
  await context.clearCookies();
  await context.addCookies([{name:'vsph.portal.sid',value:'fixture-developer-session',url:'http://127.0.0.1:3100',httpOnly:true,sameSite:'Lax'}]);
  expect((await context.request.get('/api/employees/access')).status()).toBe(200);
  await page.goto('/employees');
- await expect(page.locator('#staffRole')).toHaveText('HR manager');
- await expect(page.locator('#hrGovernance')).toBeHidden();
+ const hrAccess=await (await context.request.get('/api/employees/access')).json();
+ expect(hrAccess.role).toBe('hr');
+ await expect(page.locator('#hrGovernance')).toHaveCount(0);
  expect((await context.request.post('/api/employees/'+person.id+'/grant_hr',{headers:{Origin:'http://127.0.0.1:3100'},data:{version:3,confirmed:true}})).status()).toBe(403);
  const attempted=await context.request.post('/api/employees/'+person.id+'/revoke_hr',{headers:{Origin:'http://127.0.0.1:3100'},data:{version:3,confirmed:true}});
  expect(attempted.status()).toBe(403);

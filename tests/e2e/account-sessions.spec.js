@@ -14,10 +14,10 @@ test("self-service session inventory and revoke others keep current portal acces
   await page.goto("/projects");
   await page.locator("#accountSessions summary").click();
   await expect(page.locator("#sessionList")).toContainText("Current session");
-  page.once("dialog", (d) => d.accept());
   await page
     .getByRole("button", { name: "Revoke other sessions", exact: true })
     .click();
+  await page.getByRole("dialog").getByRole("button", { name: "Sign out others" }).click();
   await expect(page.locator("#sessionMessage")).toContainText(
     "current session remains active",
   );

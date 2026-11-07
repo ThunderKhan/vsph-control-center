@@ -72,7 +72,7 @@
   try{await fn();}catch(error){message(error.message);}finally{for(const el of disabled)el.disabled=false;busy=false;$('detail').setAttribute('aria-busy','false');}
  }
  async function mutate(action,data,confirmation){
-  if(busy||!workspace||!window.confirm(confirmation))return;
+  if(busy||!workspace||!await VSPHUI.confirm(confirmation,{title:"Confirm organization change?"}))return;
   const id=$('organization').value;await run(async()=>{await api('/'+id+'/'+action,data);await loadWorkspace();message('Organization updated.');});
  }
  async function loadInvitations(){
@@ -87,8 +87,8 @@
    const row=node('article');row.append(node('h3',invite.email),node('p',`${invite.state}${invite.expired?' (expired)':''} · delivery ${invite.delivery_state} · attempts ${invite.attempts} · expires ${new Date(invite.expires_at).toLocaleString()}`));
    if(invite.failure_code)row.append(node('p','Delivery requires review: '+invite.failure_code));
    if(!['accepted','accepting','requires_attention'].includes(invite.state))for(const action of ['reissue','cancel']){
-    const button=node('button',(action==='reissue'?'Reissue ':'Cancel ')+invite.email);button.addEventListener('click',()=>{
-     if(busy||!window.confirm(`${action==='reissue'?'Replace the invitation link':'Cancel this invitation'} for ${invite.email}? Previous links will stop working.`))return;
+    const button=node('button',(action==='reissue'?'Reissue ':'Cancel ')+invite.email);button.addEventListener('click',async()=>{
+     if(busy||!await VSPHUI.confirm(`${action==='reissue'?'Replace the invitation link':'Cancel this invitation'} for ${invite.email}? Previous links will stop working.`))return;
      run(async()=>{await api('/'+$('organization').value+'/invitations/'+invite.id+'/'+action,{generation:invite.generation,confirmed:true});await loadWorkspace();message('Invitation updated.');});
     });row.append(button);
    }else row.append(node('p','Accepted or ambiguous invitations cannot be changed here. Contact VSPH for recovery.'));

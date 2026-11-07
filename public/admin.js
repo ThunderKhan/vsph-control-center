@@ -39,9 +39,11 @@ function showTab(name) {
   if (name === "subscriptions") loadSubscriptions();
   if (name === "access") loadAccess();
   if (name === "roles") loadRoles();
-  if (name === "audit") loadAudit();
+  if (name === "permissions") loadWorkforceRoles();
+  if (name === "audit") selectAuditView(auditView);
 }
 tabButtons.forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
+const flash=(value)=>{say(value);VSPHUI.toast(value);};
 
 async function loadOverview() {
   try {
@@ -65,11 +67,11 @@ async function loadOrganizations() {
     );
     document.querySelectorAll("[data-org-id]").forEach(b => b.addEventListener("click", async () => {
       try {
-        if(!confirm("Review organization impact in the customer workspace before proceeding. Suspension revokes product sessions, codes and pending invitations; reactivation restores none of them. Continue?"))return;
+        if(!await VSPHUI.confirm("Suspension revokes product sessions, codes and pending invitations; reactivation does not restore them.",{title:"Change organization status?",confirmLabel:"Confirm change",danger:b.dataset.orgStatus!=="active"}))return;
         await api(`/api/admin-management/organizations/${b.dataset.orgId}/status`, {
           method: "PATCH", body: JSON.stringify({ status: b.dataset.orgStatus,version:Number(b.dataset.orgVersion),confirmed:true })
         });
-        await loadLookups();say("Organization status updated."); loadOrganizations();
+        await loadLookups();flash("Organization status updated."); loadOrganizations();
       } catch (e) { say(e.message, true); }
     }));
   } catch (e) { say(e.message, true); }
@@ -84,22 +86,7 @@ async function loadApplications() {
         `<a href="/admin/products?product=${esc(a.id)}">Edit in product registry</a>`
       ]))
     );
-    document.querySelectorAll("[data-app-id]").forEach(button => button.addEventListener("click", async () => {
-      const app = d.applications.find(item => String(item.id) === button.dataset.appId);
-      if (!app) return;
-      const name = window.prompt("Application display name", app.name);
-      if (name === null) return;
-      const loginPath = window.prompt("Application login path", app.login_path);
-      if (loginPath === null) return;
-      const status = window.prompt("Status: active, maintenance, or retired", app.status);
-      if (status === null) return;
-      try {
-        await api(`/api/admin-management/applications/${app.id}`, {
-          method: "PATCH", body: JSON.stringify({ name, loginPath, status })
-        });
-        say("Application updated."); loadApplications(); loadLookups();
-      } catch (e) { say(e.message, true); }
-    }));
+
   } catch (e) { say(e.message, true); }
 }
 async function loadUsers() {
@@ -114,10 +101,11 @@ async function loadUsers() {
     );
     document.querySelectorAll("[data-user-id]").forEach(b => b.addEventListener("click", async () => {
       try {
+        if(!await VSPHUI.confirm("This changes a user account's ability to sign in and access the platform.",{title:"Change user status?",danger:b.dataset.userStatus!=="active",confirmLabel:"Confirm status change"}))return;
         await api(`/api/admin-management/users/${b.dataset.userId}/status`, {
           method: "PATCH", body: JSON.stringify({ status: b.dataset.userStatus })
         });
-        say("User status updated."); loadUsers();
+        flash("User status updated."); loadUsers();
       } catch (e) { say(e.message, true); }
     }));
   } catch (e) { say(e.message, true); }
@@ -168,6 +156,96 @@ async function loadAccess() {
     );
   } catch (e) { say(e.message, true); }
 }
+let auditView='all',removalCache=[];
+const auditViews=[...document.querySelectorAll('[data-audit-view]')];
+function selectAuditView(view){
+ auditView=view==='removals'?'removals':'all';
+ auditViews.forEach(button=>{
+  const active=button.dataset.auditView===auditView;
+  button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));
+ });
+ document.getElementById('auditAllView').hidden=auditView!=='all';
+ document.getElementById('auditRemovalsView').hidden=auditView!=='removals';
+ if(auditView==='removals')loadRemovals();else loadAudit();
+}
+auditViews.forEach(button=>button.addEventListener('click',()=>selectAuditView(button.dataset.auditView)));
+const make=(tag,label='',className='')=>{
+ const node=document.createElement(tag);node.textContent=label;node.className=className;return node;
+};
+function drawRemovals(){
+ const target=document.getElementById('auditRemovalGrid');target.replaceChildren();
+ const search=document.getElementById('auditEmployeeSearch').value.trim().toLowerCase();
+ const entries=removalCache.filter(entry=>[entry.full_name,entry.email,entry.removed_by_name,entry.removed_by_email,entry.removal_reason].some(value=>String(value||'').toLowerCase().includes(search)));
+ document.getElementById('auditRemovalSummary').textContent=entries.length+' matching removals · showing latest 100 recorded removals';
+ if(!entries.length){target.append(make('p',search?'No matching removal records.':'No removal events have been recorded.','hint'));return;}
+ for(const entry of entries){
+  const tile=make('button','','audit-removal-card');tile.type='button';
+  tile.setAttribute('aria-label','View removal details for '+entry.full_name);
+  tile.append(make('strong',entry.full_name),make('span',entry.email),make('small','Removed by '+(entry.removed_by_name||entry.removed_by_email||'Authorized administrator')),make('span',entry.removed_at?new Date(entry.removed_at).toLocaleString():'Date unavailable'),make('span','View full record','audit-card-meta'));
+  tile.addEventListener('click',()=>VSPHUI.details('Employee removal record',[
+   {label:'Employee',value:entry.full_name},
+   {label:'Email',value:entry.email},
+   {label:'Department',value:entry.department||'—'},
+   {label:'Job title',value:entry.job_title||'—'},
+   {label:'Removed by',value:entry.removed_by_name||entry.removed_by_email||'Authorized administrator'},
+   {label:'Actor email',value:entry.removed_by_email||'—'},
+   {label:'Date and time',value:entry.removed_at?new Date(entry.removed_at).toLocaleString():'—'},
+   {label:'Reason',value:entry.removal_reason},
+   {label:'Employee record ID',value:entry.id}
+  ]));
+  target.append(tile);
+ }
+}
+async function loadRemovals(){
+ try{
+  document.getElementById('auditRemovalSummary').textContent='Loading removal history…';
+  const d=await api('/api/employees/removals');removalCache=d.employees||[];drawRemovals();
+ }catch(e){document.getElementById('auditRemovalSummary').textContent='Removal history unavailable.';say(e.message,true);}
+}
+document.getElementById('auditEmployeeSearch').addEventListener('input',drawRemovals);
+document.getElementById('refreshAuditRemovals').addEventListener('click',loadRemovals);
+async function loadWorkforceRoles(){
+ const list=document.getElementById('workforceRoles'),notice=document.getElementById('workforceRoleMessage');
+ list.replaceChildren();notice.textContent='Loading current workforce roles…';
+ try{
+  const params=new URLSearchParams(),term=document.getElementById('employeePermissionSearch').value.trim();
+  if(term)params.set('search',term);
+  const result=await api('/api/employees'+(params.size?'?'+params.toString():''));
+  if(result.role!=='owner'||result.canManageHr!==true)throw Error('Owner permission required.');
+  const rows=result.employees||[],managers=result.hrManagers||[];
+  notice.textContent=managers.length+' HR manager'+(managers.length===1?'':'s')+' assigned · review employee permissions below';
+  const activeIds=new Set();
+  const candidates=[...managers.map(manager=>({id:manager.employee_id,full_name:manager.full_name,email:manager.email,status:manager.status,version:manager.version,is_hr:true})),...rows];
+  for(const e of candidates){
+   if(activeIds.has(e.id))continue;activeIds.add(e.id);
+   if(term&&!(e.full_name+' '+e.email).toLowerCase().includes(term.toLowerCase()))continue;
+   const item=make('article','','workforce-role-item'),details=make('div'),actions=make('div','','workforce-role-actions');
+   details.append(make('strong',e.full_name),make('small',e.email+' · '+(e.is_hr?'HR manager':'Employee')+' · '+e.status));
+   const link=make('a','Manage access','admin-return');link.href='/employees/'+encodeURIComponent(e.id)+'/account-link';
+   actions.append(link);
+   if(e.is_hr&&e.status!=='inactive'){
+    const revoke=make('button','Revoke HR','small');revoke.type='button';
+    revoke.addEventListener('click',async()=>{
+     if(!await VSPHUI.confirm('Revoke HR authority for '+e.email+'? The employee account remains intact.',{title:'Revoke HR permissions?',danger:true,confirmLabel:'Revoke HR'}))return;
+     revoke.disabled=true;
+     try{
+      await api('/api/employees/'+e.id+'/revoke_hr',{method:'POST',body:JSON.stringify({version:e.version,confirmed:true})});
+      flash('HR access revoked.');await loadWorkforceRoles();
+     }catch(error){say(error.message,true);revoke.disabled=false;}
+    });
+    actions.append(revoke);
+   }
+   item.append(details,actions);list.append(item);
+  }
+  if(!list.childElementCount)list.append(make('p','No matching employees in this directory page.','hint'));
+ }catch(e){notice.textContent='Unable to load workforce permissions.';say(e.message,true);}
+}
+let roleSearchTimer;
+document.getElementById('employeePermissionSearch').addEventListener('input',()=>{
+ clearTimeout(roleSearchTimer);roleSearchTimer=setTimeout(loadWorkforceRoles,280);
+});
+document.getElementById('refreshWorkforceRoles').addEventListener('click',loadWorkforceRoles);
+
 async function loadAudit() {
   try {
     const d = await api("/api/admin-management/audit-logs");
@@ -193,13 +271,13 @@ document.getElementById("applicationForm").addEventListener("submit", async e =>
         status: document.getElementById("appStatus").value
       })
     });
-    e.target.reset(); say("Application added."); loadApplications(); loadLookups(); loadOverview();
+    e.target.reset(); flash("Application added."); loadApplications(); loadLookups(); loadOverview();
   } catch (err) { say(err.message, true); }
 });
 document.getElementById("subscriptionForm").addEventListener("submit", async e => {
   e.preventDefault();
   const endValue = document.getElementById("subEnd").value;
-  if(!confirm("Update subscription terms and revoke affected product sessions? No payment is processed."))return;
+  if(!await VSPHUI.confirm("This changes subscription terms and may revoke affected product sessions. No payment is processed.",{title:"Save subscription?",confirmLabel:"Save subscription"}))return;
   try {
     say("Saving subscription…");
     await api("/api/admin-management/subscriptions", {
@@ -212,12 +290,12 @@ document.getElementById("subscriptionForm").addEventListener("submit", async e =
         endsAt: endValue ? new Date(endValue).toISOString() : null
       })
     });
-    await loadLookups();say("Subscription saved."); loadSubscriptions(); loadOverview();
+    await loadLookups();flash("Subscription saved."); loadSubscriptions(); loadOverview();
   } catch (err) { say(err.message, true); }
 });
 document.getElementById("accessForm").addEventListener("submit", async e => {
   e.preventDefault();
-  if(!confirm("Update customer application grant and revoke affected product sessions?"))return;
+  if(!await VSPHUI.confirm("This changes an organization product entitlement and revokes affected sessions.",{title:"Update application access?",confirmLabel:"Save access"}))return;
   try {
     say("Saving application access…");
     await api("/api/admin-management/access", {
@@ -228,7 +306,7 @@ document.getElementById("accessForm").addEventListener("submit", async e => {
         status: document.getElementById("accessStatus").value
       })
     });
-    await loadLookups();say("Application access saved."); loadAccess(); loadOverview();
+    await loadLookups();flash("Application access saved."); loadAccess(); loadOverview();
   } catch (err) { say(err.message, true); }
 });
 (async function init() {
@@ -238,7 +316,10 @@ document.getElementById("accessForm").addEventListener("submit", async e => {
     const { user } = await response.json();
     if (user.platformRole !== "super_admin") { window.location.href = "/dashboard"; return; }
     await loadLookups();
-    await loadOverview();
+    const params=new URLSearchParams(window.location.search);
+    const tab=params.get('tab'),subview=params.get('view');
+    if(tab==='permissions'||tab==='audit'||tab==='roles'){if(subview==='removals')auditView='removals';showTab(tab);}
+    else await loadOverview();
   } catch (e) { say(e.message, true); }
 })();
 
@@ -251,7 +332,7 @@ document.getElementById('roleForm').addEventListener('submit',async e=>{
  e.preventDefault();try{
   await api('/api/admin-management/roles',{method:'PUT',body:JSON.stringify({email:document.getElementById('roleEmail').value,
    organizationId:document.getElementById('roleOrg').value,applicationId:document.getElementById('roleApp').value,role:document.getElementById('roleValue').value})});
-  say('Application role assigned.');loadRoles();
+  flash('Application role assigned.');loadRoles();
  }catch(err){say(err.message,true)}
 });
 

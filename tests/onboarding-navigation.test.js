@@ -30,3 +30,10 @@ test('central portal login links to invitation help without enabling unsolicited
  assert.doesNotMatch(login,/href="\/signup"/);
 });
 
+
+test('employee creation is available from the directory, not duplicated in the global People menu',()=>{
+ const nav=read('views/partials/portal-navigation.html'),directory=read('views/employees.html');
+ assert.match(nav,/href="\/employees" aria-label="Employee management"/);
+ assert.doesNotMatch(nav,/href="\/employees\/onboarding"/);
+ assert.match(directory,/class="people-primary" href="\/employees\/onboarding">Onboard employee<\/a>/);
+});

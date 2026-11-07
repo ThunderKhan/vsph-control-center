@@ -2,8 +2,22 @@ const {test,expect}=require('@playwright/test'),crypto=require('node:crypto');
 test('HR-issued credentials use normal login but cannot reach the portal until a personal password is set',async({page,context,browser},info)=>{
  test.skip(!process.env.PROJECT_E2E_DATABASE,'Isolated PostgreSQL and simulated Auth required');test.setTimeout(65000);
  const origin='http://127.0.0.1:3100',email='temporary-'+info.project.name+'-'+crypto.randomBytes(5).toString('hex')+'@fixture.test';await context.addCookies([{name:'vsph.portal.sid',value:'fixture-admin-session',url:origin,httpOnly:true,sameSite:'Lax'}]);page.on('dialog',d=>d.accept());
- const created=await context.request.post('/api/employees',{headers:{Origin:origin,'Idempotency-Key':crypto.randomUUID()},data:{fullName:'Temporary '+info.project.name,email,department:'Engineering',jobTitle:'Developer',employmentType:'intern',startDate:'2026-11-06'}});expect(created.status()).toBe(201);const employee=await created.json();
- await page.goto('/employees/'+employee.id+'/account-link');await page.getByRole('button',{name:'Create temporary credentials',exact:true}).click();const handoff=page.getByLabel('Employee credential handoff',{exact:true});await expect(handoff).toBeVisible();const details=await handoff.inputValue(),password=/Temporary password: (.+)/.exec(details)[1];expect(details).toContain(email);await page.reload();await expect(page.getByLabel('Employee credential handoff',{exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Reissue temporary credentials',exact:true})).toBeVisible();
+ // Advanced temporary credentials remain available on an existing roster's
+ // access page, but are no longer one of the new-employee wizard choices.
+ const fields={fullName:'Temporary '+info.project.name,email,department:'Engineering',
+  jobTitle:'Developer',employmentType:'intern',startDate:'2026-11-06'};
+ const createdResponse=await context.request.post('/api/employees',{headers:{Origin:origin,'Idempotency-Key':crypto.randomUUID()},data:fields});
+ expect(createdResponse.status()).toBe(201);
+ const roster=await createdResponse.json();
+ const credentialResponse=await context.request.post('/api/employee-credentials/employees/'+roster.id,{
+  headers:{Origin:origin,'Idempotency-Key':crypto.randomUUID()},data:{rosterVersion:roster.version,confirmed:true}});
+ expect(credentialResponse.status()).toBe(200);
+ const issued=await credentialResponse.json();
+ const password=issued.temporaryPassword;
+ expect(password).toBeTruthy();
+ expect(issued.email).toBe(email);
+ await page.goto('/employees/'+roster.id+'/account-link');await expect(page.getByRole('button',{name:'Reissue temporary credentials',exact:true})).toBeVisible();
+ await page.reload();await expect(page.getByLabel('Employee credential handoff',{exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Reissue temporary credentials',exact:true})).toBeVisible();
  const employeeContext=await browser.newContext({viewport:info.project.name==='mobile'?{width:390,height:844}:{width:1280,height:800}}),user=await employeeContext.newPage();
  try{
   await user.goto('/login');await user.locator('#email').fill(email);await user.locator('#password').fill(password);await user.locator('#authSubmit').click();await expect(user).toHaveURL(/\/employee-password$/);await expect(user.locator('#passwordSetupForm')).toBeVisible();

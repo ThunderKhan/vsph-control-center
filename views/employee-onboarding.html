@@ -8,65 +8,105 @@
 <script defer src="/employee-onboarding.js"></script>
 </head>
 <body>
-<div class="people-shell">
- <nav class="people-nav" aria-label="Breadcrumb"><a href="/dashboard">VSPH Control Center</a><span>/</span><a href="/employees">Employees</a><span>/</span> New employee <a href="/employees" class="people-nav-return">Back to employees</a></nav>
+<div class="people-shell people-onboarding-shell">
  <header class="people-header">
-  <div><p class="eyebrow">PEOPLE / INTERNAL ONBOARDING</p><h1>Onboard an employee<span class="brand-dot">.</span></h1><p class="muted">Add a real staff roster record with a reviewable, auditable workflow.</p></div>
+  <h1>Onboard an employee<span class="brand-dot">.</span></h1>
  </header>
- <div class="people-info" role="note"><strong>Internal record only.</strong> Adding a new employee stores their information as <strong>Onboarding</strong>. It does not create a portal identity, grant product/project access, send an email, or assign HR permissions.</div>
- <div class="people-wizard">
+ <div id="onboardingWizard" class="people-wizard">
   <aside class="people-steps" aria-label="Onboarding progress">
    <p class="eyebrow">SETUP CHECKLIST</p>
    <ol>
-    <li data-staff-step="0" class="current"><span>01</span><div><strong>Identity</strong><small>Name and work email</small></div></li>
+    <li data-staff-step="0" class="current" aria-current="step"><span>01</span><div><strong>Identity</strong><small>Name and work email</small></div></li>
     <li data-staff-step="1"><span>02</span><div><strong>Position</strong><small>Team and employment details</small></div></li>
     <li data-staff-step="2"><span>03</span><div><strong>Review</strong><small>Confirm and save</small></div></li>
    </ol>
-   <div class="people-wizard-note">Only platform owners and explicitly authorized HR managers can onboard VSPH staff. HR cannot grant HR or owner access.</div>
   </aside>
-  <section class="people-panel people-wizard-panel" aria-labelledby="wizardTitle">
+  <section class="people-panel people-wizard-panel" aria-labelledby="wizardTitle-0">
    <div class="people-wizard-top"><span id="staffStep">STEP 1 OF 3</span><span id="staffProgress">33% COMPLETE</span></div>
-   <div class="people-wizard-track"><span id="staffProgressFill" style="width:33%"></span></div>
+   <div id="staffProgressBar" class="people-wizard-track" role="progressbar" aria-label="Onboarding completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="33"><span id="staffProgressFill" style="width:33%"></span></div>
    <form id="employeeOnboardForm" novalidate>
     <fieldset class="people-wizard-step" data-staff-panel="0">
-     <legend id="wizardTitle">Employee identity</legend>
-     <p class="muted">Use the employee's own professional identity. Their email is a unique roster identifier.</p>
+     <legend id="wizardTitle-0" tabindex="-1">Employee identity</legend>
      <div class="people-form-grid">
-      <label>Full name <em>*</em><input name="fullName" maxlength="150" placeholder="e.g. Avery Shah" autocomplete="name" required></label>
-      <label>Work email <em>*</em><input type="email" name="email" maxlength="190" placeholder="avery@company.example" autocomplete="email" required></label>
+      <label><span class="people-field-title">Full name <em aria-hidden="true">*</em></span><input name="fullName" maxlength="150" placeholder="e.g. Avery Shah" autocomplete="name" required></label>
+      <label><span class="people-field-title">Work email <em aria-hidden="true">*</em></span><input type="email" name="email" maxlength="190" placeholder="avery@company.example" autocomplete="email" required></label>
      </div>
     </fieldset>
     <fieldset class="people-wizard-step" data-staff-panel="1" hidden>
-     <legend>Employment details</legend><p class="muted">These details power the actual employee directory and workforce counts.</p>
+     <legend id="wizardTitle-1" tabindex="-1">Employment details</legend>
      <div class="people-form-grid">
-      <label>Department <em>*</em><input name="department" maxlength="100" placeholder="e.g. Engineering" required></label>
-      <label>Job title <em>*</em><input name="jobTitle" maxlength="120" placeholder="e.g. Software Developer" required></label>
-      <label>Employment type<select name="employmentType" required><option value="full_time">Full-time</option><option value="part_time">Part-time</option><option value="intern">Intern</option><option value="contract">Contract</option></select></label>
-      <label>Start date <em>*</em><input type="date" name="startDate" required></label>
+      <label><span class="people-field-title">Department <em aria-hidden="true">*</em></span><select name="department" required><option value="" disabled selected>Select a department</option><option value="Engineering">Engineering</option><option value="Marketing">Marketing</option><option value="Human Resources">Human Resources</option><option value="Finance">Finance</option><option value="Customer Support">Customer Support</option><option value="Sales &amp; Business Development">Sales &amp; Business Development</option></select></label>
+      <label><span class="people-field-title">Job title <em aria-hidden="true">*</em></span><input name="jobTitle" maxlength="120" placeholder="e.g. Software Developer" required></label>
+      <label><span class="people-field-title">Employment type <em aria-hidden="true">*</em></span><select name="employmentType" required><option value="full_time">Full-time</option><option value="part_time">Part-time</option><option value="intern">Intern</option><option value="contract">Contract</option></select></label>
+      <label><span class="people-field-title">Start date <em aria-hidden="true">*</em></span><input type="date" name="startDate" required></label>
      </div>
     </fieldset>
     <fieldset class="people-wizard-step" data-staff-panel="2" hidden>
-     <legend>Review employee onboarding</legend>
-     <p class="muted">Please verify the identity and role before storing this record.</p>
-     <dl id="employeeReview" class="people-review"></dl>
-     <label class="people-confirm"><input id="employeeConfirmed" type="checkbox" required> I confirm these VSPH internal staff details are correct.</label>
+     <legend id="wizardTitle-2" tabindex="-1">Review employee onboarding</legend>
+     <div id="employeeReview" class="people-review-sections">
+      <section class="people-review-section" aria-labelledby="reviewIdentityTitle">
+       <div class="people-review-heading">
+        <h3 id="reviewIdentityTitle">Employee identity</h3>
+        <button type="button" class="people-review-edit" data-edit-step="0" aria-label="Edit employee identity">Edit</button>
+       </div>
+       <dl id="employeeReviewIdentity" class="people-review"></dl>
+      </section>
+      <section class="people-review-section" aria-labelledby="reviewPositionTitle">
+       <div class="people-review-heading">
+        <h3 id="reviewPositionTitle">Employment details</h3>
+        <button type="button" class="people-review-edit" data-edit-step="1" aria-label="Edit employment details">Edit</button>
+       </div>
+       <dl id="employeeReviewPosition" class="people-review"></dl>
+      </section>
+     </div>
+     <p class="employee-onboard-note">After creation, the private setup link will be shown once. No email is sent automatically.</p>
+     <label class="people-confirm"><input id="employeeConfirmed" type="checkbox" required><span>I confirm that the employee details provided are correct.</span></label>
     </fieldset>
     <p id="onboardError" class="people-message people-error" role="alert" aria-live="assertive" hidden></p>
+    <a id="existingEmployeeLink" class="people-secondary" href="/employees" hidden>Review existing employee</a>
     <div class="people-wizard-actions">
-      <button type="button" id="staffPrevious" class="people-secondary" disabled>Previous</button>
-      <span class="people-small">Nothing is saved until you confirm.</span>
-      <button type="button" id="staffNext" class="people-primary">Continue</button>
+     <button type="button" id="staffPrevious" class="people-secondary" disabled>Previous</button>
+     <button type="button" id="staffNext" class="people-primary">Continue</button>
     </div>
    </form>
-   <section id="onboardComplete" class="people-complete" hidden aria-live="polite">
-    <span class="people-complete-icon" aria-hidden="true">✓</span>
-    <h2>Employee recorded.</h2>
-    <p id="onboardCompleteMessage">The staff record was saved as Onboarding.</p>
-    <p class="people-small">Portal access, formal invitations, project assignments and HR privileges are separate controlled workflows. This employee does not gain them automatically.</p>
-    <div class="people-wizard-actions"><a id="setupEmployeeLogin" class="people-primary" href="/employees">Set up employee login</a><a class="people-secondary" href="/employees">View employee dashboard</a><button type="button" id="onboardAnother" class="people-secondary">Onboard another</button></div>
-   </section>
   </section>
  </div>
+
+ <section id="onboardComplete" class="people-completion-shell" hidden tabindex="-1" aria-labelledby="completeTitle">
+  <div class="people-completion-card">
+   <div class="people-completion-heading">
+    <span id="completeIcon" class="people-complete-icon" aria-hidden="true">✓</span>
+    <h2 id="completeTitle">Employee created</h2>
+    <p id="completeDescription">Share the private setup link to continue onboarding.</p>
+   </div>
+   <div id="createdEmployeeSummary" class="people-completion-person" hidden>
+    <span id="createdEmployeeInitials" class="people-completion-avatar" aria-hidden="true"></span>
+    <div class="people-completion-person-data">
+     <strong id="createdEmployeeName"></strong>
+     <span id="createdEmployeeEmail"></span>
+     <small id="createdEmployeePosition"></small>
+    </div>
+    <span id="createdEmployeeStatus" class="people-status" hidden></span>
+   </div>
+   <p id="onboardDeliveryStatus" class="people-completion-feedback" role="status" aria-live="polite"></p>
+   <section id="employeeHandoffPanel" class="employee-handoff" hidden aria-label="Private employee login handoff">
+    <div class="people-handoff-heading"><h3>Private setup link</h3></div>
+    <label for="employeeHandoffValue">Invitation URL</label>
+    <textarea id="employeeHandoffValue" rows="3" readonly spellcheck="false" autocomplete="off"></textarea>
+    <button id="copyEmployeeHandoff" type="button" class="people-primary"><span id="copyEmployeeHandoffLabel">Copy invitation link</span></button>
+    <p id="employeeInviteExpiry" class="people-small" hidden></p>
+    <p class="people-small people-handoff-privacy">Shown once. Share privately with the employee. No email has been sent.</p>
+   </section>
+   <section id="onboardRecovery" class="people-completion-recovery" hidden aria-label="Account setup recovery">
+    <p id="onboardRecoveryMessage"></p>
+    <button id="checkEmployeeStatus" class="people-primary" type="button" hidden>Check status</button>
+   </section>
+   <div id="completeActions" class="people-completion-actions">
+    <a id="setupEmployeeLogin" class="people-secondary" href="/employees" hidden>Manage access</a>
+    <button type="button" id="onboardAnother" class="people-secondary">Onboard another</button>
+   </div>
+  </div>
+ </section>
 </div>
 </body>
 </html>

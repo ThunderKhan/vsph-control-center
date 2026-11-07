@@ -44,5 +44,13 @@
     "requires": [
       "20261106063206"
     ]
+  },
+  {
+    "version": "20261106163810",
+    "name": "vsph_employee_removal_audit_20261106",
+    "sqlSha256": "642e975bd4d56837c58dda5da14a792c5085a6153e827a721041ea31c4f582f3",
+    "requires": [
+      "20261106142000"
+    ]
   }
 ]

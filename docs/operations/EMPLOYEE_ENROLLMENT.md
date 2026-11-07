@@ -1,3 +1,5 @@
+> **Unified onboarding update (6 November 2026):** The `/employees/onboarding` wizard now saves the roster and issues a **private employee login invitation by default**. The owner/HR manager can instead request a provider-backed email invitation, generate temporary credentials, or save the roster only. All existing enrollment, linking, HR, tenant, and product boundaries remain unchanged. See [Unified employee onboarding](EMPLOYEE_ONBOARDING_UNIFIED.md) for delivery and recovery.
+
 > The reviewed migration is now installed in the configured target. See [installation evidence and normal localhost acceptance](EMPLOYEE_ENROLLMENT_INSTALL_20261106.md). Live Auth acceptance remains a separate verification boundary.
 
 # Employee login enrollment

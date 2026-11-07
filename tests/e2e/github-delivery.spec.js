@@ -121,10 +121,10 @@ test("isolated GitHub fixture connects, syncs, links work, persists and disconne
     path: screenshot,
     contentType: "image/jpeg",
   });
-  page.once("dialog", (d) => d.accept());
   await page
     .getByRole("button", { name: "Disconnect fixture/sandbox", exact: true })
     .click();
+  await page.getByRole("dialog").getByRole("button",{name:"Continue"}).click();
   await expect(page.locator("#engineeringRecords")).not.toContainText(
     "Fixture pull request",
   );

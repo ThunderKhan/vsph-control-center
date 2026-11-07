@@ -2,10 +2,10 @@
 :root{font-family:Inter,Arial,sans-serif;color:#00255A;background:#F6F8FB}
 *{box-sizing:border-box}[hidden]{display:none!important}
 body{margin:0;min-height:100dvh}
-.launch-shell{width:min(1160px,100%);margin:auto;padding:32px 24px;min-height:100dvh;display:flex;flex-direction:column}
-.brand{color:#00255A;font-weight:700;text-decoration:none;font-size:22px;letter-spacing:.05em}
+.launch-shell{width:min(1160px,100%);margin:auto;padding:32px 24px;min-height:calc(100dvh - 72px);display:flex;flex-direction:column}
+
 .launch-card{width:min(480px,100%);margin:auto;background:#fff;border:1px solid #DBE5EF;border-radius:14px;padding:clamp(24px,5vw,44px)}
-.kicker{font-size:11px;font-weight:700;letter-spacing:.16em;color:#4B6887;margin:0 0 16px}
+
 h1{font-size:clamp(30px,5vw,40px);letter-spacing:-.04em;margin:0 0 14px}
 .accent{color:#0069C8}.lead,.description,.security-caption{font-size:13px;line-height:1.7;color:#53677F}
 .lead{margin:0 0 24px}.description{margin:9px 0 20px}
@@ -15,5 +15,5 @@ button{width:100%;min-height:48px;border:0;border-radius:8px;background:#0069C8;
 button:disabled{opacity:.65;cursor:wait}
 button:not(:disabled):hover{background:#0054A4}
 .error{padding:12px;color:#B42318;background:#FFF2F0;border-radius:8px;font-size:13px}
-.security-caption{margin:20px 0}.back-link{font-size:13px;color:#0069C8;font-weight:600;text-decoration:none}
+.security-caption{margin:20px 0}
 :focus-visible{outline:3px solid #50C0E8;outline-offset:2px}

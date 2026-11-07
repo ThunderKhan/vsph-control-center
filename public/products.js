@@ -107,7 +107,7 @@
   form.oninput = () => {
     if (!current) key = crypto.randomUUID();
   };
-  form.onsubmit = (e) => {
+  form.onsubmit = async (e) => {
     e.preventDefault();
     const value = (n) => form.elements[n].value.trim(),
       code = value("code");
@@ -127,7 +127,7 @@
     if (
       current &&
       data.status !== "active" &&
-      !confirm(
+      !await VSPHUI.confirm(
         "This lifecycle change blocks product access and revokes existing product sessions. Continue?",
       )
     )

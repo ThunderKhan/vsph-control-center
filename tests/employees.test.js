@@ -10,6 +10,10 @@ test('employee onboarding validates and normalizes only supported fields',()=>{
  const result=employeeFields(sample());
  assert.equal(result.email,'avery@example.test');
  assert.equal(result.fullName,'Avery Patel');
+  assert.equal(employeeFields({...sample(),department:'  engineering  '}).department,'Engineering');
+  for(const department of ['Design','Development','Other','Engineering Department','Unlisted']){
+   assert.throws(()=>employeeFields({...sample(),department}),/approved list/);
+  }
  for(const invalid of [
   {...sample(),role:'super_admin'},
   {...sample(),email:'invalid'},
@@ -19,7 +23,7 @@ test('employee onboarding validates and normalizes only supported fields',()=>{
   {...sample(),department:''},
   {...sample(),email:'a@b.test',password:'not-permitted'}
  ])assert.throws(()=>employeeFields(invalid));
- const edit={fullName:'Updated',department:'Design',jobTitle:'Designer',employmentType:'part_time',
+ const edit={fullName:'Updated',department:'Marketing',jobTitle:'Designer',employmentType:'part_time',
   startDate:'2026-11-04',status:'on_leave',version:3,confirmed:true};
  assert.equal(employeeFields(edit,{update:true}).status,'on_leave');
  assert.throws(()=>employeeFields({...edit,email:'changed@example.test'},{update:true}));
@@ -45,10 +49,17 @@ test('employee and HR routes are session-backed; HTML and APIs are not static ac
  assert.match(script,/\/api\/hrms\/access/);
  const overview=read('views/employees.html'),onboarding=read('views/employee-onboarding.html');
  assert.match(overview,/id="employeeRows"/);
- assert.match(overview,/id="hrGovernance"/);
- assert.match(overview,/counts below come from persisted records/);
- assert.match(onboarding,/Nothing is saved until you confirm/);
- assert.match(onboarding,/does not create a portal identity/);
+ assert.doesNotMatch(overview,/id="hrGovernance"|id="removedEmployeeHistory"|Your permissions/);
+ assert.doesNotMatch(overview,/people-info|aria-label="Breadcrumb"|Back to overview/);
+ assert.doesNotMatch(onboarding,/Nothing is saved until you confirm/);
+ assert.doesNotMatch(onboarding,/people-info|PEOPLE \/ INTERNAL ONBOARDING|Back to employees/);
+ assert.doesNotMatch(onboarding,/name="accessMethod"/);
+ assert.match(onboarding,/id="employeeConfirmed"/);
+ assert.match(onboarding,/id="existingEmployeeLink"/);
+ const wizard=read('public/employee-onboarding.js');
+ assert.ok(wizard.includes('api/employee-enrollment/employees/'));
+ assert.ok(wizard.includes("step===2?'Create employee':'Continue'"));
+ assert.ok(!wizard.includes('api/employee-credentials/employees/'));
  assert.match(read('public/employees.css'),/#00255A/);
  assert.match(read('public/employees.css'),/#0069C8/);
 });

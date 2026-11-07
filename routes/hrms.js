@@ -21,6 +21,12 @@ const call=(req,rpc,action,id=null,data={})=>db().rpc(rpc,{p_actor:req.user.id,p
 const access=req=>call(req,'hrms_access','get');
 router.get('/access',rpcRoute(req=>{if(Object.keys(req.query).length)invalid();return access(req);}));
 router.get('/me',rpcRoute(req=>{if(Object.keys(req.query).some(k=>k!=='afterTaskId')||(req.query.afterTaskId&&!uuid(req.query.afterTaskId)))invalid();return call(req,'internal_self_service','get',null,req.query);}));
+router.get('/me/activity',rpcRoute(req=>{
+ if(Object.keys(req.query).length)invalid();
+ return db().rpc('internal_work_activity',{
+  p_actor:req.user.id,p_session_hash:req.portalSession.token_hash
+ }).then(check);
+}));
 for(const [url,action,validation,hasId,key] of [
  ['/me/tasks/:id/status','task.status','task',true,false],['/me/leave','leave.request','leave',false,true],['/me/leave/:id/cancel','leave.cancel','cancel',true,false],['/me/attendance/in','attendance.in','in',false,true],['/me/attendance/:id/out','attendance.out','out',true,true],
  ['/leave/:id/review','leave.review','review',true,false],['/attendance/:id/incomplete','attendance.incomplete','incomplete',true,false]
