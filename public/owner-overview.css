@@ -12,7 +12,6 @@ html[data-owner-overview="true"] .workspace-content{width:min(1664px,100%);paddi
 .owner-overview a:hover{text-decoration:none}
 .owner-overview button{font:inherit;cursor:pointer}
 .owner-heading{display:flex;align-items:center;justify-content:space-between;gap:24px;margin:0 0 24px}
-.owner-eyebrow{margin:0 0 8px;font-size:12px;line-height:20px;letter-spacing:.14em;font-weight:600;color:var(--o-muted)}
 .owner-heading h1{margin:0;font-size:32px;line-height:40px;letter-spacing:-.04em;font-weight:600}
 .owner-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .owner-actions :is(a,button){display:inline-flex;align-items:center;justify-content:center;min-height:44px;border:1px solid var(--o-navy);border-radius:8px;padding:10px 16px;color:var(--o-navy);background:white;font-size:14px;font-weight:500;white-space:nowrap}
