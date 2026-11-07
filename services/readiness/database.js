@@ -97,6 +97,7 @@ const signatures = [
   "public.account_profile(uuid,text,uuid,jsonb)",
   "public.hrms_access(uuid,text,uuid,jsonb)",
   "public.internal_self_service(uuid,text,uuid,jsonb)",
+  "public.internal_work_activity(uuid,text)",
   "public.internal_hrms(uuid,text,uuid,jsonb)",
   "public.finance_journal(uuid,text,uuid,jsonb)",
   "public.finance_report(uuid,text,uuid,jsonb)",

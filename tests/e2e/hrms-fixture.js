@@ -9,6 +9,10 @@ module.exports=async(pool,owner)=>{
   }
   const p=(await pool.query("select project_command($1,'create',null,$2) d",[owner,{key:'HRMS-'+layout.toUpperCase(),name:'Assigned delivery '+layout,kind:'internal'}])).rows[0].d;
   await pool.query("insert into project_memberships(project_id,user_id,role) values($1,$2,'contributor')",[p.id,ids.staff]);
-  await pool.query("select project_command($1,'task.create',$2,$3)",[owner,p.id,{version:1,title:'Implement assigned feature '+layout,assigneeId:ids.staff}]);await pool.query("update projects set status='active' where id=$1",[p.id]);
+  await pool.query("select project_command($1,'task.create',$2,$3)",[owner,p.id,{version:1,title:'Implement assigned feature '+layout,assigneeId:ids.staff}]);
+  const completed=(await pool.query("select project_command($1,'task.create',$2,$3) d",[owner,p.id,{version:2,title:'Completed delivery '+layout,assigneeId:ids.staff}])).rows[0].d;
+  await pool.query("update project_tasks set status='done' where id=$1",[completed.id]);
+  await pool.query("insert into audit_logs(actor_user_id,action,target_type,target_id,details) values($1,'employee.task_status','project_task',$2,$3)",[ids.staff,completed.id,{from:'in_review',to:'done'}]);
+  await pool.query("update projects set status='active' where id=$1",[p.id]);
  }
 };
