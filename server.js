@@ -44,6 +44,7 @@ app.get('/employee-enrollment',require('./routes/employee-enrollment').page);
 
 app.use('/api/account/profile',require('./routes/profile').router);
 app.use('/api/hrms',require('./routes/hrms').router);
+app.use('/api/hrms/calendar',require('./routes/calendar').router);
 app.get('/my-work',portalSession,require('./routes/hrms').page('employee'));
 app.get('/hr',portalSession,require('./routes/hrms').page('management'));
 app.get('/hr/access',portalSession,require('./routes/hrms').page('governance'));
