@@ -147,8 +147,8 @@ begin
     jsonb_array_length(p_data->'attendees')>20 then
   raise exception 'Invalid event details' using errcode='22023';
  end if;
- if exists(select 1 from jsonb_array_elements_text(p_data->'tags') tag
-     where length(tag)>32 or length(tag)<1) then
+ if exists(select 1 from jsonb_array_elements_text(p_data->'tags') as t(tag)
+     where length(t.tag)>32 or length(t.tag)<1) then
   raise exception 'Invalid tags' using errcode='22023';
  end if;
  if coalesce(p_data->>'meetUrl','')<>'' and
@@ -190,12 +190,12 @@ begin
  select coalesce(array_agg(distinct lower(btrim(t.val))),'{}') into emails
  from jsonb_array_elements_text(p_data->'attendees') as t(val);
  select cardinality(emails) into requested;
- if exists(select 1 from unnest(emails) v where length(v) not between 3 and 254 or position('@' in v)=0) then
+ if exists(select 1 from unnest(emails) as t(v) where length(t.v) not between 3 and 254 or position('@' in t.v)=0) then
   raise exception 'Invalid invitee' using errcode='22023';
  end if;
  select count(distinct p.id) into matched
- from unnest(emails) v
- join public.profiles p on lower(p.email)=v and p.status='active'
+ from unnest(emails) as t(v)
+ join public.profiles p on lower(p.email)=t.v and p.status='active'
  join public.internal_employee_identity_links l on l.user_id=p.id and l.status='linked'
  join public.internal_employees e on e.id=l.employee_id and e.status in ('active','on_leave')
   and lower(e.email)=lower(p.email);
@@ -220,8 +220,8 @@ begin
   delete from public.internal_calendar_attendees where event_id=p_id;
  end if;
  insert into public.internal_calendar_attendees(event_id,user_id)
- select p_id,p.id from unnest(emails) v
- join public.profiles p on lower(p.email)=v
+ select p_id,p.id from unnest(emails) as t(v)
+ join public.profiles p on lower(p.email)=t.v
  where p.id<>p_actor;
  insert into public.audit_logs(actor_user_id,action,target_type,target_id,details)
  values(p_actor,case when p_action='create' then 'calendar.create' else 'calendar.update' end,
