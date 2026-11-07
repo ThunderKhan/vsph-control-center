@@ -50,11 +50,11 @@ test('dashboard design is responsive and does not fabricate analytics', () => {
   assert.doesNotThrow(()=>new Function(js));
 });
 
-function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=false,contexts={},collapsed=false,blockedStorage=false}={}){
+function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=false,employeeAuthorized=false,contexts={},collapsed=false,blockedStorage=false}={}){
   class Element{
     constructor(id=''){
       this.id=id; this.children=[]; this.attributes={}; this.value=''; this.textContent='';
-      this.hidden=['emptyMessage','errorMessage','adminNavContainer','adminOverviewPanel','topbarOnboard','navBackdrop'].includes(id);
+      this.hidden=['emptyMessage','errorMessage','adminNavContainer','adminOverviewPanel','topbarOnboard','navBackdrop','employeeDashboard'].includes(id);
       this.disabled=false; this.events={}; this.style={setProperty(){}};
       this.classList={add(){},remove(){},toggle(){},contains(){return false}};
     }
@@ -69,7 +69,7 @@ function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=fal
     querySelectorAll(){return[];}
     focus(){}
   }
-  const ids=['appGrid','appSearch','errorMessage','emptyMessage','logoutButton','avatar','sideName','sideRole','topAccount','welcomeMessage','adminNavContainer','adminOverviewPanel','overviewDetails','topbarOnboard','appCount','featureAppCount','workspaceCount','navBackdrop','openMenu','closeMenu','sidebarToggle','workspaceSidebar','spotlightPanel','accessGrid','libraryCount','employeeNavContainer','hrGovernanceNav','myWorkNav'];
+  const ids=['appGrid','appSearch','errorMessage','emptyMessage','logoutButton','avatar','sideName','sideRole','topAccount','welcomeMessage','adminNavContainer','adminOverviewPanel','overviewDetails','topbarOnboard','appCount','featureAppCount','workspaceCount','navBackdrop','openMenu','closeMenu','sidebarToggle','workspaceSidebar','spotlightPanel','accessGrid','libraryCount','employeeNavContainer','hrGovernanceNav','myWorkNav','employeeDashboard','employeeDashboardWelcome'];
   const nodes=new Map(ids.map(id=>[id,new Element(id)]));
   const visibleViews=[];
   for(const name of ['overview','applications']){
@@ -79,10 +79,11 @@ function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=fal
   for(const url of ['/dashboard','/applications','/admin']){
     const node=new Element(url);node.attributes.href=url;links.push(node);
   }
-  const calls=[];
+  const calls=[],activity={loads:0};
   const fetch=async (url,options={})=>{
     calls.push({url,options});
     if(url==='/api/auth/me')return{status:unauthorized?401:200,ok:!unauthorized,json:async()=>({user:user||{name:'Example Member',platformRole:'user'}})};
+    if(url==='/api/hrms/access')return{status:200,ok:true,json:async()=>({employee:employeeAuthorized})};
     if(url==='/api/apps')return{status:200,ok:true,json:async()=>({applications:apps})};
     if(url==='/api/workspaces')return{status:200,ok:true,json:async()=>({count:workspaces})};
     if(url.startsWith('/api/apps/')&&url.endsWith('/contexts')){
@@ -98,7 +99,7 @@ function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=fal
     body:{classList:{add(){},remove(){},contains(){return false}}},
     activeElement:null,
     getElementById:id=>nodes.get(id),
-    querySelectorAll:selector=>selector==='[data-view]'?visibleViews:selector==='.sidebar-link'?links:[],
+    querySelectorAll:selector=>selector==='[data-view]'?visibleViews:selector==='[data-view="overview"]'?visibleViews.filter(v=>v.attributes['data-view']==='overview'):selector==='.sidebar-link'?links:[],
     createElement:tag=>new Element(tag),
     createElementNS:(ns,tag)=>new Element(tag),
     addEventListener(){}
@@ -108,9 +109,10 @@ function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=fal
     setItem(key,value){if(blockedStorage)throw Error('Storage blocked');stored.set(key,value);},
     getItem(key){if(blockedStorage)throw Error('Storage blocked');return stored.get(key)||null;}
   };
-  const window={innerWidth:1280,location,localStorage,matchMedia:()=>({matches:true}),addEventListener(){}};
-  vm.runInNewContext(read('public/dashboard.js'),{document,window,fetch,console,URLSearchParams});
-  return{nodes,calls,location,visibleViews,links,document,stored,window};
+  const window={innerWidth:1280,location,localStorage,matchMedia:()=>({matches:true}),addEventListener(){},
+   VSPHWorkActivity:{load(){activity.loads++;}}};
+  vm.runInNewContext(read('public/dashboard.js'),{document,window,fetch,console,URLSearchParams,AbortSignal:{timeout(){return {};}}});
+  return{nodes,calls,activity,location,visibleViews,links,document,stored,window};
 }
 async function settle(){await new Promise(resolve=>setImmediate(resolve));}
 
@@ -172,4 +174,34 @@ test('unauthenticated direct dashboard access navigates to portal login without 
   await settle();
   assert.equal(fixture.location.replaced,'/login');
   assert.ok(!fixture.calls.some(call=>call.url==='/api/apps'));
+});
+
+test('linked staff get the dashboard-first heatmap without loading customer application metrics',async()=>{
+ const fixture=mount({user:{name:'Staff Example',platformRole:'user'},employeeAuthorized:true});
+ await settle();
+ assert.equal(fixture.document.title,'My dashboard | VSPH Control Center');
+ assert.equal(fixture.nodes.get('employeeDashboard').hidden,false);
+ assert.equal(fixture.nodes.get('employeeDashboardWelcome').textContent,'Welcome back, Staff. Your work, at a glance.');
+ assert.equal(fixture.visibleViews[0].hidden,true);
+ assert.equal(fixture.activity.loads,1);
+ assert.ok(fixture.calls.some(x=>x.url==='/api/hrms/access'));
+ assert.equal(fixture.calls.some(x=>x.url==='/api/apps'),false);
+});
+test('ordinary customer cannot see the employee widget or request its data',async()=>{
+ const fixture=mount({user:{name:'Customer Example',platformRole:'user'},employeeAuthorized:false});
+ await settle();
+ assert.equal(fixture.nodes.get('employeeDashboard').hidden,true);
+ assert.equal(fixture.activity.loads,0);
+ assert.equal(fixture.document.title,'Overview | VSPH Control Center');
+ assert.equal(fixture.visibleViews[0].hidden,false);
+});
+test('page header labels are removed without affecting section labels or navigation',()=>{
+ const html=read('public/dashboard.html');
+ for(const label of ['WORKSPACE / OVERVIEW','WORKSPACE / APPLICATIONS','VSPH / PLATFORM OWNER','VSPH / EXECUTIVE OVERVIEW']){
+   assert.equal(html.includes(label),false,label);
+ }
+ assert.doesNotMatch(read('views/projects.html'),/WORKSPACE \/ PROJECTS/);
+ assert.match(html,/ACCESS SUMMARY|PRODUCT DIRECTORY/);
+ assert.match(html,/id="ownerOverviewTitle"|id="pageTitle"/);
+ assert.match(read('views/partials/portal-navigation.html'),/aria-label="Main"/);
 });

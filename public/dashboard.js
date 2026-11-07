@@ -198,6 +198,30 @@
       byId('topAccount').textContent = name;
       byId('welcomeMessage').textContent = 'Welcome back, ' + firstName + '. Your applications are ready when you are.';
       const isPlatformAdmin = user.platformRole === 'super_admin';
+      // Only a session-scoped, accepted employee identity may see personal work.
+      // A matching name or the platform owner role is not an employee grant.
+      if (!isApplicationsView && !isPlatformAdmin) {
+        let employeeAccess = false;
+        try {
+          const r = await fetch('/api/hrms/access', {
+            credentials: 'same-origin',
+            cache: 'no-store',
+            signal: AbortSignal.timeout(8000)
+          });
+          if (r.status === 401) { window.location.replace('/login'); return; }
+          employeeAccess = r.ok && (await r.json()).employee === true;
+        } catch {
+          // Fail closed: a temporary access-check error must not show HR data.
+        }
+        if (employeeAccess) {
+          for (const section of document.querySelectorAll('[data-view="overview"]')) section.hidden = true;
+          byId('employeeDashboard').hidden = false;
+          byId('employeeDashboardWelcome').textContent = 'Welcome back, ' + firstName + '. Your work, at a glance.';
+          document.title = 'My dashboard | VSPH Control Center';
+          window.VSPHWorkActivity?.load();
+          return;
+        }
+      }
       byId('adminOverviewPanel').hidden = !isPlatformAdmin;
       byId('overviewDetails').hidden = !isPlatformAdmin;
       byId('topbarOnboard').hidden = !isPlatformAdmin;
