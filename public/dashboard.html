@@ -7,6 +7,7 @@
   <title>Workspace | VSPH Control Center</title>
   <link rel="stylesheet" href="/dashboard.css">
   <link rel="stylesheet" href="/work-activity.css">
+  <link rel="stylesheet" href="/employee-bento.css">
   <link rel="stylesheet" href="/calendar.css">
   <link rel="stylesheet" href="/executive-dashboard.css">
   <link rel="stylesheet" href="/owner-overview.css">
@@ -33,9 +34,7 @@
             <div class="employee-dashboard-activity-heading">
               <div>
                 <h2 id="employeeActivityTitle">Work activity</h2>
-                <p>Completed tasks recorded over the past 12 months.</p>
               </div>
-              <a href="/my-work#ownTasks">Open my tasks</a>
             </div>
             <div id="workActivity" class="hr-activity-section" aria-label="Your recorded task completion activity" data-state="loading" hidden></div>
             <div id="employeeActivitySetup" class="employee-activity-setup" role="status" hidden>
@@ -43,13 +42,68 @@
               <p id="employeeActivitySetupMessage">Your work activity will appear when your employee account is active.</p>
               <a id="employeeActivitySetupAction" href="/employment">Review employee account</a>
             </div>
-            <p class="employee-activity-note">Activity tracks recorded task completions, not working hours or employee performance.</p>
           </section>
-          <nav id="employeeDashboardActions" class="employee-dashboard-actions" aria-label="Employee workspace shortcuts" hidden>
-            <a href="/my-work#ownTasks"><span><strong>Assigned tasks</strong><small>Review and update your own work</small></span><span aria-hidden="true">↗</span></a>
-            <a href="/my-work#ownAttendance"><span><strong>Attendance</strong><small>View check-ins and workday records</small></span><span aria-hidden="true">↗</span></a>
-            <a href="/my-work#ownLeave"><span><strong>Leave requests</strong><small>Submit and review your requests</small></span><span aria-hidden="true">↗</span></a>
-          </nav>
+          <section id="employeeDashboardWork" class="employee-work-board" aria-label="Employee work overview" hidden>
+            <header class="employee-work-heading">
+              <h2>My work</h2>
+              <div class="employee-work-heading-actions">
+                <p id="hrMessage" class="hr-message" role="status" aria-live="polite"></p>
+                <button id="refreshHr" type="button" class="secondary">Refresh</button>
+              </div>
+            </header>
+            <div id="hrContent" hidden>
+              <div class="employee-work-grid">
+                <article id="employeeTasksPanel" class="employee-work-tile employee-work-tasks" aria-labelledby="employeeTasksTitle">
+                  <header class="employee-tile-header">
+                    <div><h3 id="employeeTasksTitle">Assigned tasks</h3><span id="employeeTasksDetail" class="employee-tile-sub"></span></div>
+                    <strong id="employeeTasksMetric" class="employee-tile-number" aria-label="Visible assigned tasks">—</strong>
+                  </header>
+                  <div id="ownTasks" class="employee-record-list" aria-live="polite"></div>
+                  <div class="employee-work-pagination">
+                    <button id="firstTasks" type="button" class="secondary" hidden>First tasks</button>
+                    <button id="moreTasks" type="button" class="secondary" hidden>Next tasks</button>
+                  </div>
+                  <details class="employee-work-details">
+                    <summary>Notifications</summary>
+                    <div id="ownNotifications" class="employee-record-list"></div>
+                  </details>
+                </article>
+                <article id="employeeAttendancePanel" class="employee-work-tile employee-work-attendance" aria-labelledby="employeeAttendanceTitle">
+                  <header class="employee-tile-header">
+                    <div><h3 id="employeeAttendanceTitle">Attendance</h3><span id="workDay" class="employee-tile-sub"></span></div>
+                    <strong id="employeeAttendanceMetric" class="employee-tile-status">—</strong>
+                  </header>
+                  <div id="attendanceAction" class="hr-actions employee-work-attendance-action"></div>
+                  <div id="employeeAttendanceSummary" class="employee-attendance-summary"></div>
+                  <details class="employee-work-details">
+                    <summary>Attendance history</summary>
+                    <div id="ownAttendance" class="employee-record-list"></div>
+                  </details>
+                </article>
+                <article id="employeeLeavePanel" class="employee-work-tile employee-work-leave" aria-labelledby="employeeLeaveTitle">
+                  <header class="employee-tile-header">
+                    <div><h3 id="employeeLeaveTitle">Leave requests</h3><span id="employeeLeaveDetail" class="employee-tile-sub"></span></div>
+                    <strong id="employeeLeaveMetric" class="employee-tile-number" aria-label="Pending leave requests">—</strong>
+                  </header>
+                  <div class="employee-leave-layout">
+                    <form id="leaveForm" class="employee-leave-form">
+                      <div class="employee-leave-fields">
+                        <label>From<input name="startOn" type="date" required></label>
+                        <label>Through<input name="endOn" type="date" required></label>
+                        <label>Leave type<select name="kind"><option value="annual">Annual</option><option value="sick">Sick</option><option value="unpaid">Unpaid</option><option value="other">Other</option></select></label>
+                      </div>
+                      <label>Reason<textarea name="reason" maxlength="500" rows="2" required></textarea></label>
+                      <button type="submit">Request leave</button>
+                    </form>
+                    <div class="employee-leave-history">
+                      <h4>Recent requests</h4>
+                      <div id="ownLeave" class="employee-record-list"></div>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </section>
           <section id="employeeCalendar" class="employee-calendar" aria-labelledby="employeeCalendarTitle" hidden>
             <header class="calendar-heading">
               <h2 id="employeeCalendarTitle">Calendar</h2>
@@ -285,7 +339,7 @@
             <div>
               <h1 id="pageTitle">Your workspace<span class="title-period">.</span></h1>
               <p class="page-lead" id="welcomeMessage">Applications and access, all in one place.</p>
-              <a id="myWorkShortcut" class="work-activity-shortcut" href="/my-work" hidden>View your work activity <span aria-hidden="true">→</span></a>
+              <a id="myWorkShortcut" class="work-activity-shortcut" href="/dashboard#employeeDashboardWork" hidden>My work</a>
             </div>
           </div>
         </section>
@@ -390,6 +444,7 @@
   <script defer src="/owner-bento.js"></script>
   <script defer src="/owner-overview.js"></script>
   <script defer src="/work-activity.js"></script>
+  <script defer src="/hrms.js"></script>
   <script defer src="/calendar.js"></script>
   <script defer src="/dashboard.js"></script>
 </body>
