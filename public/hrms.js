@@ -42,7 +42,7 @@
    el.append(actions);
   }if(!rows.length)parent.append(text('p','No matching employees.'));$('moreAccess').hidden=!accessNext;
  }
- async function load(){if(mode==='employee'){ownRecords(await api('/hrms/me'+(taskCursor?'?afterTaskId='+taskCursor:'')));const np=$('ownNotifications');np.replaceChildren();try{const notifications=await api('/notifications');for(const n of notifications.notifications||[])record(np,n.title||'Task notification',n.project_name+' · '+label(n.event_type));if(!np.childElementCount)np.append(text('p','No current authorized notifications.'));}catch{np.append(text('p','Task notifications are temporarily unavailable. Your saved work remains available.'));}}else if(mode==='management'){await management();}else await governance();$('hrContent').hidden=false;notice('Current authorized records loaded.');}
+ async function load(){if(mode==='employee'){ownRecords(await api('/hrms/me'+(taskCursor?'?afterTaskId='+taskCursor:'')));window.VSPHWorkActivity?.load();const np=$('ownNotifications');np.replaceChildren();try{const notifications=await api('/notifications');for(const n of notifications.notifications||[])record(np,n.title||'Task notification',n.project_name+' · '+label(n.event_type));if(!np.childElementCount)np.append(text('p','No current authorized notifications.'));}catch{np.append(text('p','Task notifications are temporarily unavailable. Your saved work remains available.'));}}else if(mode==='management'){await management();}else await governance();$('hrContent').hidden=false;notice('Current authorized records loaded.');}
  $('refreshHr').addEventListener('click',()=>run(()=>load()));
  if(mode==='employee'){
   $('firstTasks').addEventListener('click',()=>run(async()=>{taskCursor=null;await load();}));
