@@ -45,6 +45,11 @@ button,a {-webkit-tap-highlight-color: transparent}
 .employee-dashboard #workActivity{margin:0;padding:0;background:transparent;min-width:0}
 .employee-dashboard .work-activity-card{max-width:820px}
 .employee-activity-note{margin-top:14px}
+.employee-activity-setup{border:1px solid #C7D8EA;background:#F3F8FE;border-radius:12px;padding:24px;max-width:820px}
+.employee-activity-setup strong{display:block;color:var(--navy);font-size:17px;margin:0 0 10px}
+.employee-activity-setup p{margin:0 0 16px;color:var(--muted);font-size:13px;line-height:1.6}
+.employee-activity-setup a{display:inline-flex;align-items:center;min-height:42px;border-radius:8px;padding:10px 15px;background:var(--action);color:#fff;text-decoration:none;font-size:13px;font-weight:600}
+.employee-activity-setup a:hover{background:var(--navy)}
 .employee-dashboard-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 .employee-dashboard-actions a{min-height:114px;border:1px solid var(--line);border-radius:14px;background:#fff;padding:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--navy);text-decoration:none}
 .employee-dashboard-actions a:hover{border-color:#A5C6E6;background:#F8FBFF}
