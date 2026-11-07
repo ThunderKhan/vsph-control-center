@@ -216,7 +216,9 @@
           for (const section of document.querySelectorAll('[data-view="overview"]')) section.hidden = true;
           byId('employeeDashboard').hidden = false;
           byId('workActivity').hidden = false;
-          byId('employeeDashboardActions').hidden = false;
+          byId('employeeDashboardWork').hidden = false;
+          window.VSPHHRMS?.mountEmployee();
+          if (window.location.hash === '#employeeDashboardWork') byId('employeeDashboardWork').scrollIntoView?.({ block: 'start' });
           byId('employeeDashboardWelcome').textContent = 'Welcome back, ' + firstName + '. Your work, at a glance.';
           document.title = 'My dashboard | VSPH Control Center';
           window.VSPHWorkActivity?.load();

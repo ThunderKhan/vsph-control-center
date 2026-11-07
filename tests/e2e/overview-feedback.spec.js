@@ -18,10 +18,17 @@ test('linked employees see work activity first on the dashboard; customers canno
  await page.locator('.work-activity-toggle').click();
  await expect(page.locator('.work-activity-project-list')).toContainText('Assigned delivery '+info.project.name);
  await page.locator('.work-activity-toggle').click();
- await page.locator('.employee-dashboard-actions a[href="/my-work#ownTasks"]').click();
- await expect(page).toHaveURL(/\/my-work#ownTasks$/);
- await expect(page.locator('#ownTasks')).toBeVisible();
- await expect(page.locator('#workActivity')).toHaveCount(0);
+ await expect(page.locator('#employeeDashboardWork')).toBeVisible();
+ await expect(page.locator('#hrContent')).toBeVisible();
+ await expect(page.locator('#ownTasks')).toContainText('Implement assigned feature '+info.project.name);
+ await expect(page.locator('#employeeTasksMetric')).toHaveText(/^[0-9]+$/);
+ await expect(page.locator('#employeeAttendanceMetric')).not.toHaveText('—');
+ await expect(page.locator('#employeeLeaveMetric')).toHaveText(/^[0-9]+$/);
+ await expect(page.locator('#leaveForm')).toBeVisible();
+ await expect(page.locator('#refreshHr')).toBeEnabled();
+ await expect(page.locator('.employee-dashboard-actions')).toHaveCount(0);
+ await expect(page.locator('.employee-activity-note')).toHaveCount(0);
+ await expect(page.locator('#workActivity')).toBeVisible();
 
  await context.clearCookies();
  await context.addCookies([cookie('fixture-music-customer-session')]);
@@ -51,7 +58,7 @@ test('linked account still onboarding gets an explanatory dashboard rather than 
  await expect(page.locator('#workActivity')).toBeHidden();
  await expect(page.locator('.work-activity-day')).toHaveCount(0);
  await expect(page.locator('#employeeActivitySetupAction')).toHaveAttribute('href','/employment');
- await expect(page.locator('#employeeDashboardActions')).toBeHidden();
+ await expect(page.locator('#employeeDashboardWork')).toBeHidden();
  await page.unroute('**/api/hrms/access');
  await page.unroute('**/api/employee-identity/mine');
 });

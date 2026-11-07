@@ -1,23 +1,55 @@
 (() => {
- 'use strict';const $=id=>document.getElementById(id),mode=document.body.dataset.workspace;
+ 'use strict';const $=id=>document.getElementById(id);let mode=document.body.dataset.workspace,mounted=false;
  let busy=false,taskCursor=null,leaveCursor=null,attendanceCursor=null,accessCursor=null,leaveNext=null,attendanceNext=null,accessNext=null;
  const text=(tag,value,cls='')=>{const n=document.createElement(tag);n.textContent=String(value??'');if(cls)n.className=cls;return n;};
  const label=s=>String(s||'').replaceAll('_',' '),date=s=>s?new Date(s).toLocaleString('en-IN',{timeZone:'Asia/Kolkata'}):'Not recorded';
- const notice=(s,error=false)=>{$('hrMessage').textContent=s;$('hrMessage').dataset.error=String(error);};
+ const notice=(s,error=false)=>{const n=$('hrMessage');if(!n)return;n.textContent=s;n.dataset.error=String(error);};
  async function api(url,body,key){const r=await fetch('/api'+url,{credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(15000),...(body?{method:'POST',headers:{'Content-Type':'application/json',...(key?{'Idempotency-Key':key}:{})},body:JSON.stringify(body)}:{})});if(r.status===401){location.assign('/login');throw Error('Session expired.');}const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.message||'The operation was denied or the HR database upgrade is required.');return d;}
  const button=(name,fn,secondary=false)=>{const b=text('button',name,secondary?'secondary':'');b.type='button';b.disabled=busy;b.addEventListener('click',fn);return b;};
  const record=(parent,title,description)=>{const el=text('article','','hr-record');el.append(text('h3',title),text('p',description));parent.append(el);return el;};
- async function run(fn){if(busy)return;busy=true;document.querySelectorAll('main button').forEach(b=>b.disabled=true);try{await fn();}catch(e){notice(e.name==='TimeoutError'?'Request timed out. Refresh before retrying; a saved operation may already have completed.':e.message,true);}finally{busy=false;document.querySelectorAll('main button').forEach(b=>b.disabled=false);}}
- async function mutate(url,body,key){await api(url,body,key);await load();notice('Saved. Current records have been reloaded.');}
+ async function run(fn){if(busy)return;busy=true;
+  const scope=mode==='employee'&&$('employeeDashboardWork')?$('employeeDashboardWork'):document.querySelector('main');
+  if(!scope)return;
+  scope.querySelectorAll('button').forEach(b=>b.disabled=true);
+  try{await fn();}
+  catch(e){notice(e.name==='TimeoutError'?'Request timed out. Refresh before retrying; a saved operation may already have completed.':e.message,true);}
+  finally{busy=false;scope.querySelectorAll('button').forEach(b=>b.disabled=false);}
+ }
+ async function mutate(url,body,key){await api(url,body,key);await load();notice(mode==='employee'&&$('employeeDashboardWork')?'Saved':'Saved. Current records have been reloaded.');}
  function ownRecords(d){
-  $('employeeName').textContent=d.employee.name;$('employeeDetails').textContent=[d.employee.jobTitle,d.employee.department,label(d.employee.status)].join(' · ');$('workDay').textContent='Company workday: '+d.workDate;
+  if($('employeeName'))$('employeeName').textContent=d.employee.name;
+  if($('employeeDetails'))$('employeeDetails').textContent=[d.employee.jobTitle,d.employee.department,label(d.employee.status)].join(' · ');
+  if($('workDay'))$('workDay').textContent=$('employeeDashboardWork')?d.workDate:'Company workday: '+d.workDate;
+  if($('employeeTasksMetric')){
+   const total=d.tasks.length,done=d.tasks.filter(t=>t.status==='done').length;
+   const active=d.tasks.filter(t=>!['done','cancelled'].includes(t.status)).length;
+   const late=d.tasks.filter(t=>t.due_on&&t.due_on<d.workDate&&!['done','cancelled'].includes(t.status)).length;
+   $('employeeTasksMetric').textContent=String(active);
+   $('employeeTasksDetail').textContent=total>=50?'Showing '+total+' tasks · '+done+' done · '+late+' overdue':
+    done+' completed · '+late+' overdue';
+  }
+  if($('employeeAttendanceMetric')){
+   const current=d.attendance.find(a=>a.work_day===d.workDate);
+   const state=current?.status||'not checked in';
+   $('employeeAttendanceMetric').textContent=label(state);
+   const closed=d.attendance.filter(a=>a.status==='closed').length;
+   const summary=$('employeeAttendanceSummary');
+   summary.replaceChildren(text('span','Recent completed days'),text('strong',String(closed)));
+  }
+  if($('employeeLeaveMetric')){
+   const pending=d.leave.filter(r=>r.status==='pending').length;
+   const approved=d.leave.filter(r=>r.status==='approved').length;
+   $('employeeLeaveMetric').textContent=String(pending);
+   $('employeeLeaveDetail').textContent=pending===1?'Pending approval · '+approved+' approved':
+     pending+' pending · '+approved+' approved';
+  }
   const tasks=$('ownTasks');tasks.replaceChildren();if(!d.tasks.length)tasks.append(text('p','No assigned tasks on this page.'));
   const transitions={todo:['in_progress','blocked'],in_progress:['in_review','blocked'],in_review:['done','in_progress','blocked'],blocked:['in_progress']};
   for(const t of d.tasks){const el=record(tasks,t.title,t.project_name+' · '+label(t.status)+' · '+label(t.priority)+' · Due '+(t.due_on||'not set'));if(t.project_status==='active'){const actions=text('div','','hr-actions');for(const status of transitions[t.status]||[])actions.append(button('Set '+label(status),()=>run(()=>mutate('/hrms/me/tasks/'+t.id+'/status',{version:t.project_version,status})),true));el.append(actions);}}
   $('moreTasks').hidden=d.tasks.length<50;$('moreTasks').onclick=()=>run(async()=>{taskCursor=d.tasks.at(-1).id;await load();});$('firstTasks').hidden=!taskCursor;
   const attendance=$('ownAttendance');attendance.replaceChildren();for(const a of d.attendance){const el=record(attendance,a.work_day+' · '+label(a.status),'In: '+date(a.checked_in_at)+' · Out: '+date(a.checked_out_at));if(a.recovery_note)el.append(text('p',a.recovery_note,'muted'));}if(!d.attendance.length)attendance.append(text('p','No attendance recorded.'));
   const actions=$('attendanceAction');actions.replaceChildren();const open=d.attendance.find(a=>a.status==='open');if(open){const key=crypto.randomUUID();actions.append(button('Check out',()=>run(()=>mutate('/hrms/me/attendance/'+open.id+'/out',{version:open.version},key))));}else if(!d.attendance.some(a=>a.work_day===d.workDate)&&d.employee.status==='active'){const key=crypto.randomUUID();actions.append(button('Check in',()=>run(()=>mutate('/hrms/me/attendance/in',{},key))));}else actions.append(text('p','No check-in action is available for this workday.','muted'));
-  const leave=$('ownLeave');leave.replaceChildren();for(const r of d.leave){const el=record(leave,r.start_on+' through '+r.end_on,label(r.kind)+' · '+label(r.status));el.append(text('p',r.reason));if(r.decision_note)el.append(text('p','Review note: '+r.decision_note));if(r.status==='pending')el.append(button('Cancel request',async()=>{if(await VSPHUI.confirm('Cancel this pending leave request?',{title:'Cancel leave request?',danger:true,confirmLabel:'Cancel request'}))run(()=>mutate('/hrms/me/leave/'+r.id+'/cancel',{version:r.version}));},true));}if(!d.leave.length)leave.append(text('p','No leave requests.'));leave.append(text('p','Most recent 25 requests. Attendance shows the latest 31 company workdays.','muted'));
+  const leave=$('ownLeave');leave.replaceChildren();for(const r of d.leave){const el=record(leave,r.start_on+' through '+r.end_on,label(r.kind)+' · '+label(r.status));el.append(text('p',r.reason));if(r.decision_note)el.append(text('p','Review note: '+r.decision_note));if(r.status==='pending')el.append(button('Cancel request',async()=>{if(await VSPHUI.confirm('Cancel this pending leave request?',{title:'Cancel leave request?',danger:true,confirmLabel:'Cancel request'}))run(()=>mutate('/hrms/me/leave/'+r.id+'/cancel',{version:r.version}));},true));}if(!d.leave.length)leave.append(text('p','No leave requests.'));if(!$('employeeDashboardWork'))leave.append(text('p','Most recent 25 requests. Attendance shows the latest 31 company workdays.','muted'));
  }
  function reviewForm(el,r,type){
   const form=text('form','','hr-review');let decision;
@@ -42,7 +74,10 @@
    el.append(actions);
   }if(!rows.length)parent.append(text('p','No matching employees.'));$('moreAccess').hidden=!accessNext;
  }
- async function load(){if(mode==='employee'){ownRecords(await api('/hrms/me'+(taskCursor?'?afterTaskId='+taskCursor:'')));const np=$('ownNotifications');np.replaceChildren();try{const notifications=await api('/notifications');for(const n of notifications.notifications||[])record(np,n.title||'Task notification',n.project_name+' · '+label(n.event_type));if(!np.childElementCount)np.append(text('p','No current authorized notifications.'));}catch{np.append(text('p','Task notifications are temporarily unavailable. Your saved work remains available.'));}}else if(mode==='management'){await management();}else await governance();$('hrContent').hidden=false;notice('Current authorized records loaded.');}
+ async function load(){if(mode==='employee'){ownRecords(await api('/hrms/me'+(taskCursor?'?afterTaskId='+taskCursor:'')));const np=$('ownNotifications');np.replaceChildren();try{const notifications=await api('/notifications');for(const n of notifications.notifications||[])record(np,n.title||'Task notification',n.project_name+' · '+label(n.event_type));if(!np.childElementCount)np.append(text('p','No current authorized notifications.'));}catch{np.append(text('p','Task notifications are temporarily unavailable. Your saved work remains available.'));}}else if(mode==='management'){await management();}else await governance();$('hrContent').hidden=false;notice(mode==='employee'&&$('employeeDashboardWork')?'':'Current authorized records loaded.');}
+ function start(){
+  if(mounted)return;
+  mounted=true;
  $('refreshHr').addEventListener('click',()=>run(()=>load()));
  if(mode==='employee'){
   $('firstTasks').addEventListener('click',()=>run(async()=>{taskCursor=null;await load();}));
@@ -53,4 +88,13 @@
   $('leaveStatus').addEventListener('change',()=>run(async()=>{leaveCursor=null;await load();}));$('moreLeave').addEventListener('click',()=>run(async()=>{leaveCursor=leaveNext;await load();}));$('moreAttendance').addEventListener('click',()=>run(async()=>{attendanceCursor=attendanceNext;await load();}));
  }else{$('searchAccess').addEventListener('click',()=>run(async()=>{accessCursor=null;await load();}));$('moreAccess').addEventListener('click',()=>run(async()=>{accessCursor=accessNext;await load();}));}
  run(()=>load());
+ }
+ if(['employee','management','governance'].includes(mode))start();
+ window.VSPHHRMS={
+  mountEmployee(){
+   if(mounted||!$('employeeDashboardWork')||$('employeeDashboardWork').hidden)return;
+   if(document.body.dataset.workspace&&document.body.dataset.workspace!=='employee')return;
+   mode='employee';start();
+  }
+ };
 })();

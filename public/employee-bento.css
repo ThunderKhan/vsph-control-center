@@ -1,0 +1,60 @@
+/* Employee dashboard: live HR self-service, in the VSPH design system. */
+.employee-dashboard .work-activity-card{margin-inline:auto}
+.employee-dashboard-activity{display:flex;flex-direction:column}
+.employee-dashboard #workActivity{width:100%;margin-inline:auto}
+.employee-work-board{margin:24px 0 0;min-width:0}
+.employee-work-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 16px}
+.employee-work-heading h2{margin:0;color:#00255A;font-size:23px;font-weight:600;letter-spacing:-.025em}
+.employee-work-heading-actions{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap}
+.employee-work-board .hr-message{font-size:12px;color:#506A86;margin:0}
+.employee-work-board .hr-message:empty{display:none}
+.employee-work-board .hr-message[data-error=true]{color:#9C3333}
+.employee-work-board button{font:inherit;font-weight:600;font-size:12px;cursor:pointer;border-radius:8px;min-height:40px;padding:9px 13px;border:1px solid #0069C8;color:#fff;background:#0069C8;transition:background-color .16s ease,border-color .16s ease}
+.employee-work-board button:hover{background:#0054A0;border-color:#0054A0}
+.employee-work-board button.secondary{color:#00255A;background:#fff;border-color:#C4D3E5}
+.employee-work-board button.secondary:hover{background:#EFF6FD;border-color:#9EBEDE}
+.employee-work-board button:disabled{cursor:wait;opacity:.55}
+.employee-work-board button:focus-visible,.employee-work-board summary:focus-visible,.employee-work-board input:focus-visible,.employee-work-board select:focus-visible,.employee-work-board textarea:focus-visible{outline:3px solid #50C0E8;outline-offset:2px}
+.employee-work-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:18px}
+.employee-work-tile{min-width:0;background:#fff;border:1px solid #DDE5EF;border-radius:16px;padding:24px}
+.employee-work-tasks{grid-column:span 7}
+.employee-work-attendance{grid-column:span 5}
+.employee-work-leave{grid-column:span 12}
+.employee-tile-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding-bottom:18px}
+.employee-tile-header h3{margin:0 0 6px;font-size:19px;line-height:1.4;color:#00255A;font-weight:600;letter-spacing:-.02em}
+.employee-tile-sub{display:block;font-size:12px;line-height:1.5;color:#5A6D82}
+.employee-tile-number{font:700 37px/1.1 Inter,Arial,sans-serif;letter-spacing:-.035em;color:#00255A;white-space:nowrap;font-variant-numeric:tabular-nums}
+.employee-tile-status{max-width:155px;text-align:right;font-size:14px;line-height:1.4;font-weight:600;color:#00255A}
+.employee-work-tile .hr-record{min-width:0;padding:14px 0;border-top:1px solid #E3EAF2;overflow-wrap:anywhere}
+.employee-work-tile .hr-record:first-child{border-top:1px solid #E3EAF2}
+.employee-work-tile .hr-record h3{font-size:14px;color:#00255A;line-height:1.5;margin:0 0 4px;font-weight:600}
+.employee-work-tile .hr-record p{font-size:12px;color:#5A6D82;line-height:1.55;margin:0 0 6px}
+.employee-work-tile .hr-record p:last-child{margin-bottom:0}
+.employee-work-tile .hr-record .muted{font-size:12px;color:#60748D}
+.employee-work-tile .hr-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:10px}
+.employee-work-tile .hr-actions button{min-height:36px;padding:7px 11px}
+.employee-record-list{min-width:0;max-height:330px;overflow:auto}
+.employee-work-pagination{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.employee-work-pagination:empty{display:none}
+.employee-work-details{margin-top:14px;border-top:1px solid #E3EAF2;padding-top:12px}
+.employee-work-details summary{font-size:13px;line-height:1.4;color:#0069C8;font-weight:600;cursor:pointer;list-style:auto}
+.employee-work-details .employee-record-list{max-height:270px;margin-top:12px}
+.employee-work-attendance-action{margin:6px 0 14px}
+.employee-work-attendance-action button{min-width:120px}
+.employee-attendance-summary{padding:16px;border-radius:12px;background:#F1F2F2;display:flex;justify-content:space-between;gap:12px;align-items:center;font-size:12px;color:#42607E}
+.employee-attendance-summary strong{font-size:20px;color:#00255A;font-weight:600}
+.employee-leave-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(260px,.8fr);gap:32px}
+.employee-leave-form{min-width:0}
+.employee-leave-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.employee-work-board label{min-width:0;display:grid;gap:7px;font-size:12px;color:#00255A;font-weight:600;margin-bottom:12px}
+.employee-work-board input,.employee-work-board select,.employee-work-board textarea{font:inherit;font-size:13px;color:#00255A;min-width:0;max-width:100%;width:100%;box-sizing:border-box;background:#fff;border:1px solid #B7C9DC;border-radius:8px;padding:10px 12px;min-height:42px}
+.employee-work-board textarea{resize:vertical;min-height:70px}
+.employee-work-board .employee-leave-form button[type=submit]{min-height:42px}
+.employee-leave-history{min-width:0}
+.employee-leave-history h4{margin:0 0 10px;font-size:13px;color:#00255A;font-weight:600}
+.employee-leave-history .employee-record-list{max-height:280px}
+.employee-work-board .employee-record-list>p{font-size:13px;color:#5A6D82;line-height:1.6}
+@media(max-width:920px){.employee-work-tasks,.employee-work-attendance{grid-column:span 12}.employee-leave-layout{grid-template-columns:1fr}.employee-work-tasks .employee-record-list{max-height:260px}}
+@media(max-width:640px){.employee-work-heading{align-items:flex-start}.employee-work-tile{padding:18px}.employee-work-grid{gap:12px}.employee-leave-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.employee-leave-fields label:last-child{grid-column:span 2}.employee-work-board .hr-message{max-width:180px}}
+@media(max-width:440px){.employee-work-heading{flex-direction:column}.employee-work-heading-actions{width:100%;justify-content:space-between}.employee-leave-fields{grid-template-columns:1fr}.employee-leave-fields label:last-child{grid-column:span 1}.employee-tile-status{font-size:13px}}
+@media(prefers-reduced-motion:reduce){.employee-work-board button{transition:none}}
