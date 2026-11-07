@@ -50,11 +50,11 @@ test('dashboard design is responsive and does not fabricate analytics', () => {
   assert.doesNotThrow(()=>new Function(js));
 });
 
-function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=false,employeeAuthorized=false,contexts={},collapsed=false,blockedStorage=false}={}){
+function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=false,employeeAuthorized=false,employeeIdentityInbox={employment:[],requests:[]},contexts={},collapsed=false,blockedStorage=false}={}){
   class Element{
     constructor(id=''){
       this.id=id; this.children=[]; this.attributes={}; this.value=''; this.textContent='';
-      this.hidden=['emptyMessage','errorMessage','adminNavContainer','adminOverviewPanel','topbarOnboard','navBackdrop','employeeDashboard'].includes(id);
+      this.hidden=['emptyMessage','errorMessage','adminNavContainer','adminOverviewPanel','topbarOnboard','navBackdrop','employeeDashboard','employeeActivitySetup','workActivity'].includes(id);
       this.disabled=false; this.events={}; this.style={setProperty(){}};
       this.classList={add(){},remove(){},toggle(){},contains(){return false}};
     }
@@ -69,7 +69,7 @@ function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=fal
     querySelectorAll(){return[];}
     focus(){}
   }
-  const ids=['appGrid','appSearch','errorMessage','emptyMessage','logoutButton','avatar','sideName','sideRole','topAccount','welcomeMessage','adminNavContainer','adminOverviewPanel','overviewDetails','topbarOnboard','appCount','featureAppCount','workspaceCount','navBackdrop','openMenu','closeMenu','sidebarToggle','workspaceSidebar','spotlightPanel','accessGrid','libraryCount','employeeNavContainer','hrGovernanceNav','myWorkNav','employeeDashboard','employeeDashboardWelcome'];
+  const ids=['appGrid','appSearch','errorMessage','emptyMessage','logoutButton','avatar','sideName','sideRole','topAccount','welcomeMessage','adminNavContainer','adminOverviewPanel','overviewDetails','topbarOnboard','appCount','featureAppCount','workspaceCount','navBackdrop','openMenu','closeMenu','sidebarToggle','workspaceSidebar','spotlightPanel','accessGrid','libraryCount','employeeNavContainer','hrGovernanceNav','myWorkNav','employeeDashboard','employeeDashboardWelcome','workActivity','employeeActivitySetup','employeeActivitySetupTitle','employeeActivitySetupMessage','employeeActivitySetupAction'];
   const nodes=new Map(ids.map(id=>[id,new Element(id)]));
   const visibleViews=[];
   for(const name of ['overview','applications']){
@@ -83,7 +83,8 @@ function mount({pathname='/dashboard',user,apps=[],workspaces=0,unauthorized=fal
   const fetch=async (url,options={})=>{
     calls.push({url,options});
     if(url==='/api/auth/me')return{status:unauthorized?401:200,ok:!unauthorized,json:async()=>({user:user||{name:'Example Member',platformRole:'user'}})};
-    if(url==='/api/hrms/access')return{status:200,ok:true,json:async()=>({employee:employeeAuthorized})};
+    if(url==='/api/hrms/access')return{status:200,ok:true,json:async()=>({employee:employeeAuthorized,pendingLink:employeeIdentityInbox.requests.length>0})};
+    if(url==='/api/employee-identity/mine')return{status:200,ok:true,json:async()=>employeeIdentityInbox};
     if(url==='/api/apps')return{status:200,ok:true,json:async()=>({applications:apps})};
     if(url==='/api/workspaces')return{status:200,ok:true,json:async()=>({count:workspaces})};
     if(url.startsWith('/api/apps/')&&url.endsWith('/contexts')){
@@ -184,6 +185,8 @@ test('linked staff get the dashboard-first heatmap without loading customer appl
  assert.equal(fixture.nodes.get('employeeDashboardWelcome').textContent,'Welcome back, Staff. Your work, at a glance.');
  assert.equal(fixture.visibleViews[0].hidden,true);
  assert.equal(fixture.activity.loads,1);
+ assert.equal(fixture.nodes.get('workActivity').hidden,false);
+ assert.equal(fixture.nodes.get('employeeActivitySetup').hidden,true);
  assert.ok(fixture.calls.some(x=>x.url==='/api/hrms/access'));
  assert.equal(fixture.calls.some(x=>x.url==='/api/apps'),false);
 });
@@ -204,4 +207,37 @@ test('page header labels are removed without affecting section labels or navigat
  assert.match(html,/ACCESS SUMMARY|PRODUCT DIRECTORY/);
  assert.match(html,/id="ownerOverviewTitle"|id="pageTitle"/);
  assert.match(read('views/partials/portal-navigation.html'),/aria-label="Main"/);
+});
+
+test('accepted link to onboarding roster shows actionable employee-first setup without exposing work data',async()=>{
+ const f=mount({user:{name:'Setup Employee',platformRole:'user'},employeeAuthorized:false,
+  employeeIdentityInbox:{employment:[{status:'onboarding',full_name:'Setup Employee'}],requests:[]}});
+ await settle();
+ assert.equal(f.document.title,'My dashboard | VSPH Control Center');
+ assert.equal(f.nodes.get('employeeDashboard').hidden,false);
+ assert.equal(f.nodes.get('employeeActivitySetup').hidden,false);
+ assert.equal(f.nodes.get('employeeActivitySetupTitle').textContent,'Your employee record is still onboarding');
+ assert.match(f.nodes.get('employeeActivitySetupMessage').textContent,/HR must change your roster status to Active/);
+ assert.equal(f.nodes.get('employeeActivitySetupAction').textContent,'View your employment record');
+ assert.equal(f.nodes.get('workActivity').hidden,true);
+ assert.equal(f.activity.loads,0);
+ assert.equal(f.calls.some(x=>x.url==='/api/apps'),false);
+});
+test('pending identity-link requests have a safe acceptance next step',async()=>{
+ const f=mount({user:{name:'Pending Employee',platformRole:'user'},employeeAuthorized:false,
+ employeeIdentityInbox:{employment:[],requests:[{id:'some-request'}]}});
+ await settle();
+ assert.equal(f.nodes.get('employeeDashboard').hidden,false);
+ assert.equal(f.nodes.get('employeeActivitySetup').hidden,false);
+ assert.match(f.nodes.get('employeeActivitySetupMessage').textContent,/Review and accept/);
+ assert.equal(f.nodes.get('workActivity').hidden,true);
+ assert.equal(f.activity.loads,0);
+});
+test('unlinked customer has no employee setup, no heatmap and no access data',async()=>{
+ const f=mount({user:{name:'Customer Member',platformRole:'user'},employeeAuthorized:false});
+ await settle();
+ assert.equal(f.nodes.get('employeeActivitySetup').hidden,true);
+ assert.equal(f.nodes.get('employeeDashboard').hidden,true);
+ assert.equal(f.nodes.get('workActivity').hidden,true);
+ assert.equal(f.activity.loads,0);
 });
