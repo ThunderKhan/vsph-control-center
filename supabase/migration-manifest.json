@@ -290,7 +290,7 @@
     },
     {
       "path": "supabase/migrations/20261107101500_internal_calendar.sql",
-      "sha256": "2323e352f09e7a20cf8cd8d535e999cf4308d8d6f7cee24678c8bb7528a83d15",
+      "sha256": "dbcdf21b93481c5c458e1acb0ec811756f90abbb211ea60ad68555c25dd1b892",
       "version": "20261107101500",
       "name": "internal_calendar",
       "requires": [
