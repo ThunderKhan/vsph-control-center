@@ -35,5 +35,5 @@ test('employee creation is available from the directory, not duplicated in the g
  const nav=read('views/partials/portal-navigation.html'),directory=read('views/employees.html');
  assert.match(nav,/href="\/employees" aria-label="Employee management"/);
  assert.doesNotMatch(nav,/href="\/employees\/onboarding"/);
- assert.match(directory,/class="people-primary" href="\/employees\/onboarding">\+ Onboard employee<\/a>/);
+ assert.match(directory,/class="people-primary" href="\/employees\/onboarding">Onboard employee<\/a>/);
 });
