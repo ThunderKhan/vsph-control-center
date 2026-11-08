@@ -26,6 +26,28 @@ test('linked employees see work activity first on the dashboard; customers canno
  await expect(page.locator('#employeeLeaveMetric')).toHaveText(/^[0-9]+$/);
  await expect(page.locator('#leaveForm')).toBeVisible();
  await expect(page.locator('#refreshHr')).toBeEnabled();
+ // Native details provide keyboard state while custom chevrons communicate the action.
+ const notifications=page.locator('#employeeTasksPanel .employee-work-details');
+ const notificationTrigger=notifications.locator('summary');
+ await expect(notifications).not.toHaveAttribute('open');
+ await expect(notificationTrigger.locator('.employee-details-chevron')).toBeVisible();
+ await expect(page.locator('#ownNotifications')).toBeHidden();
+ await notificationTrigger.click();
+ await expect(notifications).toHaveAttribute('open','');
+ await expect(page.locator('#ownNotifications')).toBeVisible();
+ await notificationTrigger.focus();
+ await notificationTrigger.press('Enter');
+ await expect(notifications).not.toHaveAttribute('open');
+
+ const attendanceHistory=page.locator('#employeeAttendancePanel .employee-work-details');
+ const attendanceTrigger=attendanceHistory.locator('summary');
+ await expect(attendanceHistory).not.toHaveAttribute('open');
+ await expect(attendanceTrigger.locator('.employee-details-chevron')).toBeVisible();
+ await attendanceTrigger.press('Enter');
+ await expect(attendanceHistory).toHaveAttribute('open','');
+ await expect(page.locator('#ownAttendance')).toBeVisible();
+ await attendanceTrigger.click();
+ await expect(attendanceHistory).not.toHaveAttribute('open');
  await expect(page.locator('.employee-dashboard-actions')).toHaveCount(0);
  await expect(page.locator('.employee-activity-note')).toHaveCount(0);
  await expect(page.locator('#workActivity')).toBeVisible();

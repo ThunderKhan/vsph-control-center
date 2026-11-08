@@ -58,3 +58,22 @@ test('bento is responsive and removes decorative arrows without breaking functio
  assert.match(html,/id="calendarPrevious"/);
  assert.match(html,/id="calendarNext"/);
 });
+
+test('employee accordions expose obvious chevrons, no numeric list markers and accessible native state',()=>{
+ const html=read('public/dashboard.html');
+ const css=read('public/employee-bento.css');
+ assert.match(html,/<details class="employee-work-details">\s*<summary><span>Notifications<\/span><svg[^>]*aria-hidden="true"[^>]*class="employee-details-chevron"|<details class="employee-work-details">\s*<summary><span>Notifications<\/span><svg class="employee-details-chevron" aria-hidden="true"/);
+ assert.match(html,/<details class="employee-work-details">\s*<summary><span>Attendance history<\/span>/);
+ assert.equal((html.match(/class="employee-details-chevron"/g)||[]).length,2);
+ assert.equal((html.match(/class="employee-details-body"/g)||[]).length,2);
+ assert.match(html,/<div id="ownNotifications" class="employee-record-list">/);
+ assert.match(html,/<div id="ownAttendance" class="employee-record-list">/);
+ assert.match(css,/\.employee-work-details summary\{[^\n]*display:flex[^\n]*min-height:48px/);
+ assert.match(css,/\.employee-work-details summary::-webkit-details-marker\{display:none\}/);
+ assert.match(css,/\.employee-work-details summary::marker\{content:""\}/);
+ assert.match(css,/\.employee-work-details\[open\] \.employee-details-chevron\{transform:rotate\(180deg\)\}/);
+ assert.match(css,/@supports selector\(details::details-content\)/);
+ assert.match(css, /content-visibility 240ms allow-discrete/);
+ assert.match(css, /prefers-reduced-motion:reduce/);
+ assert.doesNotMatch(css,/\.employee-work-details summary\{[^\n]*list-style:auto/);
+});
