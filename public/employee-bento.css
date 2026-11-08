@@ -36,9 +36,21 @@
 .employee-record-list{min-width:0;max-height:330px;overflow:auto}
 .employee-work-pagination{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
 .employee-work-pagination:empty{display:none}
-.employee-work-details{margin-top:14px;border-top:1px solid #E3EAF2;padding-top:12px}
-.employee-work-details summary{font-size:13px;line-height:1.4;color:#0069C8;font-weight:600;cursor:pointer;list-style:auto}
-.employee-work-details .employee-record-list{max-height:270px;margin-top:12px}
+.employee-work-details{margin-top:16px}
+.employee-work-details summary{box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:48px;padding:12px 16px;border:1px solid #DDE5EF;border-radius:10px;background:#F8FAFD;color:#00255A;font-size:13px;line-height:1.5;font-weight:600;cursor:pointer;list-style:none;transition:background-color 180ms ease,border-color 180ms ease}
+.employee-work-details summary::-webkit-details-marker{display:none}
+.employee-work-details summary::marker{content:""}
+.employee-work-details summary:hover{background:#EDF5FD;border-color:#ADC9E4}
+.employee-work-details[open] summary{background:#EDF5FD;border-radius:10px 10px 0 0;border-color:#ADC9E4}
+.employee-work-details summary .employee-details-chevron{display:block;flex:none;color:#0069C8;transition:transform 220ms ease}
+.employee-work-details[open] .employee-details-chevron{transform:rotate(180deg)}
+.employee-work-details .employee-details-body{border:1px solid #DDE5EF;border-top:0;border-radius:0 0 10px 10px;background:#fff;padding:8px 16px 12px}
+.employee-work-details .employee-record-list{max-height:270px;margin:0}
+@supports selector(details::details-content){
+ .employee-work-details{interpolate-size:allow-keywords}
+ .employee-work-details::details-content{height:0;opacity:0;overflow:clip;transition:height 240ms ease,opacity 180ms ease,content-visibility 240ms allow-discrete}
+ .employee-work-details[open]::details-content{height:auto;opacity:1}
+}
 .employee-work-attendance-action{margin:6px 0 14px}
 .employee-work-attendance-action button{min-width:120px}
 .employee-attendance-summary{padding:16px;border-radius:12px;background:#F1F2F2;display:flex;justify-content:space-between;gap:12px;align-items:center;font-size:12px;color:#42607E}
@@ -57,4 +69,4 @@
 @media(max-width:920px){.employee-work-tasks,.employee-work-attendance{grid-column:span 12}.employee-leave-layout{grid-template-columns:1fr}.employee-work-tasks .employee-record-list{max-height:260px}}
 @media(max-width:640px){.employee-work-heading{align-items:flex-start}.employee-work-tile{padding:18px}.employee-work-grid{gap:12px}.employee-leave-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.employee-leave-fields label:last-child{grid-column:span 2}.employee-work-board .hr-message{max-width:180px}}
 @media(max-width:440px){.employee-work-heading{flex-direction:column}.employee-work-heading-actions{width:100%;justify-content:space-between}.employee-leave-fields{grid-template-columns:1fr}.employee-leave-fields label:last-child{grid-column:span 1}.employee-tile-status{font-size:13px}}
-@media(prefers-reduced-motion:reduce){.employee-work-board button{transition:none}}
+@media(prefers-reduced-motion:reduce){.employee-work-board button,.employee-work-details summary,.employee-work-details summary .employee-details-chevron,.employee-work-details::details-content{transition:none!important}}
