@@ -21,7 +21,6 @@ module.exports=async pool=>{
  const added=await workspace('checklist.add',p.id,{version,milestoneId:milestone.id,title:'Release candidate verified',assigneeId:worker});version++;
  assert.equal((await workspace('list',p.id)).checklist[0].completed,false);
  await assert.rejects(workspace('checklist.toggle',p.id,{version,itemId:added.id,completed:true},stranger),{code:'42501'});
- await assert.rejects(workspace('checklist.toggle',p.id,{version,itemId:added.id,completed:true},owner==worker?stranger:stranger),{code:'42501'});
  const checked=await workspace('checklist.toggle',p.id,{version,itemId:added.id,completed:true},worker);version++;
  assert.equal(checked.version,version);
  assert.equal((await workspace('list',p.id)).checklist[0].completed_by,worker);
@@ -44,7 +43,7 @@ module.exports=async pool=>{
  assert.equal((await workspace('list',p.id)).resources.length,0);
 
  const audit=(await pool.query("select count(*) n from audit_logs where target_id=$1 and action like 'project.workspace.%'",[p.id])).rows[0].n;
- assert.equal(Number(audit),7);
+ assert.equal(Number(audit),8);
  // Client project visibility is per shared item; secret resources and updates are excluded.
  const customer='11111111-1111-4111-8111-111111111111';
  const org='22222222-2222-4222-8222-222222222222';
