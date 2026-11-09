@@ -402,6 +402,10 @@
   async function createForm() {
     await getDirectory();
     const managerCandidates=await api("/api/projects/manager-candidates");
+    $("projectCreateNotice").hidden=managerCandidates.schemaReady!==false;
+    $("projectCreateNotice").textContent=managerCandidates.schemaReady===false
+      ? "Manager assignment is awaiting its reviewed database upgrade. You can still create a project managed by the platform owner."
+      : "";
     // A fresh node also resets the wizard's capture listener. Reopening the
     // modal must never reuse a previous closed-over step or stale form fields.
     const oldForm=$("createProjectForm");
