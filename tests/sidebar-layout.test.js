@@ -3,7 +3,8 @@ test('top navigation uses a full-width page with no sidebar or icon rail',()=>{
  const css=fs.readFileSync('public/portal-navigation.css','utf8'),nav=fs.readFileSync('views/partials/portal-navigation.html','utf8');
  assert.match(css,/display:block!important/);assert.match(css,/grid-template-columns:none!important/);assert.match(nav,/<nav id="workspaceNavigation"/);assert.doesNotMatch(nav,/<aside|sidebarToggle|workspaceSidebar/);
  for(const label of ['Overview','Applications','Platform administration','New customer'])assert.ok(nav.includes('aria-label="'+label+'"'));
- assert.match(nav,/<summary>People/);assert.match(nav,/<summary>Administration/);
+ for(const group of ['Work','Organizations','Applications','People','Administration'])assert.match(nav,new RegExp('<summary>'+group));
+ assert.doesNotMatch(nav,/href="\/search" aria-label="Search work"/);
 });
 test('native disclosures and mobile top menu retain keyboard targets and current-route marking',()=>{
  const script=fs.readFileSync('public/portal-navigation.js','utf8'),header=fs.readFileSync('services/workspace-header.js','utf8');

@@ -10,7 +10,7 @@ test('main workspace exposes platform-only customer onboarding navigation',()=>{
  const dashboard=read('public/dashboard.html')+read('views/partials/portal-navigation.html'),script=read('public/dashboard.js');
  const server=read('server.js'),admin=read('public/admin.html');
  assert.match(dashboard,/id="topbarOnboard"[^>]*hidden/);
- assert.match(dashboard,/id="adminNavContainer" class="portal-disclosure" hidden>[\s\S]*?href="\/admin\/onboarding"/);
+ assert.match(dashboard,/id="orgAdminNav" hidden>[\s\S]*?href="\/admin\/onboarding"/);
  assert.doesNotMatch(dashboard,/MANAGEMENT|Customers, products and permissions|sidebar-onboarding/);
  const adminLinks=[...dashboard.matchAll(/<a class="portal-link"[^>]*href="\/(?:admin|admin\/onboarding)"/g)];
  assert.equal(adminLinks.length,2,'Platform administration and New customer must use the same top navigation link class');
@@ -31,9 +31,9 @@ test('central portal login links to invitation help without enabling unsolicited
 });
 
 
-test('employee creation is available from the directory, not duplicated in the global People menu',()=>{
+test('employee creation is available from both directory and grouped People menu',()=>{
  const nav=read('views/partials/portal-navigation.html'),directory=read('views/employees.html');
  assert.match(nav,/href="\/employees" aria-label="Employee management"/);
- assert.doesNotMatch(nav,/href="\/employees\/onboarding"/);
+ assert.match(nav,/href="\/employees\/onboarding" aria-label="Employee onboarding"/);
  assert.match(directory,/class="people-primary" href="\/employees\/onboarding">Onboard employee<\/a>/);
 });

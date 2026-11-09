@@ -34,3 +34,10 @@ input:focus-visible,select:focus-visible,.button:focus-visible,a:focus-visible{o
 @media(max-width:950px){.onboarding-layout{grid-template-columns:1fr}.step-sidebar{padding:18px}.step-list{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}.step{padding:9px 7px;gap:7px;flex-direction:column}.step small{display:none}}
 @media(max-width:630px){.onboarding-shell{padding:26px 16px 70px}.wizard-card{padding:23px 19px}.step-sidebar{padding:11px}.step .number{font-size:10px}.step strong{font-size:10px}.step-list{gap:0}.subscription-fields,.product-choices{grid-template-columns:1fr}.form-footer{flex-wrap:wrap}.save-note{order:3;width:100%;text-align:left;margin:0}.form-footer .button{flex:1}}
 @media(prefers-reduced-motion:reduce){.progress-fill{transition:none}}
+
+/* Shared visual rhythm with internal employee onboarding, without shared permissions. */
+.client-onboard-kicker{color:#0069C8;font-weight:700;font-size:12px;letter-spacing:.11em;margin:0 0 8px}
+.client-onboard-lead{color:#536984;max-width:720px;font-size:14px;line-height:1.65;margin:12px 0 0}
+.onboarding-layout{align-items:start}.wizard-card,.step-sidebar{border-radius:14px}
+.step.active{background:#EBF4FC;border-radius:9px}
+@media(max-width:630px){.client-onboard-lead{font-size:13px}}

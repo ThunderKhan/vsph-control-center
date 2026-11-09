@@ -40,3 +40,9 @@ body[data-portal-shell] #portalContent button{min-height:44px;max-width:100%;whi
 .crm-header-actions .portal-account .portal-dropdown{top:calc(100% + 10px);right:0;left:auto;min-width:260px;border-radius:12px;box-shadow:0 16px 35px #001b4126}
 @media(max-width:950px){.crm-header-actions .portal-account>summary{width:48px;max-width:48px;padding:2px;border-color:transparent;justify-content:center}.crm-header-actions .portal-account-chevron{display:none}.crm-header-actions .portal-account .portal-dropdown{right:0;max-width:min(300px,calc(100vw - 30px))}}
 @media(prefers-reduced-motion:reduce){.crm-header-actions .portal-account>summary,.portal-account-chevron{transition:none}}
+
+/* Group authorized destinations by customer, product, work and people. */
+.portal-navigation>.portal-disclosure.has-active-page>summary{background:#0069C8;color:#fff}
+.portal-dropdown [id$="AdminNav"]{display:grid;gap:2px}
+.portal-dropdown .portal-link{border-radius:6px;line-height:1.45}
+@media(max-width:950px){.portal-navigation>.portal-disclosure>summary{min-height:48px}}

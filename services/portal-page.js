@@ -8,7 +8,7 @@ let templates;
 async function render(html,user,notice){
  templates??=await Promise.all(['portal-icons.html','portal-navigation.html'].map(file=>fs.readFile(path.join(root,'views/partials',file),'utf8')));
  const icons=templates[0];let navigation=templates[1];
- if(user.platform_role==='super_admin')navigation=navigation.replace('id="adminNavContainer" class="portal-disclosure" hidden','id="adminNavContainer" class="portal-disclosure"').replace('id="peopleNavigation" class="portal-disclosure" hidden','id="peopleNavigation" class="portal-disclosure"').replace('id="employeeNavContainer" hidden','id="employeeNavContainer"').replace(/(id="hrGovernanceNav"[^>]*?) hidden/,'$1').replace(/(id="topbarOnboard"[^>]*?) hidden/,'$1');
+ if(user.platform_role==='super_admin')navigation=navigation.replace('id="adminNavContainer" class="portal-disclosure" hidden','id="adminNavContainer" class="portal-disclosure"').replace('id="peopleNavigation" class="portal-disclosure" hidden','id="peopleNavigation" class="portal-disclosure"').replace('id="employeeNavContainer" hidden','id="employeeNavContainer"').replace(/(id="hrGovernanceNav"[^>]*?) hidden/,'$1').replace(/(id="topbarOnboard"[^>]*?) hidden/,'$1').replace('id="orgAdminNav" hidden','id="orgAdminNav"').replace('id="appAdminNav" hidden','id="appAdminNav"');
  // Existing main content and module scripts retain their identity and state.
  if(html.includes('<!-- portal:shell -->')){
   html=html.replace('<!-- portal:shell -->','').replace('<!-- portal:icons -->',()=>icons);
