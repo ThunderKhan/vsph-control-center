@@ -4,7 +4,7 @@
  const label={full_time:'Full-time',part_time:'Part-time',intern:'Intern',contract:'Contract',
   onboarding:'Onboarding',active:'Active',on_leave:'On leave',inactive:'Inactive'};
  let current=null,selected=null,removing=null,cursor=null,lastCursor=null,busy=false,searchVersion=0,successNotice='';
- const entry=new URLSearchParams(location.search);let requestedEditId=entry.get('edit');
+ const entry=new URLSearchParams(location.search);let requestedEditId=entry.get('edit');let requestedRestoreId=entry.get('restore'),restoring=null;
  const text=(tag,value,cls='')=>{const el=document.createElement(tag);el.textContent=String(value??'');if(cls)el.className=cls;return el;};
  const info=message=>{$('peopleMessage').textContent=message;};
  async function api(path,body=null,extra={}){
@@ -176,6 +176,11 @@
    current=result;cursor=afterId;
    drawStats(result.counts);drawDepartments(result.departments||[]);
    drawEmployees(result.employees||[],result.role);
+    $('archivedEmployeesShortcut').hidden=result.role!=='owner';
+    if(requestedRestoreId && result.role==='owner'){
+      const id=requestedRestoreId;requestedRestoreId=null;
+      void openArchived(id);
+    }
    if(requestedEditId){
     const match=(result.employees||[]).find(employee=>employee.id===requestedEditId);
     if(match){
@@ -193,7 +198,72 @@
   try{await action();}catch(error){successNotice='';info(error.message);VSPHUI.toast(error.message,{type:'error'});}
   finally{busy=false;for(const control of controls)if(control.id!=='nextEmployeePage')control.disabled=false;}
  }
- $('employeeEditForm').addEventListener('submit',async event=>{
+ async function openArchived(selectId=null){
+    if(current?.role!=='owner')return;
+    $('archivedEmployeePanel').hidden=false;
+    $('archivedEmployeesMessage').textContent='Loading archived records…';
+    const list=$('archivedEmployeesList');
+    list.replaceChildren();
+    try{
+      const result=await api('/archived');
+      const records=result.employees||[];
+      if(!records.length)list.append(text('p','No archived employee records.','people-small'));
+      for(const record of records){
+        const card=text('article','','people-archived-entry');
+        const person=text('div');
+        person.append(text('strong',record.full_name),text('small',record.email));
+        const meta=text('p','Removed '+new Date(record.removed_at).toLocaleDateString()+' · '+record.removal_reason,'people-small');
+        const action=makeButton('Review restoration',()=>chooseArchived(record));
+        card.append(person,meta,action);list.append(card);
+      }
+      $('archivedEmployeesMessage').textContent=records.length+' archived records (up to 100).';
+      if(selectId){
+        const target=records.find(x=>x.id===selectId);
+        if(target)chooseArchived(target);
+        else $('archivedEmployeesMessage').textContent='This archived record was not found in the latest owner review.';
+      }
+    }catch(error){$('archivedEmployeesMessage').textContent=error.message;}
+  }
+  function chooseArchived(employee){
+    restoring=employee;
+    const form=$('restoreEmployeeForm');form.hidden=false;form.reset();
+    $('employeeRestoreIdentity').textContent=employee.full_name+' · '+employee.email;
+    form.scrollIntoView({block:'nearest',behavior:'auto'});
+    $('employeeRestoreReason').focus();
+  }
+  $('archivedEmployeesShortcut').addEventListener('click',()=>void openArchived());
+  $('closeArchivedEmployees').addEventListener('click',()=>{
+    restoring=null;$('restoreEmployeeForm').hidden=true;$('archivedEmployeePanel').hidden=true;
+  });
+  $('cancelEmployeeRestore').addEventListener('click',()=>{
+    restoring=null;$('restoreEmployeeForm').hidden=true;
+  });
+  $('restoreEmployeeForm').addEventListener('submit',async event=>{
+    event.preventDefault();
+    if(!restoring||busy||!event.currentTarget.reportValidity())return;
+    const employee=restoring,reason=$('employeeRestoreReason').value.trim();
+    if(reason.length<8||reason.length>500){$('archivedEmployeesMessage').textContent='Enter a restoration reason between 8 and 500 characters.';return;}
+    const approval=window.VSPHUI?.confirm
+      ? await window.VSPHUI.confirm('Restore this archived employee to Onboarding? Identity links, manager assignments and HR authority will remain revoked.',{
+        title:'Restore '+employee.full_name+'?',confirmLabel:'Restore employee',
+        fields:[{label:'Email',value:employee.email},{label:'Reason',value:reason}]
+      })
+      : window.confirm('Restore '+employee.email+' to onboarding without restoring access?');
+    if(!approval)return;
+    run(async()=>{
+      const result=await api('/'+employee.id+'/restore',{
+        version:employee.version,reason,confirmed:true
+      });
+      restoring=null;$('restoreEmployeeForm').hidden=true;
+      successNotice='Employee restored to Onboarding. New account consent and project access require explicit approval.';
+      await openArchived();
+      await load(null);
+      $('archivedEmployeesMessage').textContent=result.requiresNewConsent
+        ? 'Restored successfully. Review Account & Access to issue a fresh consent request.'
+        : 'Restored successfully.';
+    });
+  });
+  $('employeeEditForm').addEventListener('submit',async event=>{
   event.preventDefault();
   if(!selected||busy)return;
   const form=$('employeeEditForm');
