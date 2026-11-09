@@ -17,5 +17,5 @@ test('organization-only default does not silently activate product access',()=>{
  const html=file('views/onboarding.html');
  assert.match(html,/id="customOnly" checked/);
  assert.match(html,/id="catalogConfiguration"[^>]* hidden/);
- assert.match(html,/no catalog subscription or product grant/i);
+ assert.match(file('public/onboarding.js'),/no catalog subscription or product grant/i);
 });
