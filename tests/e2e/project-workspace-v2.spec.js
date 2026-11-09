@@ -3,6 +3,7 @@ const {test,expect}=require('@playwright/test');
 test('Feedback #05: key URLs, responsive project views and durable checklist, risks, links, updates',async({page,context},info)=>{
   test.skip(!process.env.PROJECT_E2E_DATABASE,'Requires isolated PostgreSQL fixture');
   test.setTimeout(90000);
+  await context.setExtraHTTPHeaders({Origin:'http://127.0.0.1:3100'});
   await context.addCookies([{name:'vsph.portal.sid',value:'fixture-admin-session',url:'http://127.0.0.1:3100',httpOnly:true,sameSite:'Lax'}]);
   const key='V2-'+info.project.name.toUpperCase()+'-'+info.retry;
   const created=await context.request.post('/api/projects',{data:{key,name:'V2 project workspace '+info.project.name,kind:'internal'}});
@@ -14,8 +15,8 @@ test('Feedback #05: key URLs, responsive project views and durable checklist, ri
   await page.goto('/projects/'+project.id);
   await expect(page).toHaveURL('/projects/'+key);
   await expect(page.locator('#projectTitle')).toContainText('V2 project workspace');
-  await expect(page.locator('#projectOperations')).toBeHidden();
-  await expect(page.locator('#accountSessions')).toBeHidden();
+  await expect(page.locator('#projectOperations')).toHaveCount(0);
+  await expect(page.locator('#accountSessions')).toHaveCount(0);
   await expect(page.locator('#projectSummary')).toContainText('Not started');
 
   // Old UUID bookmarks resolve to the same project, while the key is the display URL.
