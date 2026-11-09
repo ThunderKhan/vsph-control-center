@@ -21,11 +21,11 @@ The connected Vercel project named vsph is a separate Next.js project. It is **n
 - Hosted SQL verifies that the sensitive project, HR and invitation RPCs grant only service-role execution and protected tables deny browser SELECT. An unrelated customer is denied the existing project's workforce and custom-app read.
 - Real credential-based sign-in has **not** been performed. It requires the existing operator-controlled private Auth credentials and the real running portal. The repository already provides a controlled setup for operator-owned accounts:
 
-~~~powershell
+```powershell
 npm run config:inspect -- zbmerhexucqxazuxjmmw
 npm run accounts:setup -- --project-ref zbmerhexucqxazuxjmmw
 npm run dev
-~~~
+```
 
 - Account setup may create controlled test identities; review the existing live state before invoking. It prompts privately for owner password/TOTP, stores test credentials outside the repository and must not be run against an unintended database.
 - Verify through real sign-ins: owner can govern managers/clients; HR cannot appoint HR/managers; employee sees only own work; customer is denied HR, finance, other tenants and non-shared projects. Verify disabled/revoked sessions, invitation acceptance and sign-out.
@@ -46,9 +46,9 @@ npm run dev
 - Put SUPABASE_URL, SUPABASE_SECRET_KEY, SUPABASE_PUBLISHABLE_KEY, NODE_ENV=production and exact PUBLIC_ORIGIN in that environment's secret manager. Never ship server-only keys to browser assets. Independently deploy/supervise workers after enabling their actual provider configuration.
 - Once a live HTTPS Control Center domain exists, run the already implemented anonymous verification command:
 
-~~~powershell
+```powershell
 npm run release:smoke -- --origin https://YOUR-CONTROL-CENTER-DOMAIN
-~~~
+```
 
 - The tool checks live DB connectivity, login-page HTML and rejection/redirects on protected project, HR and onboarding endpoints. It intentionally **does not** claim real Auth, invitation, backup or deployment release readiness. Complete gates 1–3 against the same final domain before approving production use.
 
