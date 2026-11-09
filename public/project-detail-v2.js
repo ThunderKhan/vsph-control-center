@@ -82,8 +82,10 @@
   function meta() {
     const p=current.project.project,box=$("projectMeta");
     box.replaceChildren();
+    const manager=current.project.members.find(member=>member.user_id===p.owner_id)?.full_name||"Unassigned";
     append(box,badge(statusText(p.status),p.status==="active"?"success":"neutral"),
       E("span",p.key+" · "+(p.kind==="customer"?"Client engagement":"Internal project")),
+      E("span","Manager · "+manager),
       E("span","Due "+date(p.due_on)));
     if(p.description)append(box,E("p",p.description,"project-v2-description"));
   }
@@ -168,7 +170,22 @@
     if(!milestones.length){box.append(empty("No milestones yet. Define the first delivery stage to start tracking progress."));return;}
     if(!workspace){box.append(empty("Milestone checklists are unavailable until the new database migration is installed."));return;}
     const all=workspace.checklist||[];
-    for(const m of milestones) {
+    if(compact) {
+      const completed=all.filter(item=>item.completed).length;
+      const pct=all.length?Math.round(completed/all.length*100):0;
+      const summary=E("div",undefined,"project-v2-overall");
+      append(summary,E("strong",all.length?pct+"% checklist complete":"Ready for planning"),
+        E("small",all.length?completed+" of "+all.length+" steps done":"Add checklist steps to track milestones"));
+      const totalbar=E("div",undefined,"project-v2-progress project-v2-overall-bar");
+      totalbar.setAttribute("role","progressbar");
+      totalbar.setAttribute("aria-label","Overall milestone checklist completion");
+      totalbar.setAttribute("aria-valuemin","0");
+      totalbar.setAttribute("aria-valuemax","100");
+      totalbar.setAttribute("aria-valuenow",String(pct));
+      const fill=E("span");fill.style.width=pct+"%";totalbar.append(fill);
+      box.append(summary,totalbar);
+    }
+    for(const m of milestones.slice(0,compact?4:milestones.length)) {
       const items=all.filter(x=>x.milestone_id===m.id);
       const checked=items.filter(x=>x.completed).length;
       const pct=items.length?Math.round(checked/items.length*100):0;
@@ -215,6 +232,7 @@
       }
       wrap.append(itemsBox);box.append(wrap);
     }
+    if(compact&&milestones.length>4)box.append(link("View all "+milestones.length+" milestones","milestones"));
   }
   function renderRisks() {
     const box=$("projectRisks");box.replaceChildren();
