@@ -74,7 +74,7 @@ declare
   entity uuid; change_version integer; title text; target_url text;
   details jsonb;
 begin
-  if p_project is null or p_action not in (
+  if p_project is null or p_action is null or p_action not in (
     'list','checklist.add','checklist.toggle','risk.add','risk.resolve',
     'resource.add','resource.archive','update.publish'
   ) or jsonb_typeof(p_data) is distinct from 'object' then
