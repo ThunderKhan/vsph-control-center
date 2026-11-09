@@ -110,7 +110,7 @@ directory `EPERM` error; `npm ci` reported five moderate vulnerabilities.
 1. **Windows demo lifecycle:** the upstream beta library's ephemeral cleanup
    can race a Windows PostgreSQL forkchild. The demo now gives the owning
    launcher responsibility for temporary-data removal (`persistent:true`),
-   explicitly closes HTTP/SQL/PostgreSQL resources, checks whether the fixture
+   explicitly closes HTTP/SQL/PostgreSQL resources with a bounded shutdown wait, checks whether the fixture
    port has been released, then retries bounded directory cleanup. It reports
    and retains a locked fixture rather than deleting data still in use or
    hiding a genuine cleanup failure. The demo test now **asserts exit code 0**
