@@ -34,7 +34,7 @@ test('finance endpoints and page enforce owner session and explicit capability',
  assert.match(route,/router.use\(portalSession,requireAdmin\)/);
  assert.match(route,/Idempotency-Key/);
  assert.match(route,/finance_command/);
- assert.match(read('public/dashboard.html'),/href="\/admin\/finance"/);
+ assert.doesNotMatch(read('public/dashboard.html'),/class="owner-data-footer"|class="owner-workflows"|class="owner-data-notes"/);
  assert.match(read('views/partials/portal-navigation.html'),/href="\/admin\/finance"/);
  assert.doesNotMatch(read('public/admin.html'),/Back to overview/);
  const html=read('views/finance.html');

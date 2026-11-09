@@ -28,7 +28,7 @@ test('Overview and Applications use distinct protected routes and separate views
   assert.match(html, /href="\/applications"/);
   assert.match(html, /href="\/admin"/);
   assert.match(html, /id="topbarOnboard"[^>]*hidden/);
-  assert.match(html, /class="portal-link" href="\/admin\/onboarding"/);
+  assert.match(html, /id="topbarOnboard" href="\/admin\/onboarding"/);
   assert.match(js, /location.pathname/);
   assert.match(js, /renderAccessOverview/);
   assert.match(js, /\/contexts/);
