@@ -87,7 +87,14 @@
   function meta() {
     const p=current.project.project,box=$("projectMeta");
     box.replaceChildren();
-    const manager=current.project.members.find(member=>member.user_id===p.owner_id)?.full_name || (current.project.role==="client"?"VSPH project team":"Project manager");
+    const activeManagers=current.project.members.filter(member=>member.role==="manager"&&member.status==="active");
+    // The project owner may appoint a different manager. Never label the
+    // owner as the sole manager when an active appointment exists.
+    const appointed=activeManagers.filter(member=>member.user_id!==p.owner_id);
+    const displayed=appointed.length?appointed:activeManagers;
+    const manager=displayed.length
+      ? displayed.slice(0,2).map(member=>member.full_name).join(", ")+(displayed.length>2?" +"+(displayed.length-2):"")
+      : current.project.role==="client"?"VSPH project team":"Manager not appointed";
     append(box,badge(statusText(p.status),p.status==="active"?"success":"neutral"),
       E("span",p.key+" · "+(p.kind==="customer"?"Client engagement":"Internal project")),
       E("span","Manager · "+manager),
