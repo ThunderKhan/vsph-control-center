@@ -41,7 +41,7 @@ function validateOnboarding(input,now=Date.now()){
     if(!['trial','active'].includes(item.status))
       throw new Error('Choose a trial or active subscription for each product.');
     if(item.endsAt!==null&&(typeof item.endsAt!=='string'||
-      !/^\d{4}-\d{2}-\d{2}T23:59:59\.999Z$/.test(item.endsAt)))
+      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/.test(item.endsAt)))
       throw new Error('Use a valid subscription end date.');
     const parsed=item.endsAt===null?null:new Date(item.endsAt);
     if(parsed&&(!Number.isFinite(parsed.getTime())||parsed.getTime()<=now))
