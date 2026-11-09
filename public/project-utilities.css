@@ -21,7 +21,7 @@
 .utility-security-card p{color:#586e86;line-height:1.6}
 .utility-session-list{padding:0;list-style:none}
 .utility-session-list li{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:18px 0;border-bottom:1px solid #edf1f7;font-size:13px;line-height:1.6}
-.utility-session-list button,.utility-revoke{min-height:42px;padding:10px 14px;border-radius:9px;border:1px solid #d5dfeb;background:#f8fbfe;color:#134b82;font-weight:700;cursor:pointer}
+ .utility-session-list button,.utility-revoke{min-height:44px;padding:10px 14px;border-radius:9px;border:1px solid #d5dfeb;background:#f8fbfe;color:#134b82;font-weight:700;cursor:pointer}
 .utility-revoke{margin-top:16px}
 .utility-session-list button:hover,.utility-revoke:hover{background:#eaf2fa}
 @media(max-width:700px){.utility-workspace .project-workspace form,.utility-workspace .delivery-controls{display:grid;grid-template-columns:1fr}.utility-session-list li{flex-direction:column;align-items:flex-start}}
