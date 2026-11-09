@@ -4,7 +4,7 @@ The user's latest instruction replaces the sidebar/icon rail with CRM-style hori
 
 ## Layout and behavior
 
-The upper row contains VSPH, authorized work search, application launcher, account/profile menu and server-backed sign out. The second row contains Overview, Applications, Projects, Search work, My organizations, People and Administration. People groups the employee's own work/employment and permitted HR tools. Administration groups current platform-owner tools. No product role or tenant entitlement is inferred from menu visibility.
+The upper row contains VSPH, authorized work search, application launcher, account/profile menu and server-backed sign out. The second row groups Overview, Work, Organizations, Applications, People and Administration. Work contains Projects, My tasks for authorized employees, and reports. Organizations contains My organizations and owner-only customer administration and Client onboarding. Applications contains the launcher and owner-only catalog. People groups employment, the employee directory, Employee onboarding and permitted HR tools. Administration contains platform governance, invitation recovery, finance and audit. The separate Search work tab was removed; the header search still offers the advanced `/search` page. No product role or tenant entitlement is inferred from menu visibility.
 
 On smaller screens the menu opens downwards below the header. It is a nonmodal disclosure, not a side drawer: ordinary Tab navigation remains available, Escape closes the current dropdown or expanded mobile menu and returns focus to its opener. Enter/Space use native summary behavior; arrow keys/Home/End move through dropdown links. Clicking outside closes menus. Only one dropdown is open at a time. Current pages mark their exact link and parent section.
 
@@ -16,7 +16,7 @@ Server authentication and route/API authorization are unchanged. Current HR capa
 
 Chromium acceptance covers 15 routes on desktop/mobile, full-width content, ignored legacy rail preferences, repeated mobile open/close, real People/Administration/Profile navigation, keyboard focus, sign out with an independently created session and existing cross-role/product/tenant denials. Screenshots are attached to browser CI. Native PostgreSQL, Node, syntax/lint/format/coverage, dependency, migration and synthetic restore checks remain required.
 
-No migration, account, provider, credential or hosting change is required. Rollback is an application-source revert; durable records are unaffected.
+The navigation and creation-screen changes require no migration, account, provider, credential or hosting change. Rollback is an application-source revert; durable records are unaffected. The existing project-scoped `manager` role remains the authority for assigning project team members and tasks. Creating a customer organization still uses the reviewed durable customer onboarding flow; creating an organization without products and registering a first-class custom project application are separate future domain changes and must not be impersonated by a frontend-only form.
 
 ## Local acceptance
 

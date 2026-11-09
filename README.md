@@ -6,7 +6,7 @@ VSPH's multi-tenant product portal (Express + vanilla HTML/JS/CSS), integrated w
 
 ## Shared navigation and isolated role testing
 
-Authenticated portal pages share one collapsible sidebar and mobile drawer, with role-appropriate links, profile and sign-out. The owner grants HR access; HR cannot appoint HR. Employees use their own assigned-work workspace, and customers remain scoped to their organizations/products. Backend authorization is enforced independently of menu visibility.
+Authenticated portal pages share one CRM-style top navigation bar and expandable mobile menu, with role-appropriate Work, Organizations, Applications, People and Administration groups, profile and sign-out. The owner grants HR access; HR cannot appoint HR. Employees use their own assigned-work workspace, and customers remain scoped to their organizations/products. Backend authorization is enforced independently of menu visibility.
 
 To try the owner, HR, employee and Music-only customer views without changing hosted data, run `npm run demo:local` after `npm ci`, then open **http://127.0.0.1:3001/login**. This uses disposable native PostgreSQL and simulated Auth; it ignores hosted credentials and `.env`, sends no real email and needs no Docker or paid resource. The [role-testing guide](docs/operations/NAVIGATION_AND_ROLE_TESTING.md) lists exact logins, fixture password, acceptance workflow and limits. These testing accounts are separate from the normal portal at localhost:3000.
 
