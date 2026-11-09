@@ -42,12 +42,17 @@ test("authenticated project delivery workflow persists and denies an outsider", 
   await expect(page.locator("#projectCreateSuccess")).toBeVisible();
   await expect(page.locator("#projectCreateSuccessDescription")).toContainText("saved in the database");
   await page.getByRole("link",{name:"View project",exact:true}).click();
-  await expect(page).toHaveURL(/\/projects\/[0-9a-f-]+#team$/);
+  await expect(page).toHaveURL(/\/projects\/E2E-[A-Z0-9-]+\?view=team$/);
   const url = page.url();
-  const projectPath = new URL(url).pathname;
-  const workforceResponse=await context.request.get("/api/projects/"+projectPath.split("/").at(-1)+"/workforce");
+  const projectPath=new URL(url).pathname;
+  const projectKey=projectPath.split("/").at(-1);
+  const resolved=await context.request.get("/api/projects/by-key/"+encodeURIComponent(projectKey));
+  expect(resolved.status()).toBe(200);
+  const projectId=(await resolved.json()).project.id;
+  const workforceResponse=await context.request.get("/api/projects/"+projectId+"/workforce");
   expect(workforceResponse.status(),JSON.stringify(await workforceResponse.json())).toBe(200);
   await expect(page.locator("#projectMessage")).toBeEmpty({timeout:8000});
+  await page.locator('[data-project-view="applications"]').click();
   await expect(page.locator("#newCustomApplication")).toBeVisible({timeout:10000});
   await page.getByRole("button", {name:"New custom application"}).click();
   const application = page.locator("#customApplicationForm");
@@ -57,7 +62,7 @@ test("authenticated project delivery workflow persists and denies an outsider", 
   await application.getByLabel("Git repository HTTPS URL (optional)").fill("https://github.com/example/guest-portal");
   await application.getByRole("button",{name:"Save application",exact:true}).click();
   await expect(page.locator("#customApplicationList")).toContainText("Guest services portal");
-  const customResponse = await context.request.get("/api/projects/" + projectPath.split("/").at(-1) + "/applications");
+  const customResponse = await context.request.get("/api/projects/" + projectId + "/applications");
   expect(customResponse.status()).toBe(200);
   const apps = await customResponse.json();
   expect(apps.applications).toHaveLength(1);
@@ -65,6 +70,7 @@ test("authenticated project delivery workflow persists and denies an outsider", 
   await expect(page.locator("#projectTitle")).toContainText(
     "Verified delivery",
   );
+  await page.locator('[data-project-view="team"]').click();
   await page.locator("#teamEditor summary").click();
   const member=page.locator("#memberForm");
   const staff=member.getByLabel("Employee",{exact:true});
@@ -76,6 +82,7 @@ test("authenticated project delivery workflow persists and denies an outsider", 
   await member.getByRole("button",{name:"Save project assignment"}).click();
   await page.locator(".vsph-ui-dialog").getByRole("button",{name:"Confirm change"}).click();
   await expect(page.locator("#teamList")).toContainText("Engineering");
+  await page.locator('[data-project-view="milestones"]').click();
   await page.locator("#milestoneEditor summary").click();
   let mf = page.locator("#milestoneForm");
   await mf.getByLabel("Milestone title").fill("Staging acceptance");
@@ -85,6 +92,7 @@ test("authenticated project delivery workflow persists and denies an outsider", 
   await expect(page.locator("#milestoneList")).toContainText(
     "Staging acceptance",
   );
+  await page.locator('[data-project-view="tasks"]').click();
   await page.locator("#taskEditor summary").click();
   let tf = page.locator("#taskForm");
   await tf.getByLabel("Task title").fill("Implement tested flow");
@@ -107,11 +115,13 @@ test("authenticated project delivery workflow persists and denies an outsider", 
       page.getByLabel("Status for Implement tested flow"),
     ).toHaveValue(state);
   }
+  await page.locator('[data-project-view="overview"]').click();
   await expect(page.locator("#projectSummary")).toContainText("100%");
   await expect(page.locator("#projectDetail")).toHaveAttribute(
     "aria-busy",
     "false",
   );
+  await page.locator('[data-project-view="delivery"]').click();
   const comment = page.locator("#commentForm");
   await comment
     .getByLabel("Comment", { exact: true })
@@ -132,9 +142,11 @@ test("authenticated project delivery workflow persists and denies an outsider", 
     "Build evidence",
   );
   await page.reload();
+  await page.locator('[data-project-view="tasks"]').click();
   await expect(page.locator("#taskList")).toContainText(
     "Implement tested flow",
   );
+  await page.locator('[data-project-view="activity"]').click();
   await expect(
     page.locator('#activityList [data-action="task.update"]').first(),
   ).toBeVisible();
@@ -164,7 +176,7 @@ test("authenticated project delivery workflow persists and denies an outsider", 
     },
   ]);
   const denied = await context.request.get(
-    "/api/projects/" + projectPath.split("/").at(-1),
+    "/api/projects/" + projectId,
   );
   expect(denied.status()).toBe(403);
   expect((await context.request.get("/api/projects/" + projectPath.split("/").at(-1) + "/applications")).status()).toBe(403);
@@ -212,10 +224,12 @@ test("workforce dependency failure does not hide the existing project workspace"
   );
   await page.goto("/projects/" + project.id);
   await expect(page.locator("#projectTitle")).toContainText("Independent project workspace");
+  await page.locator('[data-project-view="team"]').click();
   await expect(page.locator("#workforceSummary")).toContainText(
     "Employee assignments unavailable: Workforce schema unavailable.",
   );
   await expect(page.locator("#addProjectMember")).toBeHidden();
+  await page.locator('[data-project-view="applications"]').click();
   await expect(page.locator("#newCustomApplication")).toBeVisible();
   await expect(page.locator("#projectDetail")).toHaveAttribute("aria-busy", "false");
 });
