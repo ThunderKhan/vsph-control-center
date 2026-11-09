@@ -2,7 +2,7 @@
 create or replace function public.project_permission(p_actor uuid,p_project uuid) returns text language sql stable security definer set search_path='' as $$
  select case when u.platform_role='super_admin' then 'manager'
   when exists(select 1 from public.internal_employee_link_requests r where r.candidate_user_id=p_actor and r.accepted_at is not null)
-   then case when m.role in ('manager','contributor','viewer') and exists(select 1 from public.internal_employee_identity_links l join public.internal_employees e on e.id=l.employee_id where l.user_id=p_actor and l.status='linked' and e.status='active' and e.email=u.email) then m.role end
+   then case when m.role='manager' and exists(select 1 from public.internal_employee_identity_links l join public.internal_employees e on e.id=l.employee_id where l.user_id=p_actor and l.status='linked' and e.status='active' and e.email=u.email) then 'manager' end
   when exists(select 1 from public.organization_memberships where user_id=p_actor)
    then case when p.kind='customer' and p.client_visible and exists(select 1 from public.organization_memberships om join public.organizations org on org.id=om.organization_id and org.status='active' where om.user_id=p_actor and om.organization_id=p.customer_organization_id and om.status='active') then 'client' end
   else m.role end
@@ -10,7 +10,6 @@ create or replace function public.project_permission(p_actor uuid,p_project uuid
  left join public.project_memberships m on m.project_id=p.id and m.user_id=u.id and m.status='active'
  where p.id=p_project and (u.platform_role='super_admin' or (m.role is not null and (m.role<>'client' or (p.client_visible and exists(select 1 from public.organization_memberships om join public.organizations org on org.id=om.organization_id and org.status='active' where om.organization_id=p.customer_organization_id and om.user_id=p_actor and om.status='active')))))
 $$;
-
 revoke all on function public.project_permission(uuid,uuid) from public,anon,authenticated;
 grant execute on function public.project_permission(uuid,uuid) to service_role;
 create or replace function public.project_command(p_actor uuid,p_action text,p_id uuid default null,p_data jsonb default '{}')

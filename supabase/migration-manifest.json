@@ -318,7 +318,7 @@
     },
     {
       "path": "supabase/migrations/20261109143000_project_workforce_governance.sql",
-      "sha256": "9ea7e52e0af1b18af5bd7ceec7d11b8574681bd48594c3808b7e5e434bde7ef7",
+      "sha256": "f6df4fd980f92292043f4db113f70fd3aad789d1259b00f76cbc73c3fa155fba",
       "version": "20261109143000",
       "name": "project_workforce_governance",
       "requires": [
