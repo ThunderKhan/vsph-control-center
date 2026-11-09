@@ -224,6 +224,9 @@ router.get(
 );
 router.get("/manager-candidates",rpcRoute(async req=>{
   if(Object.keys(req.query).length)invalid();
+  if(req.user.platform_role!=="super_admin"){
+    const denied=Error("Owner authority required.");denied.code="42501";throw denied;
+  }
   try {
     return await db().rpc("project_creation_command",{p_actor:req.user.id,p_action:"managers",p_data:{}}).then(check);
   } catch(error) {
@@ -249,9 +252,9 @@ router.post(
           const pending=Error("Project-manager appointment requires the reviewed database upgrade. No project was created.");
           pending.validation=true;throw pending;
         }
-        result=await call(req,"create",null,(({
-          managerUserId:discard,...fields
-        })=>fields)(data));
+        const legacyFields={...data};
+        delete legacyFields.managerUserId;
+        result=await call(req,"create",null,legacyFields);
       }
     } else result=await call(req,"create",null,data);
     res.status(201);
