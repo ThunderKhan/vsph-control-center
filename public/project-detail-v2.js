@@ -69,7 +69,7 @@
     return legacy[hash] || (Object.hasOwn(views,hash)?hash:"overview");
   }
   function updateLinks() {
-    const key=current.project.key, path="/projects/"+encodeURIComponent(key);
+    const key=current.project.project.key, path="/projects/"+encodeURIComponent(key);
     $("projectViewNav").querySelectorAll("[data-project-view]").forEach(a=>{
       const view=a.dataset.projectView;
       a.href=path+(view==="overview"?"":"?view="+view);
