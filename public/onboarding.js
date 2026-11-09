@@ -279,7 +279,6 @@ async function submit(){
  }finally{
   state.busy=false;
   next.disabled=false;
-  if(!form.hidden)render();
  }
 }
 async function advance(){
