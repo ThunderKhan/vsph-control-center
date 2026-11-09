@@ -12,6 +12,7 @@
     detail,
     directory = {},
     workforce = {staff:[],canGovernManagers:false,canAssign:false},
+    workforceError = "",
     items = [],
     cursor = null,
     taskFilter = "";
@@ -619,9 +620,9 @@
     $("teamEditor").hidden=!manager;$("addProjectMember").hidden=!manager;
     if(!manager)return;
     const staff=workforce.staff||[],info=$("workforceSummary"),roster=$("workforceRoster");
-    info.replaceChildren(node("p",staff.length
+    info.replaceChildren(node("p",workforceError || (staff.length
       ? staff.length+" active employees have accepted, linked portal identities."
-      : "No eligible employee identities. Finish employee account setup before assignment."));
+      : "No eligible employee identities. Finish employee account setup before assignment.")));
     roster.replaceChildren();
     if(staff.length)roster.append(table(["Employee","Department","Project role","Open tasks","Actions"],staff.map(e=>{
       const controls=node("div",undefined,"workforce-actions"),assigned=e.membership_status==="active";
@@ -909,7 +910,13 @@
       }
       if (detail.role === "manager") {
         await getDirectory();
-        workforce=await api("/api/projects/"+projectId+"/workforce");
+        try {
+          workforce=await api("/api/projects/"+projectId+"/workforce");
+          workforceError="";
+        } catch (error) {
+          workforce={staff:[],canGovernManagers:false,canAssign:false};
+          workforceError="Employee assignments unavailable: "+error.message+" Check the project workforce database migration.";
+        }
         const f = $("projectSettings");
         f.replaceChildren();
         projectFields(f, p);
