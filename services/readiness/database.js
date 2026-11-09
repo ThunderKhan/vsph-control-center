@@ -43,6 +43,10 @@ function verifyManifest(
   return { manifest, errors };
 }
 const tables = [
+  "project_checklist_items",
+  "project_risks",
+  "project_resources",
+  "project_weekly_updates",
   "project_custom_applications",
   "internal_leave_requests",
   "internal_attendance",
@@ -96,6 +100,7 @@ const tables = [
   "project_notifications",
 ];
 const signatures = [
+  "public.project_workspace_command(uuid,text,uuid,jsonb)",
   "public.project_workforce_command(uuid,text,uuid,jsonb)",
   "public.organization_only_onboarding(uuid,uuid,jsonb)",
   "public.project_custom_application_command(uuid,text,uuid,uuid,jsonb)",
