@@ -63,7 +63,7 @@ test('Feedback #05: key URLs, responsive project views and durable checklist, ri
   await expect(page.locator('#projectRisks')).toContainText('Payment provider approval pending');
   await expect(page.locator('#projectResources')).toContainText('Project specification');
   await expect(page.locator('#projectWeeklyUpdates')).toContainText('Completed phase one project planning');
-  await expect(page.locator('#projectRoadmap .project-v2-progress')).toHaveAttribute('aria-valuenow','100');
+  await expect(page.locator('#projectRoadmap .project-v2-overall-bar')).toHaveAttribute('aria-valuenow','100');
   await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 
   await context.clearCookies();
