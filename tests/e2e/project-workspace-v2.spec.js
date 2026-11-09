@@ -26,7 +26,6 @@ test('Feedback #05: key URLs, responsive project views and durable checklist, ri
   await page.getByRole('button',{name:'Create milestone',exact:true}).click();
   await expect(page.locator('#milestoneList')).toContainText('Implementation');
   await expect(page.locator('#milestoneChecklistPanel')).toContainText('Implementation');
-  await page.locator('#milestoneChecklistPanel .project-v2-milestone').first().locator('summary').click();
   const form=page.locator('#milestoneChecklistPanel .project-v2-mini-form');
   await page.locator('#milestoneChecklistPanel .project-v2-editor summary').first().click();
   await form.locator('input[name="title"]').fill('Implement authentication');
