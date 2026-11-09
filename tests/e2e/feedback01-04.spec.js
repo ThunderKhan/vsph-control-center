@@ -66,6 +66,10 @@ test('project actions archive then allow owner deletion only after explicit key 
  // Prove CSRF protection is still enforced before sending a real owner write.
  const withoutOrigin=await context.request.post('/api/projects',{data});
  expect(withoutOrigin.status()).toBe(403);
+ const foreignOrigin=await context.request.post('/api/projects',{
+   headers:{Origin:'https://untrusted.example'},data
+ });
+ expect(foreignOrigin.status()).toBe(403);
  const created=await context.request.post('/api/projects',{
    headers:{Origin:'http://127.0.0.1:3100'},data
  });
