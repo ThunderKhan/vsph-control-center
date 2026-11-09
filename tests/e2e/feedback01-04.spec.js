@@ -62,8 +62,14 @@ test('project actions archive then allow owner deletion only after explicit key 
  test.skip(!process.env.PROJECT_E2E_DATABASE,'Requires isolated PostgreSQL fixture');
  await context.addCookies([{name:'vsph.portal.sid',value:'fixture-admin-session',url:'http://127.0.0.1:3100'}]);
  const key='ARCHIVE-'+info.project.name.toUpperCase()+'-'+info.retry;
- const created=await context.request.post('/api/projects',{data:{key,name:'Temporary project for safe deletion',kind:'internal'}});
- expect(created.status()).toBe(201);
+ const data={key,name:'Temporary project for safe deletion',kind:'internal'};
+ // Prove CSRF protection is still enforced before sending a real owner write.
+ const withoutOrigin=await context.request.post('/api/projects',{data});
+ expect(withoutOrigin.status()).toBe(403);
+ const created=await context.request.post('/api/projects',{
+   headers:{Origin:'http://127.0.0.1:3100'},data
+ });
+ expect(created.status(),JSON.stringify(await created.json())).toBe(201);
  const project=await created.json();
  await page.goto('/projects');
  const row=page.locator('#projectList tr').filter({hasText:key});
