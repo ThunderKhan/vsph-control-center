@@ -11,8 +11,7 @@ test("self-service session inventory and revoke others keep current portal acces
       url: "http://127.0.0.1:3100",
     },
   ]);
-  await page.goto("/projects");
-  await page.locator("#accountSessions summary").click();
+  await page.goto("/account/security");
   await expect(page.locator("#sessionList")).toContainText("Current session");
   await page
     .getByRole("button", { name: "Revoke other sessions", exact: true })
