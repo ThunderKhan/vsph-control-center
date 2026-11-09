@@ -185,6 +185,32 @@ router.get(
     });
   }),
 );
+const workforce=(req,action,payload={},project=req.params.id||null)=>db().rpc("project_workforce_command",{
+  p_actor:req.user.id,p_action:action,p_project:project,p_data:payload,
+}).then(check);
+function workforceData(action,data) {
+  if(!data||typeof data!=="object"||Array.isArray(data))invalid();
+  const keys=action==="assign"?["version","userId","role","team"]:["version","userId"];
+  if(Object.keys(data).length!==keys.length||keys.some(k=>!Object.hasOwn(data,k))||
+     !Number.isSafeInteger(data.version)||data.version<1||!uuid(data.userId))invalid();
+  if(action==="assign"&&(!["manager","contributor","viewer"].includes(data.role)||
+     typeof data.team!=="string"||data.team.length>100))invalid();
+  return data;
+}
+router.get("/manager-overview",rpcRoute(req=>{
+  if(Object.keys(req.query).length)invalid();
+  return workforce(req,"overview",{},null);
+}));
+router.get("/:id/workforce",rpcRoute(req=>{
+  if(!uuid(req.params.id)||Object.keys(req.query).length)invalid();
+  return workforce(req,"directory");
+}));
+const staffActions={"assign":"assign","remove":"remove","manager-grant":"manager.grant","manager-revoke":"manager.revoke"};
+router.post("/:id/workforce/:action",rpcRoute(req=>{
+  if(!uuid(req.params.id)||!Object.hasOwn(staffActions,req.params.action))invalid();
+  const action=staffActions[req.params.action];
+  return workforce(req,action,workforceData(action,req.body));
+}));
 router.get(
   "/directory",
   rpcRoute((req) => {
@@ -215,8 +241,14 @@ router.patch(
     return call(req, "update", req.params.id, validate("update", req.body));
   }),
 );
+router.post("/:id/members",rpcRoute(req=>{
+  if(!uuid(req.params.id))invalid();
+  const data=validate("member.save",req.body);
+  if(data.role==="client")return call(req,"member.save",req.params.id,data);
+  if(data.status==="revoked")return workforce(req,"remove",{version:data.version,userId:data.userId});
+  return workforce(req,"assign",{version:data.version,userId:data.userId,role:data.role,team:data.team||""});
+}));
 const actions = {
-  members: "member.save",
   milestones: "milestone.create",
   tasks: "task.create",
   comments: "comment.create",
@@ -290,4 +322,4 @@ router.patch("/:id/applications/:applicationId",rpcRoute(req=>{
   return customApplication(req,"update",req.params.applicationId,data);
 }));
 
-module.exports = { router, validate, validateCustomApplication };
+module.exports = { router, validate, validateCustomApplication, workforceData };
