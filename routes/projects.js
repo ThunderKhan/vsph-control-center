@@ -347,7 +347,13 @@ router.post("/:id/lifecycle/:action",rateLimitLifecycle,rpcRoute(req=>{
     !/^[A-Z][A-Z0-9-]{1,19}$/.test(data.key))invalid();
   return db().rpc("project_lifecycle_command",{
     p_actor:req.user.id,p_action:req.params.action,p_project:req.params.id,p_data:data
-  }).then(check);
+  }).then(check).catch(error=>{
+    if(error.code==="23503"){
+      const denied=Error("Project has linked work, records or external references. Keep it archived; only empty archived projects can be permanently deleted.");
+      denied.validation=true;throw denied;
+    }
+    throw error;
+  });
 }));
 
 module.exports = { router, validate, validateCustomApplication, workforceData };
