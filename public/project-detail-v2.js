@@ -82,7 +82,7 @@
   function meta() {
     const p=current.project.project,box=$("projectMeta");
     box.replaceChildren();
-    const manager=current.project.members.find(member=>member.user_id===p.owner_id)?.full_name||"Unassigned";
+    const manager=current.project.members.find(member=>member.user_id===p.owner_id)?.full_name || (current.project.role==="client"?"VSPH project team":"Project manager");
     append(box,badge(statusText(p.status),p.status==="active"?"success":"neutral"),
       E("span",p.key+" · "+(p.kind==="customer"?"Client engagement":"Internal project")),
       E("span","Manager · "+manager),
@@ -239,7 +239,7 @@
     if(!workspace){box.append(empty("Risk tracking is unavailable until the workspace database migration is installed."));return;}
     const risks=(workspace.risks||[]).filter(r=>r.status==="open");
     const blocked=current.project.tasks.filter(t=>t.status==="blocked"&&scopedTask(t));
-    if(!risks.length&&!blocked.length)box.append(empty("No open risks or blocked tasks recorded."));
+    if(!risks.length&&!blocked.length)box.append(empty(current.project.role==="client"?"No blockers in your shared project view.":"No open risks or blocked tasks recorded."));
     for(const t of blocked.slice(0,3)) {
       const row=E("div",undefined,"project-v2-risk-row");append(row,badge("Task blocked","danger"),E("strong",t.title));box.append(row);
     }
