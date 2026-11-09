@@ -55,7 +55,7 @@ begin
   raise exception 'Invalid restoration request' using errcode='22023';
  end if;
  if p_action='lookup' then
-  if p_id is not null or jsonb_object_length(p_data)<>1 or
+  if p_id is not null or (select count(*) from jsonb_object_keys(p_data))<>1 or
      jsonb_typeof(p_data->'email') is distinct from 'string' or
      length(p_data->>'email') not between 3 and 254 then
    raise exception 'Invalid employee lookup' using errcode='22023'; end if;
@@ -74,7 +74,7 @@ begin
          from public.internal_employees where removed_at is not null
          order by removed_at desc,id limit 100) x),'[]'::jsonb));
  end if;
- if p_id is null or jsonb_object_length(p_data)<>3 or
+ if p_id is null or (select count(*) from jsonb_object_keys(p_data))<>3 or
    not(p_data ?& array['version','reason','confirmed']) or
    p_data->'confirmed' is distinct from 'true'::jsonb or
    jsonb_typeof(p_data->'version') is distinct from 'number' or
@@ -202,7 +202,7 @@ begin
  if not found or actor.platform_role<>'super_admin' then
   raise exception 'Only the platform owner may archive or delete projects' using errcode='42501';end if;
  if p_action not in('archive','delete') or p_project is null or
-   jsonb_typeof(p_data) is distinct from 'object' or jsonb_object_length(p_data)<>3 or
+   jsonb_typeof(p_data) is distinct from 'object' or (select count(*) from jsonb_object_keys(p_data))<>3 or
    not (p_data ?& array['version','key','confirmed']) or
    p_data->'confirmed' is distinct from 'true'::jsonb or
    jsonb_typeof(p_data->'version') is distinct from 'number' or
