@@ -15,7 +15,10 @@
     workforceError = "",
     items = [],
     cursor = null,
-    taskFilter = "";
+    taskFilter = "",
+    canAdministerProjects = false,
+    activeDeleteProject = null,
+    projectCreateDirty = false;
   const states = [
       "todo",
       "in_progress",
@@ -142,11 +145,64 @@
     t.append(head, body);
     return t;
   }
+  async function archiveProject(p) {
+    const approved=window.VSPHUI?.confirm
+      ? await window.VSPHUI.confirm("Archive "+p.name+"? Its records and audit trail will be retained.",{
+        title:"Archive "+p.key+"?",confirmLabel:"Archive project",danger:true
+      })
+      : window.confirm("Archive "+p.name+"? Project data will be retained.");
+    if(!approved)return;
+    try {
+      await api("/api/projects/"+p.id+"/lifecycle/archive",{
+        method:"POST",body:JSON.stringify({version:p.version,key:p.key,confirmed:true})
+      });
+      await loadList();
+      setMessage("Project "+p.key+" archived. Records and history are retained.");
+    }catch(error){setMessage(error.message);}
+  }
+  function prepareProjectDeletion(p) {
+    activeDeleteProject=p;
+    $("projectDeleteKey").value="";
+    $("projectDeleteKey").placeholder=p.key;
+    $("projectDeleteDescription").textContent=p.name+" · "+p.key;
+    $("projectDeleteMessage").textContent="";
+    $("projectDeleteDialog").showModal();
+    $("projectDeleteKey").focus();
+  }
+  async function closeCreateProject(force=false) {
+    if(!force&&projectCreateDirty&&!$("projectCreateSuccess").hidden){
+      // Successful persistence is never discarded by closing the dialog.
+      force=true;
+    }
+    if(!force&&projectCreateDirty){
+      const allowed=window.VSPHUI?.confirm
+        ? await window.VSPHUI.confirm("Discard the unsaved project details?",{
+          title:"Discard project draft?",confirmLabel:"Discard draft",danger:true
+        })
+        : window.confirm("Discard the unsaved project details?");
+      if(!allowed)return;
+    }
+    $("projectCreateOverlay").hidden=true;
+    $("creation").hidden=true;
+    $("createProjectForm").reset();
+    $("projectCreateSuccess").hidden=true;
+    projectCreateDirty=false;
+    document.body.classList.remove("project-create-open");
+    $("newProject").focus();
+  }
   function titleLink(p) {
     const a = node("a", p.name);
     a.href = "/projects/" + p.id;
     const box = node("div");
     box.append(a, node("small", p.key));
+    if (canAdministerProjects) {
+      const menu=node("details");menu.className="project-row-menu";
+      const summary=node("summary","Actions");
+      menu.append(summary);
+      if(p.status!=="archived")menu.append(button("Archive project",()=>void archiveProject(p)));
+      else menu.append(button("Permanently delete",()=>prepareProjectDeletion(p)));
+      box.append(menu);
+    }
     return box;
   }
   async function loadList(append = false) {
@@ -160,6 +216,7 @@
       const r = await api("/api/projects?" + qs);
       items = append ? items.concat(r.projects) : r.projects;
       cursor = r.projects.at(-1)?.id || null;
+      canAdministerProjects=Boolean(r.canCreate);
       $("newProject").hidden = !r.canCreate;
       $("moreProjects").hidden = r.projects.length < 50;
       const box = $("projectList");
@@ -225,7 +282,7 @@
   function setupProjectWizard(form) {
     const names = [
       ["key", "name", "description", "priority", "startsOn", "dueOn"],
-      ["kind", "customerOrganizationId", "products", "clientVisible"],
+      ["kind", "customerOrganizationId", "products", "clientVisible", "managerUserId"],
       [],
     ];
     const titles = ["Project details", "Organization and applications", "Review and create"];
@@ -248,7 +305,7 @@
         stage.append(node("p", "Choose the customer organization for client work. Linked catalog products describe delivery; they do not grant subscriptions or product logins.", "project-step-hint"));
       }
       if (index === 2) {
-        stage.append(node("p", "Creating a project assigns you as the initial accountable manager. Add employees, a second manager and tasks from the project workspace afterward.", "project-step-hint"));
+        stage.append(node("p", "The owner retains governance. If an eligible manager is selected, that appointment is saved atomically with project creation. The manager can assign employees afterward.", "project-step-hint"));
       }
       for (const name of names[index]) stage.append(controls[name]);
       return stage;
@@ -266,9 +323,7 @@
       if (validateStep()) show(step + 1, true);
     });
     const cancel = button("Cancel", () => {
-      $("creation").hidden = true;
-      form.reset();
-      $("newProject").focus();
+      void closeCreateProject();
     });
     actions.append(cancel, back, next, submit);
     form.replaceChildren(progress, ...stages, actions);
@@ -306,13 +361,15 @@
         ["name", "Project"], ["key", "Key"], ["kind", "Ownership"],
         ["customerOrganizationId", "Customer organization"],
         ["priority", "Priority"], ["dueOn", "Due date"],
-        ["products", "Linked products"],
+        ["products", "Linked products"],["managerUserId","Project manager"],
       ]) {
         if (name === "customerOrganizationId" && data.kind !== "customer") continue;
         const dt = node("dt", label);
         let value = data[name];
         if (name === "customerOrganizationId") {
           value = customer.selectedOptions[0]?.textContent || "Not selected";
+        } else if (name === "managerUserId") {
+          value = form.elements.managerUserId.selectedOptions[0]?.textContent || "Owner manages";
         } else if (name === "products") {
           value = [...form.elements.products.selectedOptions]
             .map((option) => option.textContent).join(", ") || "None";
@@ -340,6 +397,7 @@
   }
   async function createForm() {
     await getDirectory();
+    const managerCandidates=await api("/api/projects/manager-candidates");
     const form = $("createProjectForm");
     form.replaceChildren();
     field(form, "Project key (uppercase)", "key");
@@ -360,6 +418,12 @@
       opts(directory.organizations),
     );
     field(form, "Start date", "startsOn", "date");
+    field(form, "Project manager", "managerUserId", "select", [
+      {value:"",label:"Owner manages initially — appoint a manager later"},
+      ...(managerCandidates.managers||[]).map(person=>({
+        value:person.id,label:person.full_name+" · "+person.department
+      }))
+    ]);
     // Navigation may preselect only an authorized organization returned by the server.
     const requestedOrganization = new URLSearchParams(location.search).get("organizationId");
     const authorizedOrganization = (directory.organizations || []).find(
@@ -374,10 +438,34 @@
         method: "POST",
         body: JSON.stringify(d),
       });
-      location.assign("/projects/" + p.id + "#team");
+      projectCreateDirty=false;
+      const complete=$("projectCreateSuccess");
+      $("createProjectForm").hidden=true;
+      complete.hidden=false;
+      $("projectCreateSuccessDescription").textContent=
+        p.name+" ("+p.key+") is saved in the database. "+(
+          d.managerUserId?"Your selected project manager has been appointed.":"You remain the initial project manager."
+        );
+      $("viewCreatedProject").href="/projects/"+p.id+"#team";
+      $("viewCreatedProject").focus();
     });
     setupProjectWizard(form);
-    $("creation").hidden = false;
+    form.hidden=false;
+    $("projectCreateSuccess").hidden=true;
+    projectCreateDirty=false;
+    let manualKey=false;
+    form.elements.key.addEventListener("input",()=>{manualKey=true;});
+    form.elements.name.addEventListener("input",()=>{
+      if(manualKey)return;
+      const words=form.elements.name.value.trim().toUpperCase().match(/[A-Z0-9]+/g)||[];
+      const suggested=words.length>2?words.map(x=>x[0]).join(""):words[0]||"";
+      form.elements.key.value=suggested.slice(0,20);
+    });
+    form.addEventListener("input",()=>{projectCreateDirty=true;});
+    form.addEventListener("change",()=>{projectCreateDirty=true;});
+    $("projectCreateOverlay").hidden=false;
+    $("creation").hidden=false;
+    document.body.classList.add("project-create-open");
     form.elements.key.focus();
   }
   async function mutate(path, method, data) {
@@ -990,6 +1078,38 @@
       container.setAttribute("aria-busy", "false");
     }
   }
+  $("closeCreateProject").addEventListener("click",()=>void closeCreateProject());
+  $("backToProjectPortfolio").addEventListener("click",()=>void closeCreateProject(true));
+  $("projectCreateOverlay").addEventListener("click",event=>{
+    if(event.target.id==="projectCreateOverlay")void closeCreateProject();
+  });
+  $("creation").addEventListener("keydown",event=>{
+    if(event.key==="Escape"){event.preventDefault();void closeCreateProject();return;}
+    if(event.key!=="Tab")return;
+    const controls=[...$("creation").querySelectorAll('a,button,input,select,textarea,[tabindex]')]
+      .filter(control=>!control.disabled&&!control.closest("[hidden]")&&control.getClientRects().length);
+    if(!controls.length)return;
+    const first=controls[0],last=controls.at(-1);
+    if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
+    if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
+  });
+  $("cancelProjectDelete").addEventListener("click",()=>$("projectDeleteDialog").close());
+  $("projectDeleteForm").addEventListener("submit",async event=>{
+    event.preventDefault();
+    const p=activeDeleteProject,key=$("projectDeleteKey").value.trim();
+    if(!p)return;
+    if(key!==p.key){$("projectDeleteMessage").textContent="Type "+p.key+" exactly to confirm.";return;}
+    const submit=$("confirmProjectDelete");submit.disabled=true;
+    try{
+      await api("/api/projects/"+p.id+"/lifecycle/delete",{
+        method:"POST",body:JSON.stringify({version:p.version,key,confirmed:true})
+      });
+      activeDeleteProject=null;$("projectDeleteDialog").close();
+      await loadList();
+      setMessage("Empty archived project "+key+" permanently deleted. Audit entry retained.");
+    }catch(error){$("projectDeleteMessage").textContent=error.message;}
+    finally{submit.disabled=false;}
+  });
   $("newCustomApplication").onclick = () => openCustomAppForm();
   $("cancelCustomApplication").onclick = () => {
     closeCustomAppForm();
