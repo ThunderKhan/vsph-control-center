@@ -896,7 +896,7 @@
           "Health",
           overdue || tasks.some((t) => t.status === "blocked")
             ? "Needs attention"
-            : !tasks.length && !detail.milestones.length ? "Not started" : "No blocked or overdue work",
+            : !tasks.length ? "Not started" : "No blocked or overdue work",
         ],
       ]) {
         const c = node("div", label);
