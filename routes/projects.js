@@ -222,18 +222,40 @@ router.get(
     });
   }),
 );
-router.get("/manager-candidates",rpcRoute(req=>{
+router.get("/manager-candidates",rpcRoute(async req=>{
   if(Object.keys(req.query).length)invalid();
-  return db().rpc("project_creation_command",{p_actor:req.user.id,p_action:"managers",p_data:{}}).then(check);
+  try {
+    return await db().rpc("project_creation_command",{p_actor:req.user.id,p_action:"managers",p_data:{}}).then(check);
+  } catch(error) {
+    // Existing hosted schema can still create owner-managed projects while
+    // the reviewed new manager-appointment migration awaits release.
+    if(!["PGRST202","42883"].includes(error.code))throw error;
+    return {managers:[],schemaReady:false};
+  }
 }));
 router.post(
   "/",
-  rpcRoute((req, res) => {
+  rpcRoute(async (req, res) => {
     const data=validate("create",req.body);
+    let result;
+    if(Object.hasOwn(data,"managerUserId")) {
+      try {
+        result=await db().rpc("project_creation_command",{
+          p_actor:req.user.id,p_action:"create",p_data:data
+        }).then(check);
+      }catch(error){
+        if(!["PGRST202","42883"].includes(error.code))throw error;
+        if(data.managerUserId){
+          const pending=Error("Project-manager appointment requires the reviewed database upgrade. No project was created.");
+          pending.validation=true;throw pending;
+        }
+        result=await call(req,"create",null,(({
+          managerUserId:discard,...fields
+        })=>fields)(data));
+      }
+    } else result=await call(req,"create",null,data);
     res.status(201);
-    return Object.hasOwn(data,"managerUserId")
-      ? db().rpc("project_creation_command",{p_actor:req.user.id,p_action:"create",p_data:data}).then(check)
-      : call(req,"create",null,data);
+    return result;
   }),
 );
 router.get(
