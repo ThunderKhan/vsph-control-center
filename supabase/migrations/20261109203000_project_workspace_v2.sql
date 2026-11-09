@@ -9,6 +9,7 @@ create table public.project_checklist_items (
   completed_at timestamptz,
   completed_by uuid references public.profiles(id),
   created_by uuid not null references public.profiles(id),
+  assignee_id uuid references public.profiles(id),
   created_at timestamptz not null default now(),
   constraint project_checklist_milestone foreign key (project_id,milestone_id)
     references public.project_milestones(project_id,id) on delete restrict,
@@ -121,8 +122,8 @@ begin
   end if;
 
   if p_action='checklist.add' then
-    if (select count(*) from jsonb_object_keys(p_data))<>3 or
-      not(p_data ?& array['version','milestoneId','title']) or
+    if (select count(*) from jsonb_object_keys(p_data))<>4 or
+      not(p_data ?& array['version','milestoneId','title','assigneeId']) or
       coalesce(p_data->>'milestoneId','') !~* '^[0-9a-f-]{36}$' then
       raise exception 'Invalid checklist data' using errcode='22023';end if;
     title:=btrim(p_data->>'title');
@@ -131,8 +132,101 @@ begin
          and m.id=(p_data->>'milestoneId')::uuid) or
        (select count(*) from public.project_checklist_items where project_id=p_project)>=500 then
       raise exception 'Checklist item invalid or limit reached' using errcode='22023';end if;
-    insert into public.project_checklist_items(project_id,milestone_id,title,created_by)
-      values(p_project,(p_data->>'milestoneId')::uuid,title,p_actor) returning id into entity;
+    if p_data->>'assigneeId' is not null and (
+      p_data->>'assigneeId' !~* '^[0-9a-f-]{36}
+  elsif p_action='checklist.toggle' then
+    if (select count(*) from jsonb_object_keys(p_data))<>3 or
+      not(p_data ?& array['version','itemId','completed']) or
+      coalesce(p_data->>'itemId','') !~* '^[0-9a-f-]{36}$' or
+      jsonb_typeof(p_data->'completed') is distinct from 'boolean' then
+      raise exception 'Invalid checklist change' using errcode='22023';end if;
+    select * into item from public.project_checklist_items
+      where project_id=p_project and id=(p_data->>'itemId')::uuid;
+    if not found then raise exception 'Checklist item unavailable' using errcode='42501';end if;
+    -- Contributors may complete only explicitly assigned checklist work; managers can review all.
+    if access<>'manager' and not (access='contributor' and item.assignee_id=p_actor) then
+      raise exception 'Only the assigned employee or project manager may complete the item' using errcode='42501';end if;
+    update public.project_checklist_items set completed=(p_data->>'completed')::boolean,
+      completed_at=case when (p_data->>'completed')::boolean then clock_timestamp() else null end,
+      completed_by=case when (p_data->>'completed')::boolean then p_actor else null end
+      where id=item.id returning id into entity;
+  elsif p_action='risk.add' then
+    if (select count(*) from jsonb_object_keys(p_data))<>3 or
+       not(p_data ?& array['version','title','severity']) or
+       p_data->>'severity' not in ('low','medium','high') then
+       raise exception 'Invalid risk fields' using errcode='22023';end if;
+    title:=btrim(p_data->>'title');
+    if length(title) not between 1 and 180 or title~'[[:cntrl:]]' or
+      (select count(*) from public.project_risks where project_id=p_project)>=100 then
+       raise exception 'Risk limit or title invalid' using errcode='22023';end if;
+    insert into public.project_risks(project_id,title,severity,owner_id,created_by)
+      values(p_project,title,p_data->>'severity',p_actor,p_actor) returning id into entity;
+  elsif p_action='risk.resolve' then
+    if (select count(*) from jsonb_object_keys(p_data))<>3 or
+      not(p_data ?& array['version','id','resolved']) or
+      coalesce(p_data->>'id','') !~* '^[0-9a-f-]{36}$' or
+      jsonb_typeof(p_data->'resolved') is distinct from 'boolean' then
+       raise exception 'Invalid risk change' using errcode='22023';end if;
+    update public.project_risks set status=case when (p_data->>'resolved')::boolean then 'resolved' else 'open' end,updated_at=now()
+      where project_id=p_project and id=(p_data->>'id')::uuid returning id into entity;
+    if not found then raise exception 'Risk unavailable' using errcode='42501';end if;
+  elsif p_action='resource.add' then
+    if (select count(*) from jsonb_object_keys(p_data))<>5 or
+       not(p_data ?& array['version','label','url','category','shared']) or
+       p_data->>'category' not in ('document','design','repository','deployment','other') or
+       jsonb_typeof(p_data->'shared') is distinct from 'boolean' then
+       raise exception 'Invalid resource data' using errcode='22023';end if;
+    title:=btrim(p_data->>'label');target_url:=p_data->>'url';
+    if length(title) not between 1 and 120 or title~'[[:cntrl:]]' or
+      length(target_url) not between 12 and 1000 or
+      target_url !~ '^https://[A-Za-z0-9.-]+(?::[0-9]{1,5})?(/[A-Za-z0-9._~%/?#=&-]*)?$' or
+      (select count(*) from public.project_resources where project_id=p_project and archived_at is null)>=100 then
+       raise exception 'Resource invalid or limit reached' using errcode='22023';end if;
+    insert into public.project_resources(project_id,label,url,category,shared,created_by)
+      values(p_project,title,target_url,p_data->>'category',(p_data->>'shared')::boolean,p_actor) returning id into entity;
+  elsif p_action='resource.archive' then
+    if (select count(*) from jsonb_object_keys(p_data))<>2 or
+      not(p_data ?& array['version','id']) or
+      coalesce(p_data->>'id','') !~* '^[0-9a-f-]{36}$' then
+       raise exception 'Invalid resource removal' using errcode='22023';end if;
+    update public.project_resources set archived_at=now()
+      where id=(p_data->>'id')::uuid and project_id=p_project and archived_at is null returning id into entity;
+    if not found then raise exception 'Resource unavailable' using errcode='42501';end if;
+  elsif p_action='update.publish' then
+    if (select count(*) from jsonb_object_keys(p_data))<>5 or
+      not(p_data ?& array['version','summary','health','nextSteps','shared']) or
+      p_data->>'health' not in ('on_track','at_risk','off_track') or
+      jsonb_typeof(p_data->'shared') is distinct from 'boolean' then
+       raise exception 'Invalid update' using errcode='22023';end if;
+    title:=btrim(p_data->>'summary');
+    if length(title) not between 8 and 2500 or title~'[[:cntrl:]]' or
+      length(coalesce(p_data->>'nextSteps',''))>1500 or
+      (select count(*) from public.project_weekly_updates where project_id=p_project)>=1000 then
+       raise exception 'Update invalid or limit reached' using errcode='22023';end if;
+    insert into public.project_weekly_updates(project_id,summary,health,next_steps,shared,created_by)
+      values(p_project,title,p_data->>'health',coalesce(p_data->>'nextSteps',''),(p_data->>'shared')::boolean,p_actor)
+      returning id into entity;
+  end if;
+  update public.projects set version=version+1,updated_at=now()
+    where id=p_project returning version into change_version;
+  insert into public.project_activity(project_id,actor_id,action,entity_id,summary,shared)
+    values(p_project,p_actor,'workspace.'||p_action,entity,coalesce(title,p_action),false);
+  insert into public.audit_logs(actor_user_id,organization_id,action,target_type,target_id,details)
+    values(p_actor,project.customer_organization_id,'project.workspace.'||p_action,
+      'project',p_project::text,jsonb_build_object('entity_id',entity,'version',change_version));
+  return jsonb_build_object('id',entity,'version',change_version);
+end$$;
+revoke all on function public.project_workspace_command(uuid,text,uuid,jsonb) from public,anon,authenticated;
+grant execute on function public.project_workspace_command(uuid,text,uuid,jsonb) to service_role;
+ or not exists(
+      select 1 from public.project_memberships m
+       join public.profiles u on u.id=m.user_id and u.status='active'
+       where m.project_id=p_project and m.user_id=(p_data->>'assigneeId')::uuid
+         and m.status='active' and m.role in ('manager','contributor')
+      )) then raise exception 'Select an eligible project assignee' using errcode='42501';end if;
+    insert into public.project_checklist_items(project_id,milestone_id,title,created_by,assignee_id)
+      values(p_project,(p_data->>'milestoneId')::uuid,title,p_actor,
+        nullif(p_data->>'assigneeId','')::uuid) returning id into entity;
   elsif p_action='checklist.toggle' then
     if (select count(*) from jsonb_object_keys(p_data))<>3 or
       not(p_data ?& array['version','itemId','completed']) or
