@@ -30,6 +30,8 @@
     "migrations:eol": "node scripts/migration-eol.js",
     "demo:local": "node scripts/demo-local.mjs",
     "test:demo": "node --test tests/demo-local.test.mjs",
+    "verify:fast": "node scripts/verify-local.mjs fast",
+    "verify:release": "node scripts/verify-local.mjs release",
     "accounts:setup": "node scripts/setup-role-accounts.js",
     "workers": "node scripts/run-workers.js"
   },
