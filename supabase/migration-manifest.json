@@ -338,7 +338,7 @@
     },
     {
       "path": "supabase/migrations/20261109203000_project_workspace_v2.sql",
-      "sha256": "456513237cb440588950d1cdd043386d9d824d41beb37e0ebce552f92c9d47cc",
+      "sha256": "7086d3246b5f2943fa57adaf308a5b390aba7f1aec73f9959c745873844d3255",
       "version": "20261109203000",
       "name": "project_workspace_v2",
       "requires": [
