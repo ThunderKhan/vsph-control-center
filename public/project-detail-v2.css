@@ -49,6 +49,10 @@
 .project-v2-action-row small {display:block;color:var(--v2-muted);margin-top:4px;font-size:11px}
 .project-v2-action-marker {width:23px;height:23px;border-radius:8px;flex:0 0 auto;background:#fff4e9;border:1px solid #f4dcc1;color:#ad6429;display:grid;place-items:center;font-size:12px;font-weight:800}
 #projectNextActions>a {display:inline-flex;font-size:12px;font-weight:700;text-decoration:none;margin-top:12px}
+.project-v2-overall {display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 6px}
+.project-v2-overall strong {font-size:13px;font-weight:750;color:var(--v2-ink)}
+.project-v2-overall small {font-size:11px;color:var(--v2-muted);text-align:right}
+.project-v2-overall-bar {margin:7px 0 14px}
 .project-v2-milestone {padding:13px 0;border-top:1px solid #edf1f6}
 .project-v2-milestone:first-child {border-top:0;padding-top:2px}
 .project-v2-milestone-summary {display:flex;align-items:center;gap:10px;min-height:44px;list-style:none;cursor:pointer;padding:2px 0}
