@@ -1,14 +1,14 @@
 const fs=require('node:fs/promises'),path=require('node:path');
 const {workspaceHeader}=require('./workspace-header');
 const root=path.resolve(__dirname,'..');
-const allowed=new Set(['dashboard.html','admin.html','app-home.html'].map(f=>path.join(root,'public',f)).concat(['auth','account-profile','customers','employee-identity','employee-onboarding','employees','finance-journal','finance','hr-access','hr-workspace','my-work','onboarding','organizations','products','projects','provisioning','search','sso-launch'].map(f=>path.join(root,'views',f+'.html'))));
+const allowed=new Set(['dashboard.html','admin.html','app-home.html'].map(f=>path.join(root,'public',f)).concat(['auth','account-profile','customers','employee-identity','employee-onboarding','employees','finance-journal','finance','hr-access','hr-workspace','my-work','onboarding','organizations','products','projects','project-managers','provisioning','search','sso-launch'].map(f=>path.join(root,'views',f+'.html'))));
 const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const prepaint='<script src="/portal-prepaint.js"></script>';
 let templates;
 async function render(html,user,notice){
  templates??=await Promise.all(['portal-icons.html','portal-navigation.html'].map(file=>fs.readFile(path.join(root,'views/partials',file),'utf8')));
  const icons=templates[0];let navigation=templates[1];
- if(user.platform_role==='super_admin')navigation=navigation.replace('id="adminNavContainer" class="portal-disclosure" hidden','id="adminNavContainer" class="portal-disclosure"').replace('id="peopleNavigation" class="portal-disclosure" hidden','id="peopleNavigation" class="portal-disclosure"').replace('id="employeeNavContainer" hidden','id="employeeNavContainer"').replace(/(id="hrGovernanceNav"[^>]*?) hidden/,'$1').replace(/(id="topbarOnboard"[^>]*?) hidden/,'$1').replace('id="orgAdminNav" hidden','id="orgAdminNav"').replace('id="appAdminNav" hidden','id="appAdminNav"');
+ if(user.platform_role==='super_admin')navigation=navigation.replace('id="adminNavContainer" class="portal-disclosure" hidden','id="adminNavContainer" class="portal-disclosure"').replace('id="peopleNavigation" class="portal-disclosure" hidden','id="peopleNavigation" class="portal-disclosure"').replace('id="employeeNavContainer" hidden','id="employeeNavContainer"').replace(/(id="hrGovernanceNav"[^>]*?) hidden/,'$1').replace(/(id="topbarOnboard"[^>]*?) hidden/,'$1').replace('id="ownerManagerNav" hidden','id="ownerManagerNav"').replace('id="orgAdminNav" hidden','id="orgAdminNav"').replace('id="appAdminNav" hidden','id="appAdminNav"');
  // Existing main content and module scripts retain their identity and state.
  if(html.includes('<!-- portal:shell -->')){
   html=html.replace('<!-- portal:shell -->','').replace('<!-- portal:icons -->',()=>icons);

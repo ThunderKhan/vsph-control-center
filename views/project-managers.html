@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Project manager governance | VSPH</title><link rel="stylesheet" href="/operations.css"></head>
+<body><main class="project-page manager-governance">
+ <header><div><p class="eyebrow">PEOPLE / PROJECT MANAGEMENT</p><h1>Project managers</h1><p class="muted">Control project leadership without granting HR, platform ownership, or customer product access.</p></div><div class="actions"><a class="button" href="/projects">Project portfolio</a><button id="refreshManagerOverview" type="button">Refresh</button></div></header>
+ <p id="managerOverviewMessage" role="status" aria-live="polite"></p>
+ <section class="manager-metric-strip" aria-label="Manager metrics"><div><small>Active manager assignments</small><strong id="managerAssignments">—</strong></div><div><small>Projects with managers</small><strong id="managerProjects">—</strong></div><div><small>Unlinked manager identities</small><strong id="managerUnlinked">—</strong></div></section>
+ <section class="panel"><div class="manager-panel-heading"><div><h2>Project leadership directory</h2><p class="muted">The accountable project owner cannot be removed until ownership is transferred. Appointment and revocation happen within the project's Team workspace.</p></div></div><div id="managerOverviewTable" class="table-wrap" aria-busy="true"></div></section>
+ <section class="panel"><h2>Governance boundaries</h2><p class="muted">Only a platform owner appoints or removes project managers. A project manager may assign active, linked VSPH employees to their project and its tasks, but cannot grant HR access, company-wide manager authority, or customer product roles. Changes are version-checked and audited.</p><a class="button" href="/employees">Employee directory</a></section>
+</main><script defer src="/project-managers.js"></script></body></html>

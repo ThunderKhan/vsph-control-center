@@ -34,3 +34,6 @@ a.button{display:inline-flex;align-items:center;justify-content:center;text-deco
 .customer-project-action a.button.primary{display:inline-flex;background:#0069C8;color:#FFF;border-color:#0069C8;text-decoration:none}
 .customer-project-action a.button.primary:hover{background:#0053A3;color:#FFF}
 .customer-project-action p{font-size:13px;color:#536984;margin:10px 0 0}
+
+/* Scoped project manager governance overview. */
+.manager-metric-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:22px 0}.manager-metric-strip>div{display:grid;gap:10px;padding:20px;background:white;border:1px solid #DCE6F1;border-radius:10px;min-width:0}.manager-metric-strip small{font-size:12px;color:#536984}.manager-metric-strip strong{font-size:26px;color:#00255A}.manager-governance .table-wrap table{width:100%;border-collapse:collapse;min-width:680px}.manager-governance th,.manager-governance td{text-align:left;padding:14px 13px;border-bottom:1px solid #E2EAF2;font-size:13px;vertical-align:top}.manager-governance th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#536984}.manager-governance td small{display:block;margin-top:5px;color:#536984}.manager-panel-heading p{max-width:750px;font-size:13px}@media(max-width:650px){.manager-metric-strip{grid-template-columns:1fr}}

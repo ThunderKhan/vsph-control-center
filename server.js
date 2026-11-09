@@ -77,6 +77,7 @@ app.use('/api/admin-management/product-registry',portalSession,requireAdmin,requ
 app.get('/admin/products',portalSession,requireAdmin,(req,res)=>{res.set('Cache-Control','no-store');res.sendFile(path.join(__dirname,'views','products.html'))});
 app.use('/api/admin-management/customers',portalSession,requireAdmin,require('./routes/customers').router);
 app.get('/admin/customers',portalSession,requireAdmin,(req,res)=>{res.set('Cache-Control','no-store');res.sendFile(path.join(__dirname,'views','customers.html'))});
+app.get('/admin/project-managers',portalSession,requireAdmin,(req,res)=>{res.set('Cache-Control','no-store');res.sendFile(path.join(__dirname,'views','project-managers.html'))});
 app.use('/api/admin-management',portalSession,requireAdmin,require('./routes/admin-management'));
 app.use('/api/admin-management/onboardings',portalSession,requireAdmin,require('./routes/onboarding').router);
 app.get('/admin/provisioning',portalSession,requireAdmin,(req,res)=>{res.set('Cache-Control','no-store');res.sendFile(path.join(__dirname,'views','provisioning.html'))});
