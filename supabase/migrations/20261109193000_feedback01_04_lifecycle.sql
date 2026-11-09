@@ -228,19 +228,24 @@ begin
  -- Discover all current direct database references, including future
  -- components (e.g. checklist, resources). Never silently cascade them.
  for dependency in
-  select c.conrelid::regclass as relation_name, a.attname as column_name,
-    rel.relname as table_name
+  select ns.nspname as table_schema, rel.relname as table_name,
+    a.attname as column_name
   from pg_catalog.pg_constraint c
   join pg_catalog.pg_class rel on rel.oid=c.conrelid
+  join pg_catalog.pg_namespace ns on ns.oid=rel.relnamespace
   join pg_catalog.pg_attribute a on a.attrelid=c.conrelid and a.attnum=c.conkey[1]
   where c.contype='f' and c.confrelid='public.projects'::regclass
     and array_length(c.conkey,1)=1
-  order by rel.relname
+  order by ns.nspname,rel.relname
  loop
-  if dependency.table_name not in('project_memberships','project_activity','project_products') then
-   execute format('select exists(select 1 from %s where %I=$1)',
-     dependency.relation_name,dependency.column_name)
+  if dependency.table_schema='public' and
+      dependency.table_name not in('project_memberships','project_activity','project_products') then
+   execute format('select exists(select 1 from %I.%I where %I=$1)',
+     dependency.table_schema,dependency.table_name,dependency.column_name)
      into occupied using p_project;
+  elsif dependency.table_schema<>'public' then
+   raise exception 'Project has a reference in another schema; manual review required'
+    using errcode='23503';
    if occupied then
     raise exception 'Project has retained work, customer or financial records; archive it instead of deleting'
       using errcode='23503';end if;
