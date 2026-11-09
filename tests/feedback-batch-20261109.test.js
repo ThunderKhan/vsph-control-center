@@ -29,7 +29,7 @@ test("guided project creation and manager actions preserve server-authorized tas
   assert.match(js, /detail\.role === "manager"/);
   for (const id of ["newProjectTask", "addProjectMember", "teamEditor", "taskEditor"])
     assert.match(html, new RegExp('id="' + id + '"'));
-  assert.match(html, /authorized manager/i);
+  assert.match(html, /Project managers can grant access/i);
 });
 test("product catalog form retains all governed registry fields", () => {
   const html = read("views/products.html");
