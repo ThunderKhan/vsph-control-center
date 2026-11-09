@@ -32,7 +32,9 @@ test("isolated GitHub fixture connects, syncs, links work, persists and disconne
   await page.goto("/projects/" + p.id);
   const workforceResponse=await context.request.get("/api/projects/"+p.id+"/workforce");
   expect(workforceResponse.status(),JSON.stringify(await workforceResponse.json())).toBe(200);
+  await page.locator('[data-project-view="engineering"]').click();
   await expect(page.locator("#engineering")).toBeVisible();
+  await expect(page).toHaveURL(/\?view=engineering$/);
   await page.getByLabel("GitHub installation ID").fill("77");
   await page
     .getByRole("button", {
@@ -80,6 +82,7 @@ test("isolated GitHub fixture connects, syncs, links work, persists and disconne
   await row.getByRole("button", { name: "Link", exact: true }).click();
   await expect(row).toContainText("Release acceptance");
   await page.reload();
+  await expect(page.locator("#engineering")).toBeVisible();
   await expect(page.locator("#engineeringRecords")).toContainText(
     "Fixture pull request",
   );
