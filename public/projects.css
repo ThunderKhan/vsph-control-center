@@ -345,3 +345,6 @@ body.project-create-open{overflow:hidden}
 
 .project-create-error{color:#922d2d;background:#fff0ee;border:1px solid #eebcba;border-radius:9px;padding:11px 13px;line-height:1.5;margin:0 0 15px}
 .project-create-error[hidden]{display:none!important}
+
+.project-create-notice{color:#215378;background:#eff7ff;border:1px solid #c5dff5;border-radius:9px;padding:11px 13px;line-height:1.5;margin:0 0 15px;font-size:13px}
+.project-create-notice[hidden]{display:none!important}
