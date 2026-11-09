@@ -116,7 +116,11 @@
       try {
         await handler(values(form));
       } catch (err) {
-        setMessage(err.message);
+        if(form.id==="createProjectForm" && $("projectCreateError")){
+          $("projectCreateError").hidden=false;
+          $("projectCreateError").textContent=err.message;
+          $("projectCreateError").scrollIntoView({block:"nearest",behavior:"smooth"});
+        } else setMessage(err.message);
       } finally {
         b.disabled = false;
       }
@@ -398,7 +402,11 @@
   async function createForm() {
     await getDirectory();
     const managerCandidates=await api("/api/projects/manager-candidates");
-    const form = $("createProjectForm");
+    // A fresh node also resets the wizard's capture listener. Reopening the
+    // modal must never reuse a previous closed-over step or stale form fields.
+    const oldForm=$("createProjectForm");
+    const form=oldForm.cloneNode(false);
+    oldForm.replaceWith(form);
     form.replaceChildren();
     field(form, "Project key (uppercase)", "key");
     projectFields(form);
@@ -452,6 +460,8 @@
     setupProjectWizard(form);
     form.hidden=false;
     $("projectCreateSuccess").hidden=true;
+    $("projectCreateError").hidden=true;
+    $("projectCreateError").textContent="";
     projectCreateDirty=false;
     let manualKey=false;
     form.elements.key.addEventListener("input",()=>{manualKey=true;});
