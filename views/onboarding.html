@@ -46,9 +46,10 @@
         </fieldset>
         <fieldset class="wizard-step" data-panel="2" hidden>
           <legend>Choose applications</legend>
-          <p class="step-description">Only active products are available. The invited administrator receives a product-specific Super Admin role for each one.</p>
+          <p class="step-description">Link existing VSPH products now, or set up the organization first for a custom software development project. Product access can be configured separately later.</p>
+          <label class="custom-only-choice"><input id="customOnly" type="checkbox"> <span><strong>Custom development only</strong><small>Create the organization and invite its owner without purchasing or assigning a reusable product.</small></span></label>
           <div id="productChoices" class="product-choices" aria-live="polite"><p class="subtle">Loading products…</p></div>
-          <p class="field-help">Select at least one product to continue.</p>
+          <p class="field-help">Select a catalog product or choose Custom development only. Product access never follows automatically from a project assignment.</p>
         </fieldset>
         <fieldset class="wizard-step" data-panel="3" hidden>
           <legend>Configure subscriptions</legend>
@@ -58,9 +59,9 @@
         </fieldset>
         <fieldset class="wizard-step" data-panel="4" hidden>
           <legend>Review onboarding</legend>
-          <p class="step-description">Review everything before sending the invitation and provisioning access.</p>
+          <p class="step-description">Review the client organization and invitation before submitting. No application deployment happens here.</p>
           <div id="reviewDetails" class="review-grid"></div>
-          <label class="confirm"><input id="confirm" type="checkbox"> <span>I have verified the organization, administrator email, products, and subscription details.</span></label>
+          <label class="confirm"><input id="confirm" type="checkbox"> <span>I have verified the organization, administrator email, and selected product access (if any).</span></label>
           <p class="field-help">Submitting will create the organization and request the administrator invitation. This action cannot be undone from this wizard.</p>
         </fieldset>
         <p id="wizardError" class="wizard-error" role="alert" aria-live="assertive" hidden></p>

@@ -38,7 +38,7 @@ function checkedStep(){
   if(!data.adminName)return 'Enter the administrator’s full name.';
   if(!byId('adminEmail').validity.valid||!data.adminEmail)return 'Enter a valid work email address.';
  }
- if(state.step===2 && state.chosen.size===0)return 'Select at least one product.';
+ if(state.step===2 && state.chosen.size===0 && !byId('customOnly').checked)return 'Choose a VSPH product or Custom development only.';
  if(state.step===3){
   for(const p of selected()){
    if(!/^[a-z0-9][a-z0-9_-]{0,59}$/.test(p.planCode))return 'Enter a valid plan code for '+titleFor(p.applicationId)+'.';
@@ -62,6 +62,7 @@ function productChoices(){
   const label=node('label','product-choice');
   const check=document.createElement('input');check.type='checkbox';check.value=app.id;check.checked=state.chosen.has(app.id);
   check.setAttribute('aria-label','Enable '+app.name);
+  check.disabled=byId('customOnly').checked;
   const info=node('span');info.append(node('strong','',app.name),node('small','',app.code));
   label.append(check,info);
   check.addEventListener('change',()=>{
@@ -108,18 +109,25 @@ function review(){
  }
  item('Organization',[info.organizationName, 'Workspace slug: '+info.slug]);
  item('Administrator invitation',[info.adminName,info.adminEmail,'Status: invitation pending acceptance']);
- item('Products and plans',selected().map(p=>titleFor(p.applicationId)+' — '+p.planCode+' / '+p.status+(p.endsAt?' / through '+p.endsAt:'')));
+ item('Products and plans',state.chosen.size?
+  selected().map(p=>titleFor(p.applicationId)+' — '+p.planCode+' / '+p.status+(p.endsAt?' / through '+p.endsAt:'')):
+  ['Custom development only; no catalog subscription or product access will be granted.']);
 }
 function render(){
  setError();
  steps.forEach((panel,i)=>panel.hidden=i!==state.step);
  list.forEach((item,i)=>{item.classList.toggle('active',i===state.step);item.classList.toggle('done',i<state.step);if(i===state.step)item.setAttribute('aria-current','step');else item.removeAttribute('aria-current')});
- byId('stepIndicator').textContent='STEP '+(state.step+1)+' OF 5';
- byId('progressPercent').textContent=((state.step+1)*20)+'% COMPLETE';
- byId('progressFill').style.width=((state.step+1)*20)+'%';
+ const customOnly=byId('customOnly').checked;
+ list[3].hidden=customOnly;
+ const displayedStep=customOnly&&state.step===4?4:state.step+1;
+ const numberOfSteps=customOnly?4:5;
+ const percent=Math.round(displayedStep/numberOfSteps*100);
+ byId('stepIndicator').textContent='STEP '+displayedStep+' OF '+numberOfSteps;
+ byId('progressPercent').textContent=percent+'% COMPLETE';
+ byId('progressFill').style.width=percent+'%';
  previous.disabled=state.step===0||state.busy;
  next.textContent=state.step===4?'Queue customer setup':'Continue';
- next.disabled=state.busy||(state.step===2&&!state.chosen.size)||(state.step===4&&!byId('confirm').checked);
+ next.disabled=state.busy||(state.step===2&&!state.chosen.size&&!byId('customOnly').checked)||(state.step===4&&!byId('confirm').checked);
  if(state.step===2)productChoices();
  if(state.step===3)subscriptionCards();
  if(state.step===4)review();
@@ -145,18 +153,23 @@ async function submit(){
    method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':submissionKey},body:JSON.stringify(payload)
   });
   form.hidden=true;byId('completeScreen').hidden=false;
-  byId('completeMessage').textContent=result.organizationName+' was queued with '+result.products.length+
-    ' product'+(result.products.length===1?'':'s')+'. Invitation delivery is queued. Check Provisioning recovery for status.';
+  byId('completeMessage').textContent=result.products.length?
+    result.organizationName+' was queued with '+result.products.length+' product'+(result.products.length===1?'':'s')+'. Invitation delivery is queued. Check Provisioning recovery for status.':
+    result.organizationName+' was created for custom development without a product subscription. The customer owner invitation is queued. Check Provisioning recovery for delivery status.';
   document.querySelector('.wizard-card').scrollIntoView({behavior:'auto',block:'start'});
  }catch(e){state.busy=false;render();setError(e.message)}
 }
 next.addEventListener('click',()=>{
  const message=checkedStep();if(message)return setError(message);
  if(state.step===4)return void submit();
- state.step++;render();
+ state.step=state.step===2&&byId('customOnly').checked?4:state.step+1;render();
 });
-previous.addEventListener('click',()=>{if(state.busy||state.step===0)return;state.step--;render()});
+previous.addEventListener('click',()=>{if(state.busy||state.step===0)return;state.step=state.step===4&&byId('customOnly').checked?2:state.step-1;render()});
 byId('confirm').addEventListener('change',()=>{next.disabled=!byId('confirm').checked});
+byId('customOnly').addEventListener('change',()=>{
+ if(byId('customOnly').checked){state.chosen.clear();state.plans.clear();}
+ render();
+});
 byId('orgName').addEventListener('input',e=>{
  if(!state.slugEdited)byId('orgSlug').value=slugify(e.target.value);
 });
