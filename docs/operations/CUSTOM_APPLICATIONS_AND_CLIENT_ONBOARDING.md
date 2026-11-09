@@ -21,7 +21,7 @@ The project-owned custom application table has RLS enabled and no browser databa
 
 ## Installation / rollback
 
-The two additive migrations are **source-only until an explicitly approved target deployment**. Do not rerun bootstrap, historic installers, fixture seeds or repair applied source hashes to activate this feature. Before releasing, reconcile the target history and reviewed migration checksums, verify private backup and restore rehearsal, install the exact forward migrations in order, recheck function grants and RLS, then run real Auth/invitation acceptance and tenant-isolation regression tests.
+The two additive migrations, together with project workforce governance, **are installed on the connected existing VSPH Supabase project as of November 9, 2026**, using one canonical-history-guarded atomic transaction. The exact source entries, migration count and privileges were confirmed, and fourteen existing table fingerprints were unchanged. See [installation evidence and outstanding recovery/acceptance limits](PROJECT_NOV09_MIGRATION_INSTALL.md). This installation does **not** migrate any other target. Before deploying another environment, reconcile its history and checksums, verify a private backup and restore exercise, then install only its missing reviewed forward migrations.
 
 If the target has not received these migrations, the custom-app API fails closed; the UI reports the dependency instead of fabricating records. Standard projects, catalog product links and existing customer onboarding remain independent. On application rollback, preserve additive tables, invitations and audit rows; fix forward after reviewing existing records. Do not drop customer data to revert UI.
 
