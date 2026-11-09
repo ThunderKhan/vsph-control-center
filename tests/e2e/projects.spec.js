@@ -179,7 +179,10 @@ test("authenticated project delivery workflow persists and denies an outsider", 
     "/api/projects/" + projectId,
   );
   expect(denied.status()).toBe(403);
-  expect((await context.request.get("/api/projects/" + projectPath.split("/").at(-1) + "/applications")).status()).toBe(403);
+  const applicationsDenied = await context.request.get("/api/projects/" + projectId + "/applications");
+  expect(applicationsDenied.status()).toBe(403);
+  const keyDenied = await context.request.get("/api/projects/by-key/" + encodeURIComponent(projectKey));
+  expect(keyDenied.status()).toBe(403);
   await page.goto(projectPath + "?verify=outsider");
   await expect(page.locator("#projectMessage")).toContainText("Access denied");
   await expect(page.locator("#projectTitle")).not.toContainText(
