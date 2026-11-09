@@ -50,7 +50,7 @@ The combined branch and static regression assertions are committed. Full isolate
 
 A read-only code review found a broken, truncated checklist assignee clause and an obsolete duplicate SQL action block **after** the workspace function's closing grant. This was a source defect inherited from the standalone Feedback #5 branch, not evidence of a failed hosted upgrade. The integration branch now has one complete function, explicit assignee authorization, and one final grant. It also:
 
-- Re-evaluates the actor's current project role *after* the project row lock, to avoid using a stale manager role for a write.
+- Re-evaluates the actor's current project role _after_ the project row lock, to avoid using a stale manager role for a write.
 - Returns only progress-safe checklist fields to authorized customer viewers of shared milestones (not internal staff IDs or audit metadata).
 - Prevents customer-role users from opening the Engineering section through view navigation.
 - Adds a source integrity regression test and extends isolated database assertions for shared checklist privacy.
