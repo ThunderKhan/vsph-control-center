@@ -342,3 +342,6 @@ body.project-create-open{overflow:hidden}
  .project-create-actions button:first-child{margin-right:0}
 }
 @media(prefers-reduced-motion:reduce){.project-workspace .project-modal-backdrop,.project-workspace .project-modal{animation:none;transition:none}}
+
+.project-create-error{color:#922d2d;background:#fff0ee;border:1px solid #eebcba;border-radius:9px;padding:11px 13px;line-height:1.5;margin:0 0 15px}
+.project-create-error[hidden]{display:none!important}
