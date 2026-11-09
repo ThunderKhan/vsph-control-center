@@ -171,3 +171,48 @@ test("authenticated project delivery workflow persists and denies an outsider", 
     "Verified delivery",
   );
 });
+
+
+test("workforce dependency failure does not hide the existing project workspace", async ({
+  page,
+  context,
+}, info) => {
+  test.skip(
+    !process.env.PROJECT_E2E_DATABASE,
+    "Requires isolated PostgreSQL fixture server.",
+  );
+  await context.setExtraHTTPHeaders({ Origin: "http://127.0.0.1:3100" });
+  await context.addCookies([
+    {
+      name: "vsph.portal.sid",
+      value: "fixture-admin-session",
+      url: "http://127.0.0.1:3100",
+      httpOnly: true,
+      sameSite: "Lax",
+    },
+  ]);
+  const created = await context.request.post("/api/projects", {
+    data: {
+      key: "WFFAIL-" + info.project.name.toUpperCase() + "-" + info.retry,
+      name: "Independent project workspace " + info.project.name,
+      kind: "internal",
+    },
+  });
+  expect(created.status()).toBe(201);
+  const project = await created.json();
+  await page.route("**/api/projects/" + project.id + "/workforce", (route) =>
+    route.fulfill({
+      status: 503,
+      contentType: "application/json",
+      body: JSON.stringify({ message: "Workforce schema unavailable." }),
+    }),
+  );
+  await page.goto("/projects/" + project.id);
+  await expect(page.locator("#projectTitle")).toContainText("Independent project workspace");
+  await expect(page.locator("#workforceSummary")).toContainText(
+    "Employee assignments unavailable: Workforce schema unavailable.",
+  );
+  await expect(page.locator("#addProjectMember")).toBeHidden();
+  await expect(page.locator("#newCustomApplication")).toBeVisible();
+  await expect(page.locator("#projectDetail")).toHaveAttribute("aria-busy", "false");
+});
