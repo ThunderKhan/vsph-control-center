@@ -1,0 +1,27 @@
+/* Product registration uses the VSPH navy/blue hierarchy without changing registry authorization. */
+.product-workspace{max-width:1180px}
+.product-workspace .registry-header{align-items:flex-start}
+.registry-header p,.registry-section-heading p,.registry-fieldset>p{margin:8px 0 0;color:#536984;max-width:690px;font-size:14px;line-height:1.65}
+.registry-paths{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:20px 0}
+.registry-paths article{background:#fff;border:1px solid #dce3ec;border-radius:12px;padding:24px;min-width:0}
+.registry-paths h2{font-size:20px;margin:8px 0}
+.registry-paths p{font-size:13px;color:#536984;line-height:1.7}
+.registry-paths a{display:inline-flex;align-items:center;min-height:44px;font-weight:600}
+.registry-path-label{color:#0069C8;font-size:11px;font-weight:750;text-transform:uppercase;letter-spacing:.08em}
+.product-workspace .panel{border-radius:12px;padding:28px}
+.registry-section-heading{display:flex;justify-content:space-between;align-items:start;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+.registry-section-heading h2{margin:0}
+.registry-paging{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.registry-paging button{margin:0}
+.registry-editor form{gap:26px}
+.registry-fieldset{border:1px solid #dae5ef;border-radius:12px;padding:24px;min-width:0;display:grid;gap:20px}
+.registry-fieldset legend{font-size:18px;font-weight:650;color:#00255A;padding:0 10px}
+.registry-number{display:inline-grid;place-items:center;width:32px;height:32px;background:#e9f3fc;color:#0069C8;border-radius:9px;font-size:12px;margin-right:8px}
+.registry-fieldset>p{margin:0}
+.registry-fieldset small{font-size:12px;color:#536984;line-height:1.6}
+.registry-fieldset textarea{min-height:90px}
+.registry-safety-note{padding:16px 18px;background:#eef5fc;border-left:3px solid #0069C8;color:#00255A;font-size:13px;line-height:1.65}
+.registry-form-actions{display:flex;justify-content:flex-end;padding-top:12px}
+.registry-form-actions button{min-width:170px}
+.registry-health p{color:#536984}
+@media(max-width:720px){.registry-paths{grid-template-columns:1fr}.product-workspace .panel{padding:18px}.registry-fieldset{padding:18px}.registry-header{gap:16px}}
