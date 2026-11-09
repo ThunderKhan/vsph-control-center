@@ -153,7 +153,7 @@ test("authenticated project delivery workflow persists and denies an outsider", 
     "/api/projects/" + projectPath.split("/").at(-1),
   );
   expect(denied.status()).toBe(403);
-  await page.goto(url);
+  await page.goto(projectPath + "?verify=outsider");
   await expect(page.locator("#projectMessage")).toContainText("Access denied");
   await expect(page.locator("#projectTitle")).not.toContainText(
     "Verified delivery",
