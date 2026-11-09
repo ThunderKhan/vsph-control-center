@@ -60,6 +60,35 @@ function command(req,action,id=null,data={}) {
 }
 router.get('/access',rpcRoute(req=>command(req,'access')));
 // Removal is a separate, audited workforce operation; ordinary HR cannot inspect owner history.
+// Archived employee rows retain their email identity. Only owners may review
+// and restore them; HR cannot grant itself permission through onboarding.
+router.get('/archived',rpcRoute(req=>{
+ if(Object.keys(req.query).length)invalid('Invalid archive filters.');
+ return db().rpc('internal_employee_rehire_command',{
+  p_actor:req.user.id,p_action:'list',p_id:null,p_data:{}
+ }).then(check);
+}));
+router.get('/restore-lookup',rpcRoute(req=>{
+ if(Object.keys(req.query).length!==1||typeof req.query.email!=='string'||
+   !emailPattern.test(req.query.email)||req.query.email.length>254)invalid('Invalid lookup email.');
+ return db().rpc('internal_employee_rehire_command',{
+  p_actor:req.user.id,p_action:'lookup',p_id:null,p_data:{email:req.query.email.toLowerCase()}
+ }).then(check);
+}));
+router.post('/:id/restore',rateLimit({limit:12,windowMs:15*60*1000}),rpcRoute(req=>{
+ if(!uuid(req.params.id))invalid('Invalid employee identifier.');
+ const data=req.body;
+ if(!data||typeof data!=='object'||Array.isArray(data)||Object.keys(data).length!==3||
+  Object.keys(data).some(k=>!['version','reason','confirmed'].includes(k))||
+  !Number.isSafeInteger(data.version)||data.version<1||data.version>999999999||
+  data.confirmed!==true||typeof data.reason!=='string'||
+  data.reason.trim().length<8||data.reason.length>500||control.test(data.reason))
+  invalid('Confirm a current archived employee and restoration reason.');
+ return db().rpc('internal_employee_rehire_command',{
+  p_actor:req.user.id,p_action:'restore',p_id:req.params.id,
+  p_data:{version:data.version,reason:data.reason.trim(),confirmed:true}
+ }).then(check);
+}));
 router.get('/removals',rpcRoute(req=>{
  if(Object.keys(req.query).length)invalid('Invalid removal-history filters.');
  return db().rpc('internal_employee_removal',{p_actor:req.user.id,p_action:'history',p_id:null,p_data:{}}).then(check);
@@ -99,6 +128,22 @@ router.post('/',rpcRoute(async(req,res)=>{
   if(cause.code!=='23505')throw cause;
   // SQL enforces unique work emails. Identify this specific conflict through
   // the authorized workforce command; never silently reuse an identity.
+  let archived=null;
+  try {
+    const result=await db().rpc('internal_employee_rehire_command',{
+      p_actor:req.user.id,p_action:'lookup',p_id:null,p_data:{email:data.email}
+    }).then(check);
+    archived=result.employee;
+  } catch(error) {
+    // Owner-only archive lookup is optional for HR and unavailable before
+    // the new migration is installed. Do not bypass workforce permissions.
+    if(error.code!=='42501' && error.code!=='PGRST202')throw error;
+  }
+  if(archived?.archived){
+    res.status(409);
+    return {code:'EMPLOYEE_ARCHIVED',employeeId:archived.id,
+      message:'This email belongs to an archived employee. Ask the platform owner to review and restore the existing record. Access is not automatically reactivated.'};
+  }
   const directory=await command(req,'list',null,{search:data.email});
   const existing=directory.employees?.find(employee=>employee.email===data.email);
   if(!existing)throw cause;
