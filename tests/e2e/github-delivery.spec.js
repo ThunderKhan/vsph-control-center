@@ -30,6 +30,8 @@ test("isolated GitHub fixture connects, syncs, links work, persists and disconne
   });
   expect(task.status()).toBe(200);
   await page.goto("/projects/" + p.id);
+  const workforceResponse=await context.request.get("/api/projects/"+p.id+"/workforce");
+  expect(workforceResponse.status(),JSON.stringify(await workforceResponse.json())).toBe(200);
   await expect(page.locator("#engineering")).toBeVisible();
   await page.getByLabel("GitHub installation ID").fill("77");
   await page

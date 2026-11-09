@@ -42,6 +42,10 @@ test("authenticated project delivery workflow persists and denies an outsider", 
   await expect(page).toHaveURL(/\/projects\/[0-9a-f-]+#team$/);
   const url = page.url();
   const projectPath = new URL(url).pathname;
+  const workforceResponse=await context.request.get("/api/projects/"+projectPath.split("/").at(-1)+"/workforce");
+  expect(workforceResponse.status(),JSON.stringify(await workforceResponse.json())).toBe(200);
+  await expect(page.locator("#projectMessage")).toBeEmpty({timeout:8000});
+  await expect(page.locator("#newCustomApplication")).toBeVisible({timeout:10000});
   await page.getByRole("button", {name:"New custom application"}).click();
   const application = page.locator("#customApplicationForm");
   await application.getByLabel("Application name").fill("Guest services portal");
