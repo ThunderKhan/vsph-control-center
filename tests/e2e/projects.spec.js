@@ -58,22 +58,16 @@ test("authenticated project delivery workflow persists and denies an outsider", 
   await expect(page.locator("#projectTitle")).toContainText(
     "Verified delivery",
   );
+  page.on("dialog",dialog=>dialog.accept());
   await page.locator("#teamEditor summary").click();
-  const member = page.locator("#memberForm");
-  await member
-    .getByLabel("Find an existing account")
-    .fill("developer@fixture.test");
-  await member
-    .getByRole("button", { name: "Find account", exact: true })
-    .click();
-  await expect(member.getByLabel("Project member")).toContainText(
-    "Fixture Developer",
-  );
-  await member
-    .getByLabel("Project member")
-    .selectOption("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb");
-  await member.getByLabel("Development team").fill("Engineering");
-  await member.getByRole("button", { name: "Save project membership" }).click();
+  const member=page.locator("#memberForm");
+  const staff=member.getByLabel("Employee",{exact:true});
+  await expect(staff).toContainText("staff "+testInfo.project.name);
+  const option=staff.locator("option").filter({hasText:"staff "+testInfo.project.name}).first();
+  const staffId=await option.getAttribute("value");
+  await staff.selectOption(staffId);
+  await member.getByLabel("Team",{exact:true}).fill("Engineering");
+  await member.getByRole("button",{name:"Save project assignment"}).click();
   await expect(page.locator("#teamList")).toContainText("Engineering");
   await page.locator("#milestoneEditor summary").click();
   let mf = page.locator("#milestoneForm");
@@ -89,7 +83,7 @@ test("authenticated project delivery workflow persists and denies an outsider", 
   await tf.getByLabel("Task title").fill("Implement tested flow");
   await tf
     .getByLabel("Assignee")
-    .selectOption("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb");
+    .selectOption(staffId);
   await tf
     .getByLabel("Milestone", { exact: true })
     .selectOption({ label: "Staging acceptance" });
