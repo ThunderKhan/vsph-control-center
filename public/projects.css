@@ -229,3 +229,26 @@
 .delivery-controls{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin:16px 0}.delivery-controls label{display:grid;gap:6px}.delivery-connections{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px;margin:18px 0}.delivery-connections article{border:1px solid #dce4ec;border-radius:10px;padding:16px;min-width:0;overflow-wrap:anywhere}.delivery-connections button{margin:4px}#engineeringContent select{max-width:100%;min-height:44px}#engineeringRecords table{min-width:800px}#engineeringRecords td{max-width:300px;overflow-wrap:anywhere}#engineeringTimeline li{margin-bottom:12px;overflow-wrap:anywhere}#repositoryDiscovery{display:flex;gap:10px;flex-wrap:wrap}
 #notificationList li{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #dce4ec}#notificationList small{display:block}#projectReport table{min-width:1000px}#projectOperations summary{min-height:44px;cursor:pointer}#notificationPreferences label{display:flex;align-items:center}
 #engineeringRecords table{min-width:1100px}#engineeringRecords td:nth-child(1){min-width:180px}#engineeringRecords td:nth-child(2),#engineeringRecords td:nth-child(3){white-space:nowrap}#engineeringRecords td:last-child{min-width:240px}#engineeringRecords td form{display:flex;flex-wrap:wrap;margin:10px 0;gap:8px}#engineeringRecords td form select{min-width:150px;max-width:190px}#sessionList li{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+
+/* Feedback #5, #8-10: guided creation and explicit manager actions. */
+.project-create-heading{display:grid;gap:6px;margin-bottom:22px}
+.project-create-heading h2{margin:0}
+.project-create-heading p{margin:0;color:#536984;line-height:1.65}
+.project-create-heading .project-kicker{color:#0069C8;font-size:11px;font-weight:700;letter-spacing:.12em}
+.project-workspace .project-creation form{display:block;margin:0}
+.project-create-progress{font-size:13px;color:#536984;font-weight:650;padding:12px 0;margin:0 0 14px;border-bottom:1px solid #DCE5EF}
+.project-create-step{border:0;padding:0;margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.project-create-step[hidden]{display:none}
+.project-create-step legend{grid-column:1/-1;font-size:20px;font-weight:650;padding:0;margin-bottom:12px}
+.project-create-step label:has([name="description"]),.project-create-step label:has([name="products"]),.project-create-step label:has([name="clientVisible"]),.project-step-hint,.project-create-review{grid-column:1/-1}
+.project-step-hint,.project-section-hint{font-size:13px;line-height:1.6;color:#536984;margin:0 0 16px}
+.project-create-review{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px}
+.project-create-review dt{font-size:12px;color:#536984}
+.project-create-review dd{margin:0 0 10px;color:#00255A;font-weight:600;overflow-wrap:anywhere}
+.project-create-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:10px;margin-top:26px;padding-top:18px;border-top:1px solid #DCE5EF}
+.project-creation .project-create-actions button[type="submit"]{background:#0069C8;color:white;border-color:#0069C8}
+.project-create-actions button:first-child{margin-right:auto}
+.project-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.project-section-head h2{margin:0}
+.project-section-head button{background:#0069C8;color:white;border-color:#0069C8}
+@media(max-width:750px){.project-create-step,.project-create-review{grid-template-columns:1fr}}

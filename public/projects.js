@@ -219,6 +219,123 @@
       p.client_visible,
     );
   }
+
+  function setupProjectWizard(form) {
+    const names = [
+      ["key", "name", "description", "priority", "startsOn", "dueOn"],
+      ["kind", "customerOrganizationId", "products", "clientVisible"],
+      [],
+    ];
+    const titles = ["Project details", "Organization and applications", "Review and create"];
+    const controls = Object.fromEntries(
+      [...form.querySelectorAll("label")].map((label) => [
+        label.querySelector("[name]")?.name,
+        label,
+      ]),
+    );
+    const submit = form.querySelector('button[type="submit"]');
+    if (!submit || names.flat().some((name) => !controls[name]))
+      return; // Keep the working form if a future schema introduces new fields.
+    const stages = titles.map((title, index) => {
+      const stage = node("fieldset");
+      stage.className = "project-create-step";
+      const legend = node("legend", title);
+      legend.tabIndex = -1;
+      stage.append(legend);
+      if (index === 1) {
+        stage.append(node("p", "Choose the customer organization for client work. Linked catalog products describe delivery; they do not grant subscriptions or product logins.", "project-step-hint"));
+      }
+      if (index === 2) {
+        stage.append(node("p", "Creating a project assigns you as the initial accountable manager. Add employees, a second manager and tasks from the project workspace afterward.", "project-step-hint"));
+      }
+      for (const name of names[index]) stage.append(controls[name]);
+      return stage;
+    });
+    const progress = node("p", "Step 1 of 3 · Project details", "project-create-progress");
+    progress.setAttribute("role", "status");
+    progress.setAttribute("aria-live", "polite");
+    const review = node("dl");
+    review.className = "project-create-review";
+    stages[2].append(review);
+    const actions = node("div");
+    actions.className = "project-create-actions";
+    const back = button("Previous", () => show(step - 1, true));
+    const next = button("Continue", () => {
+      if (validateStep()) show(step + 1, true);
+    });
+    const cancel = button("Cancel", () => {
+      $("creation").hidden = true;
+      form.reset();
+      $("newProject").focus();
+    });
+    actions.append(cancel, back, next, submit);
+    form.replaceChildren(progress, ...stages, actions);
+    const kind = form.elements.kind;
+    const customer = form.elements.customerOrganizationId;
+    const customerLabel = controls.customerOrganizationId;
+    const key = form.elements.key;
+    key.pattern = "[A-Z][A-Z0-9-]{1,19}";
+    key.title = "Use 2–20 uppercase letters, digits or hyphens; start with a letter.";
+    key.addEventListener("input", () => {
+      key.value = key.value.toUpperCase().replace(/[^A-Z0-9-]/g, "");
+    });
+    const updateKind = () => {
+      const isCustomer = kind.value === "customer";
+      customerLabel.hidden = !isCustomer;
+      customer.required = isCustomer;
+      if (!isCustomer) customer.value = "";
+    };
+    kind.addEventListener("change", updateKind);
+    updateKind();
+    let step = 0;
+    function validateStep() {
+      for (const field of stages[step].querySelectorAll("input,select,textarea")) {
+        if (field.closest("[hidden]") || field.checkValidity()) continue;
+        field.reportValidity();
+        field.focus();
+        return false;
+      }
+      return true;
+    }
+    function updateReview() {
+      review.replaceChildren();
+      const data = values(form);
+      for (const [name, label] of [
+        ["name", "Project"], ["key", "Key"], ["kind", "Ownership"],
+        ["customerOrganizationId", "Customer organization"],
+        ["priority", "Priority"], ["dueOn", "Due date"],
+        ["products", "Linked products"],
+      ]) {
+        if (name === "customerOrganizationId" && data.kind !== "customer") continue;
+        const dt = node("dt", label);
+        let value = data[name];
+        if (name === "customerOrganizationId") {
+          value = customer.selectedOptions[0]?.textContent || "Not selected";
+        } else if (name === "products") {
+          value = [...form.elements.products.selectedOptions]
+            .map((option) => option.textContent).join(", ") || "None";
+        }
+        review.append(dt, node("dd", value || "Not set"));
+      }
+    }
+    function show(nextStep, focus = false) {
+      step = Math.max(0, Math.min(2, nextStep));
+      if (step === 2) updateReview();
+      for (const [index, stage] of stages.entries()) stage.hidden = index !== step;
+      progress.textContent = "Step " + (step + 1) + " of 3 · " + titles[step];
+      back.hidden = step === 0;
+      next.hidden = step === 2;
+      submit.hidden = step !== 2;
+      if (focus) stages[step].querySelector("legend").focus();
+    }
+    form.addEventListener("submit", (event) => {
+      if (step === 2) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if (validateStep()) show(step + 1, true);
+    }, true);
+    show(0);
+  }
   async function createForm() {
     await getDirectory();
     const form = $("createProjectForm");
@@ -246,8 +363,9 @@
         method: "POST",
         body: JSON.stringify(d),
       });
-      location.assign("/projects/" + p.id);
+      location.assign("/projects/" + p.id + "#team");
     });
+    setupProjectWizard(form);
     $("creation").hidden = false;
     form.elements.key.focus();
   }
@@ -393,8 +511,17 @@
       table(["Task", "Assignee", "Priority", "Due", "State / actions"], rows),
     );
     if (!rows.length) box.append(node("p", "No tasks in this view."));
-    $("taskEditor").hidden = !manager || detail.project.status === "archived";
-    if (manager) renderTaskForm();
+    const canManage = manager && detail.project.status !== "archived";
+    $("taskEditor").hidden = !canManage;
+    $("newProjectTask").hidden = !canManage;
+    if (canManage) {
+      renderTaskForm();
+      $("newProjectTask").onclick = () => {
+        renderTaskForm();
+        $("taskEditor").open = true;
+        $("taskForm").elements.title.focus();
+      };
+    }
   }
   function renderMilestoneForm(m) {
     const f = $("milestoneForm");
@@ -490,7 +617,12 @@
     const manager =
       detail.role === "manager" && detail.project.status !== "archived";
     $("teamEditor").hidden = !manager;
+    $("addProjectMember").hidden = !manager;
     if (!manager) return;
+    $("addProjectMember").onclick = () => {
+      $("teamEditor").open = true;
+      $("memberForm").elements.email.focus();
+    };
     const f = $("memberForm");
     f.replaceChildren();
     const email = field(
