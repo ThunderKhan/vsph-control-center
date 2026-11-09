@@ -24,7 +24,7 @@ create or replace function public.internal_employee_removed_guard()
 returns trigger language plpgsql security definer set search_path='' as $$
 begin
  if old.removed_at is not null and not (
-   current_setting('vsph.employee_restore_id',true)=old.id::text
+   coalesce(current_setting('vsph.employee_restore_id',true),'')=old.id::text
    and new.removed_at is null and new.removed_by is null and new.removal_reason is null
    and new.status='onboarding' and new.version=old.version+1
    and new.id=old.id and new.email=old.email
