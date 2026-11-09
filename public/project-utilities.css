@@ -1,0 +1,28 @@
+/* Relocated project utilities and account security. */
+.utility-workspace{max-width:1120px;margin-inline:auto}
+.utility-workspace .project-heading{margin-bottom:14px}
+.utility-workspace .project-panel{border-radius:14px;padding:clamp(17px,3vw,28px)}
+.utility-eyebrow{font-size:11px;font-weight:750;letter-spacing:.12em;text-transform:uppercase;color:#5379a5;margin:0 0 7px}
+.utility-workspace .project-panel h2{font-size:19px;letter-spacing:-.025em;margin:24px 0 10px}
+.utility-workspace .project-panel h2:first-child{margin-top:0}
+.utility-workspace #notificationList{list-style:none;padding:0}
+.utility-workspace #notificationList li{gap:12px;padding:16px 0}
+.utility-workspace #notificationList a{font-weight:650;min-width:0;overflow-wrap:anywhere}
+.utility-workspace #notificationPreferences,.utility-workspace #reportFilters{border-top:1px solid #e1e8f2;padding-top:20px}
+.utility-workspace #projectReport{max-width:100%;overflow-x:auto}
+.utility-page-head{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px}
+.utility-page-head>div{max-width:650px}
+.utility-page-head p{color:#566d85;line-height:1.65}
+.utility-page-head nav{display:flex;gap:12px;padding-top:12px;flex-wrap:wrap}
+.utility-page-head nav a{padding:9px 12px;border-radius:8px;border:1px solid #dce5ef;color:#0c5fa8;font-size:13px;text-decoration:none;font-weight:700}
+.utility-page-head nav a[aria-current="page"]{background:#eaf3fe;color:#083567}
+.utility-security-card{background:#fff;border:1px solid #dce5ef;border-radius:14px;padding:clamp(18px,3vw,28px);margin-top:20px}
+.utility-security-card h2{margin:0 0 10px;font-size:19px}
+.utility-security-card p{color:#586e86;line-height:1.6}
+.utility-session-list{padding:0;list-style:none}
+.utility-session-list li{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:18px 0;border-bottom:1px solid #edf1f7;font-size:13px;line-height:1.6}
+.utility-session-list button,.utility-revoke{min-height:42px;padding:10px 14px;border-radius:9px;border:1px solid #d5dfeb;background:#f8fbfe;color:#134b82;font-weight:700;cursor:pointer}
+.utility-revoke{margin-top:16px}
+.utility-session-list button:hover,.utility-revoke:hover{background:#eaf2fa}
+@media(max-width:700px){.utility-workspace .project-workspace form,.utility-workspace .delivery-controls{display:grid;grid-template-columns:1fr}.utility-session-list li{flex-direction:column;align-items:flex-start}}
+@media(prefers-reduced-motion:reduce){.utility-workspace *{transition:none!important;animation:none!important}}
