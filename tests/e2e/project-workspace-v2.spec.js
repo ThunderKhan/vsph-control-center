@@ -6,7 +6,13 @@ test('Feedback #05: key URLs, responsive project views and durable checklist, ri
   await context.setExtraHTTPHeaders({Origin:'http://127.0.0.1:3100'});
   await context.addCookies([{name:'vsph.portal.sid',value:'fixture-admin-session',url:'http://127.0.0.1:3100',httpOnly:true,sameSite:'Lax'}]);
   const key='V2-'+info.project.name.toUpperCase()+'-'+info.retry;
-  const created=await context.request.post('/api/projects',{data:{key,name:'V2 project workspace '+info.project.name,kind:'internal'}});
+  const candidates=await context.request.get('/api/projects/manager-candidates');
+  expect(candidates.status()).toBe(200);
+  const manager=(await candidates.json()).managers.find(x=>x.full_name.includes(info.project.name));
+  expect(manager,'Fixture must have an eligible, linked active manager').toBeTruthy();
+  const created=await context.request.post('/api/projects',{
+    data:{key,name:'V2 project workspace '+info.project.name,kind:'internal',managerUserId:manager.id}
+  });
   expect(created.status()).toBe(201);
   const project=await created.json();
   const byKey=await context.request.get('/api/projects/by-key/'+key);
@@ -15,6 +21,7 @@ test('Feedback #05: key URLs, responsive project views and durable checklist, ri
   await page.goto('/projects/'+project.id);
   await expect(page).toHaveURL('/projects/'+key);
   await expect(page.locator('#projectTitle')).toContainText('V2 project workspace');
+  await expect(page.locator('#projectMeta')).toContainText(manager.full_name);
   await expect(page.locator('#projectOperations')).toHaveCount(0);
   await expect(page.locator('#accountSessions')).toHaveCount(0);
   await expect(page.locator('#projectSummary')).toContainText('Not started');
