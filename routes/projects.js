@@ -246,4 +246,48 @@ for (const [path, action] of [
       );
     }),
   );
-module.exports = { router, validate };
+
+function validateCustomApplication(data,updating=false){
+  if(!data||typeof data!=="object"||Array.isArray(data))invalid();
+  const keys=["name","description","status","repositoryUrl","deploymentUrl","shared"];
+  if(updating)keys.push("version");
+  if(Object.keys(data).length!==keys.length||keys.some(k=>!Object.hasOwn(data,k)))invalid();
+  if(typeof data.name!=="string"||data.name.trim().length<1||data.name.trim().length>150||
+    typeof data.description!=="string"||data.description.length>2000||
+    !["planned","building","testing","live","paused","retired"].includes(data.status)||
+    typeof data.shared!=="boolean")invalid();
+  const validated={...data,name:data.name.trim()};
+  for(const key of ["repositoryUrl","deploymentUrl"]){
+    const raw=data[key];
+    if(typeof raw!=="string"||raw.length>1000)invalid();
+    if(!raw)continue;
+    let parsed;
+    try{parsed=new URL(raw)}catch{invalid();}
+    if(parsed.protocol!=="https:"||parsed.username||parsed.password||parsed.search||parsed.hash||
+       !/^https:\/\/[A-Za-z0-9.-]+(?::[0-9]{1,5})?(?:\/[A-Za-z0-9._~/%-]*)?$/.test(raw))
+      invalid();
+  }
+  if(updating&&(!Number.isSafeInteger(data.version)||data.version<1||data.version>2147483646))invalid();
+  return validated;
+}
+const customApplication=(req,action,id,payload)=>
+  db().rpc("project_custom_application_command",{
+    p_actor:req.user.id,p_action:action,p_project:req.params.id,
+    p_id:id||null,p_data:payload||{},
+  }).then(check);
+router.get("/:id/applications",rpcRoute(req=>{
+  if(!uuid(req.params.id)||Object.keys(req.query).length)invalid();
+  return customApplication(req,"list",null,{});
+}));
+router.post("/:id/applications",rpcRoute(req=>{
+  if(!uuid(req.params.id)||Object.keys(req.query).length)invalid();
+  const data=validateCustomApplication(req.body);
+  return customApplication(req,"create",null,data);
+}));
+router.patch("/:id/applications/:applicationId",rpcRoute(req=>{
+  if(!uuid(req.params.id)||!uuid(req.params.applicationId)||Object.keys(req.query).length)invalid();
+  const data=validateCustomApplication(req.body,true);
+  return customApplication(req,"update",req.params.applicationId,data);
+}));
+
+module.exports = { router, validate, validateCustomApplication };

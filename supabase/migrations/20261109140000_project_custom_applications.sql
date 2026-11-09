@@ -37,7 +37,7 @@ begin
     jsonb_typeof(p_data) is distinct from 'object' then
   raise exception 'Invalid project application request' using errcode='22023';
  end if;
- select * into p from public.projects where id=p_project for share;
+ select * into p from public.projects where id=p_project;
  if not found then raise exception 'Project unavailable' using errcode='42501';end if;
  role_name:=public.project_permission(p_actor,p_project);
  if role_name is null then raise exception 'Project unavailable' using errcode='42501';end if;

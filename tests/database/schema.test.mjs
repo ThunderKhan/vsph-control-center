@@ -180,6 +180,7 @@ test('durable provisioning, leases, retries, invitation purpose and membership-i
 test('project ownership, tasks, team, optimistic concurrency, private client scope and history',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./project-cases.js')(pool);});
 
 
+test('project-owned custom apps preserve isolation, versioning, sharing and audit',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./project-custom-app-cases.js')(pool);});
 test('milestone completion validates its proposed dependency',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./project-cases.js').dependencyRegression(pool);});
 
 test('explicit account disable revokes in-flight enrollment even when already staged disabled',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./provisioning-cases.js').disableRegression(pool,app);});
