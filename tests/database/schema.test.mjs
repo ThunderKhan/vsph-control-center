@@ -275,3 +275,8 @@ test('employee removal archives records, revokes employee links and exposes owne
 test('supervised notification batch uses durable native queues with duplicate and revoked-access guards',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./worker-cases.js')(pool);});
 
 test('project manager governance and employee allocation remain isolated',async()=>{const {createRequire}=await import('node:module');await createRequire(import.meta.url)('./project-workforce-cases.js')(pool);});
+test('feedback 1-4 project manager creation, guarded deletion and employee restoration isolate permissions',async()=>{
+  const {createRequire}=await import('node:module');
+  await createRequire(import.meta.url)('./feedback01-04-cases.js')(pool);
+});
+
