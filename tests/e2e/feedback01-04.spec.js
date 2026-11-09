@@ -1,0 +1,30 @@
+const {test,expect}=require('@playwright/test');
+test('separate notification, reporting and security pages replace portfolio clutter',async({page,context})=>{
+ test.skip(!process.env.PROJECT_E2E_DATABASE,'Requires isolated PostgreSQL fixture');
+ await context.addCookies([{name:'vsph.portal.sid',value:'fixture-admin-session',url:'http://127.0.0.1:3100'}]);
+ await page.goto('/projects');
+ await expect(page.locator('#projectOperations')).toHaveCount(0);
+ await expect(page.locator('#accountSessions')).toHaveCount(0);
+ await page.goto('/notifications');
+ await expect(page.locator('#notificationList')).toBeVisible();
+ await expect(page.locator('#projectReport')).toBeHidden();
+ await page.goto('/reports');
+ await expect(page.locator('#projectReport')).toBeVisible();
+ await expect(page.locator('#notificationList')).toBeHidden();
+ await page.goto('/account/security');
+ await expect(page.locator('#sessionList li').first()).toContainText('Current session');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+});
+test('project creation renders responsive owner-governed manager modal',async({page,context},info)=>{
+ test.skip(!process.env.PROJECT_E2E_DATABASE,'Requires isolated PostgreSQL fixture');
+ await context.addCookies([{name:'vsph.portal.sid',value:'fixture-admin-session',url:'http://127.0.0.1:3100'}]);
+ await page.goto('/projects');
+ await page.getByRole('button',{name:'New project',exact:true}).click();
+ await expect(page.locator('#creation')).toHaveAttribute('aria-modal','true');
+ const form=page.locator('#createProjectForm');
+ await form.getByLabel('Project key').fill('PREVIEW-'+info.project.name.toUpperCase());
+ await form.getByLabel('Project name',{exact:true}).fill('Modern workspace preview');
+ await form.getByRole('button',{name:'Continue',exact:true}).click();
+ await expect(form.getByLabel('Project manager')).toContainText('staff '+info.project.name);
+ await expect(page.locator('#projectCreateOverlay')).toBeVisible();
+});
