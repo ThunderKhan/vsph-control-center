@@ -14,11 +14,16 @@
  let step=0,editing=null,busy=false,pending=null;
  let linkAvailable=false,linkCopied=false,copyFeedbackTimer=null,uncertainEmail=null;
 
- const error=(message,existingId)=>{
+ const error=(message,existingId,archived=false)=>{
   $('onboardError').textContent=message||'';
   $('onboardError').hidden=!message;
   $('existingEmployeeLink').hidden=!existingId;
-  if(existingId)$('existingEmployeeLink').href='/employees/'+encodeURIComponent(existingId)+'/account-link';
+  if(existingId){
+    $('existingEmployeeLink').href=archived
+      ? '/employees?restore='+encodeURIComponent(existingId)
+      : '/employees/'+encodeURIComponent(existingId)+'/account-link';
+    $('existingEmployeeLink').textContent=archived?'Review archived employee':'Review existing employee';
+  }
  };
  function values(){
   return {fullName:form.elements.fullName.value.trim(),email:form.elements.email.value.trim().toLowerCase(),
@@ -240,6 +245,10 @@
    if(response.status===401){location.assign('/login');return;}
    const result=await response.json().catch(()=>({}));
    if(!response.ok){
+    if(result.code==='EMPLOYEE_ARCHIVED'){
+     error(result.message||'This employee is archived. Request owner-reviewed restoration before onboarding again.',result.employeeId,true);
+     return;
+    }
     if(result.code==='EMPLOYEE_EXISTS'&&result.employeeId){
      error(result.message||'This work email already belongs to an employee.',result.employeeId);return;
     }
