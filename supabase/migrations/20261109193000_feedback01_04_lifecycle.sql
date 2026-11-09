@@ -51,7 +51,7 @@ begin
   raise exception 'Platform owner required for archived employee review' using errcode='42501';
  end if;
  if jsonb_typeof(p_data) is distinct from 'object'
-   or p_action not in('lookup','list','restore') then
+   or p_action is null or p_action not in('lookup','list','restore') then
   raise exception 'Invalid restoration request' using errcode='22023';
  end if;
  if p_action='lookup' then
@@ -148,7 +148,7 @@ begin
  select * into actor from public.profiles where id=p_actor and status='active' for share;
  if not found or actor.platform_role<>'super_admin' then
   raise exception 'Platform owner required' using errcode='42501';end if;
- if jsonb_typeof(p_data) is distinct from 'object' or p_action not in('managers','create') then
+ if jsonb_typeof(p_data) is distinct from 'object' or p_action is null or p_action not in('managers','create') then
   raise exception 'Invalid project creation command' using errcode='22023';end if;
  if p_action='managers' then
   if p_data<>'{}'::jsonb then raise exception 'Unexpected search fields' using errcode='22023';end if;
@@ -204,7 +204,7 @@ begin
  select * into actor from public.profiles where id=p_actor and status='active' for share;
  if not found or actor.platform_role<>'super_admin' then
   raise exception 'Only the platform owner may archive or delete projects' using errcode='42501';end if;
- if p_action not in('archive','delete') or p_project is null or
+ if p_action is null or p_action not in('archive','delete') or p_project is null or
    jsonb_typeof(p_data) is distinct from 'object' or (select count(*) from jsonb_object_keys(p_data))<>3 or
    not (p_data ?& array['version','key','confirmed']) or
    p_data->'confirmed' is distinct from 'true'::jsonb or
