@@ -1,84 +1,147 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#00255A"><title>New customer | VSPH Control Center</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#00255A">
+<title>Create organization | VSPH Control Center</title>
 <link rel="stylesheet" href="/onboarding.css">
 </head>
 <body>
 <main class="onboarding-shell">
   <div class="intro">
-    <p class="client-onboard-kicker">CLIENT ONBOARDING</p>
-    <h1>Onboard a customer<span class="dot">.</span></h1>
-    <p class="client-onboard-lead">Create an organization, invite its administrator and review product access in one secure workflow.</p>
+    <a class="back-link" href="/admin/customers">Customer directory</a>
+    <div class="intro-heading">
+      <div>
+        <p class="client-onboard-kicker">ORGANIZATIONS / CREATE</p>
+        <h1>Create an organization<span class="dot">.</span></h1>
+        <p class="client-onboard-lead">Give a client a dedicated workspace, assign its owner, and optionally connect VSPH products. Projects and custom applications are managed afterward.</p>
+      </div>
+      <span class="access-note">Platform owner workflow</span>
+    </div>
   </div>
+
   <div class="onboarding-layout">
-    <aside class="step-sidebar" aria-label="Setup progress">
-      <p class="side-kicker">SETUP CHECKLIST</p>
+    <aside class="step-sidebar" aria-label="Organization setup progress">
+      <p class="side-kicker">SETUP PROGRESS</p>
       <ol id="stepList" class="step-list">
-        <li class="step active" data-step="0"><span class="number">01</span><div><strong>Organization</strong><small>Company identity</small></div></li>
-        <li class="step" data-step="1"><span class="number">02</span><div><strong>Administrator</strong><small>Email invitation</small></div></li>
-        <li class="step" data-step="2"><span class="number">03</span><div><strong>Applications</strong><small>Select products</small></div></li>
-        <li class="step" data-step="3"><span class="number">04</span><div><strong>Subscriptions</strong><small>Plans and terms</small></div></li>
-        <li class="step" data-step="4"><span class="number">05</span><div><strong>Review</strong><small>Confirm and provision</small></div></li>
+        <li class="step active" data-step="0" aria-current="step"><span class="number">01</span><div><strong>Organization</strong><small>Identity and workspace URL</small></div></li>
+        <li class="step" data-step="1"><span class="number">02</span><div><strong>Customer owner</strong><small>Invitation and membership</small></div></li>
+        <li class="step" data-step="2"><span class="number">03</span><div><strong>Product access</strong><small>Optional subscriptions</small></div></li>
+        <li class="step" data-step="3"><span class="number">04</span><div><strong>Review</strong><small>Verify before creating</small></div></li>
       </ol>
+      <div class="setup-guidance">
+        <strong>What happens next?</strong>
+        <p>The organization is created in one durable operation, with an invitation queued for its owner. Product access never grants project permissions, and an invitation is not the same as a delivered email.</p>
+      </div>
     </aside>
-    <section class="wizard-card" aria-label="Customer onboarding form">
-      <div class="progress-top"><span id="stepIndicator">STEP 1 OF 5</span><span id="progressPercent">20% COMPLETE</span></div>
-      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:20%"></div></div>
+
+    <section class="wizard-card" aria-label="Organization creation form">
+      <div class="progress-top"><span id="stepIndicator" role="status" aria-live="polite">STEP 1 OF 4</span><span id="progressPercent">25% COMPLETE</span></div>
+      <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressFill" style="width:25%"></div></div>
+
       <form id="onboardingForm" novalidate>
         <fieldset class="wizard-step" data-panel="0">
-          <legend>Organization details</legend>
-          <p class="step-description">These details identify the customer everywhere in VSPH.</p>
+          <legend tabindex="-1">Organization details</legend>
+          <p class="step-description">Every client receives a separate organization. The workspace identifier must be unique and cannot be changed from this wizard.</p>
           <div class="field-grid">
-            <div class="field wide"><label for="orgName">Organization name <span>*</span></label><input id="orgName" name="organizationName" maxlength="150" placeholder="e.g. Northstar Hospitality" autocomplete="organization" required><small>Use the customer's registered or operating name.</small></div>
-            <div class="field wide"><label for="orgSlug">Workspace slug <span>*</span></label><div class="slug-input"><span>vsph /</span><input id="orgSlug" name="slug" maxlength="160" pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="northstar-hospitality" required></div><small>Lowercase letters, numbers, and hyphens. Must be unique.</small></div>
+            <div class="field wide">
+              <label for="orgName">Organization name <span aria-hidden="true">*</span></label>
+              <input id="orgName" name="organizationName" maxlength="150" minlength="2" placeholder="e.g. Northstar Hospitality" autocomplete="organization" required>
+              <small>Use the client's registered or trading name.</small>
+            </div>
+            <div class="field wide">
+              <label for="orgSlug">Workspace identifier <span aria-hidden="true">*</span></label>
+              <div class="slug-input"><span aria-hidden="true">vsph /</span><input id="orgSlug" name="slug" maxlength="160" pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="northstar-hospitality" aria-describedby="slugHelp slugStatus" required></div>
+              <small id="slugHelp">Lowercase letters, numbers and hyphens. This is a stable identifier, not a published website URL.</small>
+              <p id="slugStatus" class="field-status" role="status" aria-live="polite"></p>
+            </div>
           </div>
+          <div class="quiet-note"><strong>Data isolation</strong><p>This organization will have separate members and product entitlements. Creating it does not copy information from another customer.</p></div>
         </fieldset>
+
         <fieldset class="wizard-step" data-panel="1" hidden>
-          <legend>Invite an administrator</legend>
-          <p class="step-description">The customer will receive an email link to create a password. You never need to choose or share their password.</p>
+          <legend tabindex="-1">Assign the customer owner</legend>
+          <p class="step-description">The intended owner receives an invitation to accept organization ownership and choose their own password. VSPH staff remain separate from customer organization membership.</p>
           <div class="field-grid">
-            <div class="field wide"><label for="adminName">Full name <span>*</span></label><input id="adminName" name="adminName" maxlength="150" autocomplete="name" placeholder="e.g. Avery Shah" required></div>
-            <div class="field wide"><label for="adminEmail">Work email address <span>*</span></label><input id="adminEmail" name="adminEmail" type="email" maxlength="190" autocomplete="off" placeholder="avery@northstar.example" required><small>Use a new email address not already registered with VSPH.</small></div>
+            <div class="field wide">
+              <label for="adminName">Owner's full name <span aria-hidden="true">*</span></label>
+              <input id="adminName" name="adminName" maxlength="150" minlength="2" autocomplete="name" placeholder="e.g. Avery Shah" required>
+            </div>
+            <div class="field wide">
+              <label for="adminEmail">Owner's work email <span aria-hidden="true">*</span></label>
+              <input id="adminEmail" name="adminEmail" type="email" maxlength="190" autocomplete="off" placeholder="avery@northstar.example" required>
+              <small>This account will be a customer organization owner, not a VSPH platform administrator.</small>
+            </div>
           </div>
-          <div class="quiet-note"><strong>What they'll receive</strong><p>An invitation for this customer workspace. Delivery is queued and tracked separately.</p></div>
+          <div class="quiet-note"><strong>Secure owner invitation</strong><p>Invitations are recorded and can be recovered or reissued from Provisioning Recovery. Email delivery depends on the configured invitation worker.</p></div>
         </fieldset>
+
         <fieldset class="wizard-step" data-panel="2" hidden>
-          <legend>Choose applications</legend>
-          <p class="step-description">Link existing VSPH products now, or set up the organization first for a custom software development project. Product access can be configured separately later.</p>
-          <label class="custom-only-choice"><input id="customOnly" type="checkbox"> <span><strong>Custom development only</strong><small>Create the organization and invite its owner without purchasing or assigning a reusable product.</small></span></label>
-          <div id="productChoices" class="product-choices" aria-live="polite"><p class="subtle">Loading products…</p></div>
-          <p class="field-help">Select a catalog product or choose Custom development only. Product access never follows automatically from a project assignment.</p>
+          <legend tabindex="-1">Choose product access</legend>
+          <p class="step-description">This is optional. A client can commission custom software before subscribing to an existing VSPH product.</p>
+          <div class="access-mode" role="radiogroup" aria-label="Product access at organization creation">
+            <label class="access-choice" for="customOnly"><input type="radio" name="accessMode" value="custom" id="customOnly" checked><span><strong>Organization only</strong><small>Recommended for custom-development clients. Do not create any product subscription or grant.</small></span></label>
+            <label class="access-choice" for="catalogMode"><input type="radio" name="accessMode" value="catalog" id="catalogMode"><span><strong>Set up VSPH products</strong><small>Choose reusable products and define trial or active subscription terms now.</small></span></label>
+          </div>
+          <div id="catalogConfiguration" class="catalog-configuration" hidden>
+            <div class="section-subheading"><h2>Available products</h2><p>Select one or more products for this organization.</p></div>
+            <div id="productChoices" class="product-choices" aria-live="polite"><p class="subtle">Choose VSPH products to load the catalog.</p></div>
+            <div id="catalogError" class="catalog-error" role="status" hidden><span id="catalogErrorText"></span><button id="catalogRetry" type="button" class="button secondary">Retry loading</button></div>
+            <div id="subscriptionCards" class="subscription-cards"></div>
+            <p class="field-help">Active subscriptions and trials are access terms, not recorded payments. Trials must have a future end date.</p>
+          </div>
+          <div class="quiet-note"><strong>Project independence</strong><p>You can create projects for this organization after setup. Project membership does not grant product access, and product access does not grant project management permissions.</p></div>
         </fieldset>
+
         <fieldset class="wizard-step" data-panel="3" hidden>
-          <legend>Configure subscriptions</legend>
-          <p class="step-description">Set a plan and billing state for every selected product. Trials require an end date; active subscriptions may leave it blank.</p>
-          <div id="subscriptionCards" class="subscription-cards"></div>
-          <div class="quiet-note"><strong>Product access</strong><p>Selected products will receive enabled access grants. No payment is processed by this wizard.</p></div>
-        </fieldset>
-        <fieldset class="wizard-step" data-panel="4" hidden>
-          <legend>Review onboarding</legend>
-          <p class="step-description">Review the client organization and invitation before submitting. No application deployment happens here.</p>
+          <legend tabindex="-1">Review and create</legend>
+          <p class="step-description">Check the organization, the intended customer owner, and any product grants. Changes made during review must be confirmed again.</p>
           <div id="reviewDetails" class="review-grid"></div>
-          <label class="confirm"><input id="confirm" type="checkbox"> <span>I have verified the organization, administrator email, and selected product access (if any).</span></label>
-          <p class="field-help">Submitting will create the organization and request the administrator invitation. This action cannot be undone from this wizard.</p>
+          <label class="confirm"><input id="confirm" type="checkbox" required><span>I confirm these details and understand that creating an organization queues an owner invitation, but does not guarantee email delivery.</span></label>
+          <p class="field-help">This action creates a durable organization and invitation. It cannot be reversed from this wizard.</p>
         </fieldset>
+
         <p id="wizardError" class="wizard-error" role="alert" aria-live="assertive" hidden></p>
         <div class="form-footer">
           <button id="previousButton" class="button secondary" type="button" disabled>Previous</button>
-          <span class="save-note">Details are not saved until you submit.</span>
-          <button id="nextButton" class="button primary" type="button" disabled>Continue</button>
+          <span class="save-note">Nothing is created until you confirm.</span>
+          <button id="nextButton" class="button primary" type="button">Continue</button>
         </div>
       </form>
-      <div id="completeScreen" hidden aria-live="polite" class="completion">
-        <div class="success-icon">✓</div>
-        <p class="eyebrow">ONBOARDING REQUESTED</p>
-        <h2>Customer provisioned.</h2>
+
+      <section id="recoveryScreen" class="completion recovery-screen" hidden aria-live="polite">
+        <span class="result-icon warning-icon" aria-hidden="true">!</span>
+        <p class="eyebrow">REQUEST STATUS UNKNOWN</p>
+        <h2>Check the original request</h2>
+        <p>The connection ended before we could confirm the result. Repeating the same request identifier is safe, but starting a different organization could create a duplicate.</p>
+        <p id="recoveryMessage" role="status"></p>
+        <div class="completion-actions">
+          <button id="checkOriginalRequest" type="button" class="button primary">Check original request</button>
+          <button id="retryOriginalRequest" type="button" class="button secondary">Retry same request</button>
+          <button id="returnToReview" type="button" class="button secondary">Return to review</button>
+          <a class="button secondary" href="/admin/provisioning">Provisioning recovery</a>
+        </div>
+      </section>
+
+      <section id="completeScreen" class="completion" hidden aria-live="polite">
+        <span class="result-icon success-icon" aria-hidden="true">✓</span>
+        <p class="eyebrow">ORGANIZATION CREATED</p>
+        <h2>Organization is ready for setup.</h2>
         <p id="completeMessage"></p>
-        <div class="quiet-note"><strong>Next steps</strong><p>The administrator must open their invitation email and set their password before workspace access becomes active. Delivery requires the approved invitation worker and email provider. Track it in Provisioning recovery.</p></div>
-        <div class="completion-actions"><a class="button primary" href="/admin/customers">Customer directory</a><a class="button secondary" href="/admin/provisioning">Track invitation</a><button type="button" id="startAgain" class="button secondary">Onboard another client</button></div>
-      </div>
+        <div class="completion-receipt">
+          <div><span>Workspace</span><strong id="createdWorkspace">—</strong></div>
+          <div><span>Owner invitation</span><strong id="createdInvitation">Queued — not delivered</strong></div>
+          <div><span>Product access</span><strong id="createdProducts">None</strong></div>
+        </div>
+        <div class="quiet-note"><strong>Next steps</strong><p>Create a customer project, then attach custom applications or project team members. The customer owner must accept their invitation before accessing their workspace. Use Provisioning Recovery to monitor delivery.</p></div>
+        <div class="completion-actions">
+          <a id="completeProject" class="button primary" href="/projects">Create customer project</a>
+          <a id="completeDirectory" class="button secondary" href="/admin/customers">View organization</a>
+          <a class="button secondary" href="/admin/provisioning">Track invitation</a>
+          <button type="button" id="startAgain" class="button secondary">Create another</button>
+        </div>
+      </section>
     </section>
   </div>
 </main>
