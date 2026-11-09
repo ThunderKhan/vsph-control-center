@@ -16,11 +16,13 @@ Platform owners can open **/admin/finance** to enter audited INR invoices and in
 
 The finance migrations and owner operating snapshot are installed on the configured existing project; see [verified hosted repair](docs/operations/HOSTED_REPAIR_20261104.md) and [snapshot installation/performance evidence](docs/operations/PERFORMANCE.md). The normal owner dashboard reads persisted operating and finance records; its illustrative executive preview is explicitly opt-in. Other deployment targets still require their own reviewed migration installation and acceptance. See [finance operations](docs/operations/FINANCE_LEDGER.md).
 
-## Guided customer onboarding — PR #7
+## Organization-first customer onboarding
 
-Platform administrators use the five-step `/admin/onboarding` wizard. Submission commits a durable idempotent job/tenant/grants/outbox transaction; it does not send email synchronously. `/admin/provisioning` shows delivery/acceptance/failure state and audited retry, revoke and reconciled recovery. A separately invoked worker requires an approved authenticated HTTPS delivery provider, idempotency contract and server-only outbox encryption key. It is disabled by default.
+The platform owner creates customer organizations at **/admin/onboarding** using four steps: organization details, customer owner, optional VSPH product access, and review. The default **Organization only** path supports customers commissioning custom development without a catalog subscription; VSPH product subscriptions and grants are optional and always explicit.
 
-Invitations are purpose-bound, expiring, single-use capabilities for one membership. Newly provisioned identities stay disabled until enrollment completes. Existing accounts must sign in and their passwords are not reset by acceptance. Explicit account disable revokes pending enrollment. Legacy broad bearer invitation links are rejected and must be reconciled before rollout. See [current customer onboarding](docs/CUSTOMER_ONBOARDING.md).
+Creating an organization commits an audited, idempotent tenant and owner invitation job, not an immediate customer login or email delivery. Slug availability is advisory, and database uniqueness prevents races. A lost response can be recovered using the original request UUID. The legacy unowned-organization insert endpoint is retired (410). The completion screen links to the organization, project creation and invitation recovery.
+
+The organization-only SQL command is registered in the additive migration manifest but **is not automatically installed by a GitHub merge**. The live candidate requires a canonical-version migration install and a safe restore/recovery plan before enabling this option. The Supabase MCP migration tool generates a different version and must not be used on this repository's canonical ledger without reviewed reconciliation. Real Auth, invitation delivery and acceptance must be verified with an approved provider separately. See [customer onboarding](docs/CUSTOMER_ONBOARDING.md) and [provisioning operations](docs/operations/PROVISIONING_V2.md).
 
 ## VSPH internal employees and HR workspaces
 
