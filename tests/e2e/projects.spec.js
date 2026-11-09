@@ -65,7 +65,6 @@ test("authenticated project delivery workflow persists and denies an outsider", 
   await expect(page.locator("#projectTitle")).toContainText(
     "Verified delivery",
   );
-  page.on("dialog",dialog=>dialog.accept());
   await page.locator("#teamEditor summary").click();
   const member=page.locator("#memberForm");
   const staff=member.getByLabel("Employee",{exact:true});
@@ -75,6 +74,7 @@ test("authenticated project delivery workflow persists and denies an outsider", 
   await staff.selectOption(staffId);
   await member.getByLabel("Team",{exact:true}).fill("Engineering");
   await member.getByRole("button",{name:"Save project assignment"}).click();
+  await page.locator(".vsph-ui-dialog").getByRole("button",{name:"Confirm change"}).click();
   await expect(page.locator("#teamList")).toContainText("Engineering");
   await page.locator("#milestoneEditor summary").click();
   let mf = page.locator("#milestoneForm");
