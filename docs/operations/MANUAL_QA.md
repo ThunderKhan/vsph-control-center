@@ -256,5 +256,3 @@ Use disposable fixtures unless a real identity/target has been approved. No host
 - Accept with wrong password, missing/wrong TOTP and then valid credentials. Failed attempts must create no link; a successful link survives reload and grants no HR/customer/product/project role. Owner must separately grant HR to an Active linked employee.
 - Test cancellation, expiry, renewal/stale versions, changed roster, another identity, lost issuer authority, disabled account and revoked/expired sessions. Concurrent acceptance must have one effect/audit. Audit failure rolls back acceptance.
 - Revoke the link as owner: HR access disappears, ordinary portal/customer/product/project assignments stay independently governed. Inactivation/identity disable/email change must invalidate links; reactivation restores none. Check mobile, keyboard/form labels and no credentials in URL/localStorage.
-
-
