@@ -38,10 +38,10 @@
   document.body.classList.add("project-detail-route");
 
   function selectView(view, push=false) {
-    const selected = (Object.hasOwn(views,view) && (view!=="settings" || current?.role==="manager")) ? view : "overview";
+    const selected = (Object.hasOwn(views,view) && (view!=="settings" || current?.project?.role==="manager")) ? view : "overview";
     for(const [name,id] of Object.entries(views)) {
       const pane=$(id); if (!pane) continue;
-      if (name==="settings" && current?.role!=="manager") {pane.hidden=true;continue;}
+      if (name==="settings" && current?.project?.role!=="manager") {pane.hidden=true;continue;}
       pane.hidden=name!==selected;
       pane.classList.toggle("project-v2-animate",name===selected);
     }
@@ -73,22 +73,22 @@
     $("projectViewNav").querySelectorAll("[data-project-view]").forEach(a=>{
       const view=a.dataset.projectView;
       a.href=path+(view==="overview"?"":"?view="+view);
-      if(view==="settings")a.hidden=current.role!=="manager";
+      if(view==="settings")a.hidden=current.project.role!=="manager";
     });
     document.querySelectorAll("[data-project-open]").forEach(a=>{
       a.href=path+"?view="+a.dataset.projectOpen;
     });
   }
   function meta() {
-    const p=current.project,box=$("projectMeta");
+    const p=current.project.project,box=$("projectMeta");
     box.replaceChildren();
     append(box,badge(statusText(p.status),p.status==="active"?"success":"neutral"),
       E("span",p.key+" · "+(p.kind==="customer"?"Client engagement":"Internal project")),
       E("span","Due "+date(p.due_on)));
     if(p.description)append(box,E("p",p.description,"project-v2-description"));
   }
-  const isManager=()=>current?.role==="manager";
-  function scopedTask(t) {return current.role==="manager" || t.assignee_id===current.user.id || current.role==="client" && t.shared;}
+  const isManager=()=>current?.project?.role==="manager";
+  function scopedTask(t) {return current.project.role==="manager" || t.assignee_id===current.user.id || current.project.role==="client" && t.shared;}
   function overviewActions() {
     const box=$("projectNextActions"); box.replaceChildren();
     const open=current.project.tasks.filter(t=>!["done","cancelled"].includes(t.status)&&scopedTask(t));
@@ -188,7 +188,7 @@
       if(!items.length)itemsBox.append(empty("No checklist items. Add a step to track implementation."));
       for(const item of items) {
         const row=E("div",undefined,"project-v2-check-row");
-        const allowed=isManager() || (current.role==="contributor" && item.assignee_id===current.user.id);
+        const allowed=isManager() || (current.project.role==="contributor" && item.assignee_id===current.user.id);
         const tick=E("button",item.completed?"✓":"","project-v2-circle-tick"+(item.completed?" is-checked":""));
         tick.type="button";tick.disabled=!allowed;tick.setAttribute("aria-pressed",String(item.completed));
         tick.setAttribute("aria-label",(item.completed?"Mark incomplete: ":"Mark complete: ")+item.title);
