@@ -43,6 +43,7 @@ function verifyManifest(
   return { manifest, errors };
 }
 const tables = [
+  "internal_employee_restoration_events",
   "project_custom_applications",
   "internal_leave_requests",
   "internal_attendance",
@@ -96,6 +97,9 @@ const tables = [
   "project_notifications",
 ];
 const signatures = [
+  "public.internal_employee_rehire_command(uuid,text,uuid,jsonb)",
+  "public.project_creation_command(uuid,text,jsonb)",
+  "public.project_lifecycle_command(uuid,text,uuid,jsonb)",
   "public.project_workforce_command(uuid,text,uuid,jsonb)",
   "public.organization_only_onboarding(uuid,uuid,jsonb)",
   "public.project_custom_application_command(uuid,text,uuid,uuid,jsonb)",
