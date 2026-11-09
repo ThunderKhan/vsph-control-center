@@ -108,3 +108,17 @@ test('wizard rejects malformed tenant names, duplicate products, and expired tri
   assert.throws(()=>validateOnboarding({...payload(),products:[{...payload().products[0],endsAt:null}]}),/Trial/);
   assert.throws(()=>validateOnboarding({...payload(),products:[{...payload().products[0],status:'cancelled'}]}),/trial or active/);
 });
+
+test('organization creation rejects extra fields, type coercion and malformed subscriptions',()=>{
+  const base=payload(),normal=validateOnboarding(base);
+  assert.equal(normal.organizationName,base.organizationName);
+  assert.equal(validateOnboarding({...base,products:[]}).products.length,0);
+  for(const invalid of [
+   {...base,kind:'internal'}, {...base,organizationName:{name:'Object'}},
+   {...base,adminEmail:['email@example.test']}, {...base,adminName:' '},
+   {...base,slug:'bad_slug'}, {...base,products:[{...base.products[0],extra:'unsafe'}]},
+   {...base,products:[{...base.products[0],applicationId:'not-a-uuid'}]},
+   {...base,products:[{...base.products[0],endsAt:'tomorrow'}]},
+   {...base,products:[{...base.products[0],endsAt:'2026-12-01T23:59:59+05:30'}]}
+  ])assert.throws(()=>validateOnboarding(invalid));
+});

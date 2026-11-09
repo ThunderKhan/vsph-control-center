@@ -9,32 +9,46 @@ const validId=id=>typeof id==='string'&&uuidPattern.test(id);
 const errorResponse=(res,status,message)=>res.status(status).json({message});
 
 function validateOnboarding(input,now=Date.now()){
-  const organizationName=String(input?.organizationName||'').trim();
-  const slug=String(input?.slug||'').trim().toLowerCase();
-  const adminName=String(input?.adminName||'').trim();
-  const adminEmail=String(input?.adminEmail||'').trim().toLowerCase();
-  if(!organizationName||organizationName.length>150||!slugPattern.test(slug)||slug.length>160)
+  if(!input||typeof input!=='object'||Array.isArray(input)||
+     Object.keys(input).length!==5||
+     !['organizationName','slug','adminName','adminEmail','products'].every(k=>Object.hasOwn(input,k)))
+    throw new Error('Review the required organization fields.');
+  for(const key of ['organizationName','slug','adminName','adminEmail'])
+    if(typeof input[key]!=='string')throw new Error('Organization and owner details must be text.');
+  const organizationName=input.organizationName.trim();
+  const slug=input.slug.trim().toLowerCase();
+  const adminName=input.adminName.trim();
+  const adminEmail=input.adminEmail.trim().toLowerCase();
+  if(organizationName.length<2||organizationName.length>150||
+    /[\u0000-\u001f\u007f]/.test(organizationName)||
+    !slugPattern.test(slug)||slug.length>160)
     throw new Error('Provide a valid organization name and URL slug.');
-  if(!adminName||adminName.length>150||!emailPattern.test(adminEmail)||adminEmail.length>190)
-    throw new Error('Provide the administrator’s full name and valid email.');
-  const items=input?.products;
-  if(!Array.isArray(items)||items.length>12)
-    throw new Error('Select up to 12 products.');
-  const seen=new Set(),products=items.map(item=>{
-    const id=item?.applicationId,planCode=String(item?.planCode||'').trim();
-    const status=item?.status;
-    if(!validId(id)||seen.has(id)||!/^[a-z0-9][a-z0-9_-]{0,59}$/.test(planCode))
+  if(adminName.length<2||adminName.length>150||/[\u0000-\u001f\u007f]/.test(adminName)||
+     adminEmail.length>190||!emailPattern.test(adminEmail))
+    throw new Error('Provide an owner name and valid email address.');
+  if(!Array.isArray(input.products)||input.products.length>12)
+    throw new Error('Choose no more than 12 catalog products.');
+  const ids=new Set(),products=input.products.map(item=>{
+    if(!item||typeof item!=='object'||Array.isArray(item)||
+      Object.keys(item).length!==4||
+      !['applicationId','planCode','status','endsAt'].every(k=>Object.hasOwn(item,k))||
+      typeof item.planCode!=='string')throw new Error('Review the product subscription fields.');
+    const applicationId=item.applicationId,planCode=item.planCode.trim().toLowerCase();
+    if(!validId(applicationId)||ids.has(applicationId)||
+       !/^[a-z0-9][a-z0-9_-]{0,59}$/.test(planCode))
       throw new Error('Every product needs a unique application and a valid plan code.');
-    seen.add(id);
-    if(!['trial','active'].includes(status))
+    ids.add(applicationId);
+    if(!['trial','active'].includes(item.status))
       throw new Error('Choose a trial or active subscription for each product.');
-    const rawEnd=item?.endsAt;
-    const parsed=rawEnd?new Date(rawEnd):null;
-    if(rawEnd&&(!parsed||Number.isNaN(parsed.getTime())||parsed.getTime()<=now))
-      throw new Error('Subscription end dates must be valid future dates.');
-    if(status==='trial'&&!parsed)
+    if(item.endsAt!==null&&(typeof item.endsAt!=='string'||
+      !/^\d{4}-\d{2}-\d{2}T23:59:59\.999Z$/.test(item.endsAt)))
+      throw new Error('Use a valid subscription end date.');
+    const parsed=item.endsAt===null?null:new Date(item.endsAt);
+    if(parsed&&(!Number.isFinite(parsed.getTime())||parsed.getTime()<=now))
+      throw new Error('Subscription end dates must be future dates.');
+    if(item.status==='trial'&&!parsed)
       throw new Error('Trial subscriptions require an end date.');
-    return {applicationId:id,planCode,status,endsAt:parsed?parsed.toISOString():null};
+    return {applicationId,planCode,status:item.status,endsAt:parsed?parsed.toISOString():null};
   });
   return {organizationName,slug,adminName,adminEmail,products};
 }
@@ -56,6 +70,28 @@ function onboardingDeps(){
 
 const {rpcRoute}=require('../services/rpc');
 router.get('/',rpcRoute(async(req)=>check(await db().rpc('provisioning_command',{p_actor:req.user.id,p_action:'list'}))));
+router.get('/availability',rpcRoute(async(req)=>{
+  if(Object.keys(req.query).length!==1||typeof req.query.slug!=='string'||
+     !slugPattern.test(req.query.slug)||req.query.slug.length>160){
+    const e=Error('Enter a valid organization slug.');e.validation=true;throw e;
+  }
+  const existing=check(await db().from('organizations').select('id').eq('slug',req.query.slug).maybeSingle());
+  return {available:!existing,slug:req.query.slug};
+}));
+router.get('/requests/:key',rpcRoute(async(req)=>{
+  if(!validId(req.params.key)||Object.keys(req.query).length){
+    const e=Error('Use a valid request identifier.');e.validation=true;throw e;
+  }
+  const request=check(await db().from('provisioning_jobs')
+    .select('id,organization_id,state,created_at')
+    .eq('actor_id',req.user.id).eq('idempotency_key',req.params.key).maybeSingle());
+  if(!request)return {found:false};
+  const org=check(await db().from('organizations').select('id,name,slug')
+    .eq('id',request.organization_id).maybeSingle());
+  if(!org)return {found:false};
+  return {found:true,id:org.id,organizationName:org.name,slug:org.slug,jobId:request.id,
+    state:request.state,createdAt:request.created_at};
+}));
 router.post('/',rpcRoute(async(req,res)=>{
  let payload;try{payload=validateOnboarding(req.body)}catch(e){e.validation=true;throw e;}
  const key=req.get('Idempotency-Key');

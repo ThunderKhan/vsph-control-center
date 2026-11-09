@@ -39,12 +39,13 @@ router.get('/organizations',asyncRoute(async(req,res)=>{
  const [organizations,memberships]=await Promise.all([query('organizations'),query('organization_memberships','organization_id')]);
  res.json({organizations:organizations.map(o=>({...o,member_count:memberships.filter(m=>m.organization_id===o.id).length})).sort((a,b)=>b.created_at.localeCompare(a.created_at))});
 }));
-router.post('/organizations',asyncRoute(async(req,res)=>{
- const name=String(req.body.name||'').trim(),slug=String(req.body.slug||'').toLowerCase().trim();
- if(!name||!slugPattern.test(slug))return res.status(400).json({message:'Valid name and slug are required.'});
- const org=check(await db().from('organizations').insert({name,slug}).select('id').single());
- await audit(req,'organization.created','organization',org.id,{name,slug});res.status(201).json({id:org.id});
-}));
+// Removed the legacy unowned-organization insert. It could commit an orphan
+// before owner invitation or audit creation and bypassed durable provisioning.
+router.post('/organizations',(req,res)=>{
+ res.set('Deprecation','true');
+ res.set('Link','</admin/onboarding>; rel="successor-version"');
+ return res.status(410).json({message:'Create organizations through guided Client Onboarding to preserve ownership and invitation recovery.'});
+});
 router.patch('/organizations/:id/status',rpcRoute(req=>lifecycle(req,'status',req.params.id,{status:req.body.status})));
 router.get('/users',asyncRoute(async(req,res)=>{
  const [users,memberships,organizations]=await Promise.all([query('profiles'),query('organization_memberships','user_id,organization_id'),query('organizations','id,name')]);
