@@ -93,6 +93,8 @@
       appSelect.value = selectedProduct;
     $("detail").hidden = false;
     $("name").textContent = current.organization.name;
+    $("newCustomerProject").href = "/projects?organizationId=" + encodeURIComponent(current.organization.id);
+    $("newCustomerProject").hidden = current.organization.status !== "active";
     $("state").textContent = "Organization: " + current.organization.status;
     $("products").replaceChildren();
     $("inviteProducts").replaceChildren();

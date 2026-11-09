@@ -47,6 +47,7 @@ test("customer workspace queues scoped invitations and rotates or cancels them w
   await page.goto("/admin/customers");
   await page.locator("#customer").selectOption(org);
   await expect(page.locator("#name")).toHaveText("Governance " + suffix);
+  await expect(page.locator("#newCustomerProject")).toHaveAttribute("href","/projects?organizationId="+org);
   await page.getByLabel("Full name", { exact: true }).fill("Fixture Developer");
   await page
     .getByLabel("Email", { exact: true })

@@ -358,6 +358,15 @@
       opts(directory.organizations),
     );
     field(form, "Start date", "startsOn", "date");
+    // Navigation may preselect only an authorized organization returned by the server.
+    const requestedOrganization = new URLSearchParams(location.search).get("organizationId");
+    const authorizedOrganization = (directory.organizations || []).find(
+      (organization) => organization.id === requestedOrganization
+    );
+    if (authorizedOrganization) {
+      form.elements.kind.value = "customer";
+      form.elements.customerOrganizationId.value = authorizedOrganization.id;
+    }
     saveForm(form, "Create project", async (d) => {
       const p = await api("/api/projects", {
         method: "POST",

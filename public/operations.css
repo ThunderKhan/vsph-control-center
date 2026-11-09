@@ -28,3 +28,9 @@ a.button{display:inline-flex;align-items:center;justify-content:center;text-deco
 .project-page input:focus-visible,.project-page select:focus-visible,.project-page textarea:focus-visible{border-color:#0069C8}
 .project-page button:not(:disabled):active{filter:brightness(.94)}
 @media(prefers-reduced-motion:reduce){.project-page button,.project-page a.button,.project-page input,.project-page select,.project-page textarea{transition:none!important}}
+
+/* Organization-first project handoff, without implying product entitlements. */
+.customer-project-action{padding:17px 20px;border:1px solid #D3E3F2;border-radius:10px;background:#F1F8FE;margin:16px 0 24px}
+.customer-project-action a.button.primary{display:inline-flex;background:#0069C8;color:#FFF;border-color:#0069C8;text-decoration:none}
+.customer-project-action a.button.primary:hover{background:#0053A3;color:#FFF}
+.customer-project-action p{font-size:13px;color:#536984;margin:10px 0 0}
