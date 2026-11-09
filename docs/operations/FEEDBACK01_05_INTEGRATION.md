@@ -45,3 +45,14 @@ Project-specific acceptance requires:
 ## Current integration limitations
 
 The combined branch and static regression assertions are committed. Full isolated PostgreSQL and browser verification of the **combined** 37-migration state is still required. Do not merge this branch or install either migration solely based on the prior passing tests for Feedback #1–#4.
+
+## Security and migration hardening during integration review
+
+A read-only code review found a broken, truncated checklist assignee clause and an obsolete duplicate SQL action block **after** the workspace function's closing grant. This was a source defect inherited from the standalone Feedback #5 branch, not evidence of a failed hosted upgrade. The integration branch now has one complete function, explicit assignee authorization, and one final grant. It also:
+
+- Re-evaluates the actor's current project role *after* the project row lock, to avoid using a stale manager role for a write.
+- Returns only progress-safe checklist fields to authorized customer viewers of shared milestones (not internal staff IDs or audit metadata).
+- Prevents customer-role users from opening the Engineering section through view navigation.
+- Adds a source integrity regression test and extends isolated database assertions for shared checklist privacy.
+
+**Verification constraint:** These corrections were checked at the source/integration-contract level, including a verified migration SHA256 in the canonical manifest. The updated workspace SQL must still be executed by `npm run verify:release` on the isolated local PostgreSQL fixture before merging PR #101. Source checks do not replace SQL execution.
