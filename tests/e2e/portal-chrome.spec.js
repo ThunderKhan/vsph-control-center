@@ -5,7 +5,7 @@ test('protected employee, customer and finance pages show one top navigation and
   url:'http://127.0.0.1:3100',httpOnly:true,sameSite:'Lax'}]);
  for(const [route,heading] of [
   ['/employees/onboarding','Onboard an employee'],
-  ['/admin/onboarding','Onboard a customer'],
+  ['/admin/onboarding','Create an organization'],
   ['/admin/finance','Financial overview'],
   ['/employees','Employee management']
  ]){
