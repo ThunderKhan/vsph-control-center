@@ -38,7 +38,11 @@
   document.body.classList.add("project-detail-route");
 
   function selectView(view, push=false) {
-    const selected = (Object.hasOwn(views,view) && (view!=="settings" || current?.project?.role==="manager")) ? view : "overview";
+    const role=current?.project?.role;
+    const allowed=Object.hasOwn(views,view)
+      && (view!=="settings" || role==="manager")
+      && (view!=="engineering" || role!=="client");
+    const selected=allowed?view:"overview";
     for(const [name,id] of Object.entries(views)) {
       const pane=$(id); if (!pane) continue;
       if (name==="settings" && current?.project?.role!=="manager") {pane.hidden=true;continue;}
@@ -74,6 +78,7 @@
       const view=a.dataset.projectView;
       a.href=path+(view==="overview"?"":"?view="+view);
       if(view==="settings")a.hidden=current.project.role!=="manager";
+      if(view==="engineering")a.hidden=current.project.role==="client";
     });
     document.querySelectorAll("[data-project-open]").forEach(a=>{
       a.href=path+"?view="+a.dataset.projectOpen;
