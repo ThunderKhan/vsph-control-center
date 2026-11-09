@@ -19,3 +19,10 @@ test('organization-only default does not silently activate product access',()=>{
  assert.match(html,/id="catalogConfiguration"[^>]* hidden/);
  assert.match(file('public/onboarding.js'),/no catalog subscription or product grant/i);
 });
+
+test('ambiguous requests cannot be edited into a new tenant under an old key',()=>{
+ const html=file('views/onboarding.html'),js=file('public/onboarding.js');
+ assert.doesNotMatch(html,/id="returnToReview"/);
+ assert.match(js,/state\.requestKey/);
+ assert.match(js,/retryOriginalRequest/);
+});

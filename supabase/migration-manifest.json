@@ -313,8 +313,7 @@
       "version": "20261109141500",
       "name": "organization_only_onboarding",
       "requires": [
-        "supabase/migrations/20261031000400_invitation_disable_revocation.sql",
-        "supabase/migrations/20261109140000_project_custom_applications.sql"
+        "supabase/migrations/20261031000400_invitation_disable_revocation.sql"
       ]
     }
   ],

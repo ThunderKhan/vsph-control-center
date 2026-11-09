@@ -326,9 +326,6 @@ $('retryOriginalRequest').onclick=()=>{
  $('recoveryScreen').hidden=true;form.hidden=false;
  go(3);$('confirm').checked=true;void submit();
 };
-$('returnToReview').onclick=()=>{
- $('recoveryScreen').hidden=true;form.hidden=false;go(3,true);
-};
 $('startAgain').onclick=()=>{
  form.reset();form.hidden=false;$('completeScreen').hidden=true;$('recoveryScreen').hidden=true;
  state.step=0;state.busy=false;state.slugEdited=false;state.slugChecked='';

@@ -31,3 +31,5 @@ Product-backed provisioning is installed in the configured Supabase candidate. O
 Verify end-to-end in a controlled environment: owner submits once; organization/job/invitation/outbox persist; no unauthorized product access; worker sends a real invitation via approved provider; intended customer accepts; owner membership activates only on acceptance; customer sees only own organization and explicitly shared project information. Isolated Node/PostgreSQL/Chromium fixtures validate code and permission boundaries, not email deliverability or a deployed frontend.
 
 On a lost response, check the original request and reuse the same key. On a slug collision, edit the identifier. On delivery failure, use Provisioning Recovery. Never delete another organization's records or unreviewed tenant data to recover.
+
+The organization-only migration is independent of custom-project application migrations. An unresolved creation request cannot be edited and submitted with a changed payload; operators must check or retry the original idempotency key.
