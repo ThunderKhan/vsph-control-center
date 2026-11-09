@@ -111,3 +111,28 @@ jobs:
       - run: npm audit --omit=dev --audit-level=high
       - name: Development dependency high-severity gate
         run: npm audit --audit-level=high
+  container:
+    name: Production container smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build production image without secret inputs
+        run: docker build --pull -t vsph-control-center:ci .
+      - name: Verify container boots and denies protected routes without credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run -d --name vsph-release-smoke -p 127.0.0.1:3100:3000 vsph-control-center:ci
+          trap 'docker rm -f vsph-release-smoke >/dev/null 2>&1 || true' EXIT
+          for attempt in $(seq 1 30); do
+            if [[ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3100/login)" == "200" ]]; then
+              break
+            fi
+            sleep 1
+          done
+          [[ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3100/login)" == "200" ]]
+          [[ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3100/api/health)" == "503" ]]
+          [[ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3100/api/projects)" == "401" ]]
+          [[ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3100/api/hrms/access)" == "401" ]]
+          [[ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3100/admin/project-managers)" == "302" ]]
