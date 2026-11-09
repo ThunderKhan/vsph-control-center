@@ -34,7 +34,7 @@ test('shared modern dialogs and toasts load on all authenticated portal pages',(
  assert.match(shell,/feedback-ui\.js/);assert.match(shell,/feedback-ui\.css/);
  assert.match(ui,/showModal/);assert.match(ui,/aria-modal/);assert.match(ui,/toast/);
  assert.match(css,/vsph-ui-dialog::backdrop/);assert.match(css,/vsph-toast-region/);
- for(const p of ['public/employees.js','public/admin.js','public/finance.js','public/employee-identity.js','public/organizations.js','public/customers.js','public/products.js','public/account-sessions.js','public/project-delivery.js','public/hrms.js']){
+ for(const p of ['public/employees.js','public/admin.js','public/finance.js','public/employee-identity.js','public/organizations.js','public/customers.js','public/products.js','public/account-sessions.js','public/projects.js','public/project-delivery.js','public/hrms.js']){
   const js=read(p);assert.doesNotMatch(js,/\bwindow\.(?:confirm|prompt|alert)\s*\(/,p);
  }
 });

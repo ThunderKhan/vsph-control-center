@@ -16,9 +16,18 @@ test('employee enrollment has equal-width actions, visibility controls and eight
  assert.match(route,/body\.password\.length<8/);
 });
 test('the shared avatar menu contains a real sign-out action and no separate logout icon',()=>{
- const source=read('services/workspace-header.js'),css=read('public/portal-navigation.css');
- assert.match(source,/Your profile<\/a><button id="logoutButton"/);
- assert.doesNotMatch(source,/<button id="logoutButton" class="crm-header-icon"/);
+ const css=read('public/portal-navigation.css');
+ const {workspaceHeader}=require('../services/workspace-header');
+ const html=workspaceHeader({full_name:'Example User',status:'active',platform_role:'user'},value=>String(value));
+ const menu=html.split('class="portal-dropdown"')[1]||'';
+ assert.ok(menu,'The account dropdown must exist');
+ const profile=menu.indexOf('href="/account/profile"');
+ const security=menu.indexOf('href="/account/security"');
+ const signout=menu.indexOf('id="logoutButton"');
+ assert.ok(profile>=0&&security>profile&&signout>security,
+   'Profile, Security, and Sign out must appear in the account dropdown');
+ assert.equal((html.match(/id="logoutButton"/g)||[]).length,1);
+ assert.doesNotMatch(html,/<button id="logoutButton" class="crm-header-icon"/);
  assert.match(css,/\.portal-account \.portal-signout/);
 });
 test('the account dashboard prioritizes employee status and links to the existing roster editor',()=>{

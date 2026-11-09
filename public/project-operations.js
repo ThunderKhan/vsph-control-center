@@ -6,6 +6,7 @@
       if (text !== undefined) n.textContent = String(text);
       return n;
     };
+  const mode=document.body.dataset.operationsMode||"all";
   let identity, inboxGeneration = 0;
   async function api(path, body) {
     const controller = new AbortController();
@@ -179,16 +180,16 @@
     const f = $("notificationPreferences"), preferenceControls = [...f.elements];
     preferenceControls.forEach(control => { control.disabled = true; });
     async function initializeCore() {
-      await inbox();
+      if (mode!=="reports") await inbox();
       if (initialized) return;
-      if (!preferencesReady) {
+      if (mode!=="reports" && !preferencesReady) {
         const prefs = await api("/api/notifications/preferences");
         for (const [name, value] of Object.entries(prefs))
           if (f.elements[name]) f.elements[name].checked = value;
         preferencesReady = true;
         preferenceControls.forEach(control => { control.disabled = false; });
       }
-      await reports(true);
+      if (mode!=="notifications") await reports(true);
       initialized = true;
     }
     function initialize() {

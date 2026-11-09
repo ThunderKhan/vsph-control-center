@@ -278,3 +278,73 @@
 
 /* Manager team allocations and active identity selection. */
 .project-workforce-summary p{color:#536984;line-height:1.6;font-size:13px;margin:17px 0}.workforce-actions{display:flex;gap:8px;flex-wrap:wrap}.workforce-actions button{white-space:normal;font-size:12px;min-height:40px;padding:8px 10px}.project-workspace #workforceRoster{margin-top:12px}.project-workspace #teamEditor .project-section-hint{grid-column:1/-1;margin:0;font-size:12px;color:#536984}
+
+
+/* Feedback #2–3: compact project creation and confirmed lifecycle actions. */
+body.project-create-open{overflow:hidden}
+.project-workspace .project-modal-backdrop{
+ position:fixed;inset:0;z-index:85;display:grid;place-items:center;
+ padding:clamp(12px,2vw,28px);background:rgba(6,25,55,.47);
+ backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
+ animation:project-modal-overlay .17s ease both
+}
+.project-workspace .project-modal-backdrop[hidden]{display:none!important}
+.project-workspace .project-modal {
+ width:min(100%,760px);max-height:min(90dvh,900px);overflow-y:auto;overscroll-behavior:contain;
+ box-shadow:0 28px 80px rgba(1,25,65,.24);border-radius:17px;
+ padding:clamp(22px,3vw,34px);margin:0;animation:project-modal-rise .22s ease both;
+ scrollbar-width:thin
+}
+.project-modal .project-create-heading{position:relative;padding-right:36px}
+.project-workspace .project-modal-close{
+ position:absolute;top:-5px;right:0;min-height:44px;width:44px;padding:0;
+ display:grid;place-items:center;font-size:24px;line-height:1;
+ border:1px solid #dce6f1;border-radius:10px;color:#61748b;background:#f5f9fd
+}
+.project-workspace .project-modal-close:hover{background:#e8f1fc;color:#083d75}
+.project-workspace .project-creation form{margin:0}
+.project-workspace .project-creation .project-create-step{gap:17px 20px}
+.project-workspace .project-modal .project-create-step legend{font-size:17px}
+.project-workspace .project-modal input,.project-workspace .project-modal select,
+.project-workspace .project-modal textarea{border-radius:9px}
+.project-modal .project-step-hint{margin:0 0 4px;line-height:1.5}
+.project-modal .project-create-progress{padding-bottom:13px;margin-bottom:22px}
+.project-create-success{text-align:center;padding:18px 4px 6px}
+.project-create-success h2{margin:12px 0 8px}
+.project-create-success p{line-height:1.7;color:#5a7088;max-width:450px;margin-inline:auto}
+.project-success-icon{width:66px;height:66px;border-radius:50%;background:#e5f6ef;color:#0b8064;font-size:31px;display:grid;place-items:center;margin:0 auto;border:1px solid #cdeadd}
+.project-create-success-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:23px}
+.project-create-success-actions a,.project-workspace .project-create-success-actions button{padding:12px 18px;min-height:44px;border-radius:9px;font-size:13px;font-weight:700;text-decoration:none}
+.project-create-success-actions a{background:#0069c8;color:#fff}
+.project-row-menu{display:inline-block;position:relative;margin-top:8px;font-size:12px}
+.project-row-menu summary{cursor:pointer;color:#075bb0;list-style:none;font-size:12px;font-weight:650;display:inline-flex;align-items:center;gap:5px;min-height:44px}
+.project-row-menu summary:after{content:"⌄";font-size:13px}
+.project-row-menu[open]{z-index:5}
+.project-row-menu button{display:block;background:#fff;border:1px solid #dce5ef;border-radius:8px;color:#9b302e;font-size:12px;min-height:36px;text-align:left;margin-top:6px}
+.project-row-menu button:hover{background:#fff2f1}
+.project-delete-dialog{width:min(94vw,470px);max-height:90dvh;border:1px solid #d5e0ed;border-radius:15px;box-shadow:0 28px 80px rgba(4,20,42,.26);padding:28px;color:#00255a}
+.project-delete-dialog::backdrop{background:rgba(6,25,55,.46);backdrop-filter:blur(3px)}
+.project-delete-dialog h2{font-size:21px;margin:0 0 10px}
+.project-delete-dialog p{font-size:13px;line-height:1.65;color:#526a83}
+.project-delete-dialog label{display:grid;gap:7px;font-size:12px;font-weight:700}
+.project-delete-dialog input{font-size:14px;min-height:44px;border:1px solid #bbcadd;border-radius:8px;padding:11px}
+.project-delete-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;flex-wrap:wrap}
+.project-delete-actions button{min-height:42px;border-radius:8px;border:1px solid #bfcee0;padding:10px 15px;cursor:pointer}
+#confirmProjectDelete{background:#a42b2b;color:#fff;border-color:#a42b2b}
+#projectDeleteMessage{color:#a42b2b}
+@keyframes project-modal-overlay{from{opacity:0}to{opacity:1}}
+@keyframes project-modal-rise{from{opacity:.5;transform:translateY(12px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:620px){
+ .project-workspace .project-modal-backdrop{padding:0;align-items:end}
+ .project-workspace .project-modal{width:100%;max-height:94dvh;border-radius:18px 18px 0 0;padding:22px 18px}
+ .project-workspace .project-creation .project-create-step,.project-create-review{grid-template-columns:minmax(0,1fr)}
+ .project-modal .project-create-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .project-create-actions button:first-child{margin-right:0}
+}
+@media(prefers-reduced-motion:reduce){.project-workspace .project-modal-backdrop,.project-workspace .project-modal{animation:none;transition:none}}
+
+.project-create-error{color:#922d2d;background:#fff0ee;border:1px solid #eebcba;border-radius:9px;padding:11px 13px;line-height:1.5;margin:0 0 15px}
+.project-create-error[hidden]{display:none!important}
+
+.project-create-notice{color:#215378;background:#eff7ff;border:1px solid #c5dff5;border-radius:9px;padding:11px 13px;line-height:1.5;margin:0 0 15px;font-size:13px}
+.project-create-notice[hidden]{display:none!important}

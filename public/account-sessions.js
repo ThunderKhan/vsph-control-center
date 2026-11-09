@@ -54,16 +54,24 @@
       $("sessionMessage").textContent = e.message;
     }
   }
-  document.addEventListener("vsph:identity-loaded", async () => {
+  async function initializeSessions() {
+    if (!$("accountSessions")) return;
     $("accountSessions").hidden = false;
     $("revokeOtherSessions").onclick = async () => {
-      if (await VSPHUI.confirm("Sign out your other portal and product sessions?",{title:"End other sessions?",confirmLabel:"Sign out others",danger:true}))
-        act("/revoke-others");
+      const approved=await VSPHUI.confirm("Sign out your other portal and product sessions?",{
+        title:"End other sessions?",confirmLabel:"Sign out others",danger:true
+      });
+      if(approved) await act("/revoke-others");
     };
     try {
       await load();
     } catch (e) {
       $("sessionMessage").textContent = e.message;
     }
-  });
+  }
+  document.addEventListener("vsph:identity-loaded",initializeSessions);
+  if (location.pathname==="/account/security") {
+    if (document.readyState==="loading") document.addEventListener("DOMContentLoaded",initializeSessions,{once:true});
+    else void initializeSessions();
+  }
 })();

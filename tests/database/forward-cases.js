@@ -10,8 +10,32 @@ module.exports=async(base,inputUrl)=>{
  await a.connect();await b.connect();
  try{
   await a.query('create schema auth;create table auth.users(id uuid primary key);create schema extensions;create extension pgcrypto with schema extensions;create schema supabase_migrations;create table supabase_migrations.schema_migrations(version text primary key,name text,statements text[])');
-  const entries=installationEntries(verifyManifest().manifest),missing=new Set(['project_work_search','internal_hr_lock_order','internal_employee_identity_links','finance_ledger','finance_exact_snapshot_report','finance_journal','internal_hrms_self_service','owner_dashboard_snapshot','employee_removal_audit','project_workforce_governance']);
-  const installed=entries.filter(e=>!missing.has(e.name)),history=installed.map(e=>({version:e.version,name:e.name,source_marker:sourceMarker(e)}));
+  const entries=installationEntries(verifyManifest().manifest);
+  // Model a realistic legacy database: an installed migration must never
+  // depend on a migration which the fixture claims is missing. Compute the
+  // transitive closure rather than manually enumerating every new feature.
+  const missing=new Set(['project_work_search','internal_hr_lock_order','internal_employee_identity_links','finance_ledger','finance_exact_snapshot_report','finance_journal','internal_hrms_self_service','owner_dashboard_snapshot','employee_removal_audit','project_workforce_governance']);
+  const byPath=new Map(entries.map(entry=>[entry.path,entry]));
+  let changed=true;
+  while(changed){
+    changed=false;
+    for(const entry of entries){
+      if(!missing.has(entry.name) && (entry.requires||[]).some(path=>{
+        const dependency=byPath.get(path);
+        if(!dependency)throw Error('Unknown migration dependency: '+path);
+        return missing.has(dependency.name);
+      })){missing.add(entry.name);changed=true;}
+    }
+  }
+  const installed=entries.filter(e=>!missing.has(e.name));
+  // This would have caught a previous test bug that installed the new
+  // restoration function before its original employee-removal migration.
+  assert.ok(installed.every(entry=>(entry.requires||[]).every(path=>{
+    const dependency=byPath.get(path);
+    return dependency&&!missing.has(dependency.name);
+  })),'The synthetic historical installation must be dependency-closed');
+  assert.ok(missing.has('feedback01_04_lifecycle'));
+  const history=installed.map(e=>({version:e.version,name:e.name,source_marker:sourceMarker(e)}));
   for(const e of installed){await a.query(fs.readFileSync(e.path,'utf8'));await a.query('insert into supabase_migrations.schema_migrations values($1,$2,$3)',[e.version,e.name,[sourceMarker(e)]]);}
   await a.query("insert into auth.users values('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa');insert into profiles(id,email,full_name) values('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','preserved@fixture.test','Preserved');insert into organizations(name,slug) values('Preserved customer','preserved-customer');update applications set name='Custom '||code;");
   const before=(await a.query('select row_to_json(p) row from profiles p order by id')).rows;
