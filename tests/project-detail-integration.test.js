@@ -45,3 +45,23 @@ test("canonical additive migration ledger contains both ordered feedback domains
  assert.match(read("services/readiness/database.js"),/project_workspace_command/);
  assert.match(read("tests/database/http-fixture.js"),/project_workspace_command/);
 });
+
+
+test("workspace SQL has a complete single checklist action block and guarded customer visibility",()=>{
+ const sql=read("supabase/migrations/20261109203000_project_workspace_v2.sql");
+ const start=sql.indexOf("create function public.project_workspace_command(");
+ assert.ok(start>=0,"Expected workspace function");
+ const functionSql=sql.slice(start);
+ assert.equal((functionSql.match(/end\\$\\$;/g)||[]).length,1,"Only one complete workspace function");
+ assert.ok(functionSql.trimEnd().endsWith(
+   "grant execute on function public.project_workspace_command(uuid,text,uuid,jsonb) to service_role;"
+ ),"No SQL may appear after the final grant");
+ const insertAt=functionSql.indexOf("insert into public.project_checklist_items(");
+ const toggleAt=functionSql.indexOf("elsif p_action='checklist.toggle'");
+ assert.ok(insertAt>0&&insertAt<toggleAt,"Assignee validation must end with a checklist insert before toggle");
+ assert.equal((functionSql.match(/elsif p_action='checklist.toggle'/g)||[]).length,1);
+ assert.match(functionSql,/p_data->'assigneeId' is distinct from 'null'::jsonb/);
+ assert.match(functionSql,/access:=public\.project_permission\(p_actor,p_project\)/);
+ assert.match(functionSql,/case when access='client' then\s*jsonb_build_object/);
+ assert.doesNotMatch(functionSql,/Until checklist assignment is implemented/);
+});
