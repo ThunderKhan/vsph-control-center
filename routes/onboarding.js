@@ -18,8 +18,8 @@ function validateOnboarding(input,now=Date.now()){
   if(!adminName||adminName.length>150||!emailPattern.test(adminEmail)||adminEmail.length>190)
     throw new Error('Provide the administrator’s full name and valid email.');
   const items=input?.products;
-  if(!Array.isArray(items)||!items.length||items.length>12)
-    throw new Error('Select between 1 and 12 products.');
+  if(!Array.isArray(items)||items.length>12)
+    throw new Error('Select up to 12 products.');
   const seen=new Set(),products=items.map(item=>{
     const id=item?.applicationId,planCode=String(item?.planCode||'').trim();
     const status=item?.status;
@@ -60,7 +60,9 @@ router.post('/',rpcRoute(async(req,res)=>{
  let payload;try{payload=validateOnboarding(req.body)}catch(e){e.validation=true;throw e;}
  const key=req.get('Idempotency-Key');
  if(!validId(key))return res.status(400).json({message:'A UUID Idempotency-Key is required.'});
- const job=check(await db().rpc('provisioning_command',{p_actor:req.user.id,p_action:'begin',p_id:key,p_data:payload}));
+ const job=check(await db().rpc(payload.products.length?'provisioning_command':'organization_only_onboarding',
+  payload.products.length?{p_actor:req.user.id,p_action:'begin',p_id:key,p_data:payload}:
+  {p_actor:req.user.id,p_request_id:key,p_data:payload}));
  res.status(202);return {...job,id:job.organization_id,organizationName:payload.organizationName,products:payload.products,message:'Customer setup queued. Delivery status is available in provisioning recovery.'};
 }));
 for(const action of ['retry','revoke','recover','reissue'])router.post('/:id/'+action,rpcRoute(async(req,res)=>{

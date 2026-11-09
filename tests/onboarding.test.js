@@ -103,7 +103,7 @@ const post=(origin,route,body)=>fetch(origin+route,{
 });
 test('wizard rejects malformed tenant names, duplicate products, and expired trial',()=>{
   assert.throws(()=>validateOnboarding({...payload(),slug:'Bad Slug'}),/slug/);
-  assert.throws(()=>validateOnboarding({...payload(),products:[]}),/Select/);
+  assert.deepEqual(validateOnboarding({...payload(),products:[]}).products,[]);
   assert.throws(()=>validateOnboarding({...payload(),products:[payload().products[0],payload().products[0]]}),/unique/);
   assert.throws(()=>validateOnboarding({...payload(),products:[{...payload().products[0],endsAt:null}]}),/Trial/);
   assert.throws(()=>validateOnboarding({...payload(),products:[{...payload().products[0],status:'cancelled'}]}),/trial or active/);
