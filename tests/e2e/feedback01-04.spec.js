@@ -57,3 +57,25 @@ test('archived employee email leads to owner-reviewed restoration without duplic
  expect(restored.archived).toBe(false);
  expect(restored.status).toBe('onboarding');
 });
+
+test('project actions archive then allow owner deletion only after explicit key confirmation',async({page,context},info)=>{
+ test.skip(!process.env.PROJECT_E2E_DATABASE,'Requires isolated PostgreSQL fixture');
+ await context.addCookies([{name:'vsph.portal.sid',value:'fixture-admin-session',url:'http://127.0.0.1:3100'}]);
+ const key='ARCHIVE-'+info.project.name.toUpperCase()+'-'+info.retry;
+ const created=await context.request.post('/api/projects',{data:{key,name:'Temporary project for safe deletion',kind:'internal'}});
+ expect(created.status()).toBe(201);
+ const project=await created.json();
+ await page.goto('/projects');
+ const row=page.locator('#projectList tr').filter({hasText:key});
+ await row.locator('.project-row-menu summary').click();
+ await row.getByRole('button',{name:'Archive project'}).click();
+ await page.locator('.vsph-ui-dialog').getByRole('button',{name:'Archive project'}).click();
+ await expect(page.locator('#projectMessage')).toContainText('archived');
+ await row.locator('.project-row-menu summary').click();
+ await row.getByRole('button',{name:'Permanently delete'}).click();
+ await expect(page.locator('#projectDeleteDialog')).toBeVisible();
+ await page.locator('#projectDeleteKey').fill(key);
+ await page.locator('#confirmProjectDelete').click();
+ await expect(page.locator('#projectMessage')).toContainText('permanently deleted');
+ expect((await context.request.get('/api/projects/'+project.id)).status()).toBe(403);
+});
