@@ -21,3 +21,9 @@ The navigation and creation-screen changes require no migration, account, provid
 ## Local acceptance
 
 Pull main, run `npm ci`, `npm test`, `npm run check`, `npm run lint`, `npm run format:check` and `npm run dev`. Refresh with Ctrl+F5. Check Dashboard, Applications, Projects, People, Administration and Your profile. At 390px and 320px verify the menu opens below the header, no side rail returns and controls remain reachable. Recheck HR/employee/customer menus and direct URL denials. Open the account menu, follow Your profile and use Sign out.
+
+## November 9 follow-up
+
+The customer directory now offers **Create customer project**, preselecting only an authorized active organization returned by the server. Its query parameter is UI context, not an authorization capability. Project creation uses a three-step wizard, followed by project-scoped manager and employee assignment. Project Applications has two distinct groups: linked VSPH catalog products and custom project applications.
+
+The customer wizard also offers **Custom development only**. Selecting it bypasses subscription configuration, preserves explicit review/confirmation and queues the usual owner invitation. Two additive source migrations are required for the new database-backed workflows: `20261109140000_project_custom_applications.sql` and `20261109141500_organization_only_onboarding.sql`. They were not installed against a hosted target as part of this source update. Keep the UI release gated on actual target migration verification and provider acceptance.
