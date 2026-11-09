@@ -28,3 +28,32 @@ test('project creation renders responsive owner-governed manager modal',async({p
  await expect(form.getByLabel('Project manager')).toContainText('staff '+info.project.name);
  await expect(page.locator('#projectCreateOverlay')).toBeVisible();
 });
+
+test('archived employee email leads to owner-reviewed restoration without duplicate roster',async({page,context},info)=>{
+ test.skip(!process.env.PROJECT_E2E_DATABASE,'Requires isolated PostgreSQL fixture');
+ await context.addCookies([{name:'vsph.portal.sid',value:'fixture-admin-session',url:'http://127.0.0.1:3100'}]);
+ const {randomUUID}=require('node:crypto');
+ const email='restore-'+randomUUID()+'@fixture.test';
+ const payload={fullName:'Rehire fixture',email,department:'Engineering',jobTitle:'Developer',employmentType:'full_time',startDate:'2026-11-09'};
+ const created=await context.request.post('/api/employees',{headers:{'Idempotency-Key':randomUUID(),Origin:'http://127.0.0.1:3100'},data:payload});
+ expect(created.status()).toBe(201);
+ const person=await created.json();
+ const removed=await context.request.post('/api/employees/'+person.id+'/remove',{headers:{Origin:'http://127.0.0.1:3100'},data:{version:person.version,reason:'Employee left the company',confirmed:true}});
+ expect(removed.status()).toBe(200);
+ const repeated=await context.request.post('/api/employees',{headers:{'Idempotency-Key':randomUUID(),Origin:'http://127.0.0.1:3100'},data:payload});
+ expect(repeated.status()).toBe(409);
+ expect((await repeated.json()).code).toBe('EMPLOYEE_ARCHIVED');
+ await page.goto('/employees?restore='+person.id);
+ await expect(page.locator('#restoreEmployeeForm')).toBeVisible();
+ await expect(page.locator('#employeeRestoreIdentity')).toContainText(email);
+ await page.locator('#employeeRestoreReason').fill('Owner approved rehire and fresh onboarding');
+ await page.locator('#employeeRestoreConfirmed').check();
+ await page.locator('#restoreEmployeeForm').getByRole('button',{name:'Restore employee'}).click();
+ await page.getByRole('dialog').getByRole('button',{name:'Restore employee'}).click();
+ await expect(page.locator('#archivedEmployeesMessage')).toContainText('Restored successfully');
+ const result=await context.request.get('/api/employees/restore-lookup?email='+encodeURIComponent(email));
+ const restored=(await result.json()).employee;
+ expect(restored.id).toBe(person.id);
+ expect(restored.archived).toBe(false);
+ expect(restored.status).toBe('onboarding');
+});
