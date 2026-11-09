@@ -52,7 +52,7 @@ test("workspace SQL has a complete single checklist action block and guarded cus
  const start=sql.indexOf("create function public.project_workspace_command(");
  assert.ok(start>=0,"Expected workspace function");
  const functionSql=sql.slice(start);
- assert.equal((functionSql.match(/end\\$\\$;/g)||[]).length,1,"Only one complete workspace function");
+ assert.equal(functionSql.split("end$;").length-1,1,"Only one complete workspace function");
  assert.ok(functionSql.trimEnd().endsWith(
    "grant execute on function public.project_workspace_command(uuid,text,uuid,jsonb) to service_role;"
  ),"No SQL may appear after the final grant");
