@@ -39,6 +39,9 @@ test("authenticated project delivery workflow persists and denies an outsider", 
   await form
     .getByRole("button", { name: "Create project", exact: true })
     .click();
+  await expect(page.locator("#projectCreateSuccess")).toBeVisible();
+  await expect(page.locator("#projectCreateSuccessDescription")).toContainText("saved in the database");
+  await page.getByRole("link",{name:"View project",exact:true}).click();
   await expect(page).toHaveURL(/\/projects\/[0-9a-f-]+#team$/);
   const url = page.url();
   const projectPath = new URL(url).pathname;
