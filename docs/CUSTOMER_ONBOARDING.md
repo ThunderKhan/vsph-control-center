@@ -1,11 +1,33 @@
-# Customer onboarding — current durable workflow
+# Customer organization creation — four-step owner workflow
 
-The five-step wizard is retained at /admin/onboarding. It requires an active platform super_admin and a stable UUID Idempotency-Key. Same-key/same-payload retries return the same job; changed payload conflicts. Tenant, entitlements, grant, invitation/outbox and initial audit commit together. There is no compensating deletion of customer data or synchronous email in the HTTP request.
+## Role and purpose
 
-Follow [PROVISIONING_V2.md](operations/PROVISIONING_V2.md) for worker/provider setup, encryption, leases/retry/recovery and purpose-bound acceptance. /admin/provisioning is the recovery screen. Delivery remains disabled until separately approved/configured; no customer email was sent during implementation. Pending new profiles stay disabled. Existing identities must authenticate and never have their password reset by invitation acceptance. Exactly one intended membership activates, not all pending memberships.
+Feedback #4 is creation of customer organizations and assignment of the customer's rightful owner. Only an active VSPH platform super administrator may begin it. Organization ownership is not a platform administrator role. Internal employee management and VSPH internal projects are separate authorization domains.
 
-Apply reviewed 002/003/004 migrations to isolated staging before backend rollout. The final disable-revocation migration is mandatory; it preserves explicit administrator disables and consistent lock ordering with acceptance. Native regression tests cover concurrent disable/acceptance. External Auth operations cannot join a PostgreSQL transaction: uncertain enrollment failures require explicit provider reconciliation and invalidate the capability.
+Owner entry point: Organizations → Client onboarding, or Customer Directory → Create organization. Route: /admin/onboarding.
 
-Outstanding legacy invitations require operator reconciliation and new purpose-bound invitations; this migration does not invent trusted state from old bearer links. Expired/revoked invitations need a new reviewed invitation workflow; automated replacement invitations/customer-admin self-service remain M3/M4 work. Existing-tenant individual invite management is outside the new-customer wizard.
+## Creation flow
 
-Production release still requires real Auth/SMTP/provider/staging UAT. Do not infer deliverability or hosted migration state from CI fixtures.
+1. Organization details: customer company name and unique lowercase workspace identifier. The availability request is advisory; the database unique constraint is authoritative.
+2. Customer owner: full name and email. The owner is invited to accept membership and choose a password; no active account or product session is provisioned by this form.
+3. Product access: optional. Organization only is the default and produces no subscriptions/grants. Alternatively choose active catalog products and configure individual plans, trial or active status and dates. No payment is processed.
+4. Review: independently editable details with fresh confirmation after changes. Creating records is a separate intentional submit.
+
+A successful server response displays the created organization/slug, queued invitation (not sent), and explicit catalog-product count. The user can open the organization, create a customer project or inspect invitation delivery. Project memberships and custom application records are separate.
+
+## Durable idempotency and recovery
+
+For product-backed setup, existing provisioning_command begins one atomic job with organization, subscriptions/grants, invitation/outbox and audit. Organization-only setup uses organization_only_onboarding, which creates no catalog entitlement. Both require an active platform owner, strict field validation, UUID request identity, exact-payload idempotency and durable audit.
+
+GET /api/admin-management/onboardings/availability?slug=... previews slug availability for the owner only.
+GET /api/admin-management/onboardings/requests/:key retrieves only a job created by the current owner, for interrupted-response recovery. The browser retries only the original UUID. Old POST /api/admin-management/organizations now returns HTTP 410 instead of creating an orphan tenant without any owner.
+
+Email provider side effects are asynchronous. The approved invitation dispatcher must run, and acceptance must be completed by the invited person. Existing accounts are not assigned new passwords. In-flight/ambiguous delivery or acceptance requires established provisioning recovery and replay/revocation. See docs/operations/PROVISIONING_V2.md.
+
+## Database installation and acceptance
+
+Product-backed provisioning is installed in the configured Supabase candidate. Organization-only setup requires additive 20261109141500_organization_only_onboarding SQL, which source merges do not install automatically. The candidate may contain active customer and employee data; reconcile its migration journal, source markers, grants and a recoverable backup before any hosted change. Do not rerun the historical installer or seed test customers into a live project.
+
+Verify end-to-end in a controlled environment: owner submits once; organization/job/invitation/outbox persist; no unauthorized product access; worker sends a real invitation via approved provider; intended customer accepts; owner membership activates only on acceptance; customer sees only own organization and explicitly shared project information. Isolated Node/PostgreSQL/Chromium fixtures validate code and permission boundaries, not email deliverability or a deployed frontend.
+
+On a lost response, check the original request and reuse the same key. On a slug collision, edit the identifier. On delivery failure, use Provisioning Recovery. Never delete another organization's records or unreviewed tenant data to recover.

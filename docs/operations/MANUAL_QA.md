@@ -256,3 +256,15 @@ Use disposable fixtures unless a real identity/target has been approved. No host
 - Accept with wrong password, missing/wrong TOTP and then valid credentials. Failed attempts must create no link; a successful link survives reload and grants no HR/customer/product/project role. Owner must separately grant HR to an Active linked employee.
 - Test cancellation, expiry, renewal/stale versions, changed roster, another identity, lost issuer authority, disabled account and revoked/expired sessions. Concurrent acceptance must have one effect/audit. Audit failure rolls back acceptance.
 - Revoke the link as owner: HR access disappears, ordinary portal/customer/product/project assignments stay independently governed. Inactivation/identity disable/email change must invalidate links; reactivation restores none. Check mobile, keyboard/form labels and no credentials in URL/localStorage.
+
+
+## Customer organization creation — Feedback #4, 2026-11-09
+
+- Owner: Customer Directory → Create organization; verify four-step UI, auto-slug, occupied-slug warning and name/email validation.
+- Review edit: return to organization/owner/access, retain values and require reconfirmation.
+- Organization only: no catalog subscription/grant, but organization, owner invitation, outbox and audit persist atomically. Owner identity activates only on acceptance.
+- Catalog: choose registered product, valid plan and trial deadline; verify durable subscription/grant without recording payment.
+- Lost creation response: recover by the same request UUID, never create a second organization.
+- Verify legacy POST returns 410; anonymous, customer, HR and employee sessions cannot use owner-only creation or status.
+- Desktop/mobile: no horizontal overflow, visible focus and accessible step/state semantics.
+- Hosted Auth and email acceptance require an approved external integration test; do not email genuine users from fixtures.
