@@ -38,7 +38,18 @@ let pool,server;try{
  if(server?.listening)try{await new Promise((resolve,reject)=>server.close(e=>e?reject(e):resolve()));}
  catch(error){issues.push(error);}
  try{await pool?.end();}catch(error){issues.push(error);}
- try{await database.stop();}catch(error){issues.push(error);}
+ // Some embedded-postgres releases never settle stop() after PostgreSQL
+ // has already exited. Bound the wait, then independently verify its port.
+ let stopTimer;
+ try{
+  await Promise.race([
+   database.stop(),
+   new Promise((_,reject)=>{
+    stopTimer=setTimeout(()=>reject(Error('Timed out waiting for PostgreSQL shutdown')),10000);
+   })
+  ]);
+ }catch(error){issues.push(error);}
+ finally{clearTimeout(stopTimer);}
  const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
  async function portReleased(){
   return await new Promise(resolve=>{
