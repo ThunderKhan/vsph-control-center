@@ -24,6 +24,7 @@ function validate(action, data) {
       "dueOn",
       "clientVisible",
       "products",
+      "managerUserId",
     ],
     update: [
       "version",
@@ -88,6 +89,7 @@ function validate(action, data) {
     "taskId",
     "assigneeId",
     "dependsOn",
+    "managerUserId",
   ])
     if (
       data[k] !== undefined &&
@@ -220,11 +222,18 @@ router.get(
     });
   }),
 );
+router.get("/manager-candidates",rpcRoute(req=>{
+  if(Object.keys(req.query).length)invalid();
+  return db().rpc("project_creation_command",{p_actor:req.user.id,p_action:"managers",p_data:{}}).then(check);
+}));
 router.post(
   "/",
   rpcRoute((req, res) => {
+    const data=validate("create",req.body);
     res.status(201);
-    return call(req, "create", null, validate("create", req.body));
+    return Object.hasOwn(data,"managerUserId")
+      ? db().rpc("project_creation_command",{p_actor:req.user.id,p_action:"create",p_data:data}).then(check)
+      : call(req,"create",null,data);
   }),
 );
 router.get(
@@ -320,6 +329,25 @@ router.patch("/:id/applications/:applicationId",rpcRoute(req=>{
   if(!uuid(req.params.id)||!uuid(req.params.applicationId)||Object.keys(req.query).length)invalid();
   const data=validateCustomApplication(req.body,true);
   return customApplication(req,"update",req.params.applicationId,data);
+}));
+
+const { rateLimit } = require("../http-security");
+const rateLimitLifecycle=rateLimit({limit:12,windowMs:15*60*1000});
+
+// Soft-archive is available for any existing owner project. Permanent deletion
+// only succeeds if the project was archived and no retained dependencies exist.
+router.post("/:id/lifecycle/:action",rateLimitLifecycle,rpcRoute(req=>{
+  if(!uuid(req.params.id)||!["archive","delete"].includes(req.params.action))invalid();
+  const data=req.body;
+  if(!data||typeof data!=="object"||Array.isArray(data)||
+    Object.keys(data).length!==3||
+    !Object.hasOwn(data,"version")||!Object.hasOwn(data,"key")||!Object.hasOwn(data,"confirmed")||
+    !Number.isSafeInteger(data.version)||data.version<1||data.version>999999999||
+    data.confirmed!==true||typeof data.key!=="string"||
+    !/^[A-Z][A-Z0-9-]{1,19}$/.test(data.key))invalid();
+  return db().rpc("project_lifecycle_command",{
+    p_actor:req.user.id,p_action:req.params.action,p_project:req.params.id,p_data:data
+  }).then(check);
 }));
 
 module.exports = { router, validate, validateCustomApplication, workforceData };
