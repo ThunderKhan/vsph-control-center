@@ -58,9 +58,9 @@
     if (!$("accountSessions")) return;
     $("accountSessions").hidden = false;
     $("revokeOtherSessions").onclick = async () => {
-      const approved=window.VSPHUI?.confirm
-        ? await window.VSPHUI.confirm("Sign out your other portal and product sessions?",{title:"End other sessions?",confirmLabel:"Sign out others",danger:true})
-        : window.confirm("Sign out your other portal and product sessions?");
+      const approved=await VSPHUI.confirm("Sign out your other portal and product sessions?",{
+        title:"End other sessions?",confirmLabel:"Sign out others",danger:true
+      });
       if(approved) await act("/revoke-others");
     };
     try {
