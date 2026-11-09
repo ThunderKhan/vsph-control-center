@@ -18,7 +18,7 @@ test("isolated GitHub fixture connects, syncs, links work, persists and disconne
   ]);
   const created = await context.request.post("/api/projects", {
     data: {
-      key: "GITHUB-" + info.project.name.toUpperCase(),
+      key: "GITHUB-" + info.project.name.toUpperCase() + "-" + info.retry,
       name: "GitHub fixture " + info.project.name,
       kind: "internal",
     },
