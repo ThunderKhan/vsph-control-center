@@ -3,7 +3,7 @@ const origin='http://127.0.0.1:3100';
 async function login(context,token){await context.clearCookies();await context.addCookies([{name:'vsph.portal.sid',value:token,url:origin,httpOnly:true,sameSite:'Lax'}]);}
 test('top navigation spans the full page and survives module changes and keyboard/mobile toggles',async({page,context},info)=>{
  test.skip(!process.env.PROJECT_E2E_DATABASE,'Requires isolated PostgreSQL');test.setTimeout(180000);await login(context,'fixture-admin-session');await page.addInitScript(()=>localStorage.setItem('vsph.sidebar.collapsed','true'));
- for(const path of ['/dashboard','/projects','/admin/customers','/admin/products','/admin/provisioning','/admin/finance','/admin/finance/journal','/employees','/employees/onboarding','/admin/project-managers','/hr','/hr/access','/account/profile','/admin/onboarding','/organizations','/search']){
+ for(const path of ['/dashboard','/projects','/admin/customers','/admin/products','/admin/provisioning','/admin/finance','/admin/finance/journal','/employees','/employees/onboarding','/admin/project-managers','/hr','/hr/access','/account/profile','/account/security','/notifications','/reports','/admin/onboarding','/organizations','/search']){
   await page.goto(path);await expect(page.locator('#workspaceSidebar')).toHaveCount(0);await expect(page.locator('#workspaceNavigation')).toHaveCount(1);await expect(page.locator('main > nav[aria-label="Workspace"]')).toHaveCount(0);await expect(page.locator('html')).toHaveAttribute('data-navigation-ready','true');
   expect((await page.locator('.workspace-main').boundingBox()).x).toBe(0);
   expect(await page.locator('html').getAttribute('data-sidebar-state')).toBeNull();
