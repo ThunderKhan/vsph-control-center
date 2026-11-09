@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#00255A">
   <title>Projects | VSPH Control Center</title>
-  <link rel="stylesheet" href="/dashboard.css"><link rel="stylesheet" href="/projects.css">
+  <link rel="stylesheet" href="/dashboard.css"><link rel="stylesheet" href="/projects.css"><link rel="stylesheet" href="/project-detail-v2.css">
 </head>
 <body class="workspace-body">
   <!-- portal:icons -->
@@ -25,10 +25,33 @@
         <section id="accountSessions" class="project-panel" hidden><details><summary>Your active sessions</summary><p>Up to 100 active portal sessions. Browser/device details were not collected. Revocation also ends the linked product sessions.</p><p id="sessionMessage" role="status" aria-live="polite"></p><ol id="sessionList"></ol><button id="revokeOtherSessions" type="button">Revoke other sessions</button></details></section>
         <section id="creation" class="project-panel project-creation" hidden><header class="project-create-heading"><p class="project-kicker">NEW PROJECT</p><h2>Create project</h2><p>Set up a client or internal engagement. You can assign a manager and project team immediately after creating it.</p></header><form id="createProjectForm" novalidate></form></section>
         <section id="portfolio"><form id="projectFilters" class="project-filters"><label>Search projects<input name="q" maxlength="100" type="search"></label><label>Lifecycle<select name="status"><option value="">All states</option><option>planned</option><option>active</option><option>paused</option><option>completed</option><option>archived</option></select></label><button type="submit">Filter</button></form><div id="projectList" aria-busy="true"></div><button id="moreProjects" type="button" hidden>Load more</button></section>
-        <section id="projectDetail" hidden><a href="/projects">← Project portfolio</a><div id="projectSummary" class="project-summary"></div><nav class="project-sections" aria-label="Project sections"><a href="#work">Tasks</a><a href="#milestones">Milestones</a><a href="#team">Team</a><a href="#projectApplications">Applications</a><a href="#delivery">Delivery</a><a href="#engineering">Engineering</a><a href="#activity">Activity</a></nav>
+        <section id="projectDetail" class="project-v2" hidden>
+          <div class="project-v2-breadcrumb"><a href="/projects">← All projects</a><span aria-hidden="true">/</span><span id="projectCrumb">Project overview</span></div>
+          <div id="projectMeta" class="project-v2-meta" aria-live="polite"></div>
+          <nav id="projectViewNav" class="project-sections project-v2-nav" aria-label="Project views">
+            <a href="?view=overview" data-project-view="overview" aria-current="page">Overview</a>
+            <a href="?view=tasks" data-project-view="tasks">Tasks</a>
+            <a href="?view=milestones" data-project-view="milestones">Milestones</a>
+            <a href="?view=team" data-project-view="team">Team</a>
+            <a href="?view=applications" data-project-view="applications">Applications</a>
+            <a href="?view=delivery" data-project-view="delivery">Delivery</a>
+            <a href="?view=engineering" data-project-view="engineering">Engineering</a>
+            <a href="?view=activity" data-project-view="activity">Activity</a>
+            <a href="?view=settings" data-project-view="settings" hidden>Settings</a>
+          </nav>
+          <section id="overview" class="project-view-pane" aria-label="Project overview">
+            <div id="projectSummary" class="project-summary" aria-label="Key project metrics"></div>
+            <div class="project-v2-overview-grid">
+              <article class="project-v2-card" aria-labelledby="projectNextTitle"><div class="project-v2-card-head"><div><p class="project-v2-eyebrow">FOCUS</p><h2 id="projectNextTitle">Needs attention</h2></div><span class="project-v2-icon" aria-hidden="true">↗</span></div><div id="projectNextActions"></div></article>
+              <article class="project-v2-card" aria-labelledby="projectRoadmapTitle"><div class="project-v2-card-head"><div><p class="project-v2-eyebrow">DELIVERY</p><h2 id="projectRoadmapTitle">Milestone roadmap</h2></div><a href="?view=milestones" data-project-open="milestones">View milestones</a></div><div id="projectRoadmap"></div></article>
+              <article class="project-v2-card" aria-labelledby="projectRiskTitle"><div class="project-v2-card-head"><div><p class="project-v2-eyebrow">OWNERSHIP</p><h2 id="projectRiskTitle">Risks &amp; blockers</h2></div></div><div id="projectRisks"></div></article>
+              <article class="project-v2-card" aria-labelledby="projectResourcesTitle"><div class="project-v2-card-head"><div><p class="project-v2-eyebrow">REFERENCE</p><h2 id="projectResourcesTitle">Project resources</h2></div></div><div id="projectResources"></div></article>
+              <article class="project-v2-card project-v2-wide" aria-labelledby="projectUpdatesTitle"><div class="project-v2-card-head"><div><p class="project-v2-eyebrow">STATUS</p><h2 id="projectUpdatesTitle">Weekly updates</h2></div></div><div id="projectWeeklyUpdates"></div></article>
+            </div>
+          </section>
           <section id="settings" class="project-panel" hidden><details><summary>Project settings and ownership</summary><form id="projectSettings"></form></details></section>
           <section id="work" class="project-panel"><div class="project-section-head"><h2>Tasks</h2><button id="newProjectTask" type="button" hidden>Assign a task</button></div><div id="taskFilters"></div><div id="taskList" class="project-table-wrap"></div><details id="taskEditor"><summary>Create or edit task</summary><form id="taskForm"></form></details></section>
-          <section id="milestones" class="project-panel"><h2>Milestones</h2><div id="milestoneList"></div><details id="milestoneEditor"><summary>Create or edit milestone</summary><form id="milestoneForm"></form></details></section>
+          <section id="milestones" class="project-panel"><h2>Milestones</h2><div id="milestoneList"></div><div id="milestoneChecklistPanel" class="project-v2-checklist-panel"></div><details id="milestoneEditor"><summary>Create or edit milestone</summary><form id="milestoneForm"></form></details></section>
           <section id="team" class="project-panel"><div class="project-section-head"><h2>Project team</h2><button id="addProjectMember" type="button" hidden>Add team member</button></div><p class="project-section-hint">Project managers can grant access to eligible accounts within this project. HR authority and customer product access are managed separately.</p><div id="teamList"></div><div id="workforceSummary" class="project-workforce-summary" aria-live="polite"></div><div id="workforceRoster" class="project-table-wrap"></div><details id="teamEditor"><summary>Add or change a project member</summary><form id="memberForm"></form></details></section>
           <section id="projectApplications" class="project-panel project-applications" aria-labelledby="projectApplicationsTitle">
             <div class="project-section-head">
@@ -75,5 +98,6 @@
   <script defer src="/project-operations.js"></script>
   <script defer src="/project-delivery.js"></script>
   <script defer src="/projects.js"></script>
+  <script defer src="/project-detail-v2.js"></script>
 </body>
 </html>
