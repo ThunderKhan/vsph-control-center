@@ -7,7 +7,7 @@
       if (cls) e.className = cls;
       return e;
     };
-  const projectId = location.pathname.split("/")[2] || null;
+  let projectId = location.pathname.split("/")[2] || null;
   let user,
     detail,
     directory = {},
@@ -192,7 +192,7 @@
   }
   function titleLink(p) {
     const a = node("a", p.name);
-    a.href = "/projects/" + p.id;
+    a.href = "/projects/" + encodeURIComponent(p.key);
     const box = node("div");
     box.append(a, node("small", p.key));
     if (canAdministerProjects) {
@@ -451,10 +451,10 @@
       $("createProjectForm").hidden=true;
       complete.hidden=false;
       $("projectCreateSuccessDescription").textContent=
-        p.name+" ("+p.key+") is saved in the database. "+(
+        (p.name||d.name)+" ("+(p.key||d.key)+") is saved in the database. "+(
           d.managerUserId?"Your selected project manager has been appointed.":"You remain the initial project manager."
         );
-      $("viewCreatedProject").href="/projects/"+p.id+"#team";
+      $("viewCreatedProject").href="/projects/"+encodeURIComponent(p.key||d.key)+"?view=team";
       $("viewCreatedProject").focus();
     });
     setupProjectWizard(form);
@@ -955,24 +955,19 @@
     container.setAttribute("aria-busy", "true");
     for (const [control] of controls) control.disabled = true;
     try {
-      detail = await api("/api/projects/" + projectId);
+      detail = await api(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(projectId)
+        ? "/api/projects/" + projectId
+        : "/api/projects/by-key/" + encodeURIComponent(projectId));
       const p = detail.project;
+      projectId = p.id;
       $("portfolio").hidden = true;
       $("creation").hidden = true;
       $("newProject").hidden = true;
       $("projectDetail").hidden = false;
       $("projectTitle").textContent = p.name;
       $("projectSubtitle").textContent =
-        p.key +
-        " · " +
-        p.kind +
-        " · " +
-        p.status +
-        " · Owner: " +
-        (detail.members.find((m) => m.user_id === p.owner_id)?.full_name ||
-          "Project owner") +
-        " · " +
-        p.description;
+        p.key + " · " + p.kind + " · " + p.status + " · Owner: " +
+        (detail.members.find((m) => m.user_id === p.owner_id)?.full_name || "Project owner");
       const tasks = detail.tasks.filter((t) => t.status !== "cancelled"),
         done = tasks.filter((t) => t.status === "done").length,
         today = new Date().toISOString().slice(0, 10),
@@ -1001,7 +996,7 @@
           "Health",
           overdue || tasks.some((t) => t.status === "blocked")
             ? "Needs attention"
-            : "No blocked or overdue work",
+            : !tasks.length ? "Not started" : "No blocked or overdue work",
         ],
       ]) {
         const c = node("div", label);
@@ -1121,6 +1116,9 @@
       setMessage("Empty archived project "+key+" permanently deleted. Audit entry retained.");
     }catch(error){$("projectDeleteMessage").textContent=error.message;}
     finally{submit.disabled=false;}
+  });
+  document.addEventListener("vsph:workspace-mutated",()=>{
+    if(projectId)loadDetail().catch(error=>setMessage(error.message));
   });
   $("newCustomApplication").onclick = () => openCustomAppForm();
   $("cancelCustomApplication").onclick = () => {
