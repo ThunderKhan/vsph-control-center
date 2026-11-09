@@ -146,7 +146,11 @@ router.post('/',rpcRoute(async(req,res)=>{
   }
   const directory=await command(req,'list',null,{search:data.email});
   const existing=directory.employees?.find(employee=>employee.email===data.email);
-  if(!existing)throw cause;
+  if(!existing){
+    res.status(409);
+    return {code:'EMPLOYEE_EMAIL_RESERVED',
+      message:'This work email is already reserved by an existing or archived workforce record. Ask the platform owner to review the archived employee directory before attempting re-onboarding.'};
+  }
   res.status(409);
   return {code:'EMPLOYEE_EXISTS',employeeId:existing.id,
    message:'This work email already belongs to an employee. Review that record and continue account setup instead of creating a duplicate.'};
