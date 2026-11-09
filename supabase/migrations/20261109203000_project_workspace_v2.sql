@@ -87,7 +87,12 @@ begin
   if p_action='list' then
     if p_data<>'{}'::jsonb then raise exception 'Unexpected workspace filters' using errcode='22023';end if;
     return jsonb_build_object(
-      'checklist',coalesce((select jsonb_agg(to_jsonb(c) order by c.created_at,c.id)
+      'checklist',coalesce((select jsonb_agg(
+          case when access='client' then
+            jsonb_build_object('id',c.id,'milestone_id',c.milestone_id,
+              'title',c.title,'completed',c.completed)
+          else to_jsonb(c) end
+          order by c.created_at,c.id)
         from public.project_checklist_items c join public.project_milestones m on m.id=c.milestone_id
         where c.project_id=p_project and (access<>'client' or m.shared)),'[]'::jsonb),
       'risks',case when access='client' then '[]'::jsonb else
@@ -103,9 +108,11 @@ begin
     );
   end if;
   select * into project from public.projects where id=p_project for update;
-  if not found or public.project_permission(p_actor,p_project) is null then
-    raise exception 'Project unavailable' using errcode='42501';
-  end if;
+  if not found then raise exception 'Project unavailable' using errcode='42501';end if;
+  -- Recompute the role under the project lock. Membership or manager authority
+  -- may have changed while the caller was waiting for that lock.
+  access:=public.project_permission(p_actor,p_project);
+  if access is null then raise exception 'Project unavailable' using errcode='42501';end if;
   if project.status in ('archived','completed') then
     raise exception 'Closed project cannot be edited' using errcode='22023';
   end if;
