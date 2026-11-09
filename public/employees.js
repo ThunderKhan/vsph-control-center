@@ -243,12 +243,10 @@
     if(!restoring||busy||!event.currentTarget.reportValidity())return;
     const employee=restoring,reason=$('employeeRestoreReason').value.trim();
     if(reason.length<8||reason.length>500){$('archivedEmployeesMessage').textContent='Enter a restoration reason between 8 and 500 characters.';return;}
-    const approval=window.VSPHUI?.confirm
-      ? await window.VSPHUI.confirm('Restore this archived employee to Onboarding? Identity links, manager assignments and HR authority will remain revoked.',{
-        title:'Restore '+employee.full_name+'?',confirmLabel:'Restore employee',
-        fields:[{label:'Email',value:employee.email},{label:'Reason',value:reason}]
-      })
-      : window.confirm('Restore '+employee.email+' to onboarding without restoring access?');
+    const approval=await VSPHUI.confirm('Restore this archived employee to Onboarding? Identity links, manager assignments and HR authority will remain revoked.',{
+      title:'Restore '+employee.full_name+'?',confirmLabel:'Restore employee',
+      fields:[{label:'Email',value:employee.email},{label:'Reason',value:reason}]
+    });
     if(!approval)return;
     run(async()=>{
       const result=await api('/'+employee.id+'/restore',{
