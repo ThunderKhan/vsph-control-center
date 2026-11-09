@@ -7,7 +7,7 @@
       if (cls) e.className = cls;
       return e;
     };
-  const projectId = location.pathname.split("/")[2] || null;
+  let projectId = location.pathname.split("/")[2] || null;
   let user,
     detail,
     directory = {},
@@ -144,7 +144,7 @@
   }
   function titleLink(p) {
     const a = node("a", p.name);
-    a.href = "/projects/" + p.id;
+    a.href = "/projects/" + encodeURIComponent(p.key);
     const box = node("div");
     box.append(a, node("small", p.key));
     return box;
@@ -374,7 +374,7 @@
         method: "POST",
         body: JSON.stringify(d),
       });
-      location.assign("/projects/" + p.id + "#team");
+      location.assign("/projects/" + encodeURIComponent(p.key) + "?view=team");
     });
     setupProjectWizard(form);
     $("creation").hidden = false;
@@ -855,24 +855,19 @@
     container.setAttribute("aria-busy", "true");
     for (const [control] of controls) control.disabled = true;
     try {
-      detail = await api("/api/projects/" + projectId);
+      detail = await api(/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(projectId)
+        ? "/api/projects/" + projectId
+        : "/api/projects/by-key/" + encodeURIComponent(projectId));
       const p = detail.project;
+      projectId = p.id;
       $("portfolio").hidden = true;
       $("creation").hidden = true;
       $("newProject").hidden = true;
       $("projectDetail").hidden = false;
       $("projectTitle").textContent = p.name;
       $("projectSubtitle").textContent =
-        p.key +
-        " · " +
-        p.kind +
-        " · " +
-        p.status +
-        " · Owner: " +
-        (detail.members.find((m) => m.user_id === p.owner_id)?.full_name ||
-          "Project owner") +
-        " · " +
-        p.description;
+        p.key + " · " + p.kind + " · " + p.status + " · Owner: " +
+        (detail.members.find((m) => m.user_id === p.owner_id)?.full_name || "Project owner");
       const tasks = detail.tasks.filter((t) => t.status !== "cancelled"),
         done = tasks.filter((t) => t.status === "done").length,
         today = new Date().toISOString().slice(0, 10),
@@ -901,7 +896,7 @@
           "Health",
           overdue || tasks.some((t) => t.status === "blocked")
             ? "Needs attention"
-            : "No blocked or overdue work",
+            : !tasks.length && !detail.milestones.length ? "Not started" : "No blocked or overdue work",
         ],
       ]) {
         const c = node("div", label);
@@ -990,6 +985,9 @@
       container.setAttribute("aria-busy", "false");
     }
   }
+  document.addEventListener("vsph:workspace-mutated", () => {
+    if (projectId) loadDetail().catch(e => setMessage(e.message));
+  });
   $("newCustomApplication").onclick = () => openCustomAppForm();
   $("cancelCustomApplication").onclick = () => {
     closeCustomAppForm();
