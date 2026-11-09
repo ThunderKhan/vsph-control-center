@@ -275,3 +275,6 @@
 #customApplicationForm .project-app-actions{display:flex;align-items:center;justify-content:flex-end;gap:12px}
 #saveCustomApplication,#newCustomApplication{background:#0069C8;color:#FFF;border-color:#0069C8}
 @media(max-width:750px){.project-app-editor{padding:16px}#customApplicationForm .project-app-wide{grid-column:auto}}
+
+/* Manager team allocations and active identity selection. */
+.project-workforce-summary p{color:#536984;line-height:1.6;font-size:13px;margin:17px 0}.workforce-actions{display:flex;gap:8px;flex-wrap:wrap}.workforce-actions button{white-space:normal;font-size:12px;min-height:40px;padding:8px 10px}.project-workspace #workforceRoster{margin-top:12px}.project-workspace #teamEditor .project-section-hint{grid-column:1/-1;margin:0;font-size:12px;color:#536984}

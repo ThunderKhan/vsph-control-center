@@ -11,6 +11,7 @@
   let user,
     detail,
     directory = {},
+    workforce = {staff:[],canGovernManagers:false,canAssign:false},
     items = [],
     cursor = null,
     taskFilter = "";
@@ -610,81 +611,60 @@
       detail.role !== "manager" || detail.project.status === "archived";
     if (detail.role === "manager") renderMilestoneForm();
   }
-  function renderTeam() {
-    const box = $("teamList");
-    box.replaceChildren(
-      table(
-        ["Person", "Project role", "Team", "Access"],
-        detail.members.map((m) => [
-          m.full_name,
-          m.role,
-          m.team || "—",
-          m.status,
-        ]),
-      ),
-    );
-    const manager =
-      detail.role === "manager" && detail.project.status !== "archived";
-    $("teamEditor").hidden = !manager;
-    $("addProjectMember").hidden = !manager;
-    if (!manager) return;
-    $("addProjectMember").onclick = () => {
-      $("teamEditor").open = true;
-      $("memberForm").elements.email.focus();
-    };
-    const f = $("memberForm");
-    f.replaceChildren();
-    const email = field(
-      f,
-      "Find an existing account by exact email",
-      "email",
-      "email",
-    );
-    email.required = false;
-    const users = field(
-      f,
-      "Project member",
-      "userId",
-      "select",
-      opts(directory.users, "id", "full_name", false),
-    );
-    f.append(
-      button("Find account", async () => {
-        try {
-          const d = await getDirectory(email.value);
-          users.replaceChildren();
-          for (const u of d.users) {
-            const o = node("option", u.full_name + " · " + u.email);
-            o.value = u.id;
-            users.append(o);
-          }
-        } catch (e) {
-          setMessage(e.message);
+  function renderTeam(){
+    const members=detail.members||[],owner=user.platformRole==="super_admin";
+    $("teamList").replaceChildren(table(["Person","Project role","Team","Access"],
+      members.map(m=>[m.full_name,m.role,m.team||"—",m.status])));
+    const manager=detail.role==="manager"&&!["completed","archived"].includes(detail.project.status);
+    $("teamEditor").hidden=!manager;$("addProjectMember").hidden=!manager;
+    if(!manager)return;
+    const staff=workforce.staff||[],info=$("workforceSummary"),roster=$("workforceRoster");
+    info.replaceChildren(node("p",staff.length
+      ? staff.length+" active employees have accepted, linked portal identities."
+      : "No eligible employee identities. Finish employee account setup before assignment."));
+    roster.replaceChildren();
+    if(staff.length)roster.append(table(["Employee","Department","Project role","Open tasks","Actions"],staff.map(e=>{
+      const controls=node("div",undefined,"workforce-actions"),assigned=e.membership_status==="active";
+      const isProjectOwner=e.user_id===detail.project.owner_id;
+      if(assigned){
+        if(e.project_role==="manager"){
+          if(owner&&!isProjectOwner)controls.append(button("Revoke manager",()=>changeWorkforce("manager-revoke",e)));
+        }else{
+          if(owner)controls.append(button("Appoint manager",()=>changeWorkforce("manager-grant",e)));
+          if(!Number(e.open_tasks))controls.append(button("Remove",()=>changeWorkforce("remove",e)));
         }
-      }),
-    );
-    field(
-      f,
-      "Project role",
-      "role",
-      "select",
-      ["contributor", "manager", "viewer", "client"],
-      "contributor",
-    );
-    field(
-      f,
-      "Access status",
-      "status",
-      "select",
-      ["active", "revoked"],
-      "active",
-    );
-    field(f, "Development team", "team");
-    saveForm(f, "Save project membership", (d) => {
-      delete d.email;
-      return mutate("/members", "POST", d);
-    });
+      }
+      const who=node("div",e.full_name);who.append(node("small",e.job_title));
+      return [who,e.department,assigned?e.project_role:"Not assigned",e.open_tasks||0,controls];
+    })));
+    const f=$("memberForm");f.replaceChildren();
+    if(!staff.length){$("addProjectMember").hidden=true;$("teamEditor").hidden=true;return;}
+    const employee=field(f,"Employee","userId","select",
+      staff.map(e=>({value:e.user_id,label:e.full_name+" · "+e.department+(e.membership_status==="active"?" · "+e.project_role:"")})));
+    const roles=field(f,"Project role","role","select",
+      owner?["contributor","viewer","manager"]:["contributor","viewer"],"contributor");
+    field(f,"Team","team");
+    f.append(node("p","Only active internal employees with accepted accounts can be assigned. Project roles do not grant HR or product permissions.","project-section-hint"));
+    employee.onchange=()=>{
+      const e=staff.find(v=>v.user_id===employee.value);if(!e)return;
+      roles.value=owner&&e.project_role==="manager"?"manager":e.project_role==="viewer"?"viewer":"contributor";
+      f.elements.team.value=e.team||"";
+    };
+    employee.onchange();
+    saveForm(f,"Save project assignment",d=>changeWorkforce("assign",{user_id:d.userId,full_name:staff.find(e=>e.user_id===d.userId)?.full_name}, {role:d.role,team:d.team}));
+    $("addProjectMember").onclick=()=>{$("teamEditor").open=true;employee.focus();};
   }
+  async function changeWorkforce(action,employee,extra={}){
+    const captions={"manager-grant":"Appoint as project manager","manager-revoke":"Revoke project manager authority","remove":"Remove from this project","assign":"Save employee assignment"};
+    if(!window.confirm(captions[action]+" for "+(employee.full_name||"employee")+"?"))return;
+    try{
+      setMessage("");
+      await api("/api/projects/"+projectId+"/workforce/"+action,{method:"POST",
+        body:JSON.stringify({version:detail.project.version,userId:employee.user_id,...(action==="assign"?extra:{})})});
+      await loadDetail();setMessage("Project role updated and audited.");
+    }catch(error){setMessage(error.message);}
+  }
+
   function renderDelivery() {
     const manager =
         detail.role === "manager" && detail.project.status !== "archived",
@@ -929,6 +909,7 @@
       }
       if (detail.role === "manager") {
         await getDirectory();
+        workforce=await api("/api/projects/"+projectId+"/workforce");
         const f = $("projectSettings");
         f.replaceChildren();
         projectFields(f, p);
@@ -940,7 +921,7 @@
           ["planned", "active", "paused", "completed", "archived"],
           p.status,
         );
-        field(
+        if(user.platformRole==="super_admin")field(
           f,
           "Accountable owner",
           "ownerId",
