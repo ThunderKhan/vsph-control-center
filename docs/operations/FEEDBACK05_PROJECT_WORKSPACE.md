@@ -1,6 +1,6 @@
 # Feedback #05 — Individual project workspace redesign
 
-**Implementation branch:** `feedback/project-workspace-redesign-20261109` · **PR:** [#98](https://github.com/ThunderKhan/vsph-control-center/pull/98)
+**Integrated branch:** `integration/feedback01-05-20261109` · **PR:** [#101](https://github.com/ThunderKhan/vsph-control-center/pull/101) (supersedes #98)
 
 ## Included
 
@@ -28,7 +28,7 @@ No existing project, milestone, task, employee, customer, subscription, Auth ide
 
 ## Release boundary
 
-**Source implementation is not an installed production migration.** The connected existing Supabase Free project has 44 canonical migrations at the November 9 verification point. The new migration is the next pending version. Do not run a general `db push`, reset, seed, historical migration repair or `apply_migration` with an unreviewed generated version against that target.
+**Source implementation is not an installed production migration.** The source manifest has 37 ordered migrations, including the pending Feedback #01–#04 migration immediately before this one. Reconcile against the exact hosted ledger before installing either new migration. Do not run a general `db push`, reset, seed, historical migration repair or `apply_migration` with an unreviewed generated version against that target.
 
 An off-site private backup, independent restore rehearsal, exact canonical ledger verification, SQL review and explicit maintenance approval are required before installing it on that company database. Existing project pages should remain usable if the new workspace RPC is unavailable; the supplementary cards display an upgrade-needed notice and do not claim that missing data is empty.
 
