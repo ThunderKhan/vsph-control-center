@@ -13,6 +13,8 @@ module.exports=async pool=>{
 
  const p=await project('create',null,{key:'WORKSPACE-V2',name:'Feedback 05 workspace',kind:'internal'});
  let version=p.version;
+ await assert.rejects(workspace(null,p.id,{}),{code:'22023'});
+ assert.equal((await pool.query('select version from projects where id=$1',[p.id])).rows[0].version,version);
  await assert.rejects(workspace('list',p.id,{},stranger),{code:'42501'});
  await assert.rejects(workspace('risk.add',p.id,{version,title:'Unsafe',severity:'high'},stranger),{code:'42501'});
  const milestone=await project('milestone.create',p.id,{version,title:'Release readiness'});version++;
