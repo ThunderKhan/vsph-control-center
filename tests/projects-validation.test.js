@@ -54,7 +54,7 @@ test("Feedback 05 workspace requests enforce exact DTOs, scope and HTTPS resourc
     version,itemId:milestoneId,completed:"true"
   }));
   assert.throws(()=>validateWorkspace("risk-add",{version,title:"Short",severity:"critical"}));
-  assert.throws(()=>validateWorkspace("update-publish",{version,summary:"Too short",health:"on_track",nextSteps:"",shared:false}));
+  assert.throws(()=>validateWorkspace("update-publish",{version,summary:"Brief",health:"on_track",nextSteps:"",shared:false}));
   assert.doesNotThrow(()=>validateWorkspace("update-publish",{
     version,summary:"Planning phase is finished",health:"on_track",nextSteps:"Kick off implementation",shared:false
   }));
