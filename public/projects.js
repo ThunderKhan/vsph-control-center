@@ -150,11 +150,9 @@
     return t;
   }
   async function archiveProject(p) {
-    const approved=window.VSPHUI?.confirm
-      ? await window.VSPHUI.confirm("Archive "+p.name+"? Its records and audit trail will be retained.",{
-        title:"Archive "+p.key+"?",confirmLabel:"Archive project",danger:true
-      })
-      : window.confirm("Archive "+p.name+"? Project data will be retained.");
+    const approved=await VSPHUI.confirm("Archive "+p.name+"? Its records and audit trail will be retained.",{
+      title:"Archive "+p.key+"?",confirmLabel:"Archive project",danger:true
+    });
     if(!approved)return;
     try {
       await api("/api/projects/"+p.id+"/lifecycle/archive",{
@@ -179,11 +177,9 @@
       force=true;
     }
     if(!force&&projectCreateDirty){
-      const allowed=window.VSPHUI?.confirm
-        ? await window.VSPHUI.confirm("Discard the unsaved project details?",{
-          title:"Discard project draft?",confirmLabel:"Discard draft",danger:true
-        })
-        : window.confirm("Discard the unsaved project details?");
+      const allowed=await VSPHUI.confirm("Discard the unsaved project details?",{
+        title:"Discard project draft?",confirmLabel:"Discard draft",danger:true
+      });
       if(!allowed)return;
     }
     $("projectCreateOverlay").hidden=true;
@@ -759,7 +755,9 @@
   }
   async function changeWorkforce(action,employee,extra={}){
     const captions={"manager-grant":"Appoint as project manager","manager-revoke":"Revoke project manager authority","remove":"Remove from this project","assign":"Save employee assignment"};
-    if(!window.confirm(captions[action]+" for "+(employee.full_name||"employee")+"?"))return;
+    if(!await VSPHUI.confirm(captions[action]+" for "+(employee.full_name||"employee")+"?",{
+      title:"Confirm project team change",confirmLabel:"Confirm change",danger:action==="remove"||action==="manager-revoke"
+    }))return;
     try{
       setMessage("");
       await api("/api/projects/"+projectId+"/workforce/"+action,{method:"POST",
