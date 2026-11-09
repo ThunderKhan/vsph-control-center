@@ -731,6 +731,132 @@
       saveForm(cf, "Add comment", (data) => mutate("/comments", "POST", data));
     }
   }
+
+  const appStatus = () => $("customApplicationStatus");
+  const customApiPath = () => "/api/projects/" + projectId + "/applications";
+  let customRows = [], customCanManage = false, editingAppId = null, savingApp = false;
+  function customAppFields(entry) {
+    const f = $("customApplicationForm");
+    f.reset();
+    f.elements.name.value = entry?.name || "";
+    f.elements.description.value = entry?.description || "";
+    f.elements.status.value = entry?.status || "planned";
+    f.elements.repositoryUrl.value = entry?.repository_url || "";
+    f.elements.deploymentUrl.value = entry?.deployment_url || "";
+    f.elements.shared.checked = entry?.shared === true;
+  }
+  function closeCustomAppForm() {
+    editingAppId = null;
+    $("customApplicationEditor").hidden = true;
+  }
+  function openCustomAppForm(entry = null) {
+    if (!customCanManage || savingApp) return;
+    editingAppId = entry?.id || null;
+    customAppFields(entry);
+    $("customApplicationEditorTitle").textContent = entry ? "Edit custom application" : "Create custom application";
+    $("customApplicationEditor").hidden = false;
+    $("customApplicationForm").elements.name.focus();
+  }
+  function safeAppLink(raw, label) {
+    try {
+      const url = new URL(raw);
+      if (url.protocol !== "https:" || url.username || url.password) return null;
+      const a = node("a", label);
+      a.href = url.href;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      return a;
+    } catch {
+      return null;
+    }
+  }
+  function renderCustomApps() {
+    const linked = $("linkedProductsList");
+    linked.replaceChildren();
+    const linkedProducts = detail?.products || [];
+    for (const product of linkedProducts) {
+      const card = node("article", undefined, "project-app-card");
+      card.append(node("span", "Catalog product", "project-app-type"),
+        node("h4", product.name));
+      linked.append(card);
+    }
+    if (!linkedProducts.length) linked.append(node("p", "No reusable products are linked to this project.", "project-section-hint"));
+
+    const list = $("customApplicationList");
+    list.replaceChildren();
+    for (const entry of customRows) {
+      const card = node("article", undefined, "project-app-card");
+      const heading = node("div", undefined, "project-app-card-title");
+      heading.append(node("h4", entry.name),node("span", entry.status.replaceAll("_"," "), "project-app-state"));
+      card.append(node("span", "Custom application", "project-app-type"),heading);
+      if (entry.description) card.append(node("p", entry.description, "project-app-description"));
+      const links = node("div", undefined, "project-app-links");
+      for (const [url, label] of [[entry.repository_url,"Repository"],[entry.deployment_url,"Deployment"]]) {
+        if (!url) continue;
+        const link = safeAppLink(url,label);
+        if (link) links.append(link);
+      }
+      if (links.childElementCount) card.append(links);
+      card.append(node("span", entry.shared ? "Shared with authorized client viewers" : "Private to project team", "project-app-visibility"));
+      if (customCanManage) card.append(button("Edit application", () => openCustomAppForm(entry)));
+      list.append(card);
+    }
+    if (!customRows.length) list.append(node("p", "No custom applications have been registered for this project.", "project-section-hint"));
+    $("newCustomApplication").hidden = !customCanManage;
+    if (!customCanManage) closeCustomAppForm();
+  }
+  async function loadCustomApps() {
+    appStatus().textContent = "Loading application records…";
+    customRows = [];
+    customCanManage = false;
+    $("newCustomApplication").hidden = true;
+    try {
+      const data = await api(customApiPath());
+      customRows = data.applications || [];
+      customCanManage = data.canManage === true;
+      appStatus().textContent = customRows.length + " custom application" + (customRows.length === 1 ? "" : "s") + " registered.";
+    } catch (error) {
+      appStatus().textContent = "Custom applications unavailable: " + error.message + " Database installation may be required.";
+    }
+    renderCustomApps();
+  }
+  async function submitCustomApp(event) {
+    event.preventDefault();
+    if (savingApp || !customCanManage || !$("customApplicationForm").reportValidity()) return;
+    const form = $("customApplicationForm");
+    const payload = {
+      name: form.elements.name.value.trim(),
+      description: form.elements.description.value,
+      status: form.elements.status.value,
+      repositoryUrl: form.elements.repositoryUrl.value.trim(),
+      deploymentUrl: form.elements.deploymentUrl.value.trim(),
+      shared: form.elements.shared.checked
+    };
+    const old = editingAppId ? customRows.find(a => a.id === editingAppId) : null;
+    if (editingAppId && !old) {
+      appStatus().textContent = "Application changed. Refresh and review.";
+      return;
+    }
+    if (old) payload.version = old.version;
+    savingApp = true;
+    const save = $("saveCustomApplication");
+    save.disabled = true;
+    appStatus().textContent = "Saving application…";
+    try {
+      await api(old ? customApiPath() + "/" + old.id : customApiPath(), {
+        method: old ? "PATCH" : "POST",
+        body: JSON.stringify(payload)
+      });
+      closeCustomAppForm();
+      await loadCustomApps();
+      appStatus().textContent = "Application saved with its project-scoped audit history.";
+    } catch (error) {
+      appStatus().textContent = error.message;
+    } finally {
+      savingApp = false;
+      save.disabled = false;
+    }
+  }
   async function loadDetail() {
     const container = $("projectDetail"),
       controls = [
@@ -827,6 +953,7 @@
       renderMilestones();
       renderTeam();
       renderDelivery();
+      await loadCustomApps();
       document.dispatchEvent(
         new CustomEvent("vsph:project-loaded", {
           detail: { project: detail, user },
@@ -866,6 +993,12 @@
       container.setAttribute("aria-busy", "false");
     }
   }
+  $("newCustomApplication").onclick = () => openCustomAppForm();
+  $("cancelCustomApplication").onclick = () => {
+    closeCustomAppForm();
+    $("newCustomApplication").focus();
+  };
+  $("customApplicationForm").addEventListener("submit", submitCustomApp);
   $("newProject").onclick = () =>
     createForm().catch((e) => setMessage(e.message));
   $("reloadProjects").onclick = () => {

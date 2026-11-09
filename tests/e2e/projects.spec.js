@@ -42,6 +42,19 @@ test("authenticated project delivery workflow persists and denies an outsider", 
   await expect(page).toHaveURL(/\/projects\/[0-9a-f-]+#team$/);
   const url = page.url();
   const projectPath = new URL(url).pathname;
+  await page.getByRole("button", {name:"New custom application"}).click();
+  const application = page.locator("#customApplicationForm");
+  await application.getByLabel("Application name").fill("Guest services portal");
+  await application.getByLabel("Lifecycle").selectOption("building");
+  await application.getByLabel("Description").fill("Custom application built for this project");
+  await application.getByLabel("Git repository HTTPS URL (optional)").fill("https://github.com/example/guest-portal");
+  await application.getByRole("button",{name:"Save application",exact:true}).click();
+  await expect(page.locator("#customApplicationList")).toContainText("Guest services portal");
+  const customResponse = await context.request.get("/api/projects/" + projectPath.split("/").at(-1) + "/applications");
+  expect(customResponse.status()).toBe(200);
+  const apps = await customResponse.json();
+  expect(apps.applications).toHaveLength(1);
+  expect(apps.applications[0].name).toBe("Guest services portal");
   await expect(page.locator("#projectTitle")).toContainText(
     "Verified delivery",
   );
@@ -153,6 +166,7 @@ test("authenticated project delivery workflow persists and denies an outsider", 
     "/api/projects/" + projectPath.split("/").at(-1),
   );
   expect(denied.status()).toBe(403);
+  expect((await context.request.get("/api/projects/" + projectPath.split("/").at(-1) + "/applications")).status()).toBe(403);
   await page.goto(projectPath + "?verify=outsider");
   await expect(page.locator("#projectMessage")).toContainText("Access denied");
   await expect(page.locator("#projectTitle")).not.toContainText(

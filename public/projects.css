@@ -252,3 +252,26 @@
 .project-section-head h2{margin:0}
 .project-section-head button{background:#0069C8;color:white;border-color:#0069C8}
 @media(max-width:750px){.project-create-step,.project-create-review{grid-template-columns:1fr}}
+
+/* Project applications are independently tracked from reusable product catalog links. */
+.project-applications .project-section-head{align-items:flex-start}
+.project-applications h3{font-size:16px;font-weight:650;margin:0 0 12px}
+.project-applications h4{font-size:15px;margin:0;font-weight:650;overflow-wrap:anywhere}
+.project-app-group{border-top:1px solid #E1E9F2;padding-top:20px;margin-top:20px}
+.project-app-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:14px}
+.project-app-card{display:flex;flex-direction:column;align-items:flex-start;gap:10px;border:1px solid #DCE4EE;border-radius:12px;padding:18px;background:#FFF}
+.project-app-card-title{display:flex;gap:10px;justify-content:space-between;align-items:flex-start;width:100%}
+.project-app-type{text-transform:uppercase;font-size:10px;letter-spacing:.1em;color:#0069C8;font-weight:700}
+.project-app-state{font-size:11px;color:#00255A;background:#EAF3FB;padding:5px 9px;border-radius:999px;white-space:nowrap}
+.project-app-description{color:#536984;font-size:13px;line-height:1.6;margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.project-app-visibility{color:#61748B;font-size:11px}
+.project-app-links{display:flex;gap:14px;flex-wrap:wrap;font-size:13px}
+.project-app-editor{background:#F8FBFF;border:1px solid #C6D9EB;border-radius:12px;margin-top:24px;padding:22px}
+.project-app-editor h3{margin:0 0 10px}
+.project-workspace #customApplicationForm{margin:0}
+#customApplicationForm .project-app-wide{grid-column:1/-1}
+.project-app-sharing{display:flex!important;align-items:center;gap:10px}
+.project-app-sharing input{width:20px;min-height:20px}
+#customApplicationForm .project-app-actions{display:flex;align-items:center;justify-content:flex-end;gap:12px}
+#saveCustomApplication,#newCustomApplication{background:#0069C8;color:#FFF;border-color:#0069C8}
+@media(max-width:750px){.project-app-editor{padding:16px}#customApplicationForm .project-app-wide{grid-column:auto}}
