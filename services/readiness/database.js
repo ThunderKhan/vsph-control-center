@@ -43,6 +43,7 @@ function verifyManifest(
   return { manifest, errors };
 }
 const tables = [
+  "project_custom_applications",
   "internal_leave_requests",
   "internal_attendance",
   "internal_calendar_events",
@@ -95,6 +96,7 @@ const tables = [
   "project_notifications",
 ];
 const signatures = [
+  "public.project_custom_application_command(uuid,text,uuid,uuid,jsonb)",
   "public.owner_dashboard_snapshot(uuid,text,uuid,jsonb)",
   "public.account_profile(uuid,text,uuid,jsonb)",
   "public.hrms_access(uuid,text,uuid,jsonb)",
