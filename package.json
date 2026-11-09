@@ -17,6 +17,7 @@
     "test:db:local": "node scripts/local-database.mjs",
     "test:e2e": "playwright test",
     "test:e2e:db": "node scripts/local-database.mjs --e2e",
+    "release:smoke": "node scripts/verify-public-deployment.js",
     "invitations:dispatch": "node scripts/dispatch-invitations.js",
     "github:sync": "node scripts/sync-github.js",
     "notifications:dispatch": "node scripts/dispatch-project-notifications.js",
