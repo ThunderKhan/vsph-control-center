@@ -52,6 +52,12 @@ module.exports=async pool=>{
  await pool.query("update organization_memberships set status='active' where organization_id=$1 and user_id=$2",[org,customer]);
  const c=await project('create',null,{key:'WS-CLIENT',name:'Customer limited scope',kind:'customer',customerOrganizationId:org,clientVisible:true});
  await project('member.save',c.id,{version:1,userId:customer,role:'client',status:'active'});let cv=2;
+ const milestoneShared=await project('milestone.create',c.id,{
+   version:cv,title:'Client-visible delivery step',shared:true
+ });cv++;
+ await workspace('checklist.add',c.id,{
+   version:cv,milestoneId:milestoneShared.id,title:'Publish release candidate',assigneeId:null
+ });cv++;
  const safe=await workspace('resource.add',c.id,{version:cv,label:'Shared design',url:'https://example.test/shared',category:'design',shared:true});cv++;
  await workspace('resource.add',c.id,{version:cv,label:'Private design',url:'https://example.test/internal',category:'design',shared:false});cv++;
  await workspace('update.publish',c.id,{version:cv,summary:'Internal operational status notes',health:'at_risk',nextSteps:'Secret plan',shared:false});cv++;
@@ -61,6 +67,12 @@ module.exports=async pool=>{
  assert.deepEqual(clientData.resources.map(x=>x.id),[safe.id]);
  assert.equal(clientData.updates.length,1);
  assert.equal(clientData.updates[0].summary,'Public delivery status notes');
+ assert.equal(clientData.checklist.length,1);
+ assert.equal(clientData.checklist[0].title,'Publish release candidate');
+ for(const privateField of ['assignee_id','completed_by','created_by','created_at','project_id']){
+   assert.equal(Object.hasOwn(clientData.checklist[0],privateField),false,
+     'Client checklist progress must not expose internal field '+privateField);
+ }
  assert.equal(clientData.canManage,false);
  await assert.rejects(workspace('resource.add',c.id,{version:cv,label:'Forbidden',url:'https://example.test/x',category:'other',shared:true},customer),{code:'42501'});
  await pool.query("update organization_memberships set status='suspended' where organization_id=$1 and user_id=$2",[org,customer]);
