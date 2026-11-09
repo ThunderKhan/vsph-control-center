@@ -329,7 +329,7 @@
     },
     {
       "path": "supabase/migrations/20261109193000_feedback01_04_lifecycle.sql",
-      "sha256": "a3e71a0f514e0ec09d3a130d494aa77c39076315afba4c190edd442b21b9e289",
+      "sha256": "e806abf1f158b27944f8dbe78b7e4e303a48e6b56b2c6e7911bd002d58913dc9",
       "version": "20261109193000",
       "name": "feedback01_04_lifecycle",
       "requires": [
