@@ -217,3 +217,20 @@
 .people-manage-menu .people-manage-danger{color:#A32735}
 .people-manage-divider{height:1px;background:#E2E8F0;margin:4px 6px}
 @media(max-width:600px){.people-dept-row{grid-template-columns:minmax(95px,1fr) minmax(80px,2fr) 30px;gap:10px}.people-overview .people-panel{padding:18px}}
+
+
+/* Feedback #4: archived roster is deliberately owner-only. */
+.people-header-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.people-archived-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,310px),1fr));gap:12px;margin:16px 0}
+.people-archived-entry{padding:17px;border-radius:12px;border:1px solid #dce5ef;background:#fbfdff;min-width:0;display:grid;gap:12px;align-content:start}
+.people-archived-entry>div{display:grid;gap:4px}
+.people-archived-entry strong{font-size:14px;color:#00255a}
+.people-archived-entry small{font-size:12px;color:#61758c;overflow-wrap:anywhere}
+.people-archived-entry p{margin:0;color:#5b7087;overflow-wrap:anywhere}
+.people-archived-entry button{justify-self:start}
+.people-restore-form{border-top:1px solid #dce5ef;padding-top:21px;margin-top:22px;display:grid;gap:14px;max-width:760px}
+.people-restore-form[hidden],.people-archive-panel[hidden]{display:none!important}
+.people-restore-form h3{font-size:17px;margin:0}
+.people-restore-form label:not(.people-confirm){display:grid;gap:8px;font-size:13px;font-weight:650}
+.people-restore-form textarea{min-height:110px;padding:12px;font:inherit;border:1px solid #b8c9dc;border-radius:9px;resize:vertical}
+@media(max-width:600px){.people-header-actions{width:100%;align-items:stretch}.people-header-actions>*{flex:1;text-align:center}}
