@@ -299,7 +299,7 @@
     },
     {
       "path": "supabase/migrations/20261109140000_project_custom_applications.sql",
-      "sha256": "251eb777e4d03f8369b1cecac94e24790015782f4a77190f213749035102a540",
+      "sha256": "86287590060620bb2037f024a29cdb7cbc0b9bc65b573bc96b0a4906fc5c169f",
       "version": "20261109140000",
       "name": "project_custom_applications",
       "requires": [

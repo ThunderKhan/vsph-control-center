@@ -39,6 +39,8 @@ module.exports=async pool=>{
  const shared=await call(admin,"create",cp.id,null,appFields("Client-facing app",true));
  const visible=(await call(customer,"list",cp.id)).applications;
  assert.deepEqual(visible.map(a=>a.name),["Client-facing app"]);
+ assert.equal(visible[0].repository_url,"","Client must not see internal repository metadata");
+ assert.equal((await call(admin,"list",cp.id)).applications.find(a=>a.id===shared.id).repository_url,"https://github.com/example/repo");
  await assert.rejects(call(customer,"update",cp.id,shared.id,{...appFields("Claim",true),version:1}),{code:"42501"});
  await pool.query("update public.organization_memberships set status='suspended' where organization_id=$1 and user_id=$2",[org,customer]);
  await assert.rejects(call(customer,"list",cp.id),{code:"42501"});

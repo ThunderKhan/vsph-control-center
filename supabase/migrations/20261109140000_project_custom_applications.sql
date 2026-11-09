@@ -48,7 +48,9 @@ begin
   end if;
   select coalesce(jsonb_agg(to_jsonb(x) order by x.created_at,x.id),'[]'::jsonb)
     into response from (
-     select id,name,description,status,repository_url,deployment_url,shared,version,created_at,updated_at
+     select id,name,description,status,
+       case when role_name='client' then '' else repository_url end as repository_url,
+       deployment_url,shared,version,created_at,updated_at
      from public.project_custom_applications
      where project_id=p_project and (role_name<>'client' or shared)
      order by created_at,id limit 50
