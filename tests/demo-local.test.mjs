@@ -12,5 +12,15 @@ test('interactive role workspace boots in disposable PostgreSQL and enforces rol
    const page=await get('/dashboard');assert.match(await page.text(),/Isolated test workspace/);
    if(!employee){const apps=await(await get('/api/apps')).json();assert.deepEqual(apps.applications.map(a=>a.code),['MUSIC']);assert.equal((await get('/hr')).status,403);assert.equal((await get('/my-work')).status,403);assert.equal((await get('/apps/crm/login')).status,403);const launch=await fetch(origin+'/apps/music/launch',{headers:{Cookie:cookie},redirect:'manual'});assert.equal(launch.status,302);assert.equal(launch.headers.get('location'),'/apps/music/login');}else{assert.equal((await get('/my-work')).status,200);if(!hr)assert.equal((await get('/api/employees')).status,403);}
   }
- }finally{if(child.exitCode===null&&child.signalCode===null){const closed=once(child,'exit');if(child.connected)child.send({type:'vsph-demo-stop'});else child.kill('SIGINT');await closed;}}
+ }finally{
+  if(child.exitCode===null&&child.signalCode===null){
+   const closed=once(child,'exit');
+   if(child.connected)child.send({type:'vsph-demo-stop'});
+   else child.kill('SIGINT');
+   const [code,signal]=await closed;
+   assert.equal(code,0,'The demo must cleanly stop its disposable PostgreSQL cluster (signal: '+signal+').');
+  }else{
+   assert.equal(child.exitCode,0,'The demo must not exit unsuccessfully or leak its local PostgreSQL fixture.');
+  }
+ }
 });
