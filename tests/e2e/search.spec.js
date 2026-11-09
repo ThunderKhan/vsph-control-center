@@ -7,8 +7,9 @@ test('search finds durable project work with filters, pagination, failure recove
  const r=await context.request.post('/api/projects',{data:{key:'FIND-'+info.project.name.toUpperCase()+'-'+info.retry,name:unique,kind:'internal'}});expect(r.status()).toBe(201);const project=await r.json();let version=1;
  for(let n=1;n<=27;n++){expect((await context.request.post('/api/projects/'+project.id+'/tasks',{data:{version:version++,title:unique+' task '+n}})).status()).toBe(200);}
  await page.goto('/dashboard');
- if(info.project.name.includes('mobile'))await page.locator('#openMenu').click();
- await page.getByRole('link',{name:'Search work',exact:true}).click();
+ await page.getByLabel('Search authorized work').fill(unique);
+ await page.getByRole('button',{name:'Run workspace search',exact:true}).click();
+ await page.getByRole('link',{name:'Advanced work search',exact:true}).click();
  await expect(page).toHaveURL(/\/search$/);
  await page.getByLabel('Search text',{exact:true}).fill(unique);
  await page.getByLabel('Record type').selectOption('task');

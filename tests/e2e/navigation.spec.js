@@ -10,8 +10,8 @@ test('top navigation spans the full page and survives module changes and keyboar
   if(info.project.name==='mobile'){
    for(let n=0;n<2;n++){await page.getByRole('button',{name:'Open navigation',exact:true}).click();await expect(page.locator('#workspaceNavigation')).toBeVisible();expect((await page.locator('#workspaceNavigation').boundingBox()).y).toBeGreaterThanOrEqual((await page.locator('.crm-header-row').boundingBox()).height);await page.keyboard.press('Escape');await expect(page.locator('#openMenu')).toBeFocused();await expect(page.locator('#workspaceNavigation')).toBeHidden();}
   }else{
-   const group=page.locator('#adminNavContainer');await group.locator('summary').click();await expect(group.getByRole('link',{name:'Customers',exact:true})).toBeVisible();await page.keyboard.press('Escape');await expect(group.locator('summary')).toBeFocused();
-   const people=page.locator('#peopleNavigation');await people.locator('summary').focus();await page.keyboard.press('ArrowDown');await expect(people.getByRole('link',{name:'HR workspace',exact:true})).toBeFocused();await page.keyboard.press('Escape');
+   const group=page.locator('#organizationNavigation');await group.locator('summary').click();await expect(group.getByRole('link',{name:'Customer directory',exact:true})).toBeVisible();await page.keyboard.press('Escape');await expect(group.locator('summary')).toBeFocused();
+   const people=page.locator('#peopleNavigation');await people.locator('summary').focus();await page.keyboard.press('ArrowDown');await expect(people.getByRole('link',{name:'Employee management',exact:true})).toBeFocused();await page.keyboard.press('Escape');
   }
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),path).toBe(true);
   const paging={'/admin/customers':['#customer','#firstCustomers'],'/admin/products':['#product','#firstPage'],'/organizations':['#organization','#firstOrganizations']}[path];
@@ -44,7 +44,7 @@ test('top dropdown links navigate to real pages and logout revokes a separate se
  if(info.project.name==='mobile')await page.getByRole('button',{name:'Open navigation',exact:true}).click();
  await page.locator('#peopleNavigation>summary').click();await expect(page.getByRole('link',{name:'New employee',exact:true})).toHaveCount(0);await page.getByRole('link',{name:'Employee management',exact:true}).click();await expect(page).toHaveURL(/\/employees$/);await page.getByRole('link',{name:/Onboard employee/}).click();await expect(page).toHaveURL(/\/employees\/onboarding$/);
  if(info.project.name==='mobile')await page.getByRole('button',{name:'Open navigation',exact:true}).click();
- await page.locator('#adminNavContainer>summary').click();await page.getByRole('link',{name:'Customers',exact:true}).click();await expect(page).toHaveURL(/\/admin\/customers$/);
+ await page.locator('#organizationNavigation>summary').click();await page.getByRole('link',{name:'Customer directory',exact:true}).click();await expect(page).toHaveURL(/\/admin\/customers$/);
  await page.locator('.portal-account>summary[aria-label="Account menu"]').click();await page.getByRole('link',{name:'Open account profile',exact:true}).click();await expect(page).toHaveURL(/\/account\/profile$/);
  await page.locator('.portal-account>summary').click();await expect(page.locator('.crm-header-actions>.crm-header-icon#logoutButton')).toHaveCount(0);
  await page.getByRole('button',{name:'Sign out',exact:true}).click();await expect(page).toHaveURL(/\/login$/);expect((await context.request.get('/api/auth/me')).status()).toBe(401);

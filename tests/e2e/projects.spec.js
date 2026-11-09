@@ -32,11 +32,16 @@ test("authenticated project delivery workflow persists and denies an outsider", 
   await form
     .getByLabel("Project name", { exact: true })
     .fill("Verified delivery " + testInfo.project.name);
+  await form.getByRole("button", { name: "Continue", exact: true }).click();
+  await expect(form.locator(".project-create-progress")).toContainText("Organization and applications");
+  await form.getByRole("button", { name: "Continue", exact: true }).click();
+  await expect(form.locator(".project-create-progress")).toContainText("Review and create");
   await form
     .getByRole("button", { name: "Create project", exact: true })
     .click();
-  await expect(page).toHaveURL(/\/projects\/[0-9a-f-]+$/);
+  await expect(page).toHaveURL(/\/projects\/[0-9a-f-]+#team$/);
   const url = page.url();
+  const projectPath = new URL(url).pathname;
   await expect(page.locator("#projectTitle")).toContainText(
     "Verified delivery",
   );
@@ -145,7 +150,7 @@ test("authenticated project delivery workflow persists and denies an outsider", 
     },
   ]);
   const denied = await context.request.get(
-    "/api/projects/" + url.split("/").at(-1),
+    "/api/projects/" + projectPath.split("/").at(-1),
   );
   expect(denied.status()).toBe(403);
   await page.goto(url);

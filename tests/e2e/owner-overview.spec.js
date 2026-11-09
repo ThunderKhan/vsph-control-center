@@ -14,7 +14,7 @@ test('owner landing reads real persisted balances, preview is explicit and ordin
  expect(Object.keys(report).sort()).toEqual(['asOf','basis','currency','monthly','summary']);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
  await info.attach('owner-recorded-overview-'+info.project.name,{body:await page.screenshot({fullPage:true}),contentType:'image/png'});
- await page.getByRole('link',{name:'Open illustrative executive preview',exact:true}).click();
+ await page.goto('/dashboard?preview=executive');
  await expect(page.locator('#executiveDashboard')).toBeVisible();await expect(page.locator('#executiveDashboard')).toContainText('Illustrative data only.');await expect(page.locator('#ownerOverview')).toBeHidden();
  await page.getByRole('link',{name:'Return to recorded operating overview',exact:true}).click();await expect(page.locator('#ownerOverviewStatus')).toContainText('Recorded balances loaded');
  await context.clearCookies();await context.addCookies([cookie('fixture-outsider-session')]);
