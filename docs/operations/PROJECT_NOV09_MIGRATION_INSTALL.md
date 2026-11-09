@@ -7,11 +7,11 @@
 - The reviewed migrations were installed **atomically in one bounded PostgreSQL transaction**, with an existing canonical-history gate, advisory + migration ledger locks, a two-second lock timeout, a 90-second statement timeout, checks for required/absent objects and original project function digests, post-DDL permission/shape gates, and a PostgREST schema reload notification.
 - The original source files, exact source markers and existing history records were **not rewritten**. A separate Supabase apply-migration API was deliberately not used because its generated version would diverge from this repository's canonical journal.
 
-| Canonical version | Source migration | SHA-256 |
-| --- | --- | --- |
-| `20261109140000` | `project_custom_applications` | `86287590060620bb2037f024a29cdb7cbc0b9bc65b573bc96b0a4906fc5c169f` |
-| `20261109141500` | `organization_only_onboarding` | `82a1238d230de514aec080aad4df9438961d23f617eced17bcc3ae50a70a5c5d` |
-| `20261109143000` | `project_workforce_governance` | `f6df4fd980f92292043f4db113f70fd3aad789d1259b00f76cbc73c3fa155fba` |
+| Canonical version | Source migration               | SHA-256                                                            |
+| ----------------- | ------------------------------ | ------------------------------------------------------------------ |
+| `20261109140000`  | `project_custom_applications`  | `86287590060620bb2037f024a29cdb7cbc0b9bc65b573bc96b0a4906fc5c169f` |
+| `20261109141500`  | `organization_only_onboarding` | `82a1238d230de514aec080aad4df9438961d23f617eced17bcc3ae50a70a5c5d` |
+| `20261109143000`  | `project_workforce_governance` | `f6df4fd980f92292043f4db113f70fd3aad789d1259b00f76cbc73c3fa155fba` |
 
 ## Verified post-install
 
