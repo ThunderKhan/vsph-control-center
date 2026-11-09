@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Notifications | VSPH Control Center</title>
+<link rel="stylesheet" href="/dashboard.css"><link rel="stylesheet" href="/projects.css"><link rel="stylesheet" href="/project-utilities.css">
+</head>
+<body class="workspace-body" data-operations-mode="notifications">
+<!-- portal:icons -->
+<a class="skip-link" href="#mainContent">Skip to content</a>
+<div class="workspace-shell">
+<!-- portal:shell -->
+<div class="workspace-main" id="mainContent">
+<header class="workspace-topbar"></header>
+<main class="workspace-content project-workspace utility-workspace">
+<header class="project-heading"><div><p class="utility-eyebrow">INBOX</p><h1>Notifications</h1><p>Project updates and assignment notices across your authorized work.</p></div></header>
+<section id="projectOperations" class="project-panel">
+
+<p id="operationsMessage" role="status" aria-live="polite"></p><h2>Your project inbox</h2><p id="notificationDelivery"></p><button id="refreshNotifications" type="button">Refresh inbox</button><button id="retryNotifications" type="button">Retry failed in-app delivery</button><ol id="notificationList"></ol><form id="notificationPreferences" class="delivery-controls"><label><input type="checkbox" name="assignments">Assignments</label><label><input type="checkbox" name="delivery">Milestones and engineering changes</label><label><input type="checkbox" name="overdue">Overdue tasks and milestones</label><button type="submit">Save notification preferences</button></form><h2 class="utility-hidden-section" hidden>Project reports</h2><form id="reportFilters" hidden class="delivery-controls"><label>Project ID<input name="projectId" placeholder="Optional exact project ID"></label><label>Customer organization<select name="organizationId"><option value="">All authorized customers</option></select></label><label>Project owner<select name="ownerId"><option value="">All authorized owners</option></select></label><label>Project state<select name="status"><option value="">All states</option><option>planned</option><option>active</option><option>paused</option><option>completed</option><option>archived</option></select></label><label>Created from<input name="from" type="date"></label><label>Created through<input name="to" type="date"></label><button type="submit">Filter report</button></form><p id="reportFreshness" hidden></p><p hidden><a id="exportProjectReport" href="/api/project-reports/export.csv">Download project summary CSV (up to 100 projects)</a>. Export contains authorized report data; keep downloaded files private.</p><div id="projectReport" hidden class="project-table-wrap"></div>
+</section>
+</main>
+<footer class="workspace-footer"><span>© 2026 VSPH. All rights reserved.</span><span>Control Center</span></footer>
+</div></div>
+<script defer src="/project-operations.js"></script>
+<script defer src="/project-utilities.js"></script>
+</body></html>
