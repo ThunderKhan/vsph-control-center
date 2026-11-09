@@ -1,13 +1,33 @@
+# GitHub-hosted Actions minutes are budgeted. No PR or push event launches
+# a runner. An authorized maintainer must explicitly dispatch a suite after
+# local verification. This avoids five expensive jobs on every WIP commit.
 name: Node checks
+run-name: ${{ inputs.suite }} checks — ${{ github.ref_name }}
 on:
-  pull_request:
-  push:
-    branches: [main]
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: Select exactly the checks required for this review
+        type: choice
+        required: true
+        default: quality
+        options:
+          - quality
+          - database
+          - browser
+          - dependencies
+          - container
+          - all
+
 permissions:
   contents: read
+concurrency:
+  group: node-checks-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   quality:
     name: Node quality
+    if: ${{ inputs.suite == 'quality' || inputs.suite == 'all' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -25,6 +45,7 @@ jobs:
       - run: npm run test:coverage
   database:
     name: PostgreSQL isolation
+    if: ${{ inputs.suite == 'database' || inputs.suite == 'all' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     services:
@@ -68,6 +89,7 @@ jobs:
         run: npm run test:db:local
   browser:
     name: Browser smoke
+    if: ${{ inputs.suite == 'browser' || inputs.suite == 'all' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     services:
@@ -100,6 +122,7 @@ jobs:
           retention-days: 7
   dependencies:
     name: Production dependency audit
+    if: ${{ inputs.suite == 'dependencies' || inputs.suite == 'all' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -113,6 +136,7 @@ jobs:
         run: npm audit --audit-level=high
   container:
     name: Production container smoke
+    if: ${{ inputs.suite == 'container' || inputs.suite == 'all' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
