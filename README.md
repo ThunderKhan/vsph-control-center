@@ -4,6 +4,22 @@ Projects MVP, durable provisioning, read-only GitHub delivery, project inbox/rep
 
 VSPH's multi-tenant product portal (Express + vanilla HTML/JS/CSS), integrated with **Supabase Auth** and **hosted PostgreSQL**. The portal workspace dashboard and login were redesigned with the company design system while retaining the existing backend permissions. The old MySQL integration was replaced.
 
+
+## Deployment smoke and production readiness
+
+The Node 24 [Dockerfile](Dockerfile) packages the Express portal as a **non-root server**, and the independent background worker is deliberately not started with the web process. CI builds the image and checks that the login page boots while an unconfigured database and unauthenticated protected endpoints fail closed.
+
+After deploying to a dedicated, explicitly approved HTTPS Control Center domain with its own server-only environment, run:
+
+~~~powershell
+npm run release:smoke -- --origin https://YOUR-CONTROL-CENTER-DOMAIN
+~~~
+
+This performs **anonymous read-only HTTP acceptance**. It cannot prove live Supabase Auth, private customer invitations, hosted restore recovery or role-specific product workflows. The connected Supabase Free project has no automatically scheduled daily backups. One invitation remains queued with zero delivery attempts; do not claim it has been emailed. The existing Vercel project named **vsph** is a separate Next.js deployment and must not be overwritten to install this Express backend.
+
+See the [four-gate release runbook](docs/operations/RELEASE_GATES_20261109.md) for provider approval, real role sign-ins, off-device backup and isolated restore, final deployment acceptance, and explicit blockers.
+
+
 ## Shared navigation and isolated role testing
 
 Authenticated portal pages share one CRM-style top navigation bar and expandable mobile menu, with role-appropriate Work, Organizations, Applications, People and Administration groups, profile and sign-out. The owner grants HR access; HR cannot appoint HR. Employees use their own assigned-work workspace, and customers remain scoped to their organizations/products. Backend authorization is enforced independently of menu visibility.
