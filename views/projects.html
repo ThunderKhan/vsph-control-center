@@ -21,7 +21,27 @@
       <main class="workspace-content project-workspace">
         <header class="project-heading"><div><h1 id="projectTitle">Projects</h1><p id="projectSubtitle">Internal work and customer delivery, with explicit project access.</p></div><div class="actions"><button id="reloadProjects" type="button">Refresh</button><button id="newProject" type="button" hidden>New project</button></div></header>
         <p id="projectMessage" role="status" aria-live="polite"></p>
-        <section id="creation" class="project-panel project-creation" hidden><header class="project-create-heading"><p class="project-kicker">NEW PROJECT</p><h2>Create project</h2><p>Set up a client or internal engagement. You can assign a manager and project team immediately after creating it.</p></header><form id="createProjectForm" novalidate></form></section>
+        <div id="projectCreateOverlay" class="project-modal-backdrop" hidden>
+  <section id="creation" class="project-panel project-creation project-modal" role="dialog" aria-modal="true" aria-labelledby="createProjectTitle" hidden>
+  <header class="project-create-heading"><button id="closeCreateProject" class="project-modal-close" type="button" aria-label="Close project creation">×</button><p class="project-kicker">NEW PROJECT</p><h2 id="createProjectTitle">Create project</h2><p>Set up a client or internal engagement, with owner-approved project management.</p></header>
+  <form id="createProjectForm" novalidate></form>
+  <div id="projectCreateSuccess" class="project-create-success" role="status" aria-live="polite" hidden>
+   <span class="project-success-icon" aria-hidden="true">✓</span>
+   <h2>Project created</h2>
+   <p id="projectCreateSuccessDescription"></p>
+   <div class="project-create-success-actions"><a id="viewCreatedProject" href="/projects">View project</a><button id="backToProjectPortfolio" type="button">Back to projects</button></div>
+  </div>
+  </section></div>
+  <dialog id="projectDeleteDialog" class="project-delete-dialog" aria-labelledby="projectDeleteTitle">
+    <form id="projectDeleteForm" method="dialog">
+      <h2 id="projectDeleteTitle">Permanently delete project?</h2>
+      <p>This is available only for archived projects without retained delivery, customer, financial, or audit-dependent records. Existing company records will never be cascaded.</p>
+      <p id="projectDeleteDescription" class="project-delete-description"></p>
+      <label>Type the project key to confirm<input id="projectDeleteKey" autocomplete="off" required></label>
+      <p id="projectDeleteMessage" role="status" aria-live="polite"></p>
+      <div class="project-delete-actions"><button type="button" id="cancelProjectDelete">Cancel</button><button id="confirmProjectDelete" type="submit">Delete project permanently</button></div>
+    </form>
+  </dialog>
         <section id="portfolio"><form id="projectFilters" class="project-filters"><label>Search projects<input name="q" maxlength="100" type="search"></label><label>Lifecycle<select name="status"><option value="">All states</option><option>planned</option><option>active</option><option>paused</option><option>completed</option><option>archived</option></select></label><button type="submit">Filter</button></form><div id="projectList" aria-busy="true"></div><button id="moreProjects" type="button" hidden>Load more</button></section>
         <section id="projectDetail" hidden><a href="/projects">← Project portfolio</a><div id="projectSummary" class="project-summary"></div><nav class="project-sections" aria-label="Project sections"><a href="#work">Tasks</a><a href="#milestones">Milestones</a><a href="#team">Team</a><a href="#projectApplications">Applications</a><a href="#delivery">Delivery</a><a href="#engineering">Engineering</a><a href="#activity">Activity</a></nav>
           <section id="settings" class="project-panel" hidden><details><summary>Project settings and ownership</summary><form id="projectSettings"></form></details></section>
