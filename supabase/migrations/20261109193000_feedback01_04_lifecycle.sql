@@ -112,8 +112,11 @@ begin
  if prior_user is not null then
   if exists(select 1 from public.projects where owner_id=prior_user and status not in('archived','completed')) then
    raise exception 'Transfer open project ownership before employee restoration' using errcode='42501';end if;
+  -- Project employment allocations are revoked; customer-client roles are
+  -- a separate tenancy relationship and must never be erased here.
   update public.project_memberships set status='revoked'
-   where user_id=prior_user and status='active';
+   where user_id=prior_user and status='active'
+     and role in ('manager','contributor','viewer');
  end if;
  -- The trigger permits only this strict, transaction-local transition.
  perform set_config('vsph.employee_restore_id',p_id::text,true);
