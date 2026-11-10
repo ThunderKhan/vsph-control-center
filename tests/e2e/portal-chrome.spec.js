@@ -4,10 +4,10 @@ test('protected employee, customer and finance pages show one top navigation and
  await context.addCookies([{name:'vsph.portal.sid',value:'fixture-admin-session',
   url:'http://127.0.0.1:3100',httpOnly:true,sameSite:'Lax'}]);
  for(const [route,heading] of [
-  ['/employees/onboarding','Onboard an employee'],
-  ['/admin/onboarding','Create an organization'],
-  ['/admin/finance','Financial overview'],
-  ['/employees','Employee management']
+  ['/employees/onboarding','Onboard An Employee'],
+  ['/admin/onboarding','Create An Organization'],
+  ['/admin/finance','Financial Overview'],
+  ['/employees','Employee Management']
  ]){
   await page.goto(route);
   await expect(page.locator('#workspaceNavigation')).toHaveCount(1);
