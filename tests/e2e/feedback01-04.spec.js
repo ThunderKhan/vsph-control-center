@@ -22,7 +22,7 @@ test('project creation renders responsive owner-governed manager modal',async({p
  await page.getByRole('button',{name:'New Project',exact:true}).click();
  await expect(page.locator('#creation')).toHaveAttribute('aria-modal','true');
  const form=page.locator('#createProjectForm');
- await form.getByLabel('Project key').fill('PREVIEW-'+info.project.name.toUpperCase());
+ await form.getByLabel('Project Key').fill('PREVIEW-'+info.project.name.toUpperCase());
  await form.getByLabel('Project Name',{exact:true}).fill('Modern workspace preview');
  await form.getByRole('button',{name:'Continue',exact:true}).click();
  await expect(form.getByLabel('Project Manager')).toContainText('staff '+info.project.name);
