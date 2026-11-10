@@ -9,9 +9,9 @@ test('owner onboards internal staff, sees persisted metrics, filters and cannot 
  await page.goto('/dashboard');
  if(info.project.name==='desktop'){
   await page.locator('#peopleNavigation>summary').click();
-  await expect(page.getByRole('link',{name:'Employee management'})).toBeVisible();
+  await expect(page.getByRole('link',{name:'Employee Management'})).toBeVisible();
   await expect(page.getByRole('link',{name:'New employee'})).toHaveCount(0);
-  await page.getByRole('link',{name:'Employee management'}).click();
+  await page.getByRole('link',{name:'Employee Management'}).click();
   await page.getByRole('link',{name:/Onboard employee/}).click();
  } else {
   // The mobile top menu is closed by default; direct protected route
