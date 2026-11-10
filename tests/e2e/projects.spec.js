@@ -30,12 +30,12 @@ test("authenticated project delivery workflow persists and denies an outsider", 
     .getByLabel("Project key")
     .fill("E2E-" + testInfo.project.name.toUpperCase() + "-" + testInfo.retry);
   await form
-    .getByLabel("Project name", { exact: true })
+    .getByLabel("Project Name", { exact: true })
     .fill("Verified delivery " + testInfo.project.name);
   await form.getByRole("button", { name: "Continue", exact: true }).click();
-  await expect(form.locator(".project-create-progress")).toContainText("Organization and applications");
+  await expect(form.locator(".project-create-progress")).toContainText("Organization And Applications");
   await form.getByRole("button", { name: "Continue", exact: true }).click();
-  await expect(form.locator(".project-create-progress")).toContainText("Review and create");
+  await expect(form.locator(".project-create-progress")).toContainText("Review And Create");
   await form
     .getByRole("button", { name: "Create Project", exact: true })
     .click();
