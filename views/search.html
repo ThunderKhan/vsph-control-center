@@ -3,22 +3,22 @@
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Search project work | VSPH</title><link rel="stylesheet" href="/operations.css"><link rel="stylesheet" href="/search.css"></head>
 <body><main class="project-page">
 
-<header><div><h1>Find project work</h1></div></header>
+<header><div><h1>Find Project Work</h1></div></header>
 <section class="panel" aria-label="Search filters">
 <form id="searchForm" action="/search" method="get">
 <label>Search text<input type="search" name="q" required minlength="2" maxlength="100" autocomplete="off" aria-describedby="searchHelp"></label>
 <p id="searchHelp" class="muted">Enter at least two characters. Matching is literal and case insensitive. Descriptions, comments, people, customer records and private repository contents are outside this search.</p>
-<div class="form-grid"><label>Record type<select name="kind" aria-label="Record type"><option value="all">All project work</option><option value="project">Projects</option><option value="task">Tasks</option><option value="milestone">Milestones</option></select></label>
-<label>Status<select name="status" aria-label="Status"><option value="">All states</option><option>planned</option><option>active</option><option>paused</option><option>completed</option><option>archived</option><option>todo</option><option>in_progress</option><option>blocked</option><option>in_review</option><option>done</option><option>cancelled</option></select></label></div>
-<details><summary>Project, customer and due date filters</summary><div class="form-grid search-filters">
+<div class="form-grid"><label>Record type<select name="kind" aria-label="Record type"><option value="all">All Project Work</option><option value="project">Projects</option><option value="task">Tasks</option><option value="milestone">Milestones</option></select></label>
+<label>Status<select name="status" aria-label="Status"><option value="">All States</option><option value="planned">Planned</option><option value="active">Active</option><option value="paused">Paused</option><option value="completed">Completed</option><option value="archived">Archived</option><option value="todo">Todo</option><option value="in_progress">In_Progress</option><option value="blocked">Blocked</option><option value="in_review">In_Review</option><option value="done">Done</option><option value="cancelled">Cancelled</option></select></label></div>
+<details><summary>Project, Customer And Due Date Filters</summary><div class="form-grid search-filters">
 <label>Project ID<input name="projectId" maxlength="36" placeholder="Optional project UUID"></label><label>Customer organization ID<input name="organizationId" maxlength="36" placeholder="Optional organization UUID"></label>
 <label>Task assignee ID<input name="assigneeId" maxlength="36" placeholder="Optional user UUID; choose Tasks"></label><label>Due on or after<input type="date" name="from"></label><label>Due on or before<input type="date" name="to"></label>
 </div><p class="muted">IDs are available in project links and the authorized report filters. Filters narrow existing access; organization administration and product roles do not grant project access.</p></details>
-<div class="search-actions"><button type="submit" class="primary">Search work</button><button type="reset">Clear search</button></div></form>
+<div class="search-actions"><button type="submit" class="primary">Search Work</button><button type="reset">Clear Search</button></div></form>
 </section>
 <p id="searchMessage" role="status" aria-live="polite">No search has been run.</p>
 <section id="searchResults" aria-label="Search results" aria-busy="false" tabindex="-1"></section>
-<div class="search-actions"><button id="firstPage" type="button" hidden>First results page</button><button id="nextPage" type="button" hidden>Next results page</button></div>
+<div class="search-actions"><button id="firstPage" type="button" hidden>First Results Page</button><button id="nextPage" type="button" hidden>Next Results Page</button></div>
 <p class="muted">25 matches per page, ordered by record type and stable ID. Each request checks current permissions. Results may change as work and access change.</p>
 <noscript><p>Enable JavaScript to retrieve authorized search results. This page does not contain cached records.</p></noscript>
 </main><script src="/search.js" defer></script></body></html>
