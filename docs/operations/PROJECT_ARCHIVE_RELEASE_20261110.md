@@ -7,7 +7,19 @@
 - A read-only catalog query confirms **44 installed migration ledger records**. Neither `20261109193000` nor `20261109203000` is installed.
 - `public.project_lifecycle_command(uuid,text,uuid,jsonb)`, `public.project_creation_command(uuid,text,jsonb)` and `public.project_workspace_command(uuid,text,uuid,jsonb)` do not exist.
 - The restoration and workspace-V2 tables introduced in those migrations do not exist. The connected database contains **2 project records** at this inspection; do not assume those records are disposable.
-- The existing three November 9 migrations through `20261109143000_project_workforce_governance` **are recorded as installed**. This is version/name evidence, not a new complete source-marker comparison.
+- The existing three November 9 migrations through `20261109143000_project_workforce_governance` **are recorded as installed**.
+
+### Read-only ledger reconciliation — checked again 2026-11-10
+
+Compared live `supabase_migrations.schema_migrations` records against `supabase/migration-manifest.json`, including the repository's explicit historical Music-version aliases and `services/readiness/installation-receipts.json`:
+
+- **36/36 installed canonical migrations** have the exact expected version, name and `-- vsph-source-sha256:` marker. The manifest has **38** canonical entries in total: the only two missing are lifecycle `20261109193000` and workspace V2 `20261109203000`.
+- **8/8 transport receipt rows** match the registry's version/name and independently rehashed SHA-256 of their recorded SQL statement. All their required canonical source versions were present and marker-matched.
+- **44 total rows**, no unrecognized versions, duplicate versions, canonical source-marker mismatch, or transport receipt digest mismatch.
+- Existing `project_command`, `project_permission`, `project_workforce_command`, `project_custom_application_command` and `organization_only_onboarding` are security-definer functions with fixed empty `search_path`, service-role EXECUTE permission and **no** `anon`/`authenticated` EXECUTE permission.
+- No DDL, migration, data write, archive, delete, or deployment was performed during these catalog checks.
+
+**Scope limitation:** The current ledger identity/marker comparison and selected function-permission checks do not prove entire live schema/function-body equivalence, backup recoverability, or installation safety. The checks must be repeated inside the bounded release gate immediately before installation. An independently tested off-site backup and explicit production approval remain **required**.
 
 The archive action calls the service-only `project_lifecycle_command`. Without that RPC, the database cannot execute archive/delete, so the UI's `Database not ready` failure is expected. The application **must not** work around this by directly updating `projects.status` or deleting records.
 
