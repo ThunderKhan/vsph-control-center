@@ -85,9 +85,9 @@
             <label class="access-choice" for="catalogMode"><input type="radio" name="accessMode" value="catalog" id="catalogMode"><span><strong>Set up VSPH products</strong><small>Choose reusable products and define trial or active subscription terms now.</small></span></label>
           </div>
           <div id="catalogConfiguration" class="catalog-configuration" hidden>
-            <div class="section-subheading"><h2>Available products</h2><p>Select one or more products for this organization.</p></div>
+            <div class="section-subheading"><h2>Available Products</h2><p>Select one or more products for this organization.</p></div>
             <div id="productChoices" class="product-choices" aria-live="polite"><p class="subtle">Choose VSPH products to load the catalog.</p></div>
-            <div id="catalogError" class="catalog-error" role="status" hidden><span id="catalogErrorText"></span><button id="catalogRetry" type="button" class="button secondary">Retry loading</button></div>
+            <div id="catalogError" class="catalog-error" role="status" hidden><span id="catalogErrorText"></span><button id="catalogRetry" type="button" class="button secondary">Retry Loading</button></div>
             <div id="subscriptionCards" class="subscription-cards"></div>
             <p class="field-help">Active subscriptions and trials are access terms, not recorded payments. Trials must have a future end date.</p>
           </div>
@@ -113,12 +113,12 @@
       <section id="recoveryScreen" class="completion recovery-screen" hidden aria-live="polite">
         <span class="result-icon warning-icon" aria-hidden="true">!</span>
         <p class="eyebrow">REQUEST STATUS UNKNOWN</p>
-        <h2>Check the original request</h2>
+        <h2>Check The Original Request</h2>
         <p>The connection ended before we could confirm the result. Repeating the same request identifier is safe, but starting a different organization could create a duplicate.</p>
         <p id="recoveryMessage" role="status"></p>
         <div class="completion-actions">
-          <button id="checkOriginalRequest" type="button" class="button primary">Check original request</button>
-          <button id="retryOriginalRequest" type="button" class="button secondary">Retry same request</button>
+          <button id="checkOriginalRequest" type="button" class="button primary">Check Original Request</button>
+          <button id="retryOriginalRequest" type="button" class="button secondary">Retry Same Request</button>
           <a class="button secondary" href="/admin/provisioning">Provisioning recovery</a>
         </div>
       </section>
@@ -126,7 +126,7 @@
       <section id="completeScreen" class="completion" hidden aria-live="polite">
         <span class="result-icon success-icon" aria-hidden="true">✓</span>
         <p class="eyebrow">ORGANIZATION CREATED</p>
-        <h2>Organization is ready for setup.</h2>
+        <h2>Organization Is Ready For Setup.</h2>
         <p id="completeMessage"></p>
         <div class="completion-receipt">
           <div><span>Workspace</span><strong id="createdWorkspace">—</strong></div>
@@ -138,7 +138,7 @@
           <a id="completeProject" class="button primary" href="/projects">Create customer project</a>
           <a id="completeDirectory" class="button secondary" href="/admin/customers">View organization</a>
           <a class="button secondary" href="/admin/provisioning">Track invitation</a>
-          <button type="button" id="startAgain" class="button secondary">Create another</button>
+          <button type="button" id="startAgain" class="button secondary">Create Another</button>
         </div>
       </section>
     </section>
