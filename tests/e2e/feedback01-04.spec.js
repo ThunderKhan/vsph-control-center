@@ -19,7 +19,7 @@ test('project creation renders responsive owner-governed manager modal',async({p
  test.skip(!process.env.PROJECT_E2E_DATABASE,'Requires isolated PostgreSQL fixture');
  await context.addCookies([{name:'vsph.portal.sid',value:'fixture-admin-session',url:'http://127.0.0.1:3100'}]);
  await page.goto('/projects');
- await page.getByRole('button',{name:'New project',exact:true}).click();
+ await page.getByRole('button',{name:'New Project',exact:true}).click();
  await expect(page.locator('#creation')).toHaveAttribute('aria-modal','true');
  const form=page.locator('#createProjectForm');
  await form.getByLabel('Project key').fill('PREVIEW-'+info.project.name.toUpperCase());
@@ -78,11 +78,11 @@ test('project actions archive then allow owner deletion only after explicit key 
  await page.goto('/projects');
  const row=page.locator('#projectList tr').filter({hasText:key});
  await row.locator('.project-row-menu summary').click();
- await row.getByRole('button',{name:'Archive project'}).click();
- await page.locator('.vsph-ui-dialog').getByRole('button',{name:'Archive project'}).click();
+ await row.getByRole('button',{name:'Archive Project'}).click();
+ await page.locator('.vsph-ui-dialog').getByRole('button',{name:'Archive Project'}).click();
  await expect(page.locator('#projectMessage')).toContainText('archived');
  await row.locator('.project-row-menu summary').click();
- await row.getByRole('button',{name:'Permanently delete'}).click();
+ await row.getByRole('button',{name:'Permanently Delete'}).click();
  await expect(page.locator('#projectDeleteDialog')).toBeVisible();
  await page.locator('#projectDeleteKey').fill(key);
  await page.locator('#confirmProjectDelete').click();
