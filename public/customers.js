@@ -38,10 +38,11 @@
       setBusy(false);
     }
   }
+  const displayEnum = value => String(value || "").replaceAll("_", " ").replace(/\b[a-z]/g, letter => letter.toUpperCase());
   function options(values, selected) {
     const s = node("select");
     for (const [value, label] of values) {
-      const o = node("option", label);
+      const o = node("option", /^[a-z_]+$/.test(label) ? displayEnum(label) : label);
       o.value = value;
       s.append(o);
     }
@@ -84,7 +85,7 @@
     const selectedProduct = appSelect.value;
     appSelect.replaceChildren(
       ...catalog.map((p) => {
-        const o = node("option", p.name + " · " + p.status);
+        const o = node("option", p.name + " · " + displayEnum(p.status));
         o.value = p.id;
         return o;
       }),
@@ -95,7 +96,7 @@
     $("name").textContent = current.organization.name;
     $("newCustomerProject").href = "/projects?organizationId=" + encodeURIComponent(current.organization.id);
     $("newCustomerProject").hidden = current.organization.status !== "active";
-    $("state").textContent = "Organization: " + current.organization.status;
+    $("state").textContent = "Organization: " + displayEnum(current.organization.status);
     $("products").replaceChildren();
     $("inviteProducts").replaceChildren();
     for (const p of current.products) {
@@ -340,7 +341,7 @@
       rows.push(d.organization);
     }
     for (const c of rows) {
-      const o = node("option", c.name + " · " + c.status);
+      const o = node("option", c.name + " · " + displayEnum(c.status));
       o.value = c.id;
       choice.append(o);
     }
