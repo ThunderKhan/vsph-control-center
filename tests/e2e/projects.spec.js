@@ -24,7 +24,7 @@ test("authenticated project delivery workflow persists and denies an outsider", 
     await expect(page.locator("#workspaceNavigation")).toBeVisible();
     await page.keyboard.press("Escape");
   }
-  await page.getByRole("button", { name: "New project", exact: true }).click();
+  await page.getByRole("button", { name: "New Project", exact: true }).click();
   const form = page.locator("#createProjectForm");
   await form
     .getByLabel("Project key")
@@ -37,11 +37,11 @@ test("authenticated project delivery workflow persists and denies an outsider", 
   await form.getByRole("button", { name: "Continue", exact: true }).click();
   await expect(form.locator(".project-create-progress")).toContainText("Review and create");
   await form
-    .getByRole("button", { name: "Create project", exact: true })
+    .getByRole("button", { name: "Create Project", exact: true })
     .click();
   await expect(page.locator("#projectCreateSuccess")).toBeVisible();
-  await expect(page.locator("#projectCreateSuccessDescription")).toContainText("saved in the database");
-  await page.getByRole("link",{name:"View project",exact:true}).click();
+  await expect(page.locator("#projectCreateSuccessDescription")).toContainText("E2E-");
+  await page.getByRole("link",{name:"View Project",exact:true}).click();
   await expect(page).toHaveURL(/\/projects\/E2E-[A-Z0-9-]+\?view=team$/);
   const url = page.url();
   const projectPath=new URL(url).pathname;
