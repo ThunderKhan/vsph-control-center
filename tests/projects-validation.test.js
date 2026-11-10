@@ -66,3 +66,20 @@ test("Feedback 05 workspace requests enforce exact DTOs, scope and HTTPS resourc
     version,label:"Project plan",url:"https://example.test/project",category:"document",shared:true
   }));
 });
+
+test("missing lifecycle migration reports 503 readiness without bypassing owner-controlled SQL",()=>{
+ const {lifecycleSchemaMissing}=require("../routes/projects");
+ for(const code of ["PGRST202","42883"]){
+   assert.deepEqual(lifecycleSchemaMissing({code}),{
+     code:"PROJECT_LIFECYCLE_NOT_READY",
+     message:"Project archiving is unavailable until the database upgrade is installed. No project was changed."
+   });
+ }
+ for(const code of ["42501","40001","23503","PGRST205",undefined])
+   assert.equal(lifecycleSchemaMissing({code}),null,"Do not reinterpret non-migration errors");
+ assert.equal(lifecycleSchemaMissing(null),null);
+ const src=require("node:fs").readFileSync(require("node:path").join(__dirname,"../routes/projects.js"),"utf8");
+ assert.match(src,/if\(unavailable\)\{\s*res\.status\(503\);/);
+ assert.match(src,/db\(\)\.rpc\("project_lifecycle_command"/);
+ assert.doesNotMatch(src,/lifecycleSchemaMissing\(error\)[\s\S]*?from\("projects"\)\.update/);
+});
