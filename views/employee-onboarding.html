@@ -35,9 +35,9 @@
     <fieldset class="people-wizard-step" data-staff-panel="1" hidden>
      <legend id="wizardTitle-1" tabindex="-1">Employment details</legend>
      <div class="people-form-grid">
-      <label><span class="people-field-title">Department <em aria-hidden="true">*</em></span><select name="department" required><option value="" disabled selected>Select a department</option><option value="Engineering">Engineering</option><option value="Marketing">Marketing</option><option value="Human Resources">Human Resources</option><option value="Finance">Finance</option><option value="Customer Support">Customer Support</option><option value="Sales &amp; Business Development">Sales &amp; Business Development</option></select></label>
+      <label><span class="people-field-title">Department <em aria-hidden="true">*</em></span><select name="department" required><option value="" disabled selected>Select A Department</option><option value="Engineering">Engineering</option><option value="Marketing">Marketing</option><option value="Human Resources">Human Resources</option><option value="Finance">Finance</option><option value="Customer Support">Customer Support</option><option value="Sales &amp; Business Development">Sales &amp; Business Development</option></select></label>
       <label><span class="people-field-title">Job title <em aria-hidden="true">*</em></span><input name="jobTitle" maxlength="120" placeholder="e.g. Software Developer" required></label>
-      <label><span class="people-field-title">Employment type <em aria-hidden="true">*</em></span><select name="employmentType" required><option value="full_time">Full-time</option><option value="part_time">Part-time</option><option value="intern">Intern</option><option value="contract">Contract</option></select></label>
+      <label><span class="people-field-title">Employment type <em aria-hidden="true">*</em></span><select name="employmentType" required><option value="full_time">Full-Time</option><option value="part_time">Part-Time</option><option value="intern">Intern</option><option value="contract">Contract</option></select></label>
       <label><span class="people-field-title">Start date <em aria-hidden="true">*</em></span><input type="date" name="startDate" required></label>
      </div>
     </fieldset>
@@ -46,14 +46,14 @@
      <div id="employeeReview" class="people-review-sections">
       <section class="people-review-section" aria-labelledby="reviewIdentityTitle">
        <div class="people-review-heading">
-        <h3 id="reviewIdentityTitle">Employee identity</h3>
+        <h3 id="reviewIdentityTitle">Employee Identity</h3>
         <button type="button" class="people-review-edit" data-edit-step="0" aria-label="Edit employee identity">Edit</button>
        </div>
        <dl id="employeeReviewIdentity" class="people-review"></dl>
       </section>
       <section class="people-review-section" aria-labelledby="reviewPositionTitle">
        <div class="people-review-heading">
-        <h3 id="reviewPositionTitle">Employment details</h3>
+        <h3 id="reviewPositionTitle">Employment Details</h3>
         <button type="button" class="people-review-edit" data-edit-step="1" aria-label="Edit employment details">Edit</button>
        </div>
        <dl id="employeeReviewPosition" class="people-review"></dl>
@@ -76,7 +76,7 @@
   <div class="people-completion-card">
    <div class="people-completion-heading">
     <span id="completeIcon" class="people-complete-icon" aria-hidden="true">✓</span>
-    <h2 id="completeTitle">Employee created</h2>
+    <h2 id="completeTitle">Employee Created</h2>
     <p id="completeDescription">Share the private setup link to continue onboarding.</p>
    </div>
    <div id="createdEmployeeSummary" class="people-completion-person" hidden>
@@ -90,7 +90,7 @@
    </div>
    <p id="onboardDeliveryStatus" class="people-completion-feedback" role="status" aria-live="polite"></p>
    <section id="employeeHandoffPanel" class="employee-handoff" hidden aria-label="Private employee login handoff">
-    <div class="people-handoff-heading"><h3>Private setup link</h3></div>
+    <div class="people-handoff-heading"><h3>Private Setup Link</h3></div>
     <label for="employeeHandoffValue">Invitation URL</label>
     <textarea id="employeeHandoffValue" rows="3" readonly spellcheck="false" autocomplete="off"></textarea>
     <button id="copyEmployeeHandoff" type="button" class="people-primary"><span id="copyEmployeeHandoffLabel">Copy invitation link</span></button>
@@ -99,11 +99,11 @@
    </section>
    <section id="onboardRecovery" class="people-completion-recovery" hidden aria-label="Account setup recovery">
     <p id="onboardRecoveryMessage"></p>
-    <button id="checkEmployeeStatus" class="people-primary" type="button" hidden>Check status</button>
+    <button id="checkEmployeeStatus" class="people-primary" type="button" hidden>Check Status</button>
    </section>
    <div id="completeActions" class="people-completion-actions">
     <a id="setupEmployeeLogin" class="people-secondary" href="/employees" hidden>Manage access</a>
-    <button type="button" id="onboardAnother" class="people-secondary">Onboard another</button>
+    <button type="button" id="onboardAnother" class="people-secondary">Onboard Another</button>
    </div>
   </div>
  </section>
