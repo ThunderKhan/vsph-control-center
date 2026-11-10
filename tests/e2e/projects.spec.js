@@ -27,7 +27,7 @@ test("authenticated project delivery workflow persists and denies an outsider", 
   await page.getByRole("button", { name: "New Project", exact: true }).click();
   const form = page.locator("#createProjectForm");
   await form
-    .getByLabel("Project key")
+    .getByLabel("Project Key")
     .fill("E2E-" + testInfo.project.name.toUpperCase() + "-" + testInfo.retry);
   await form
     .getByLabel("Project Name", { exact: true })
@@ -85,7 +85,7 @@ test("authenticated project delivery workflow persists and denies an outsider", 
   await page.locator('[data-project-view="milestones"]').click();
   await page.locator("#milestoneEditor summary").click();
   let mf = page.locator("#milestoneForm");
-  await mf.getByLabel("Milestone title").fill("Staging acceptance");
+  await mf.getByLabel("Milestone Title").fill("Staging acceptance");
   await mf
     .getByRole("button", { name: "Create milestone", exact: true })
     .click();
@@ -95,7 +95,7 @@ test("authenticated project delivery workflow persists and denies an outsider", 
   await page.locator('[data-project-view="tasks"]').click();
   await page.locator("#taskEditor summary").click();
   let tf = page.locator("#taskForm");
-  await tf.getByLabel("Task title").fill("Implement tested flow");
+  await tf.getByLabel("Task Title").fill("Implement tested flow");
   await tf
     .getByLabel("Assignee")
     .selectOption(staffId);
@@ -133,8 +133,8 @@ test("authenticated project delivery workflow persists and denies an outsider", 
     "Acceptance evidence recorded",
   );
   const df = page.locator("#deliverableForm");
-  await df.getByLabel("Deliverable title").fill("Build evidence");
-  await df.getByLabel("HTTPS evidence link").fill("https://example.test/build");
+  await df.getByLabel("Deliverable Title").fill("Build evidence");
+  await df.getByLabel("HTTPS Evidence Link").fill("https://example.test/build");
   await df
     .getByRole("button", { name: "Add deliverable", exact: true })
     .click();
