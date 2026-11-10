@@ -48,8 +48,8 @@ test('archived employee email leads to owner-reviewed restoration without duplic
  await expect(page.locator('#employeeRestoreIdentity')).toContainText(email);
  await page.locator('#employeeRestoreReason').fill('Owner approved rehire and fresh onboarding');
  await page.locator('#employeeRestoreConfirmed').check();
- await page.locator('#restoreEmployeeForm').getByRole('button',{name:'Restore employee'}).click();
- await page.getByRole('dialog').getByRole('button',{name:'Restore employee'}).click();
+ await page.locator('#restoreEmployeeForm').getByRole('button',{name:'Restore Employee'}).click();
+ await page.getByRole('dialog').getByRole('button',{name:'Restore Employee'}).click();
  await expect(page.locator('#archivedEmployeesMessage')).toContainText('Restored successfully');
  const result=await context.request.get('/api/employees/restore-lookup?email='+encodeURIComponent(email));
  const restored=(await result.json()).employee;
