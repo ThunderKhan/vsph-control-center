@@ -155,7 +155,7 @@
   }
   async function archiveProject(p) {
     const approved=await VSPHUI.confirm("Archive "+p.name+"? Its records and audit trail will be retained.",{
-      title:"Archive "+p.key+"?",confirmLabel:"Archive project",danger:true
+      title:"Archive "+p.key+"?",confirmLabel:"Archive Project",danger:true
     });
     if(!approved)return;
     try {
