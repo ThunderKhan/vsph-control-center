@@ -18,7 +18,8 @@
     taskFilter = "",
     canAdministerProjects = false,
     activeDeleteProject = null,
-    projectCreateDirty = false;
+    projectCreateDirty = false,
+    portfolioRequestSerial = 0;
   const states = [
       "todo",
       "in_progress",
@@ -267,6 +268,7 @@
     $("projectPageStatus").textContent = "Showing " + projects.length + " Loaded Results";
   }
   async function loadList(append = false) {
+    const requestId = ++portfolioRequestSerial;
     $("projectList").setAttribute("aria-busy", "true");
     const filter = values($("projectFilters"));
     const qs = new URLSearchParams({
@@ -275,6 +277,7 @@
     });
     try {
       const result = await api("/api/projects?" + qs);
+      if (requestId !== portfolioRequestSerial) return;
       const page = Array.isArray(result.projects) ? result.projects : [];
       items = append ? items.concat(page) : page;
       cursor = page.at(-1)?.id || null;
@@ -302,8 +305,20 @@
       );
       list.className = "project-portfolio-table";
       box.append(list);
+    } catch (error) {
+      if (requestId === portfolioRequestSerial) {
+        items = [];
+        cursor = null;
+        canAdministerProjects = false;
+        $("newProject").hidden = true;
+        $("moreProjects").hidden = true;
+        $("projectList").replaceChildren();
+        updatePortfolioMetrics([]);
+      }
+      throw error;
     } finally {
-      $("projectList").setAttribute("aria-busy", "false");
+      if (requestId === portfolioRequestSerial)
+        $("projectList").setAttribute("aria-busy", "false");
     }
   }
   async function getDirectory(email) {
