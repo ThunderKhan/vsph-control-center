@@ -12,13 +12,14 @@ test("owner overview ends after real cards without the removed footer controls",
     assert.match(html, new RegExp('id="' + retained + '"'));
   assert.match(html, /class="owner-data-bindings" hidden/);
 });
-test("grouped navigation retains advanced search, both onboarding entry points and access gates", () => {
+test("grouped navigation keeps advanced search and access gates without duplicate employee onboarding", () => {
   const nav = read("views/partials/portal-navigation.html");
   for (const group of ["Work", "Organizations", "Applications", "People", "Administration"])
     assert.match(nav, new RegExp("<summary>" + group));
   assert.doesNotMatch(nav, /href="\/search" aria-label="Search work"/);
   assert.match(nav, /id="topbarOnboard"[^>]*href="\/admin\/onboarding"[^>]*hidden/);
-  assert.match(nav, /href="\/employees\/onboarding"/);
+  assert.doesNotMatch(nav, /href="\/employees\/onboarding"/);
+  assert.match(read("views/employees.html"), /href="\/employees\/onboarding"/);
   assert.match(read("services/workspace-header.js"), /Advanced work search/);
   assert.match(read("public/portal-navigation.js"), /orgAdminNav/);
 });
