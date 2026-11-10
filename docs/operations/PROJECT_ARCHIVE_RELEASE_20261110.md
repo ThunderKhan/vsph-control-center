@@ -13,10 +13,8 @@ The archive action calls the service-only `project_lifecycle_command`. Without t
 
 ## Source-ready, hosted-pending migrations
 
-| Canonical version | Migration file | Manifest SHA-256 |
-| --- | --- | --- |
-| `20261109193000` | `supabase/migrations/20261109193000_feedback01_04_lifecycle.sql` | `f08f6871e7be8769891a85df7b039f21df819746d10272ff9ce35063046bdeac` |
-| `20261109203000` | `supabase/migrations/20261109203000_project_workspace_v2.sql` | `dd161bdad8ea4f9958b3a96b563c791981c984f4ae403b6b18ab7ba8e00d8bc7` |
+- `20261109193000` — `supabase/migrations/20261109193000_feedback01_04_lifecycle.sql`, SHA-256: `f08f6871e7be8769891a85df7b039f21df819746d10272ff9ce35063046bdeac`.
+- `20261109203000` — `supabase/migrations/20261109203000_project_workspace_v2.sql`, SHA-256: `dd161bdad8ea4f9958b3a96b563c791981c984f4ae403b6b18ab7ba8e00d8bc7`.
 
 The dependency chain is **project workforce governance → lifecycle → workspace V2**. Both migrations have already passed isolated unit, native PostgreSQL and Playwright acceptance at PR #101 head `d8f82512c3ce`; this is not evidence of hosted installation or hosted backup/restore.
 
