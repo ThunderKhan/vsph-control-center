@@ -366,12 +366,6 @@
       const legend = node("legend", title);
       legend.tabIndex = -1;
       stage.append(legend);
-      if (index === 1) {
-        stage.append(node("p", "Choose the customer organization for client work. Linked catalog products describe delivery; they do not grant subscriptions or product logins.", "project-step-hint"));
-      }
-      if (index === 2) {
-        stage.append(node("p", "The owner retains governance. If an eligible manager is selected, that appointment is saved atomically with project creation. The manager can assign employees afterward.", "project-step-hint"));
-      }
       for (const name of names[index]) stage.append(controls[name]);
       return stage;
     });
@@ -439,7 +433,7 @@
           value = [...form.elements.products.selectedOptions]
             .map((option) => option.textContent).join(", ") || "None";
         }
-        review.append(dt, node("dd", value || "Not set"));
+        review.append(dt, node("dd", ["kind", "priority"].includes(name) ? displayEnum(value) : (value || "Not Set")));
       }
     }
     function show(nextStep, focus = false) {
@@ -463,10 +457,8 @@
   async function createForm() {
     await getDirectory();
     const managerCandidates=await api("/api/projects/manager-candidates");
-    $("projectCreateNotice").hidden=managerCandidates.schemaReady!==false;
-    $("projectCreateNotice").textContent=managerCandidates.schemaReady===false
-      ? "Manager assignment is awaiting its reviewed database upgrade. You can still create a project managed by the platform owner."
-      : "";
+    $("projectCreateNotice").hidden = true;
+    $("projectCreateNotice").textContent = "";
     // A fresh node also resets the wizard's capture listener. Reopening the
     // modal must never reuse a previous closed-over step or stale form fields.
     const oldForm=$("createProjectForm");
@@ -492,7 +484,7 @@
     );
     field(form, "Start date", "startsOn", "date");
     field(form, "Project manager", "managerUserId", "select", [
-      {value:"",label:"Owner manages initially — appoint a manager later"},
+      {value:"",label:"Owner Manages"},
       ...(managerCandidates.managers||[]).map(person=>({
         value:person.id,label:person.full_name+" · "+person.department
       }))
@@ -506,7 +498,7 @@
       form.elements.kind.value = "customer";
       form.elements.customerOrganizationId.value = authorizedOrganization.id;
     }
-    saveForm(form, "Create project", async (d) => {
+    saveForm(form, "Create Project", async (d) => {
       const p = await api("/api/projects", {
         method: "POST",
         body: JSON.stringify(d),
@@ -515,10 +507,7 @@
       const complete=$("projectCreateSuccess");
       $("createProjectForm").hidden=true;
       complete.hidden=false;
-      $("projectCreateSuccessDescription").textContent=
-        (p.name||d.name)+" ("+(p.key||d.key)+") is saved in the database. "+(
-          d.managerUserId?"Your selected project manager has been appointed.":"You remain the initial project manager."
-        );
+      $("projectCreateSuccessDescription").textContent = (p.name || d.name) + " (" + (p.key || d.key) + ")";
       $("viewCreatedProject").href="/projects/"+encodeURIComponent(p.key||d.key)+"?view=team";
       $("viewCreatedProject").focus();
     });
@@ -1030,9 +1019,10 @@
       $("newProject").hidden = true;
       $("projectDetail").hidden = false;
       $("projectTitle").textContent = p.name;
+      $("projectSubtitle").hidden = false;
       $("projectSubtitle").textContent =
-        p.key + " · " + p.kind + " · " + p.status + " · Owner: " +
-        (detail.members.find((m) => m.user_id === p.owner_id)?.full_name || "Project owner");
+        p.key + " · " + displayEnum(p.kind) + " · " + displayEnum(p.status) + " · Owner: " +
+        (detail.members.find((m) => m.user_id === p.owner_id)?.full_name || "Project Owner");
       const tasks = detail.tasks.filter((t) => t.status !== "cancelled"),
         done = tasks.filter((t) => t.status === "done").length,
         today = new Date().toISOString().slice(0, 10),
@@ -1197,6 +1187,11 @@
     setMessage("");
     (projectId ? loadDetail() : loadList()).catch((e) => setMessage(e.message));
   };
+  $("projectClearFilters").addEventListener("click", () => {
+    $("projectFilters").reset();
+    setMessage("");
+    loadList().catch(e => setMessage(e.message));
+  });
   $("projectFilters").onsubmit = (e) => {
     e.preventDefault();
     loadList().catch((e) => setMessage(e.message));
