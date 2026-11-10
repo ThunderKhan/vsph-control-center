@@ -368,9 +368,18 @@ router.patch("/:id/applications/:applicationId",rpcRoute(req=>{
 const { rateLimit } = require("../http-security");
 const rateLimitLifecycle=rateLimit({limit:12,windowMs:15*60*1000});
 
+// A missing PostgREST function is not a reason to bypass audited SQL writes.
+function lifecycleSchemaMissing(error){
+  if(!["PGRST202","42883"].includes(error?.code))return null;
+  return {
+    code:"PROJECT_LIFECYCLE_NOT_READY",
+    message:"Project archiving is unavailable until the database upgrade is installed. No project was changed."
+  };
+}
+
 // Soft-archive is available for any existing owner project. Permanent deletion
 // only succeeds if the project was archived and no retained dependencies exist.
-router.post("/:id/lifecycle/:action",rateLimitLifecycle,rpcRoute(req=>{
+router.post("/:id/lifecycle/:action",rateLimitLifecycle,rpcRoute((req,res)=>{
   if(!uuid(req.params.id)||!["archive","delete"].includes(req.params.action))invalid();
   const data=req.body;
   if(!data||typeof data!=="object"||Array.isArray(data)||
@@ -385,6 +394,14 @@ router.post("/:id/lifecycle/:action",rateLimitLifecycle,rpcRoute(req=>{
     if(error.code==="23503"){
       const denied=Error("Project has linked work, records or external references. Keep it archived; only empty archived projects can be permanently deleted.");
       denied.validation=true;throw denied;
+    }
+    // Missing service-only RPC means the reviewed lifecycle migration has not
+    // been installed. Fail closed: never imitate an archive with a direct
+    // projects.update or expose database metadata to the browser.
+    const unavailable=lifecycleSchemaMissing(error);
+    if(unavailable){
+      res.status(503);
+      return unavailable;
     }
     throw error;
   });
@@ -439,4 +456,4 @@ router.post("/:id/workspace/:action",rpcRoute(req=>{
 }));
 
 
-module.exports = { router, validate, validateCustomApplication, workforceData, validateWorkspace };
+module.exports = { router, validate, validateCustomApplication, workforceData, validateWorkspace, lifecycleSchemaMissing };
