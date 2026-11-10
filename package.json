@@ -12,6 +12,7 @@
     "check": "node scripts/check.js",
     "lint": "eslint .",
     "format:check": "prettier --check \"docs/architecture/*.md\" \"docs/roadmap/*.md\" \"docs/operations/*.md\"",
+    "format:fix": "prettier --write \"docs/architecture/*.md\" \"docs/roadmap/*.md\" \"docs/operations/*.md\"",
     "test:coverage": "node --test --experimental-test-coverage tests/*.test.js",
     "test:db": "node --test tests/database/*.test.mjs",
     "test:db:local": "node scripts/local-database.mjs",

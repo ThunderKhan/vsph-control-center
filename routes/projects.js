@@ -261,6 +261,15 @@ router.post(
     return result;
   }),
 );
+// Human-readable project keys are resolved only on the server. Never grant access
+// based on key existence; the existing project_command still checks tenant scope.
+router.get("/by-key/:key", rpcRoute(async (req) => {
+  if (!/^[A-Z][A-Z0-9-]{1,19}$/.test(req.params.key) ||
+      Object.keys(req.query).length) invalid();
+  const found = check(await db().from("projects").select("id").eq("key", req.params.key).maybeSingle());
+  if (!found) { const e = Error("Project unavailable."); e.code = "42501"; throw e; }
+  return call(req, "detail", found.id);
+}));
 router.get(
   "/:id",
   rpcRoute((req) => {
@@ -381,4 +390,53 @@ router.post("/:id/lifecycle/:action",rateLimitLifecycle,rpcRoute(req=>{
   });
 }));
 
-module.exports = { router, validate, validateCustomApplication, workforceData };
+// Feedback #5: all writes use the existing authenticated portal identity;
+// the service-only SQL function checks current project role and version.
+const workspaceActions = Object.freeze({
+  "checklist-add": ["checklist.add", ["version","milestoneId","title","assigneeId"]],
+  "checklist-toggle": ["checklist.toggle", ["version","itemId","completed"]],
+  "risk-add": ["risk.add", ["version","title","severity"]],
+  "risk-resolve": ["risk.resolve", ["version","id","resolved"]],
+  "resource-add": ["resource.add", ["version","label","url","category","shared"]],
+  "resource-archive": ["resource.archive", ["version","id"]],
+  "update-publish": ["update.publish", ["version","summary","health","nextSteps","shared"]]
+});
+function validateWorkspace(action, data) {
+  const definition=workspaceActions[action];
+  if (!definition || !data || typeof data!=="object" || Array.isArray(data)) invalid();
+  const keys=definition[1];
+  if (Object.keys(data).length!==keys.length || keys.some(k=>!Object.hasOwn(data,k)) ||
+      !Number.isSafeInteger(data.version) || data.version<1 || data.version>999999999) invalid();
+  for (const name of ["milestoneId","itemId","id"]) if (Object.hasOwn(data,name) && !uuid(data[name])) invalid();
+  if (Object.hasOwn(data,"assigneeId") && data.assigneeId!==null && !uuid(data.assigneeId)) invalid();
+  for (const [name,max,min] of [["title",180,1],["label",120,1],["summary",2500,8],["nextSteps",1500,0]]) {
+    if (Object.hasOwn(data,name) && (typeof data[name]!=="string" ||
+      data[name].trim().length<min || data[name].length>max ||
+      /[\u0000-\u001f\u007f]/.test(data[name]))) invalid();
+  }
+  for (const name of ["completed","resolved","shared"]) if (Object.hasOwn(data,name) && typeof data[name]!=="boolean") invalid();
+  if (Object.hasOwn(data,"severity") && !["low","medium","high"].includes(data.severity)) invalid();
+  if (Object.hasOwn(data,"health") && !["on_track","at_risk","off_track"].includes(data.health)) invalid();
+  if (Object.hasOwn(data,"category") && !["document","design","repository","deployment","other"].includes(data.category)) invalid();
+  if (Object.hasOwn(data,"url")) {
+    if (typeof data.url!=="string" || data.url.length>1000) invalid();
+    let u; try { u=new URL(data.url); } catch { invalid(); }
+    if (u.protocol!=="https:" || u.username || u.password || !/^[a-z0-9.-]+$/i.test(u.hostname)) invalid();
+  }
+  return data;
+}
+const workspace=(req,action,payload={})=>db().rpc("project_workspace_command",{
+  p_actor:req.user.id,p_action:action,p_project:req.params.id,p_data:payload
+}).then(check);
+router.get("/:id/workspace",rpcRoute(req=>{
+  if(!uuid(req.params.id)||Object.keys(req.query).length)invalid();
+  return workspace(req,"list");
+}));
+router.post("/:id/workspace/:action",rpcRoute(req=>{
+  if(!uuid(req.params.id)||Object.keys(req.query).length ||
+     !Object.hasOwn(workspaceActions,req.params.action)) invalid();
+  return workspace(req,workspaceActions[req.params.action][0],validateWorkspace(req.params.action,req.body));
+}));
+
+
+module.exports = { router, validate, validateCustomApplication, workforceData, validateWorkspace };
