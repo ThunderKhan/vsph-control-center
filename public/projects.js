@@ -62,7 +62,7 @@
     return b;
   };
   function field(form, label, name, type = "text", values = [], value = "") {
-    const l = node("label", label);
+    const l = node("label", displayEnum(label));
     let e;
     if (type === "select" || type === "multiple") {
       e = node("select");
@@ -74,7 +74,7 @@
       }
     } else e = node(type === "textarea" ? "textarea" : "input");
     e.name = name;
-    e.setAttribute("aria-label", label);
+    e.setAttribute("aria-label", displayEnum(label));
     if (e.tagName === "INPUT") e.type = type;
     if (type === "checkbox") e.checked = Boolean(value);
     else if (type === "multiple") {
@@ -350,7 +350,7 @@
       ["kind", "customerOrganizationId", "products", "clientVisible", "managerUserId"],
       [],
     ];
-    const titles = ["Project details", "Organization and applications", "Review and create"];
+    const titles = ["Project Details", "Organization And Applications", "Review And Create"];
     const controls = Object.fromEntries(
       [...form.querySelectorAll("label")].map((label) => [
         label.querySelector("[name]")?.name,
@@ -369,7 +369,7 @@
       for (const name of names[index]) stage.append(controls[name]);
       return stage;
     });
-    const progress = node("p", "Step 1 of 3 · Project details", "project-create-progress");
+    const progress = node("p", "Step 1 of 3 · Project Details", "project-create-progress");
     progress.setAttribute("role", "status");
     progress.setAttribute("aria-live", "polite");
     const review = node("dl");
