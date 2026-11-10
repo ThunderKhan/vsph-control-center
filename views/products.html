@@ -8,21 +8,21 @@
 <body>
 <main class="project-page product-workspace">
  <header class="registry-header">
-  <div><h1>Product catalog</h1><p>Register reusable VSPH applications and manage their lifecycle. Product registration alone never grants customer access.</p></div>
-  <button id="new" class="primary" type="button">Register product</button>
+  <div><h1>Product Catalog</h1><p>Register reusable VSPH applications and manage their lifecycle. Product registration alone never grants customer access.</p></div>
+  <button id="new" class="primary" type="button">Register Product</button>
  </header>
  <p id="message" role="status" aria-live="polite"></p>
  <section class="registry-paths" aria-label="Choose application workflow">
-  <article><span class="registry-path-label">Reusable application</span><h2>VSPH product</h2><p>Register once, then explicitly assign subscriptions, product roles and access to each customer organization.</p></article>
-  <article><span class="registry-path-label">Client-specific delivery</span><h2>Custom application</h2><p>Start from an internal or customer project to track development, linked products and HTTPS deliverables. Custom application records are created and managed within each project. They do not automatically become reusable products or grant customer access.</p><a href="/projects">Open projects</a></article>
+  <article><span class="registry-path-label">Reusable application</span><h2>VSPH Product</h2><p>Register once, then explicitly assign subscriptions, product roles and access to each customer organization.</p></article>
+  <article><span class="registry-path-label">Client-specific delivery</span><h2>Custom Application</h2><p>Start from an internal or customer project to track development, linked products and HTTPS deliverables. Custom application records are created and managed within each project. They do not automatically become reusable products or grant customer access.</p><a href="/projects">Open projects</a></article>
  </section>
  <section class="registry-directory panel" aria-label="Existing products">
-  <div class="registry-section-heading"><div><h2>Registered products</h2><p>Select a product to edit its configuration and inspect integration readiness.</p></div></div>
-  <label>Product<select id="product"><option value="">Choose a product or register one</option></select></label>
-  <div class="registry-paging"><button id="firstPage" type="button">First products page</button><button id="nextPage" type="button" hidden>Next products page</button></div>
+  <div class="registry-section-heading"><div><h2>Registered Products</h2><p>Select a product to edit its configuration and inspect integration readiness.</p></div></div>
+  <label>Product<select id="product"><option value="">Choose A Product Or Register One</option></select></label>
+  <div class="registry-paging"><button id="firstPage" type="button">First Products Page</button><button id="nextPage" type="button" hidden>Next Products Page</button></div>
  </section>
  <section id="editor" class="panel registry-editor" hidden>
-  <div class="registry-section-heading"><h2 id="heading">Register product</h2><p>Changes are version checked, audited and validated by the backend.</p></div>
+  <div class="registry-section-heading"><h2 id="heading">Register Product</h2><p>Changes are version checked, audited and validated by the backend.</p></div>
   <form id="form">
    <fieldset class="registry-fieldset">
     <legend><span class="registry-number">01</span> Application identity</legend>
@@ -37,8 +37,8 @@
     <legend><span class="registry-number">02</span> Ownership and visibility</legend>
     <p>Manage product availability separately from customer-specific grants and subscriptions.</p>
     <div class="form-grid">
-     <label>Lifecycle<select aria-label="Lifecycle" name="status"><option value="active">Enabled</option><option value="disabled">Disabled</option><option value="maintenance">Maintenance</option><option value="retired">Retired (terminal)</option></select></label>
-     <label>Catalog visibility<select aria-label="Catalog visibility" name="visibility"><option value="listed">Listed for entitled users</option><option value="unlisted">Unlisted (direct access still authorized)</option></select></label>
+     <label>Lifecycle<select aria-label="Lifecycle" name="status"><option value="active">Enabled</option><option value="disabled">Disabled</option><option value="maintenance">Maintenance</option><option value="retired">Retired (Terminal)</option></select></label>
+     <label>Catalog visibility<select aria-label="Catalog visibility" name="visibility"><option value="listed">Listed For Entitled Users</option><option value="unlisted">Unlisted (Direct Access Still Authorized)</option></select></label>
      <label>Accountable owner account UUID (optional)<input name="ownerId" maxlength="36" placeholder="Existing account UUID, if assigned"></label>
      <label>Support email<input name="supportEmail" type="email" maxlength="190" placeholder="support@example.com"></label>
      <label>Documentation HTTPS URL<input name="docsUrl" type="url" maxlength="1000" placeholder="https://..."></label>
@@ -47,15 +47,15 @@
    <fieldset class="registry-fieldset">
     <legend><span class="registry-number">03</span> Integration and review</legend>
     <p>Only reviewed adapters may access application data. Integration secrets and endpoints must be configured by the server operator, never through this form.</p>
-    <label>Integration mode<select aria-label="Integration mode" name="integrationMode"><option value="adapter">Reviewed adapter</option><option value="portal_only">Portal only</option></select></label>
+    <label>Integration mode<select aria-label="Integration mode" name="integrationMode"><option value="adapter">Reviewed Adapter</option><option value="portal_only">Portal Only</option></select></label>
     <div class="registry-safety-note">Login paths are derived from the immutable code. Saving this form does not deploy the application, enable SSO or grant subscriptions. Retiring a product revokes current product sessions and cannot be reversed here.</div>
    </fieldset>
-   <div class="registry-form-actions"><button class="primary" type="submit">Save product</button></div>
+   <div class="registry-form-actions"><button class="primary" type="submit">Save Product</button></div>
   </form>
  </section>
  <section id="health" class="panel registry-health" hidden>
-  <h2>Integration readiness</h2><p id="readiness"></p><p id="observation"></p>
-  <button id="check" type="button">Check reviewed local adapter</button>
+  <h2>Integration Readiness</h2><p id="readiness"></p><p id="observation"></p>
+  <button id="check" type="button">Check Reviewed Local Adapter</button>
   <p>External provider, tenant authorization and SSO acceptance remain unverified until separately staged.</p>
  </section>
 </main>

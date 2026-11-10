@@ -20,7 +20,7 @@ test("grouped navigation keeps advanced search and access gates without duplicat
   assert.match(nav, /id="topbarOnboard"[^>]*href="\/admin\/onboarding"[^>]*hidden/);
   assert.doesNotMatch(nav, /href="\/employees\/onboarding"/);
   assert.match(read("views/employees.html"), /href="\/employees\/onboarding"/);
-  assert.match(read("services/workspace-header.js"), /Advanced work search/);
+  assert.match(read("services/workspace-header.js"), /Advanced Work Search/);
   assert.match(read("public/portal-navigation.js"), /orgAdminNav/);
 });
 test("guided project creation and manager actions preserve server-authorized task flow", () => {

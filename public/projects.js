@@ -18,7 +18,8 @@
     taskFilter = "",
     canAdministerProjects = false,
     activeDeleteProject = null,
-    projectCreateDirty = false;
+    projectCreateDirty = false,
+    portfolioRequestSerial = 0;
   const states = [
       "todo",
       "in_progress",
@@ -51,6 +52,10 @@
       );
     return d;
   }
+  // Presentation only: keep canonical enum values for server requests.
+  const displayEnum = value => String(value ?? "—")
+    .replace(/[_-]+/g, " ")
+    .replace(/\b[a-z]/g, letter => letter.toUpperCase());
   const button = (text, fn) => {
     const b = node("button", text);
     b.type = "button";
@@ -58,19 +63,19 @@
     return b;
   };
   function field(form, label, name, type = "text", values = [], value = "") {
-    const l = node("label", label);
+    const l = node("label", displayEnum(label));
     let e;
     if (type === "select" || type === "multiple") {
       e = node("select");
       if (type === "multiple") e.multiple = true;
       for (const v of values) {
-        const o = node("option", typeof v === "string" ? v : v.label);
+        const o = node("option", typeof v === "string" ? displayEnum(v) : v.label);
         o.value = typeof v === "string" ? v : v.value;
         e.append(o);
       }
     } else e = node(type === "textarea" ? "textarea" : "input");
     e.name = name;
-    e.setAttribute("aria-label", label);
+    e.setAttribute("aria-label", displayEnum(label));
     if (e.tagName === "INPUT") e.type = type;
     if (type === "checkbox") e.checked = Boolean(value);
     else if (type === "multiple") {
@@ -151,7 +156,7 @@
   }
   async function archiveProject(p) {
     const approved=await VSPHUI.confirm("Archive "+p.name+"? Its records and audit trail will be retained.",{
-      title:"Archive "+p.key+"?",confirmLabel:"Archive project",danger:true
+      title:"Archive "+p.key+"?",confirmLabel:"Archive Project",danger:true
     });
     if(!approved)return;
     try {
@@ -191,21 +196,79 @@
     $("newProject").focus();
   }
   function titleLink(p) {
-    const a = node("a", p.name);
-    a.href = "/projects/" + encodeURIComponent(p.key);
-    const box = node("div");
-    box.append(a, node("small", p.key));
+    const link = node("a", p.name);
+    link.href = "/projects/" + encodeURIComponent(p.key);
+    link.className = "project-portfolio-name";
+    const box = node("div", undefined, "project-portfolio-identity");
+    box.append(link, node("small", p.key));
+    return box;
+  }
+  const statusPill = (status) => {
+    const known = ["planned", "active", "paused", "completed", "archived"];
+    const pill = node("span", displayEnum(status), "project-portfolio-pill");
+    pill.dataset.status = known.includes(status) ? status : "unknown";
+    return pill;
+  };
+  function dueCell(due) {
+    if (!due) return node("span", "Not Scheduled", "project-portfolio-muted");
+    const parsed = new Date(due + "T00:00:00");
+    if (Number.isNaN(parsed.getTime())) return node("span", "—");
+    const date = node("time", parsed.toLocaleDateString(undefined, {
+      day:"numeric",month:"short",year:"numeric"
+    }), "project-portfolio-date");
+    date.dateTime = due;
+    return date;
+  }
+  function taskProgress(p) {
+    const total = Math.max(0, Number(p.total_tasks) || 0);
+    const completed = Math.min(total, Math.max(0, Number(p.completed_tasks) || 0));
+    if (!total) return node("span", "No Tasks", "project-portfolio-muted");
+    const box = node("div", undefined, "project-portfolio-progress");
+    const label = node("span", completed + " of " + total + " Tasks");
+    const bar = node("progress");
+    bar.value = completed;bar.max = total;
+    bar.setAttribute("aria-label", p.name + " Task Completion");
+    box.append(label, bar);
+    return box;
+  }
+  function projectActions(p) {
+    const box = node("div", undefined, "project-portfolio-actions");
+    const open = node("a", "Open Project");
+    open.href = "/projects/" + encodeURIComponent(p.key);
+    open.setAttribute("aria-label", "Open " + p.name);
+    box.append(open);
     if (canAdministerProjects) {
-      const menu=node("details");menu.className="project-row-menu";
-      const summary=node("summary","Actions");
-      menu.append(summary);
-      if(p.status!=="archived")menu.append(button("Archive project",()=>void archiveProject(p)));
-      else menu.append(button("Permanently delete",()=>prepareProjectDeletion(p)));
+      const menu = node("details", undefined, "project-row-menu");
+      menu.append(node("summary", "More Actions"));
+      if (p.status !== "archived")
+        menu.append(button("Archive Project", () => void archiveProject(p)));
+      else
+        menu.append(button("Permanently Delete", () => prepareProjectDeletion(p)));
       box.append(menu);
     }
     return box;
   }
+  function updatePortfolioMetrics(projects) {
+    const now = new Date(), today = new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    const end = new Date(today); end.setDate(end.getDate() + 7);
+    const dueSoon = projects.filter(p => {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(p.due_on || "")) return false;
+      const date = new Date(p.due_on + "T00:00:00");
+      return date >= today && date < end && !["completed","archived"].includes(p.status);
+    }).length;
+    $("portfolioCount").textContent = String(projects.length);
+    $("portfolioActive").textContent = String(projects.filter(p => p.status === "active").length);
+    $("portfolioDue").textContent = String(dueSoon);
+    $("portfolioUrgent").textContent = String(projects.filter(p =>
+      p.priority === "urgent" && !["completed","archived"].includes(p.status)
+    ).length);
+    $("projectResultsCount").textContent = projects.length
+      ? "Showing " + projects.length + " Loaded Project" + (projects.length === 1 ? "" : "s")
+      : "No Projects Match Your Filters";
+    $("projectPageStatus").textContent = "Showing " + projects.length + " Loaded Results";
+  }
   async function loadList(append = false) {
+    const requestId = ++portfolioRequestSerial;
     $("projectList").setAttribute("aria-busy", "true");
     const filter = values($("projectFilters"));
     const qs = new URLSearchParams({
@@ -213,32 +276,50 @@
       ...(append && cursor ? { cursor } : {}),
     });
     try {
-      const r = await api("/api/projects?" + qs);
-      items = append ? items.concat(r.projects) : r.projects;
-      cursor = r.projects.at(-1)?.id || null;
-      canAdministerProjects=Boolean(r.canCreate);
-      $("newProject").hidden = !r.canCreate;
-      $("moreProjects").hidden = r.projects.length < 50;
+      const result = await api("/api/projects?" + qs);
+      if (requestId !== portfolioRequestSerial) return;
+      const page = Array.isArray(result.projects) ? result.projects : [];
+      items = append ? items.concat(page) : page;
+      cursor = page.at(-1)?.id || null;
+      canAdministerProjects = Boolean(result.canCreate);
+      $("newProject").hidden = !canAdministerProjects;
+      $("moreProjects").hidden = page.length < 50;
+      updatePortfolioMetrics(items);
       const box = $("projectList");
       box.replaceChildren();
-      if (!items.length)
-        box.append(node("p", "No projects match these filters."));
-      else
-        box.append(
-          table(
-            ["Project", "Ownership", "State", "Priority", "Progress", "Due"],
-            items.map((p) => [
-              titleLink(p),
-              p.kind,
-              p.status,
-              p.priority,
-              p.completed_tasks + " / " + p.total_tasks + " tasks",
-              p.due_on || "—",
-            ]),
-          ),
-        );
+      if (!items.length) {
+        box.append(node("p", "No Projects Match These Filters.", "project-portfolio-empty"));
+        return;
+      }
+      const list = table(
+        ["Project", "Ownership", "Status", "Priority", "Progress", "Due Date", "Actions"],
+        items.map(p => [
+          titleLink(p),
+          node("span", displayEnum(p.kind), "project-portfolio-muted"),
+          statusPill(p.status),
+          node("span", displayEnum(p.priority), "project-portfolio-priority"),
+          taskProgress(p),
+          dueCell(p.due_on),
+          projectActions(p),
+        ]),
+      );
+      list.className = "project-portfolio-table";
+      box.append(list);
+    } catch (error) {
+      if (requestId !== portfolioRequestSerial) return;
+      items = [];
+      cursor = null;
+      canAdministerProjects = false;
+      $("newProject").hidden = true;
+      $("moreProjects").hidden = true;
+      $("projectList").replaceChildren();
+      updatePortfolioMetrics([]);
+      $("projectResultsCount").textContent = "Projects Unavailable";
+      $("projectPageStatus").textContent = "No Results Loaded";
+      throw error;
     } finally {
-      $("projectList").setAttribute("aria-busy", "false");
+      if (requestId === portfolioRequestSerial)
+        $("projectList").setAttribute("aria-busy", "false");
     }
   }
   async function getDirectory(email) {
@@ -285,7 +366,7 @@
       ["kind", "customerOrganizationId", "products", "clientVisible", "managerUserId"],
       [],
     ];
-    const titles = ["Project details", "Organization and applications", "Review and create"];
+    const titles = ["Project Details", "Organization And Applications", "Review And Create"];
     const controls = Object.fromEntries(
       [...form.querySelectorAll("label")].map((label) => [
         label.querySelector("[name]")?.name,
@@ -301,16 +382,10 @@
       const legend = node("legend", title);
       legend.tabIndex = -1;
       stage.append(legend);
-      if (index === 1) {
-        stage.append(node("p", "Choose the customer organization for client work. Linked catalog products describe delivery; they do not grant subscriptions or product logins.", "project-step-hint"));
-      }
-      if (index === 2) {
-        stage.append(node("p", "The owner retains governance. If an eligible manager is selected, that appointment is saved atomically with project creation. The manager can assign employees afterward.", "project-step-hint"));
-      }
       for (const name of names[index]) stage.append(controls[name]);
       return stage;
     });
-    const progress = node("p", "Step 1 of 3 · Project details", "project-create-progress");
+    const progress = node("p", "Step 1 of 3 · Project Details", "project-create-progress");
     progress.setAttribute("role", "status");
     progress.setAttribute("aria-live", "polite");
     const review = node("dl");
@@ -374,7 +449,7 @@
           value = [...form.elements.products.selectedOptions]
             .map((option) => option.textContent).join(", ") || "None";
         }
-        review.append(dt, node("dd", value || "Not set"));
+        review.append(dt, node("dd", ["kind", "priority"].includes(name) ? displayEnum(value) : (value || "Not Set")));
       }
     }
     function show(nextStep, focus = false) {
@@ -398,10 +473,8 @@
   async function createForm() {
     await getDirectory();
     const managerCandidates=await api("/api/projects/manager-candidates");
-    $("projectCreateNotice").hidden=managerCandidates.schemaReady!==false;
-    $("projectCreateNotice").textContent=managerCandidates.schemaReady===false
-      ? "Manager assignment is awaiting its reviewed database upgrade. You can still create a project managed by the platform owner."
-      : "";
+    $("projectCreateNotice").hidden = true;
+    $("projectCreateNotice").textContent = "";
     // A fresh node also resets the wizard's capture listener. Reopening the
     // modal must never reuse a previous closed-over step or stale form fields.
     const oldForm=$("createProjectForm");
@@ -427,7 +500,7 @@
     );
     field(form, "Start date", "startsOn", "date");
     field(form, "Project manager", "managerUserId", "select", [
-      {value:"",label:"Owner manages initially — appoint a manager later"},
+      {value:"",label:"Owner Manages"},
       ...(managerCandidates.managers||[]).map(person=>({
         value:person.id,label:person.full_name+" · "+person.department
       }))
@@ -441,7 +514,7 @@
       form.elements.kind.value = "customer";
       form.elements.customerOrganizationId.value = authorizedOrganization.id;
     }
-    saveForm(form, "Create project", async (d) => {
+    saveForm(form, "Create Project", async (d) => {
       const p = await api("/api/projects", {
         method: "POST",
         body: JSON.stringify(d),
@@ -450,10 +523,7 @@
       const complete=$("projectCreateSuccess");
       $("createProjectForm").hidden=true;
       complete.hidden=false;
-      $("projectCreateSuccessDescription").textContent=
-        (p.name||d.name)+" ("+(p.key||d.key)+") is saved in the database. "+(
-          d.managerUserId?"Your selected project manager has been appointed.":"You remain the initial project manager."
-        );
+      $("projectCreateSuccessDescription").textContent = (p.name || d.name) + " (" + (p.key || d.key) + ")";
       $("viewCreatedProject").href="/projects/"+encodeURIComponent(p.key||d.key)+"?view=team";
       $("viewCreatedProject").focus();
     });
@@ -965,9 +1035,10 @@
       $("newProject").hidden = true;
       $("projectDetail").hidden = false;
       $("projectTitle").textContent = p.name;
+      $("projectSubtitle").hidden = false;
       $("projectSubtitle").textContent =
-        p.key + " · " + p.kind + " · " + p.status + " · Owner: " +
-        (detail.members.find((m) => m.user_id === p.owner_id)?.full_name || "Project owner");
+        p.key + " · " + displayEnum(p.kind) + " · " + displayEnum(p.status) + " · Owner: " +
+        (detail.members.find((m) => m.user_id === p.owner_id)?.full_name || "Project Owner");
       const tasks = detail.tasks.filter((t) => t.status !== "cancelled"),
         done = tasks.filter((t) => t.status === "done").length,
         today = new Date().toISOString().slice(0, 10),
@@ -1132,6 +1203,11 @@
     setMessage("");
     (projectId ? loadDetail() : loadList()).catch((e) => setMessage(e.message));
   };
+  $("projectClearFilters").addEventListener("click", () => {
+    $("projectFilters").reset();
+    setMessage("");
+    loadList().catch(e => setMessage(e.message));
+  });
   $("projectFilters").onsubmit = (e) => {
     e.preventDefault();
     loadList().catch((e) => setMessage(e.message));

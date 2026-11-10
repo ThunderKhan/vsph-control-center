@@ -30,7 +30,7 @@ test('Feedback #05: key URLs, responsive project views and durable checklist, ri
   await page.locator('[data-project-view="milestones"]').click();
   await expect(page).toHaveURL('/projects/'+key+'?view=milestones');
   await page.locator('#milestoneEditor summary').click();
-  await page.getByLabel('Milestone title').fill('Implementation');
+  await page.getByLabel('Milestone Title').fill('Implementation');
   await page.getByRole('button',{name:'Create milestone',exact:true}).click();
   await expect(page.locator('#milestoneList')).toContainText('Implementation');
   await expect(page.locator('#milestoneChecklistPanel')).toContainText('Implementation');

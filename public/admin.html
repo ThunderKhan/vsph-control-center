@@ -91,8 +91,8 @@
 <body>
   <main class="admin-shell">
     <header class="admin-head">
-      <div><h1>Platform administration</h1></div>
-      <div class="admin-header-actions"><a class="admin-return onboarding-cta" href="/admin/onboarding">New customer</a><button id="logoutButton" class="small">Sign out</button></div>
+      <div><h1>Platform Administration</h1></div>
+      <div class="admin-header-actions"><a class="admin-return onboarding-cta" href="/admin/onboarding">New customer</a><button id="logoutButton" class="small">Sign Out</button></div>
     </header>
     <p id="globalMessage" class="message" role="status"></p>
     <nav class="admin-nav" aria-label="Administration sections">
@@ -110,7 +110,7 @@
     <section class="section" id="section-overview">
       <div class="panel onboarding-banner">
         <div><p class="purpose-label" style="color:#0069C8">CUSTOMER ONBOARDING</p>
-        <h2>Create a customer organization</h2>
+        <h2>Create A Customer Organization</h2>
         <p class="hint">Create a dedicated organization, invite its owner and optionally configure reusable products.</p></div>
         <a class="admin-return onboarding-cta" href="/admin/onboarding">New customer</a>
       </div>
@@ -121,14 +121,14 @@
         <div class="stat">Active / Trial subscriptions<strong id="statSubscriptions">—</strong></div>
         <div class="stat">Enabled app grants<strong id="statAccess">—</strong></div>
       </div>
-      <div class="panel" style="margin-top:18px"><h2>Before granting access</h2><p class="hint">For an employee to enter CRM or Music, their organization needs an active or trial subscription and enabled product access. The individual also needs an assigned application role. Use the tabs above to configure these separately.</p></div>
+      <div class="panel" style="margin-top:18px"><h2>Before Granting Access</h2><p class="hint">For an employee to enter CRM or Music, their organization needs an active or trial subscription and enabled product access. The individual also needs an assigned application role. Use the tabs above to configure these separately.</p></div>
     </section>
 
     <section class="section" id="section-organizations" hidden>
       <div class="panel onboarding-banner">
         <div>
           <p class="purpose-label" style="color:#0069C8">GUIDED CUSTOMER SETUP</p>
-          <h2>Bring a new customer on board</h2>
+          <h2>Bring A New Customer On Board</h2>
           <p class="hint">Create the organization first, invite its owner securely, then optionally assign catalog products and subscription terms. No temporary passwords required.</p>
         </div>
         <a class="admin-return onboarding-cta" href="/admin/onboarding">Create organization</a>
@@ -137,20 +137,20 @@
     </section>
 
     <section class="section" id="section-applications" hidden>
-      <div class="panel"><h2>Add application</h2><p><a href="/admin/products">Open governed product registry</a> — registration and editing now use atomic audited changes.</p>
+      <div class="panel"><h2>Add Application</h2><p><a href="/admin/products">Open governed product registry</a> — registration and editing now use atomic audited changes.</p>
         <form id="applicationForm" hidden class="form-grid">
           <div><label for="appCode">Unique code</label><input id="appCode" required maxlength="40" pattern="[A-Za-z][A-Za-z0-9_]{1,39}" placeholder="CRM"></div>
           <div><label for="appName">Display name</label><input id="appName" required maxlength="150" placeholder="Customer Relationship Management"></div>
           <div><label for="appPath">Login path</label><input id="appPath" required pattern="/apps/[a-z0-9-]+/login" placeholder="/apps/crm/login"></div>
-          <div><label for="appStatus">Status</label><select id="appStatus"><option value="active">active</option><option value="maintenance">maintenance</option><option value="retired">retired</option></select></div>
-          <div class="form-actions"><button class="primary" type="submit">Add application</button></div>
+          <div><label for="appStatus">Status</label><select id="appStatus"><option value="active">Active</option><option value="maintenance">Maintenance</option><option value="retired">Retired</option></select></div>
+          <div class="form-actions"><button class="primary" type="submit">Add Application</button></div>
         </form>
       </div>
-      <div class="panel"><h2>Application catalog</h2><div id="applicationsTable" class="table-wrap">Loading…</div></div>
+      <div class="panel"><h2>Application Catalog</h2><div id="applicationsTable" class="table-wrap">Loading…</div></div>
     </section>
 
     <section class="section" id="section-users" hidden>
-      <div class="panel"><h2>Manage customer members</h2><a href="/admin/customers">Customer workspace and invitations</a>
+      <div class="panel"><h2>Manage Customer Members</h2><a href="/admin/customers">Customer workspace and invitations</a>
         <p class="hint">Use customer onboarding to send an email invitation. The recipient chooses their own password. Standalone user invitations and platform administrator changes require the governed identity workflow.</p>
         <a class="admin-return onboarding-cta" href="/admin/onboarding">New customer</a>
       </div>
@@ -158,51 +158,51 @@
     </section>
 
     <section class="section" id="section-subscriptions" hidden>
-      <div class="panel"><h2>Create or update subscription</h2>
+      <div class="panel"><h2>Create Or Update Subscription</h2>
         <form id="subscriptionForm" class="form-grid" aria-describedby="subscriptionHelp">
           <div><label for="subOrg">Organization</label><select id="subOrg" required></select></div>
           <div><label for="subApp">Application</label><select id="subApp" required></select></div>
           <div><label for="subPlan">Plan code</label><input id="subPlan" value="prototype" maxlength="60" required></div>
-          <div><label for="subStatus">Status</label><select id="subStatus"><option>trial</option><option selected>active</option><option>past_due</option><option>cancelled</option><option>expired</option></select></div>
+          <div><label for="subStatus">Status</label><select id="subStatus"><option value="trial">Trial</option><option selected value="active">Active</option><option value="past_due">Past Due</option><option value="cancelled">Cancelled</option><option value="expired">Expired</option></select></div>
           <div><label for="subEnd">End date (optional)</label><input id="subEnd" type="datetime-local"></div>
-          <div class="form-actions"><button class="primary" type="submit">Save subscription</button></div>
+          <div class="form-actions"><button class="primary" type="submit">Save Subscription</button></div>
         </form><p class="hint subscription-hint" id="subscriptionHelp">One subscription per organization and application. Saving again updates the existing record.</p>
       </div>
       <div class="panel"><h2>Subscriptions</h2><div id="subscriptionsTable" class="table-wrap">Loading…</div></div>
     </section>
 
     <section class="section" id="section-access" hidden>
-      <div class="panel"><h2>Grant or change application access</h2>
+      <div class="panel"><h2>Grant Or Change Application Access</h2>
         <form id="accessForm" class="form-grid">
           <div><label for="accessOrg">Organization</label><select id="accessOrg" required></select></div>
           <div><label for="accessApp">Application</label><select id="accessApp" required></select></div>
-          <div><label for="accessStatus">Access status</label><select id="accessStatus"><option value="enabled">enabled</option><option value="suspended">suspended</option><option value="revoked">revoked</option></select></div>
-          <div class="form-actions"><button class="primary" type="submit">Save app access</button></div>
+          <div><label for="accessStatus">Access status</label><select id="accessStatus"><option value="enabled">Enabled</option><option value="suspended">Suspended</option><option value="revoked">Revoked</option></select></div>
+          <div class="form-actions"><button class="primary" type="submit">Save App Access</button></div>
         </form><p class="hint">For a client to open an app, it needs enabled access and an active/trial subscription.</p>
       </div>
-      <div class="panel"><h2>Application access grants</h2><div id="accessTable" class="table-wrap">Loading…</div></div>
+      <div class="panel"><h2>Application Access Grants</h2><div id="accessTable" class="table-wrap">Loading…</div></div>
     </section>
 
     <section class="section" id="section-roles" hidden>
-      <div class="panel"><h2>Assign an individual application role</h2><p class="hint">A subscription grants access to an organization, but each individual also needs a role. You can assign distinct roles for CRM and Music.</p>
+      <div class="panel"><h2>Assign An Individual Application Role</h2><p class="hint">A subscription grants access to an organization, but each individual also needs a role. You can assign distinct roles for CRM and Music.</p>
         <form id="roleForm" class="form-grid">
           <div><label for="roleEmail">Existing user email</label><input id="roleEmail" type="email" placeholder="employee@example.com" required></div>
           <div><label for="roleOrg">Organization</label><select id="roleOrg" required></select></div>
           <div><label for="roleApp">Application</label><select id="roleApp" required></select></div>
-          <div><label for="roleValue">Role</label><select id="roleValue"><option value="super_admin">App Super Admin</option><option value="admin">Admin</option><option value="manager">Manager</option><option value="user">User</option><option value="viewer">Viewer</option><option value="staff" data-music-only disabled hidden>Music staff</option><option value="musician" data-music-only disabled hidden>Musician</option></select></div>
-          <div class="form-actions"><button class="primary" type="submit">Assign role</button></div>
+          <div><label for="roleValue">Role</label><select id="roleValue"><option value="super_admin">App Super Admin</option><option value="admin">Admin</option><option value="manager">Manager</option><option value="user">User</option><option value="viewer">Viewer</option><option value="staff" data-music-only disabled hidden>Music Staff</option><option value="musician" data-music-only disabled hidden>Musician</option></select></div>
+          <div class="form-actions"><button class="primary" type="submit">Assign Role</button></div>
         </form>
-      </div><div class="panel"><h2>Application role assignments</h2><div id="rolesTable" class="table-wrap">Loading…</div></div>
+      </div><div class="panel"><h2>Application Role Assignments</h2><div id="rolesTable" class="table-wrap">Loading…</div></div>
     </section>
 
     <section class="section" id="section-permissions" hidden>
-      <div class="panel"><h2>Workforce roles &amp; permissions</h2>
+      <div class="panel"><h2>Workforce Roles &amp; Permissions</h2>
         <p class="hint">Only the platform owner may appoint or revoke HR managers. HR access is separate from customer product roles. Employees must have an active roster record, matching portal identity and accepted account link before HR appointment.</p>
         <div class="role-toolbar">
           <label for="employeePermissionSearch">Find employee
             <input id="employeePermissionSearch" type="search" maxlength="80" placeholder="Name, email or department">
           </label>
-          <button id="refreshWorkforceRoles" type="button" class="small">Refresh HR roles</button>
+          <button id="refreshWorkforceRoles" type="button" class="small">Refresh HR Roles</button>
           <a class="admin-return" href="/employees">Employee directory</a>
         </div>
         <div id="workforceRoleMessage" class="hint" role="status" aria-live="polite"></div>
@@ -211,11 +211,11 @@
     </section>
     <section class="section" id="section-audit" hidden>
       <div class="panel">
-       <h2>Audit logs</h2>
+       <h2>Audit Logs</h2>
        <p class="hint">Platform-owner audit activity. Employee-removal records are visible only here, not on the HR employee-management page.</p>
        <div class="audit-view-tabs" role="group" aria-label="Audit log categories">
-        <button class="audit-view-btn active" data-audit-view="all" type="button" aria-pressed="true">All events</button>
-        <button class="audit-view-btn" data-audit-view="removals" type="button" aria-pressed="false">Employee removals</button>
+        <button class="audit-view-btn active" data-audit-view="all" type="button" aria-pressed="true">All Events</button>
+        <button class="audit-view-btn" data-audit-view="removals" type="button" aria-pressed="false">Employee Removals</button>
        </div>
        <div id="auditAllView"><p class="hint">Latest 200 audit events</p><div id="auditTable" class="table-wrap">Loading…</div></div>
        <div id="auditRemovalsView" hidden>
@@ -223,7 +223,7 @@
          <label for="auditEmployeeSearch">Search removed employees
           <input id="auditEmployeeSearch" type="search" maxlength="80" placeholder="Employee, actor or reason">
          </label>
-         <button type="button" id="refreshAuditRemovals" class="small">Refresh history</button>
+         <button type="button" id="refreshAuditRemovals" class="small">Refresh History</button>
         </div>
         <p id="auditRemovalSummary" class="hint" role="status" aria-live="polite">Latest 100 removal records</p>
         <div id="auditRemovalGrid" class="audit-removal-grid"></div>

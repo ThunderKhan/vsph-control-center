@@ -11,7 +11,7 @@ test('full owner dashboard shows durable operating records and survives finance 
  // Compare with this page's response, not the earlier independent API read.
  const loaded=page.waitForResponse(r=>r.url().endsWith('/api/admin-management/dashboard'));
  await page.goto('/dashboard');const displayed=await (await loaded).json();
- await expect(page.getByRole('heading',{name:'Company overview'})).toBeVisible();
+ await expect(page.getByRole('heading',{name:'Company Overview'})).toBeVisible();
  await expect(page.locator('#ownerOperationsStatus')).toHaveText(/Operating records loaded|Some operating sections are unavailable/);
  await expect(page.locator('#ownerActiveCustomers')).toHaveText(displayed.customers.status==='ready'?displayed.customers.active.toLocaleString('en-IN'):'—');
  await expect(page.locator('#ownerOverviewStatus')).toContainText('database upgrade is required');
@@ -22,7 +22,7 @@ test('full owner dashboard shows durable operating records and survives finance 
  await expect(page.locator('#ownerOverviewStatus')).toContainText('Recorded balances loaded');
  await expect(page.locator('#ownerOperationsStatus')).toHaveText(/Operating records loaded|Some operating sections are unavailable/);
  await page.route('**/api/admin-management/dashboard',r=>r.fulfill({status:503,json:{message:'unavailable'}}));
- await page.getByRole('button',{name:'Refresh overview',exact:true}).click();await expect(page.locator('#ownerOperationsStatus')).toContainText('Operating records are unavailable');
+ await page.getByRole('button',{name:'Refresh Overview',exact:true}).click();await expect(page.locator('#ownerOperationsStatus')).toContainText('Operating records are unavailable');
  await expect(page.locator('#ownerActiveCustomers')).toHaveText('—');await expect(page.locator('#ownerOverviewStatus')).toContainText('Recorded balances loaded');
  await context.clearCookies();expect((await context.request.get('/api/admin-management/dashboard')).status()).toBe(401);
  await context.addCookies([cookie('fixture-outsider-session')]);expect((await context.request.get('/api/admin-management/dashboard')).status()).toBe(403);

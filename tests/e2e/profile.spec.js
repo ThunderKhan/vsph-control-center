@@ -8,7 +8,7 @@ test('a member customizes only their own durable profile without gaining workfor
  await page.goto('/account/profile');await expect(page.locator('#profileContent')).toBeVisible();
  await page.getByLabel('Display name',{exact:true}).fill('Personal '+info.project.name);
  await page.getByLabel('About you',{exact:true}).fill('Software development\nMy own profile');await page.getByLabel('Time zone',{exact:true}).fill('Asia/Kolkata');await page.getByLabel('Blue',{exact:true}).check();
- await page.getByRole('button',{name:'Save profile',exact:true}).click();await expect(page.locator('#profileMessage')).toHaveText('Profile saved.');
+ await page.getByRole('button',{name:'Save Profile',exact:true}).click();await expect(page.locator('#profileMessage')).toHaveText('Profile saved.');
  await page.reload();await expect(page.locator('#profilePreviewName')).toHaveText('Personal '+info.project.name);await expect(page.locator('#profileAvatar')).toHaveAttribute('data-tone','blue');await expect(page.locator('#profileRole')).toHaveText('Portal member');
  expect((await context.request.get('/api/employees')).status()).toBe(403);expect((await context.request.get('/api/admin-management/dashboard')).status()).toBe(403);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);

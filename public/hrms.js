@@ -2,7 +2,7 @@
  'use strict';const $=id=>document.getElementById(id);let mode=document.body.dataset.workspace,mounted=false;
  let busy=false,taskCursor=null,leaveCursor=null,attendanceCursor=null,accessCursor=null,leaveNext=null,attendanceNext=null,accessNext=null;
  const text=(tag,value,cls='')=>{const n=document.createElement(tag);n.textContent=String(value??'');if(cls)n.className=cls;return n;};
- const label=s=>String(s||'').replaceAll('_',' '),date=s=>s?new Date(s).toLocaleString('en-IN',{timeZone:'Asia/Kolkata'}):'Not recorded';
+ const label=s=>String(s||'').replaceAll('_',' ').replace(/\b[a-z]/g,letter=>letter.toUpperCase()),date=s=>s?new Date(s).toLocaleString('en-IN',{timeZone:'Asia/Kolkata'}):'Not recorded';
  const notice=(s,error=false)=>{const n=$('hrMessage');if(!n)return;n.textContent=s;n.dataset.error=String(error);};
  async function api(url,body,key){const r=await fetch('/api'+url,{credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(15000),...(body?{method:'POST',headers:{'Content-Type':'application/json',...(key?{'Idempotency-Key':key}:{})},body:JSON.stringify(body)}:{})});if(r.status===401){location.assign('/login');throw Error('Session expired.');}const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.message||'The operation was denied or the HR database upgrade is required.');return d;}
  const button=(name,fn,secondary=false)=>{const b=text('button',name,secondary?'secondary':'');b.type='button';b.disabled=busy;b.addEventListener('click',fn);return b;};

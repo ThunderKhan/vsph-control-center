@@ -9,9 +9,9 @@ test('owner onboards internal staff, sees persisted metrics, filters and cannot 
  await page.goto('/dashboard');
  if(info.project.name==='desktop'){
   await page.locator('#peopleNavigation>summary').click();
-  await expect(page.getByRole('link',{name:'Employee management'})).toBeVisible();
+  await expect(page.getByRole('link',{name:'Employee Management'})).toBeVisible();
   await expect(page.getByRole('link',{name:'New employee'})).toHaveCount(0);
-  await page.getByRole('link',{name:'Employee management'}).click();
+  await page.getByRole('link',{name:'Employee Management'}).click();
   await page.getByRole('link',{name:/Onboard employee/}).click();
  } else {
   // The mobile top menu is closed by default; direct protected route
@@ -60,11 +60,11 @@ test('owner onboards internal staff, sees persisted metrics, filters and cannot 
  await page.locator('#employeeStatus').selectOption('all');
  await expect(page.locator('#employeeRows')).toContainText(email);
  await page.locator('#employeeRows').getByRole('button',{name:/Manage/}).last().click();
- await page.getByRole('menuitem',{name:'Edit employee'}).click();
+ await page.getByRole('menuitem',{name:'Edit Employee'}).click();
  await expect(page.locator('#employeeEditPanel')).toBeVisible();
  await page.locator('#employeeEditForm select[name=status]').selectOption('active');
  await page.locator('#employeeEditForm input[name=confirmed]').check();
- await page.getByRole('button',{name:'Save employee changes'}).click();
+ await page.getByRole('button',{name:'Save Employee Changes'}).click();
  await page.getByRole('dialog').getByRole('button',{name:'Save changes'}).click();
  await expect(page.locator('#peopleMessage')).toContainText('updated');
  await expect(page.locator('#employeeRows')).toContainText('Active');

@@ -2,6 +2,7 @@
  'use strict';
  const $=id=>document.getElementById(id);
  let workspace=null,orgCursor=null,orgs=[],members=[],busy=false,pendingInvite=null,ownershipReview=null;
+ const displayEnum=s=>String(s||'').replaceAll('_',' ').replace(/\b[a-z]/g,letter=>letter.toUpperCase());
  function node(tag,text){const el=document.createElement(tag);if(text!==undefined)el.textContent=text;return el;}
  function message(text){$('message').textContent=text;}
  async function api(path,body,headers={}){
@@ -12,7 +13,7 @@
  }
  function select(labelText,values,current,emptyText='Remove product access'){
   const label=node('label',labelText),input=node('select');input.setAttribute('aria-label',labelText);
-  for(const value of values){const option=node('option',value===''?emptyText:value);option.value=value;input.append(option);}
+  for(const value of values){const option=node('option',value===''?displayEnum(emptyText):displayEnum(value));option.value=value;input.append(option);}
   input.value=current;label.append(input);return {label,input};
  }
  function products(){
@@ -53,7 +54,7 @@
  async function loadWorkspace(){
   const id=$('organization').value;$('detail').hidden=true;workspace=null;members=[];if(!id)return;
   const next=await api('/'+id);workspace=next;
-  $('organizationName').textContent=next.organization.name;$('summary').textContent=`${next.organization.slug} · ${next.organization.status} · your role: ${next.actorRole}`;
+  $('organizationName').textContent=next.organization.name;$('summary').textContent=`${next.organization.slug} · ${displayEnum(next.organization.status)} · Your Role: ${displayEnum(next.actorRole)}`;
   $('counts').textContent=`${next.counts.activeMembers} active · ${next.counts.invitedMembers} invited · ${next.counts.suspendedMembers} suspended members`;
   $('profile').elements.name.value=next.organization.name;products();$('activity').replaceChildren();
   for(const entry of next.activity)$('activity').append(node('p',new Date(entry.created_at).toLocaleString()+' · '+entry.action));
@@ -62,7 +63,7 @@
  }
  async function loadOrganizations(cursor=null){
   const selected=$('organization').value;orgs=await api(cursor?'?afterId='+encodeURIComponent(cursor):'');orgCursor=cursor;
-  $('organization').replaceChildren(node('option','Select an organization'));$('organization').firstChild.value='';
+  $('organization').replaceChildren(node('option','Select An Organization'));$('organization').firstChild.value='';
   for(const org of orgs){const option=node('option',org.name);option.value=org.id;$('organization').append(option);}
   $('organization').value=orgs.some(o=>o.id===selected)?selected:(orgs[0]?.id||'');$('nextOrganizations').hidden=orgs.length<100;$('empty').hidden=orgs.length>0;await loadWorkspace();
  }
@@ -77,7 +78,7 @@
  }
  async function loadInvitations(){
   const form=$('invite'),role=form.elements.memberRole;role.replaceChildren();
-  for(const value of workspace.actorRole==='owner'?['member','viewer','admin']:['member','viewer']){const option=node('option',value);option.value=value;role.append(option);}
+  for(const value of workspace.actorRole==='owner'?['member','viewer','admin']:['member','viewer']){const option=node('option',displayEnum(value));option.value=value;role.append(option);}
   $('inviteProducts').replaceChildren();
   for(const product of workspace.products.filter(p=>p.effective&&p.can_assign)){
    const field=select('Invitation '+product.name+' role',['',...(product.roles||[])],'','No product role');field.input.dataset.product=product.id;$('inviteProducts').append(field.label);

@@ -30,14 +30,14 @@
  function option(value,label){const el=node('option',label);el.value=value;return el;}
  function drawOptions(){
   if(!lookups)return;
-  const org=$('invoiceOrg');const prior=org.value;org.replaceChildren(option('','Select customer'));
+  const org=$('invoiceOrg');const prior=org.value;org.replaceChildren(option('','Select Customer'));
   for(const item of lookups.organizations)org.append(option(item.id,item.name));
   if(lookups.organizations.some(x=>x.id===prior))org.value=prior;
   org.dispatchEvent(new Event('change'));
  }
  function drawProjects(){
   const id=$('invoiceOrg').value,picker=$('invoiceProject');
-  const prior=picker.value;picker.replaceChildren(option('','No linked project'));
+  const prior=picker.value;picker.replaceChildren(option('','No Linked Project'));
   for(const pr of (lookups?.projects||[]).filter(x=>x.customer_organization_id===id))
    picker.append(option(pr.id,pr.name));
   if([...picker.options].some(x=>x.value===prior))picker.value=prior;
@@ -92,7 +92,7 @@
   const filter=$('invoiceFilter').value;
   const invoices=(report?.invoices||[]).filter(x=>filter==='all'||x.organization_id===filter);
   const picker=$('paymentInvoice'),current=picker.value;
-  picker.replaceChildren(option('','Select invoice'));
+  picker.replaceChildren(option('','Select Invoice'));
   for(const entry of report?.invoices||[]){
    const outstanding=BigInt(entry.amount_paise)-BigInt(entry.collected_paise||0);
    if(entry.status==='issued'&&outstanding>0n)picker.append(option(entry.id,entry.reference+' · '+fmt(outstanding)+' due'));
@@ -133,7 +133,7 @@
   showTotals(report.summary);drawMonths(report.monthly||[]);
   rowsInto('financeClients',report.byClient||[]);
   rowsInto('financeProjects',report.byProject||[]);
-  const sel=$('invoiceFilter'),prior=sel.value;sel.replaceChildren(option('all','All customers'));
+  const sel=$('invoiceFilter'),prior=sel.value;sel.replaceChildren(option('all','All Customers'));
   for(const row of report.byClient||[])sel.append(option(row.organization_id,row.organization_name));
   if([...sel.options].some(x=>x.value===prior))sel.value=prior;
   drawInvoices();drawReceipts();

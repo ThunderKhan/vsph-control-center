@@ -19,7 +19,7 @@ test("product registry persists versioned metadata and truthful readiness", asyn
   await page.goto("/admin/products");
   await expect(page.locator("main")).toHaveAttribute("aria-busy", "false");
   await page
-    .getByRole("button", { name: "Register product", exact: true })
+    .getByRole("button", { name: "Register Product", exact: true })
     .click();
   const code = "REG_" + info.project.name.toUpperCase() + "_" + info.retry;
   await page.getByLabel("Product code", { exact: true }).focus();
@@ -31,18 +31,18 @@ test("product registry persists versioned metadata and truthful readiness", asyn
   await page
     .getByLabel("Integration mode", { exact: true })
     .selectOption("portal_only");
-  await page.getByRole("button", { name: "Save product", exact: true }).click();
+  await page.getByRole("button", { name: "Save Product", exact: true }).click();
   await expect(page.locator("#message")).toContainText("atomic audit");
   await expect(page.locator("main")).toHaveAttribute("aria-busy", "false");
   await page
-    .getByRole("button", { name: "Check reviewed local adapter", exact: true })
+    .getByRole("button", { name: "Check Reviewed Local Adapter", exact: true })
     .click();
   await expect(page.locator("#observation")).toContainText("unavailable");
   await expect(page.locator("main")).toHaveAttribute("aria-busy", "false");
   await page
     .getByLabel("Lifecycle", { exact: true })
     .selectOption("maintenance");
-  await page.getByRole("button", { name: "Save product", exact: true }).click();
+  await page.getByRole("button", { name: "Save Product", exact: true }).click();
   await page.getByRole("dialog").getByRole("button",{name:"Continue"}).click();
   await expect(page.locator("#message")).toContainText("atomic audit");
   await page.reload();

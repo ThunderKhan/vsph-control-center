@@ -11,7 +11,7 @@
 <div class="people-shell">
  <header class="people-header">
   <div><h1>Employee management<span class="brand-dot">.</span></h1></div>
-  <div class="people-header-actions"><button class="people-secondary" id="archivedEmployeesShortcut" type="button" hidden>Archived employees</button><a class="people-primary" href="/employees/onboarding">Onboard employee</a></div>
+  <div class="people-header-actions"><button class="people-secondary" id="archivedEmployeesShortcut" type="button" hidden>Archived Employees</button><a class="people-primary" href="/employees/onboarding">Onboard employee</a></div>
  </header>
  <p id="peopleMessage" class="people-message" role="status" aria-live="polite">Loading employee records…</p>
  <section class="people-metrics" aria-label="Employee summary">
@@ -23,59 +23,59 @@
  </section>
  <div class="people-overview">
   <section class="people-panel" aria-labelledby="deptTitle">
-   <div class="people-panel-head"><h2 id="deptTitle">Department allocation</h2></div>
+   <div class="people-panel-head"><h2 id="deptTitle">Department Allocation</h2></div>
    <div id="departmentChart" aria-live="polite" class="people-dept"></div>
   </section>
 
  </div>
  <section class="people-panel" aria-labelledby="staffDirectoryTitle">
-  <div class="people-panel-head"><div><h2 id="staffDirectoryTitle">Staff directory</h2></div><button id="refreshEmployees" class="people-secondary">Refresh</button></div>
+  <div class="people-panel-head"><div><h2 id="staffDirectoryTitle">Staff Directory</h2></div><button id="refreshEmployees" class="people-secondary">Refresh</button></div>
   <div class="people-filters">
    <label for="employeeSearch">Search employees<input id="employeeSearch" type="search" placeholder="Name, email, department or title" maxlength="80" autocomplete="off"></label>
-   <label for="employeeStatus">Employee status<select id="employeeStatus"><option value="all">All statuses</option><option value="onboarding">Onboarding</option><option value="active">Active</option><option value="on_leave">On leave</option><option value="inactive">Inactive</option></select></label>
+   <label for="employeeStatus">Employee status<select id="employeeStatus"><option value="all">All Statuses</option><option value="onboarding">Onboarding</option><option value="active">Active</option><option value="on_leave">On Leave</option><option value="inactive">Inactive</option></select></label>
   </div>
-  <div class="people-table-wrap"><table class="people-table"><thead><tr><th scope="col">Employee</th><th scope="col">Department / title</th><th scope="col">Type</th><th scope="col">Status</th><th scope="col">Access</th><th scope="col">Manage</th></tr></thead><tbody id="employeeRows"><tr><td colspan="6">Loading…</td></tr></tbody></table></div>
-  <div class="people-page-actions"><button id="firstEmployeePage" class="people-secondary" type="button">First page</button><span id="employeePageSummary">Showing up to 50 per page</span><button id="nextEmployeePage" class="people-secondary" type="button" disabled>Next page</button></div>
+  <div class="people-table-wrap"><table class="people-table"><thead><tr><th scope="col">Employee</th><th scope="col">Department / Title</th><th scope="col">Type</th><th scope="col">Status</th><th scope="col">Access</th><th scope="col">Manage</th></tr></thead><tbody id="employeeRows"><tr><td colspan="6">Loading…</td></tr></tbody></table></div>
+  <div class="people-page-actions"><button id="firstEmployeePage" class="people-secondary" type="button">First Page</button><span id="employeePageSummary">Showing up to 50 per page</span><button id="nextEmployeePage" class="people-secondary" type="button" disabled>Next Page</button></div>
  </section>
  <section class="people-panel people-archive-panel" id="archivedEmployeePanel" aria-labelledby="archivedEmployeesTitle" hidden>
-  <div class="people-panel-head"><div><h2 id="archivedEmployeesTitle">Archived employees</h2><p class="people-small">Historical records are preserved. Restoration requires owner approval and does not restore previously revoked access.</p></div><button id="closeArchivedEmployees" class="people-secondary" type="button">Close</button></div>
+  <div class="people-panel-head"><div><h2 id="archivedEmployeesTitle">Archived Employees</h2><p class="people-small">Historical records are preserved. Restoration requires owner approval and does not restore previously revoked access.</p></div><button id="closeArchivedEmployees" class="people-secondary" type="button">Close</button></div>
   <p id="archivedEmployeesMessage" role="status" aria-live="polite"></p>
   <div id="archivedEmployeesList" class="people-archived-list"></div>
   <form id="restoreEmployeeForm" class="people-restore-form" hidden>
-   <h3>Review restoration</h3>
+   <h3>Review Restoration</h3>
    <p id="employeeRestoreIdentity"></p>
    <label>Reason for restoring this employee
     <textarea id="employeeRestoreReason" name="reason" rows="3" minlength="8" maxlength="500" required placeholder="Explain why the employment record should be reopened"></textarea>
    </label>
    <p class="people-small">The employee returns to Onboarding. Old identity links, HR authority, project permissions and credentials are not automatically reinstated. Initiate new consent in Account &amp; Access.</p>
    <label class="people-confirm"><input id="employeeRestoreConfirmed" type="checkbox" required> I understand access must be authorized again.</label>
-   <div class="people-header-actions"><button class="people-primary" type="submit">Restore employee</button><button class="people-secondary" id="cancelEmployeeRestore" type="button">Cancel</button></div>
+   <div class="people-header-actions"><button class="people-primary" type="submit">Restore Employee</button><button class="people-secondary" id="cancelEmployeeRestore" type="button">Cancel</button></div>
   </form>
  </section>
  <section class="people-panel" id="employeeEditPanel" aria-labelledby="editEmployeeTitle" hidden>
-  <div class="people-panel-head"><div><h2 id="editEmployeeTitle">Edit employee</h2><p id="editEmail" class="muted"></p></div><button type="button" id="cancelEdit" class="people-secondary">Close</button></div>
+  <div class="people-panel-head"><div><h2 id="editEmployeeTitle">Edit Employee</h2><p id="editEmail" class="muted"></p></div><button type="button" id="cancelEdit" class="people-secondary">Close</button></div>
   <form id="employeeEditForm">
    <div class="people-form-grid">
     <label>Full name<input name="fullName" required maxlength="150"></label>
-    <label>Department<select name="department" required><option value="" disabled selected>Select a department</option><option value="Engineering">Engineering</option><option value="Marketing">Marketing</option><option value="Human Resources">Human Resources</option><option value="Finance">Finance</option><option value="Customer Support">Customer Support</option><option value="Sales &amp; Business Development">Sales &amp; Business Development</option></select></label>
+    <label>Department<select name="department" required><option value="" disabled selected>Select A Department</option><option value="Engineering">Engineering</option><option value="Marketing">Marketing</option><option value="Human Resources">Human Resources</option><option value="Finance">Finance</option><option value="Customer Support">Customer Support</option><option value="Sales &amp; Business Development">Sales &amp; Business Development</option></select></label>
     <label>Job title<input name="jobTitle" required maxlength="120"></label>
-    <label>Employment type<select name="employmentType"><option value="full_time">Full-time</option><option value="part_time">Part-time</option><option value="intern">Intern</option><option value="contract">Contract</option></select></label>
+    <label>Employment type<select name="employmentType"><option value="full_time">Full-Time</option><option value="part_time">Part-Time</option><option value="intern">Intern</option><option value="contract">Contract</option></select></label>
     <label>Start date<input name="startDate" type="date" required></label>
-    <label>Roster status<select name="status"><option value="onboarding">Onboarding</option><option value="active">Active</option><option value="on_leave">On leave</option><option value="inactive">Inactive</option></select></label>
+    <label>Roster status<select name="status"><option value="onboarding">Onboarding</option><option value="active">Active</option><option value="on_leave">On Leave</option><option value="inactive">Inactive</option></select></label>
    </div>
    <p class="people-small">Email is immutable in this version. Updating a roster status does not disable the associated portal account. Setting an HR manager inactive also revokes their HR permission.</p>
    <label class="people-confirm"><input name="confirmed" type="checkbox" required> I have reviewed this employee record and status.</label>
-   <button type="submit" class="people-primary">Save employee changes</button>
+   <button type="submit" class="people-primary">Save Employee Changes</button>
   </form>
  </section>
  <section class="people-panel people-remove-panel" id="employeeRemovePanel" aria-labelledby="removeEmployeeTitle" hidden>
-  <div class="people-panel-head"><div><h2 id="removeEmployeeTitle">Remove employee</h2><p id="removeEmployeeIdentity" class="muted"></p></div><button id="cancelRemoveEmployee" class="people-secondary" type="button">Cancel</button></div>
+  <div class="people-panel-head"><div><h2 id="removeEmployeeTitle">Remove Employee</h2><p id="removeEmployeeIdentity" class="muted"></p></div><button id="cancelRemoveEmployee" class="people-secondary" type="button">Cancel</button></div>
   <p class="people-small">Removal archives this employee's workforce record. The owner can review the audit history.</p>
   <form id="employeeRemoveForm">
    <label class="people-remove-label" for="employeeRemovalReason">Reason for removal</label>
    <textarea id="employeeRemovalReason" name="reason" minlength="8" maxlength="500" required rows="3"></textarea>
    <label class="people-confirm"><input id="employeeRemovalConfirmed" type="checkbox" required> I confirm this employee should be removed.</label>
-   <button class="people-danger" type="submit">Confirm employee removal</button>
+   <button class="people-danger" type="submit">Confirm Employee Removal</button>
   </form>
  </section>
 

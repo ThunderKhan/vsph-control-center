@@ -24,24 +24,24 @@ test("authenticated project delivery workflow persists and denies an outsider", 
     await expect(page.locator("#workspaceNavigation")).toBeVisible();
     await page.keyboard.press("Escape");
   }
-  await page.getByRole("button", { name: "New project", exact: true }).click();
+  await page.getByRole("button", { name: "New Project", exact: true }).click();
   const form = page.locator("#createProjectForm");
   await form
-    .getByLabel("Project key")
+    .getByLabel("Project Key")
     .fill("E2E-" + testInfo.project.name.toUpperCase() + "-" + testInfo.retry);
   await form
-    .getByLabel("Project name", { exact: true })
+    .getByLabel("Project Name", { exact: true })
     .fill("Verified delivery " + testInfo.project.name);
   await form.getByRole("button", { name: "Continue", exact: true }).click();
-  await expect(form.locator(".project-create-progress")).toContainText("Organization and applications");
+  await expect(form.locator(".project-create-progress")).toContainText("Organization And Applications");
   await form.getByRole("button", { name: "Continue", exact: true }).click();
-  await expect(form.locator(".project-create-progress")).toContainText("Review and create");
+  await expect(form.locator(".project-create-progress")).toContainText("Review And Create");
   await form
-    .getByRole("button", { name: "Create project", exact: true })
+    .getByRole("button", { name: "Create Project", exact: true })
     .click();
   await expect(page.locator("#projectCreateSuccess")).toBeVisible();
-  await expect(page.locator("#projectCreateSuccessDescription")).toContainText("saved in the database");
-  await page.getByRole("link",{name:"View project",exact:true}).click();
+  await expect(page.locator("#projectCreateSuccessDescription")).toContainText("E2E-");
+  await page.getByRole("link",{name:"View Project",exact:true}).click();
   await expect(page).toHaveURL(/\/projects\/E2E-[A-Z0-9-]+\?view=team$/);
   const url = page.url();
   const projectPath=new URL(url).pathname;
@@ -85,7 +85,7 @@ test("authenticated project delivery workflow persists and denies an outsider", 
   await page.locator('[data-project-view="milestones"]').click();
   await page.locator("#milestoneEditor summary").click();
   let mf = page.locator("#milestoneForm");
-  await mf.getByLabel("Milestone title").fill("Staging acceptance");
+  await mf.getByLabel("Milestone Title").fill("Staging acceptance");
   await mf
     .getByRole("button", { name: "Create milestone", exact: true })
     .click();
@@ -95,7 +95,7 @@ test("authenticated project delivery workflow persists and denies an outsider", 
   await page.locator('[data-project-view="tasks"]').click();
   await page.locator("#taskEditor summary").click();
   let tf = page.locator("#taskForm");
-  await tf.getByLabel("Task title").fill("Implement tested flow");
+  await tf.getByLabel("Task Title").fill("Implement tested flow");
   await tf
     .getByLabel("Assignee")
     .selectOption(staffId);
@@ -133,8 +133,8 @@ test("authenticated project delivery workflow persists and denies an outsider", 
     "Acceptance evidence recorded",
   );
   const df = page.locator("#deliverableForm");
-  await df.getByLabel("Deliverable title").fill("Build evidence");
-  await df.getByLabel("HTTPS evidence link").fill("https://example.test/build");
+  await df.getByLabel("Deliverable Title").fill("Build evidence");
+  await df.getByLabel("HTTPS Evidence Link").fill("https://example.test/build");
   await df
     .getByRole("button", { name: "Add deliverable", exact: true })
     .click();

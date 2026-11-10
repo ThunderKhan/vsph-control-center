@@ -13,7 +13,7 @@ test('owner records INR invoice, receipt and persistent real totals; outsider is
  await page.locator('#financeInvoiceForm [name=issuedOn]').fill(date);
  await page.locator('#financeInvoiceForm [name=dueOn]').fill(date);
  await page.locator('#financeInvoiceForm [name=confirmed]').check();
- await page.getByRole('button',{name:'Save invoice'}).click();
+ await page.getByRole('button',{name:'Save Invoice'}).click();
  await page.getByRole('dialog').getByRole('button',{name:'Continue'}).click();
  await expect(page.locator('#financeStatus')).toContainText('Invoice saved');
  await expect(page.locator('#finInvoiced')).toHaveText('₹100.00');
@@ -26,7 +26,7 @@ test('owner records INR invoice, receipt and persistent real totals; outsider is
  await page.locator('#financePaymentForm [name=amountRupees]').fill('30.00');
  await page.locator('#financePaymentForm [name=receivedOn]').fill(date);
  await page.locator('#financePaymentForm [name=confirmed]').check();
- await page.getByRole('button',{name:'Record receipt'}).click();
+ await page.getByRole('button',{name:'Record Receipt'}).click();
  await page.getByRole('dialog').getByRole('button',{name:'Continue'}).click();
  await expect(page.locator('#financeStatus')).toContainText('Receipt recorded');
  await expect(page.locator('#finCollected')).toHaveText('₹30.00');

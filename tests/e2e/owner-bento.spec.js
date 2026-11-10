@@ -35,7 +35,7 @@ test('VSPH bento charts, product selection and attention use authorized persiste
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
  await page.getByRole('link',{name:'Skip to content',exact:true}).focus();await page.keyboard.press('Enter');
  await expect(page.locator('#mainContent')).toBeFocused();
- await page.getByRole('heading',{name:'Company overview',exact:true}).click();
+ await page.getByRole('heading',{name:'Company Overview',exact:true}).click();
  await page.evaluate(()=>{document.activeElement.blur();window.scrollTo({top:0,behavior:'instant'});});
  if(info.project.name==='desktop')await expect(page.getByRole('link',{name:'VSPH home',exact:true})).toBeVisible();
  await info.attach('owner-bento-'+info.project.name,{body:await page.screenshot({fullPage:true}),contentType:'image/png'});

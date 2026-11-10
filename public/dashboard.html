@@ -33,7 +33,7 @@
           <section class="employee-dashboard-activity" aria-labelledby="employeeActivityTitle">
             <div class="employee-dashboard-activity-heading">
               <div>
-                <h2 id="employeeActivityTitle">Work activity</h2>
+                <h2 id="employeeActivityTitle">Work Activity</h2>
               </div>
             </div>
             <div id="workActivity" class="hr-activity-section" aria-label="Your recorded task completion activity" data-state="loading" hidden></div>
@@ -45,7 +45,7 @@
           </section>
           <section id="employeeDashboardWork" class="employee-work-board" aria-label="Employee work overview" hidden>
             <header class="employee-work-heading">
-              <h2>My work</h2>
+              <h2>My Work</h2>
               <div class="employee-work-heading-actions">
                 <p id="hrMessage" class="hr-message" role="status" aria-live="polite"></p>
                 <button id="refreshHr" type="button" class="secondary">Refresh</button>
@@ -55,13 +55,13 @@
               <div class="employee-work-grid">
                 <article id="employeeTasksPanel" class="employee-work-tile employee-work-tasks" aria-labelledby="employeeTasksTitle">
                   <header class="employee-tile-header">
-                    <div><h3 id="employeeTasksTitle">Assigned tasks</h3><span id="employeeTasksDetail" class="employee-tile-sub"></span></div>
+                    <div><h3 id="employeeTasksTitle">Assigned Tasks</h3><span id="employeeTasksDetail" class="employee-tile-sub"></span></div>
                     <strong id="employeeTasksMetric" class="employee-tile-number" aria-label="Open tasks on the current page">—</strong>
                   </header>
                   <div id="ownTasks" class="employee-record-list" aria-live="polite"></div>
                   <div class="employee-work-pagination">
-                    <button id="firstTasks" type="button" class="secondary" hidden>First tasks</button>
-                    <button id="moreTasks" type="button" class="secondary" hidden>Next tasks</button>
+                    <button id="firstTasks" type="button" class="secondary" hidden>First Tasks</button>
+                    <button id="moreTasks" type="button" class="secondary" hidden>Next Tasks</button>
                   </div>
                   <details class="employee-work-details">
                     <summary><span>Notifications</span><svg class="employee-details-chevron" aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="20" height="20"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
@@ -82,7 +82,7 @@
                 </article>
                 <article id="employeeLeavePanel" class="employee-work-tile employee-work-leave" aria-labelledby="employeeLeaveTitle">
                   <header class="employee-tile-header">
-                    <div><h3 id="employeeLeaveTitle">Leave requests</h3><span id="employeeLeaveDetail" class="employee-tile-sub"></span></div>
+                    <div><h3 id="employeeLeaveTitle">Leave Requests</h3><span id="employeeLeaveDetail" class="employee-tile-sub"></span></div>
                     <strong id="employeeLeaveMetric" class="employee-tile-number" aria-label="Pending leave requests">—</strong>
                   </header>
                   <div class="employee-leave-layout">
@@ -93,7 +93,7 @@
                         <label>Leave type<select name="kind"><option value="annual">Annual</option><option value="sick">Sick</option><option value="unpaid">Unpaid</option><option value="other">Other</option></select></label>
                       </div>
                       <label>Reason<textarea name="reason" maxlength="500" rows="2" required></textarea></label>
-                      <button type="submit">Request leave</button>
+                      <button type="submit">Request Leave</button>
                     </form>
                     <div class="employee-leave-history">
                       <h4>Recent requests</h4>
@@ -108,7 +108,7 @@
             <header class="calendar-heading">
               <h2 id="employeeCalendarTitle">Calendar</h2>
               <div class="calendar-heading-actions">
-                <button id="calendarNew" type="button" class="calendar-primary">New event</button>
+                <button id="calendarNew" type="button" class="calendar-primary">New Event</button>
               </div>
             </header>
             <div class="calendar-toolbar">
@@ -127,16 +127,16 @@
             </div>
             <div class="calendar-filters">
               <input id="calendarSearch" type="search" aria-label="Search events" placeholder="Search events">
-              <select id="calendarFilterCategory" aria-label="Filter by category"><option value="">All categories</option><option value="meeting">Meetings</option><option value="task">Tasks</option><option value="reminder">Reminders</option><option value="personal">Personal</option></select>
-              <select id="calendarFilterColor" aria-label="Filter by color"><option value="">All colors</option><option value="blue">Blue</option><option value="green">Green</option><option value="purple">Purple</option><option value="orange">Orange</option><option value="pink">Pink</option><option value="red">Red</option></select>
-              <select id="calendarFilterTag" aria-label="Filter by tag"><option value="">All tags</option></select>
+              <select id="calendarFilterCategory" aria-label="Filter by category"><option value="">All Categories</option><option value="meeting">Meetings</option><option value="task">Tasks</option><option value="reminder">Reminders</option><option value="personal">Personal</option></select>
+              <select id="calendarFilterColor" aria-label="Filter by color"><option value="">All Colors</option><option value="blue">Blue</option><option value="green">Green</option><option value="purple">Purple</option><option value="orange">Orange</option><option value="pink">Pink</option><option value="red">Red</option></select>
+              <select id="calendarFilterTag" aria-label="Filter by tag"><option value="">All Tags</option></select>
             </div>
             <p id="calendarStatus" class="calendar-status" role="status" aria-live="polite"></p>
             <div id="calendarGrid" class="calendar-grid" aria-live="off"></div>
           </section>
           <dialog id="calendarDialog" class="calendar-dialog" aria-labelledby="calendarDialogTitle">
             <form id="calendarForm" novalidate>
-              <div class="calendar-dialog-head"><h2 id="calendarDialogTitle">New event</h2><button id="calendarClose" type="button" aria-label="Close">×</button></div>
+              <div class="calendar-dialog-head"><h2 id="calendarDialogTitle">New Event</h2><button id="calendarClose" type="button" aria-label="Close">×</button></div>
               <label>Title<input name="title" required maxlength="120" autocomplete="off"></label>
               <label>Description<textarea name="description" maxlength="1000" rows="2"></textarea></label>
               <div class="calendar-form-pair">
@@ -147,7 +147,7 @@
                 <label>Category<select name="category"><option value="meeting">Meeting</option><option value="task">Task</option><option value="reminder">Reminder</option><option value="personal">Personal</option></select></label>
                 <label>Color<select name="color"><option value="blue">Blue</option><option value="green">Green</option><option value="purple">Purple</option><option value="orange">Orange</option><option value="pink">Pink</option><option value="red">Red</option></select></label>
               </div>
-              <label>Visibility<select name="scope" id="calendarScope"><option value="personal">Personal</option><option value="team">Team meeting</option></select></label>
+              <label>Visibility<select name="scope" id="calendarScope"><option value="personal">Personal</option><option value="team">Team Meeting</option></select></label>
               <label id="calendarAttendeesField">Attendees (employee emails)<input name="attendees" type="text" placeholder="colleague@company.com" autocomplete="off"></label>
               <label>Tags (comma-separated)<input name="tags" maxlength="255" autocomplete="off"></label>
               <label>Google Meet link<input name="meetUrl" type="url" maxlength="300" placeholder="https://meet.google.com/..." autocomplete="off"></label>
@@ -160,8 +160,8 @@
 
         <section id="ownerOverview" class="owner-overview" hidden aria-labelledby="ownerOverviewTitle">
           <header class="owner-heading">
-            <div><h1 id="ownerOverviewTitle">Company overview</h1></div>
-            <div class="owner-actions"><a href="/projects">Open projects</a><button id="ownerOverviewRefresh" type="button">Refresh overview</button></div>
+            <div><h1 id="ownerOverviewTitle">Company Overview</h1></div>
+            <div class="owner-actions"><a href="/projects">Open projects</a><button id="ownerOverviewRefresh" type="button">Refresh Overview</button></div>
           </header>
           <div class="owner-board owner-operations">
             <article class="owner-tile owner-hero" aria-labelledby="ownerHeroTitle">
@@ -169,14 +169,14 @@
               <div id="ownerCashPulse" class="owner-pulse" aria-hidden="true"></div><p id="ownerPulseCaption" class="owner-caption">Six calendar months of recorded receipts</p>
               <div class="owner-company-metrics" aria-label="Recorded operating metrics"><a href="/admin/customers"><span class="owner-label">Active customers</span><strong id="ownerActiveCustomers">—</strong></a><a href="/projects"><span class="owner-label">Active projects</span><strong id="ownerActiveProjects">—</strong></a><a href="/employees"><span class="owner-label">Active employees</span><strong id="ownerActiveEmployees">—</strong></a><a href="/admin/products"><span class="owner-label">Active products</span><strong id="ownerActiveProducts">—</strong></a></div>
             </article>
-            <article class="owner-tile owner-products" aria-labelledby="ownerProductsTitle"><header class="owner-tile-head"><h2 id="ownerProductsTitle">Product portfolio</h2><span class="owner-badge"><span id="ownerProductTotal">—</span> registered</span></header><div id="ownerProductCards" class="owner-product-stack"></div><div class="owner-tile-bottom"><p id="ownerCatalogStatus" class="owner-caption">Loading product registry…</p><a href="/admin/products" class="owner-text-control">Manage products</a></div></article>
-            <article class="owner-tile owner-completion" aria-labelledby="ownerCompletionTitle"><header class="owner-tile-head"><h2 id="ownerCompletionTitle">Task completion</h2><span class="owner-badge">All projects</span></header><div class="owner-gauge" id="ownerCompletionGauge" role="img" aria-label="Task completion is loading"><svg viewBox="0 0 200 116" aria-hidden="true"><path class="owner-gauge-track" d="M20 100 A80 80 0 0 1 180 100"/><path id="ownerGaugeFill" d="M20 100 A80 80 0 0 1 180 100" pathLength="100" stroke-dasharray="0 100"/></svg><strong id="ownerCompletionPercent">—</strong></div><p id="ownerCompletionCaption" class="owner-caption owner-center">Waiting for task records</p><progress id="ownerTaskProgress" class="owner-sr-only" max="100" value="0" hidden aria-label="Completed project tasks"></progress><dl class="owner-gauge-stats"><div><dt>Completed projects</dt><dd id="ownerCompletedProjects">—</dd></div><div><dt>Blocked tasks</dt><dd id="ownerBlockedCount">—</dd></div></dl></article>
-            <article class="owner-tile owner-trend" aria-labelledby="ownerMonthlyTitle"><header class="owner-tile-head"><h2 id="ownerMonthlyTitle">Cash collections</h2><div class="owner-ranges" role="group" aria-label="Cash collection period"><button type="button" data-owner-range="1" aria-pressed="false">1M</button><button type="button" data-owner-range="3" aria-pressed="false">3M</button><button type="button" data-owner-range="6" aria-pressed="true">6M</button></div></header><div class="owner-chart-heading"><div><p class="owner-label" id="ownerChartPeriod">Last six calendar months</p><strong id="ownerTrendTotal">—</strong></div><span class="owner-badge">INR · cash ledger</span></div><div class="owner-chart-wrap"><svg id="ownerCashChart" viewBox="0 0 640 236" role="img" aria-label="Cash collection chart is loading"></svg><p id="ownerChartEmpty" class="owner-chart-empty">Waiting for finance records</p></div><div id="ownerChartMonths" class="owner-chart-months"></div><p id="ownerChartSelection" class="owner-chart-selection" role="status" aria-live="polite">Select a month to inspect its recorded receipts.</p><dl class="owner-finance-summary"><div><dt>Invoiced</dt><dd id="ownerInvoiced">—</dd></div><div><dt>Outstanding</dt><dd id="ownerOutstanding">—</dd></div><div><dt>Past due</dt><dd id="ownerPastDue">—</dd></div></dl><a href="/admin/finance/journal" class="owner-text-control">Browse finance journal</a><ol id="ownerOverviewMonths" class="owner-sr-only" aria-label="Six calendar months of recorded cash receipts"></ol></article>
-            <article class="owner-tile owner-workload" aria-labelledby="ownerWorkloadTitle"><header class="owner-tile-head"><h2 id="ownerWorkloadTitle">Work distribution</h2><span class="owner-badge">Tasks</span></header><strong id="ownerOpenTasks" class="owner-feature-number">—</strong><p class="owner-caption">Open tasks, excluding cancellations</p><div id="ownerWorkloadBar" class="owner-segments" aria-hidden="true"></div><dl class="owner-work-legend"><div><dt><i class="owner-dot owner-dot-done"></i>Done</dt><dd id="ownerWorkDone">—</dd></div><div><dt><i class="owner-dot owner-dot-open"></i>Other open</dt><dd id="ownerWorkOpen">—</dd></div><div><dt><i class="owner-dot owner-dot-blocked"></i>Blocked</dt><dd id="ownerWorkBlocked">—</dd></div></dl></article>
-            <article class="owner-tile owner-attention" aria-labelledby="ownerAttentionTitle"><header class="owner-tile-head"><h2 id="ownerAttentionTitle">Needs attention</h2><span id="ownerAttentionDate" class="owner-badge">Due dates</span></header><strong id="ownerOverdueTasks" class="owner-attention-number">—</strong><p class="owner-attention-label">overdue open tasks</p><dl class="owner-attention-facts"><div><dt>Overdue milestones</dt><dd id="ownerOverdueMilestones">—</dd></div></dl><div class="owner-next-header"><h3>Coming up next</h3><span class="owner-caption">Milestones</span></div><ul id="ownerUpcomingMilestones" class="owner-upcoming"></ul><a href="/projects" class="owner-attention-action">Manage delivery</a></article>
-            <article class="owner-tile owner-people" aria-labelledby="ownerPeopleTitle"><header class="owner-tile-head"><h2 id="ownerPeopleTitle">Your team</h2><a href="/employees" class="owner-text-control">Directory</a></header><div class="owner-people-top"><div><strong id="ownerEmployeeTotal" class="owner-feature-number">—</strong><p class="owner-caption">Internal roster records</p></div><div id="ownerPeopleMarks" class="owner-people-marks" aria-hidden="true"></div></div><dl class="owner-people-states"><div><dt>Active</dt><dd id="ownerTeamActive">—</dd></div><div><dt>Onboarding</dt><dd id="ownerEmployeeOnboarding">—</dd></div><div><dt>Other states</dt><dd id="ownerTeamOther">—</dd></div></dl></article>
-            <article class="owner-tile owner-projects" aria-labelledby="ownerProjectsTitle"><header class="owner-tile-head"><h2 id="ownerProjectsTitle">Active projects</h2><a href="/projects" class="owner-text-control">View portfolio</a></header><ul id="ownerRecentProjects" class="owner-project-list"></ul><p id="ownerDeliverySummary" class="owner-caption">Waiting for project records</p></article>
-            <article class="owner-tile owner-activity" aria-labelledby="ownerActivityTitle"><header class="owner-tile-head"><h2 id="ownerActivityTitle">Recent project activity</h2><span class="owner-badge">Recorded history</span></header><ol id="ownerActivityItems" class="owner-activity-list"></ol></article>
+            <article class="owner-tile owner-products" aria-labelledby="ownerProductsTitle"><header class="owner-tile-head"><h2 id="ownerProductsTitle">Product Portfolio</h2><span class="owner-badge"><span id="ownerProductTotal">—</span> registered</span></header><div id="ownerProductCards" class="owner-product-stack"></div><div class="owner-tile-bottom"><p id="ownerCatalogStatus" class="owner-caption">Loading product registry…</p><a href="/admin/products" class="owner-text-control">Manage products</a></div></article>
+            <article class="owner-tile owner-completion" aria-labelledby="ownerCompletionTitle"><header class="owner-tile-head"><h2 id="ownerCompletionTitle">Task Completion</h2><span class="owner-badge">All projects</span></header><div class="owner-gauge" id="ownerCompletionGauge" role="img" aria-label="Task completion is loading"><svg viewBox="0 0 200 116" aria-hidden="true"><path class="owner-gauge-track" d="M20 100 A80 80 0 0 1 180 100"/><path id="ownerGaugeFill" d="M20 100 A80 80 0 0 1 180 100" pathLength="100" stroke-dasharray="0 100"/></svg><strong id="ownerCompletionPercent">—</strong></div><p id="ownerCompletionCaption" class="owner-caption owner-center">Waiting for task records</p><progress id="ownerTaskProgress" class="owner-sr-only" max="100" value="0" hidden aria-label="Completed project tasks"></progress><dl class="owner-gauge-stats"><div><dt>Completed projects</dt><dd id="ownerCompletedProjects">—</dd></div><div><dt>Blocked tasks</dt><dd id="ownerBlockedCount">—</dd></div></dl></article>
+            <article class="owner-tile owner-trend" aria-labelledby="ownerMonthlyTitle"><header class="owner-tile-head"><h2 id="ownerMonthlyTitle">Cash Collections</h2><div class="owner-ranges" role="group" aria-label="Cash collection period"><button type="button" data-owner-range="1" aria-pressed="false">1M</button><button type="button" data-owner-range="3" aria-pressed="false">3M</button><button type="button" data-owner-range="6" aria-pressed="true">6M</button></div></header><div class="owner-chart-heading"><div><p class="owner-label" id="ownerChartPeriod">Last six calendar months</p><strong id="ownerTrendTotal">—</strong></div><span class="owner-badge">INR · cash ledger</span></div><div class="owner-chart-wrap"><svg id="ownerCashChart" viewBox="0 0 640 236" role="img" aria-label="Cash collection chart is loading"></svg><p id="ownerChartEmpty" class="owner-chart-empty">Waiting for finance records</p></div><div id="ownerChartMonths" class="owner-chart-months"></div><p id="ownerChartSelection" class="owner-chart-selection" role="status" aria-live="polite">Select a month to inspect its recorded receipts.</p><dl class="owner-finance-summary"><div><dt>Invoiced</dt><dd id="ownerInvoiced">—</dd></div><div><dt>Outstanding</dt><dd id="ownerOutstanding">—</dd></div><div><dt>Past due</dt><dd id="ownerPastDue">—</dd></div></dl><a href="/admin/finance/journal" class="owner-text-control">Browse finance journal</a><ol id="ownerOverviewMonths" class="owner-sr-only" aria-label="Six calendar months of recorded cash receipts"></ol></article>
+            <article class="owner-tile owner-workload" aria-labelledby="ownerWorkloadTitle"><header class="owner-tile-head"><h2 id="ownerWorkloadTitle">Work Distribution</h2><span class="owner-badge">Tasks</span></header><strong id="ownerOpenTasks" class="owner-feature-number">—</strong><p class="owner-caption">Open tasks, excluding cancellations</p><div id="ownerWorkloadBar" class="owner-segments" aria-hidden="true"></div><dl class="owner-work-legend"><div><dt><i class="owner-dot owner-dot-done"></i>Done</dt><dd id="ownerWorkDone">—</dd></div><div><dt><i class="owner-dot owner-dot-open"></i>Other open</dt><dd id="ownerWorkOpen">—</dd></div><div><dt><i class="owner-dot owner-dot-blocked"></i>Blocked</dt><dd id="ownerWorkBlocked">—</dd></div></dl></article>
+            <article class="owner-tile owner-attention" aria-labelledby="ownerAttentionTitle"><header class="owner-tile-head"><h2 id="ownerAttentionTitle">Needs Attention</h2><span id="ownerAttentionDate" class="owner-badge">Due dates</span></header><strong id="ownerOverdueTasks" class="owner-attention-number">—</strong><p class="owner-attention-label">overdue open tasks</p><dl class="owner-attention-facts"><div><dt>Overdue milestones</dt><dd id="ownerOverdueMilestones">—</dd></div></dl><div class="owner-next-header"><h3>Coming Up Next</h3><span class="owner-caption">Milestones</span></div><ul id="ownerUpcomingMilestones" class="owner-upcoming"></ul><a href="/projects" class="owner-attention-action">Manage delivery</a></article>
+            <article class="owner-tile owner-people" aria-labelledby="ownerPeopleTitle"><header class="owner-tile-head"><h2 id="ownerPeopleTitle">Your Team</h2><a href="/employees" class="owner-text-control">Directory</a></header><div class="owner-people-top"><div><strong id="ownerEmployeeTotal" class="owner-feature-number">—</strong><p class="owner-caption">Internal roster records</p></div><div id="ownerPeopleMarks" class="owner-people-marks" aria-hidden="true"></div></div><dl class="owner-people-states"><div><dt>Active</dt><dd id="ownerTeamActive">—</dd></div><div><dt>Onboarding</dt><dd id="ownerEmployeeOnboarding">—</dd></div><div><dt>Other states</dt><dd id="ownerTeamOther">—</dd></div></dl></article>
+            <article class="owner-tile owner-projects" aria-labelledby="ownerProjectsTitle"><header class="owner-tile-head"><h2 id="ownerProjectsTitle">Active Projects</h2><a href="/projects" class="owner-text-control">View portfolio</a></header><ul id="ownerRecentProjects" class="owner-project-list"></ul><p id="ownerDeliverySummary" class="owner-caption">Waiting for project records</p></article>
+            <article class="owner-tile owner-activity" aria-labelledby="ownerActivityTitle"><header class="owner-tile-head"><h2 id="ownerActivityTitle">Recent Project Activity</h2><span class="owner-badge">Recorded history</span></header><ol id="ownerActivityItems" class="owner-activity-list"></ol></article>
           </div>
           <!-- Data bindings retained without the requested footer, notes or links. -->
           <div class="owner-data-bindings" hidden><span id="ownerOperationsStatus"></span><span id="ownerOverviewStatus"></span><span id="ownerOverviewObserved"></span><span id="ownerOverviewCounts"></span><span id="ownerCustomersStatus"></span><span id="ownerPeopleStatus"></span><span id="ownerCustomerTotal"></span><span id="ownerCustomerActive"></span><span id="ownerCustomerSuspended"></span></div>
@@ -219,7 +219,7 @@
             </article>
 
             <article class="exec-tile" aria-labelledby="execClientTitle">
-              <header class="exec-tile-title"><h2 id="execClientTitle">Client portfolio</h2><span class="exec-tile-tag">24 total</span></header>
+              <header class="exec-tile-title"><h2 id="execClientTitle">Client Portfolio</h2><span class="exec-tile-tag">24 total</span></header>
               <p class="exec-card-stat">18 <span class="exec-muted">active</span></p>
               <div class="exec-client-stack" aria-hidden="true"><span style="height:100%"></span><span style="height:50%"></span><span style="height:35%"></span><span style="height:22%"></span></div>
               <ul class="exec-legend">
@@ -231,7 +231,7 @@
             </article>
 
             <article class="exec-tile" aria-labelledby="execCapacityTitle">
-              <header class="exec-tile-title"><h2 id="execCapacityTitle">Team capacity</h2><span class="exec-tile-tag">34 active</span></header>
+              <header class="exec-tile-title"><h2 id="execCapacityTitle">Team Capacity</h2><span class="exec-tile-tag">34 active</span></header>
               <div class="exec-gauge" role="img" aria-label="Fictional employee utilization 82 percent"><strong>82<span>%</span></strong></div>
               <p class="exec-center exec-muted">Sample utilization across project teams</p>
               <div class="exec-divider"></div>
@@ -244,7 +244,7 @@
 
             <article class="exec-tile exec-full" aria-labelledby="execTrendTitle">
               <header class="exec-tile-title">
-                <h2 id="execTrendTitle">Revenue performance</h2>
+                <h2 id="execTrendTitle">Revenue Performance</h2>
                 <div class="exec-switch" role="group" aria-label="Revenue chart period">
                   <button type="button" data-exec-range="1M" aria-pressed="false">1M</button>
                   <button type="button" data-exec-range="3M" aria-pressed="false">3M</button>
@@ -260,7 +260,7 @@
             </article>
 
             <article class="exec-tile" aria-labelledby="execMixTitle">
-              <header class="exec-tile-title"><h2 id="execMixTitle">Revenue by project</h2><span class="exec-tile-tag">Illustrative</span></header>
+              <header class="exec-tile-title"><h2 id="execMixTitle">Revenue By Project</h2><span class="exec-tile-tag">Illustrative</span></header>
               <div class="exec-tile-value">₹21.6L</div><p class="exec-muted">Selected sample project earnings · lifetime</p>
               <div class="exec-alloc-bar" aria-label="Fictional allocation by product" role="img">
                 <span style="flex:33.3"></span><span style="flex:22.2"></span><span style="flex:18.3"></span><span style="flex:12.5"></span><span style="flex:13.7"></span>
@@ -275,7 +275,7 @@
             </article>
 
             <article class="exec-tile exec-highlight" aria-labelledby="execDeliveryTitle">
-              <header class="exec-tile-title"><h2 id="execDeliveryTitle">Project delivery</h2><span class="exec-tile-tag">Sample pipeline</span></header>
+              <header class="exec-tile-title"><h2 id="execDeliveryTitle">Project Delivery</h2><span class="exec-tile-tag">Sample pipeline</span></header>
               <div class="exec-tile-value">27</div><p class="exec-muted">Active projects in the pipeline</p>
               <div class="exec-divider"></div>
               <ul class="exec-legend">
@@ -294,7 +294,7 @@
             </article>
 
             <article class="exec-tile" aria-labelledby="execTopClientsTitle">
-              <header class="exec-tile-title"><h2 id="execTopClientsTitle">Top client accounts</h2><span class="exec-tile-tag">Revenue · sample</span></header>
+              <header class="exec-tile-title"><h2 id="execTopClientsTitle">Top Client Accounts</h2><span class="exec-tile-tag">Revenue · sample</span></header>
               <div class="exec-list">
                 <div><div class="exec-list-item"><strong>Aster Commerce</strong><b class="exec-list-value">₹6.12L</b></div><div class="exec-bar-track"><span style="width:94%"></span></div></div>
                 <div><div class="exec-list-item"><strong>Northstar Hotels</strong><b class="exec-list-value">₹4.28L</b></div><div class="exec-bar-track"><span style="width:66%"></span></div></div>
@@ -305,7 +305,7 @@
             </article>
 
             <article class="exec-tile exec-people" aria-labelledby="execPeopleTitle">
-              <header class="exec-tile-title"><h2 id="execPeopleTitle">People &amp; allocation</h2><span class="exec-tile-tag">Team overview</span></header>
+              <header class="exec-tile-title"><h2 id="execPeopleTitle">People &amp; Allocation</h2><span class="exec-tile-tag">Team overview</span></header>
               <div class="exec-avatars" aria-label="Illustrative team avatars">
                 <span class="exec-avatar">DV</span><span class="exec-avatar">PM</span><span class="exec-avatar">QA</span><span class="exec-avatar">AI</span><span class="exec-avatar">UX</span><span class="exec-avatar-rest">+29 team members · sample</span>
               </div>
@@ -321,7 +321,7 @@
             </article>
 
             <article class="exec-tile exec-activity" aria-labelledby="execActivityTitle">
-              <header class="exec-tile-title"><h2 id="execActivityTitle">Recent activity &amp; next milestones</h2><span class="exec-tile-tag">Sample updates</span></header>
+              <header class="exec-tile-title"><h2 id="execActivityTitle">Recent Activity &amp; Next Milestones</h2><span class="exec-tile-tag">Sample updates</span></header>
               <ul class="exec-feed">
                 <li><span class="exec-feed-icon">✓</span><div><strong>CRM Enterprise · UX review</strong><p>Milestone completed in the preview timeline</p></div><span class="exec-feed-time">2h</span></li>
                 <li><span class="exec-feed-icon" aria-hidden="true">•</span><div><strong>Guest platform · Release candidate</strong><p>Illustrative delivery update</p></div><span class="exec-feed-time">1d</span></li>
@@ -347,7 +347,7 @@
           <article class="feature-panel spotlight-surface" id="spotlightPanel">
             <div class="feature-content">
               <p class="feature-kicker"><span class="signal-dot"></span> YOUR ACCESS</p>
-              <h2>Your tools, organized.</h2>
+              <h2>Your Tools, Organized.</h2>
               <p>Open the products assigned to your account. Every application has its own secure sign-in and permissions.</p>
               <a class="feature-link" href="/applications">View applications</a>
             </div>
@@ -375,7 +375,7 @@
           <div class="apps-section-header">
             <div>
               <p class="section-kicker">ACCESS SUMMARY</p>
-              <h2 id="accessTitle">Your access</h2>
+              <h2 id="accessTitle">Your Access</h2>
               <p class="section-description">See your customer workspaces and roles in each product.</p>
             </div>
             <a class="secondary-link" href="/applications">Browse applications</a>
@@ -388,7 +388,7 @@
         <section id="overviewDetails" class="overview-details" data-view="overview" aria-label="Platform administration" hidden>
           <article class="overview-manage" id="adminOverviewPanel" hidden>
             <p class="section-kicker">PLATFORM ADMINISTRATION</p>
-            <h2>Manage access across VSPH.</h2>
+            <h2>Manage Access Across VSPH.</h2>
             <p>Create client organizations, configure subscriptions, assign users to products, and review audit activity.</p>
             <div class="admin-actions">
               <a class="primary-link" href="/admin/onboarding">Onboard a customer</a>
@@ -411,7 +411,7 @@
           <div class="apps-section-header">
             <div>
               <p class="section-kicker">PRODUCT DIRECTORY</p>
-              <h2 id="appsTitle">Your applications</h2>
+              <h2 id="appsTitle">Your Applications</h2>
               <p class="section-description">Search and open a product to verify your application access.</p>
             </div>
             <div class="search-container">

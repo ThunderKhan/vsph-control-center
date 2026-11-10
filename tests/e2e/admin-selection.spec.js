@@ -54,9 +54,9 @@ test("refreshing entitlement versions preserves the selected customer and produc
     await page.locator("#subPlan").fill(plan);
     await page
       .locator("#subscriptionForm")
-      .getByRole("button", { name: "Save subscription", exact: true })
+      .getByRole("button", { name: "Save Subscription", exact: true })
       .click();
-    await page.getByRole("dialog").getByRole("button",{name:"Save subscription"}).click();
+    await page.getByRole("dialog").getByRole("button",{name:"Save Subscription"}).click();
     await expect(page.locator("#globalMessage")).toHaveText(
       "Subscription saved.",
     );

@@ -53,7 +53,7 @@ test("customer workspace queues scoped invitations and rotates or cancels them w
     .getByLabel("Email", { exact: true })
     .fill("developer@fixture.test");
   await page
-    .getByRole("button", { name: "Queue invitation", exact: true })
+    .getByRole("button", { name: "Queue Invitation", exact: true })
     .click();
   await expect(page.locator("#message")).toContainText("queued");
   await expect(page.locator("#invitations")).toContainText(

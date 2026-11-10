@@ -87,7 +87,7 @@
     for (const p of rows) {
       const o = document.createElement("option");
       o.value = p.id;
-      o.textContent = p.code + " · " + p.name + " · " + p.status;
+      o.textContent = p.code + " · " + p.name + " · " + String(p.status || "").replace(/\b[a-z]/g, letter => letter.toUpperCase());
       select.append(o);
     }
     if (id) {

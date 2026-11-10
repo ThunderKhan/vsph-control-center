@@ -16,7 +16,7 @@
   };
   const append = (parent, ...nodes) => { parent.append(...nodes); return parent; };
   const date = raw => raw ? new Date(raw).toLocaleDateString(undefined, {year:"numeric",month:"short",day:"numeric"}) : "Not scheduled";
-  const statusText = state => String(state || "").replaceAll("_", " ");
+  const statusText = state => String(state || "").replaceAll("_", " ").replace(/\b[a-z]/g, letter => letter.toUpperCase());
   const link = (label, view) => {
     const a = E("a",label); a.href="?view="+view; a.dataset.projectOpen=view; return a;
   };
