@@ -46,7 +46,7 @@ test("project inbox preferences and reports persist with scoped assignments", as
     .locator('#notificationPreferences input[name="delivery"]')
     .uncheck();
   await page
-    .getByRole("button", { name: "Save notification preferences", exact: true })
+    .getByRole("button", { name: "Save Notification Preferences", exact: true })
     .click();
   await expect(page.locator("#operationsMessage")).toContainText(
     "preferences saved",
@@ -54,7 +54,7 @@ test("project inbox preferences and reports persist with scoped assignments", as
   await page.goto('/reports');
   await page.locator('#reportFilters input[name="projectId"]').fill(p.id);
   await page
-    .getByRole("button", { name: "Filter report", exact: true })
+    .getByRole("button", { name: "Filter Report", exact: true })
     .click();
   await expect(page.locator("#projectReport")).toContainText(
     "Inbox fixture " + label,
@@ -80,17 +80,17 @@ test('initial inbox outage can recover through Refresh without losing authorized
  await page.route('**/api/notifications',route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({message:'Synthetic inbox unavailable'})}));
  await page.goto('/notifications');
  await expect(page.locator('#operationsMessage')).toHaveText('Synthetic inbox unavailable');
- await expect(page.getByRole('button',{name:'Save notification preferences',exact:true})).toBeDisabled();
+ await expect(page.getByRole('button',{name:'Save Notification Preferences',exact:true})).toBeDisabled();
  await expect(page.locator('#notificationList')).toBeEmpty();await expect(page.locator('#notificationList')).toHaveAttribute('aria-busy','false');
- await page.unroute('**/api/notifications');await page.getByRole('button',{name:'Refresh inbox',exact:true}).click();
+ await page.unroute('**/api/notifications');await page.getByRole('button',{name:'Refresh Inbox',exact:true}).click();
  await expect(page.locator('#operationsMessage')).toHaveText('Inbox refreshed.');
- await expect(page.getByRole('button',{name:'Save notification preferences',exact:true})).toBeEnabled();
+ await expect(page.getByRole('button',{name:'Save Notification Preferences',exact:true})).toBeEnabled();
  // Reports load independently from notifications and do not affect inbox recovery.
  await expect(page.locator('#notificationList li').first()).toBeVisible();
  // A later failure removes stale inbox records and leaves recovery available.
  await page.route('**/api/notifications',route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({message:'Synthetic later outage'})}));
- await page.getByRole('button',{name:'Refresh inbox',exact:true}).click();await expect(page.locator('#operationsMessage')).toHaveText('Synthetic later outage');await expect(page.locator('#notificationList')).toBeEmpty();
- await page.unroute('**/api/notifications');await page.getByRole('button',{name:'Refresh inbox',exact:true}).click();await expect(page.locator('#operationsMessage')).toHaveText('Inbox refreshed.');
+ await page.getByRole('button',{name:'Refresh Inbox',exact:true}).click();await expect(page.locator('#operationsMessage')).toHaveText('Synthetic later outage');await expect(page.locator('#notificationList')).toBeEmpty();
+ await page.unroute('**/api/notifications');await page.getByRole('button',{name:'Refresh Inbox',exact:true}).click();await expect(page.locator('#operationsMessage')).toHaveText('Inbox refreshed.');
 });
 
 test('report recovery preserves preference drafts and late inbox replies cannot duplicate or resurrect unread rows',async({page,context},info)=>{
@@ -106,7 +106,7 @@ test('report recovery preserves preference drafts and late inbox replies cannot 
  await page.unroute('**/api/project-reports**');
  await page.goto('/notifications');
  const preference=page.locator('#notificationPreferences input[name=delivery]');await expect(preference).toBeEnabled();const draft=!(await preference.isChecked());await preference.setChecked(draft);
- await page.getByRole('button',{name:'Refresh inbox',exact:true}).click();await expect(page.locator('#operationsMessage')).toHaveText('Inbox refreshed.');await expect(preference).toBeChecked({checked:draft});
+ await page.getByRole('button',{name:'Refresh Inbox',exact:true}).click();await expect(page.locator('#operationsMessage')).toHaveText('Inbox refreshed.');await expect(preference).toBeChecked({checked:draft});
  const oldData=await (await context.request.get('/api/notifications')).json();
  let release,seen;const held=new Promise(resolve=>{release=resolve;}),firstRequest=new Promise(resolve=>{seen=resolve;});let calls=0;
  await page.route('**/api/notifications',async route=>{
@@ -114,7 +114,7 @@ test('report recovery preserves preference drafts and late inbox replies cannot 
   else await route.continue();
  });
  const row=page.locator('#notificationList li').filter({hasText:title});await row.getByRole('button',{name:'Mark read',exact:true}).click();await firstRequest;
- await page.getByRole('button',{name:'Refresh inbox',exact:true}).click();await expect(page.locator('#operationsMessage')).toHaveText('Inbox refreshed.');
+ await page.getByRole('button',{name:'Refresh Inbox',exact:true}).click();await expect(page.locator('#operationsMessage')).toHaveText('Inbox refreshed.');
  await expect(page.locator('#notificationList li').filter({hasText:title})).toContainText('Read');
  await expect(page.locator('#notificationList li').filter({hasText:title}).getByRole('button',{name:'Mark read',exact:true})).toHaveCount(0);
  const count=await page.locator('#notificationList li').count();const response=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/notifications');release();await (await response).finished();
