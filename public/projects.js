@@ -306,15 +306,16 @@
       list.className = "project-portfolio-table";
       box.append(list);
     } catch (error) {
-      if (requestId === portfolioRequestSerial) {
-        items = [];
-        cursor = null;
-        canAdministerProjects = false;
-        $("newProject").hidden = true;
-        $("moreProjects").hidden = true;
-        $("projectList").replaceChildren();
-        updatePortfolioMetrics([]);
-      }
+      if (requestId !== portfolioRequestSerial) return;
+      items = [];
+      cursor = null;
+      canAdministerProjects = false;
+      $("newProject").hidden = true;
+      $("moreProjects").hidden = true;
+      $("projectList").replaceChildren();
+      updatePortfolioMetrics([]);
+      $("projectResultsCount").textContent = "Projects Unavailable";
+      $("projectPageStatus").textContent = "No Results Loaded";
       throw error;
     } finally {
       if (requestId === portfolioRequestSerial)
