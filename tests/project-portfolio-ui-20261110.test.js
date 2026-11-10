@@ -15,7 +15,7 @@ test("Projects portfolio retains a single server-authorized list with scoped met
   assert.match(js,/api\("\/api\/projects\?" \+ qs\)/);
   assert.match(js,/page\.length < 50/);
   assert.match(js,/items = append \? items\.concat\(page\) : page/);
-  assert.match(js,/Summary/gi);
+  assert.match(js,/function updatePortfolioMetrics/);
   assert.match(html,/Summary cards reflect only loaded, authorized projects/);
   assert.match(css,/\.project-portfolio-table/);
   assert.match(css,/@media\(max-width:620px\)/);
