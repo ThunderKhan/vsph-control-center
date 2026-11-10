@@ -31,9 +31,9 @@ test('central portal login links to invitation help without enabling unsolicited
 });
 
 
-test('employee creation is available from both directory and grouped People menu',()=>{
+test('employee onboarding remains accessible from the directory but not the People menu',()=>{
  const nav=read('views/partials/portal-navigation.html'),directory=read('views/employees.html');
  assert.match(nav,/href="\/employees" aria-label="Employee management"/);
- assert.match(nav,/href="\/employees\/onboarding" aria-label="Employee onboarding"/);
+ assert.doesNotMatch(nav,/href="\/employees\/onboarding"/);
  assert.match(directory,/class="people-primary" href="\/employees\/onboarding">Onboard employee<\/a>/);
 });
