@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#00255A">
+<title>Outreach Access | VSPH Control Center</title>
+<link rel="stylesheet" href="/fonts.css">
+<link rel="stylesheet" href="/outreach-access.css">
+<script src="/outreach-access.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<main id="content" class="shell">
+<header class="page-head">
+  <div><p class="eyebrow">INTERNAL APPLICATION</p><h1>Outreach Access</h1></div>
+  <a class="back" href="/admin">Back to administration</a>
+</header>
+<p id="message" class="message" role="status" aria-live="polite"></p>
+<section class="panel">
+<h2>Grant employee access</h2>
+<form id="grantForm">
+  <div class="fields">
+  <div><label for="employee">Employee account</label><select id="employee" required><option value="">Loading accounts…</option></select></div>
+  <div><label for="role">Outreach role</label><select id="role">
+    <option value="representative">Representative</option>
+    <option value="manager">Manager</option>
+    <option value="administrator">Administrator</option>
+    <option value="analyst">Analyst</option>
+  </select></div>
+  </div>
+  <button id="grant" type="submit">Grant access</button>
+</form>
+</section>
+<section class="panel">
+<div class="section-head"><h2>Existing grants</h2><button id="refresh" class="secondary" type="button">Refresh</button></div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Employee</th><th>Role</th><th>Status</th><th>Action</th></tr></thead>
+<tbody id="grants"><tr><td colspan="4">Loading…</td></tr></tbody>
+</table>
+</div>
+</section>
+</main>
+</body>
+</html>

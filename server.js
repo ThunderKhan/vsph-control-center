@@ -3,7 +3,9 @@ const express=require('express');const path=require('node:path');const cookiePar
 const {db,configured}=require('./db');
 const {portalSession,optionalPortal,requireAdmin,requireApp,validateOrigin,getApp,getContexts}=require('./security');
 const musicSso=require('./routes/sso');
+const outreachSso=require('./routes/outreach-sso');
 const {musicConfig}=require('./integration/sso-config');
+const {outreachConfig}=require('./integration/outreach-config');
 const {securityHeaders,trustProxy,rateLimit,safeError}=require('./http-security');
 const app=express();app.disable('x-powered-by');app.set('trust proxy',trustProxy());
 app.use(securityHeaders);
@@ -19,16 +21,22 @@ app.use(express.json({limit:'100kb',strict:true}));app.use(express.urlencoded({e
 // Applied before credential verification and confidential SSO lookups. No body or token is a limiter key.
 app.use(['/api/auth/login','/api/auth/app-login','/api/invitations/accept','/api/invitations/inspect'],rateLimit({limit:20,windowMs:15*60*1000}));
 app.use(['/api/sso/exchange','/api/sso/introspect'],rateLimit({limit:300,windowMs:60*1000}));
+app.use(['/api/outreach-sso/exchange','/api/outreach-sso/introspect'],rateLimit({limit:120,windowMs:60*1000}));
+app.use('/api/outreach-sso/authorize',rateLimit({limit:30,windowMs:5*60*1000}));
+app.use('/api/admin-management/outreach-access',rateLimit({limit:60,windowMs:5*60*1000}));
 // The Music server exchanges a one-time code without a browser Origin header.
 // This exception requires its own confidential client authentication.
 app.post('/api/sso/exchange',musicSso.exchange);
 app.post('/api/sso/introspect',musicSso.introspect);
+// Confidential Outreach exchange is not a browser write; validate its client secret.
+app.post('/api/outreach-sso/exchange',outreachSso.exchange);
+app.post('/api/outreach-sso/introspect',outreachSso.introspect);
 app.use(validateOrigin);
 // Authenticated HTML and session-dependent API responses must not be stored by
 // browser/proxy caches; navigating Back after logout should trigger a fresh check.
 app.use((req,res,next)=>{
  const url=(String(req.originalUrl||'').split('?')[0].replace(/\/+$/, '') || '/');
- if(url.startsWith('/api/sso/') || url.startsWith('/api/invitations/') || url.startsWith('/api/admin-management/') || url.startsWith('/api/auth/') || url==='/api/apps' || url.startsWith('/api/apps/') || url.startsWith('/api/employee-identity') || url.startsWith('/api/employees') || url.startsWith('/api/finance') ||
+ if(url.startsWith('/api/outreach-sso/') || url.startsWith('/api/sso/') || url.startsWith('/api/invitations/') || url.startsWith('/api/admin-management/') || url.startsWith('/api/auth/') || url==='/api/apps' || url.startsWith('/api/apps/') || url.startsWith('/api/employee-identity') || url.startsWith('/api/employees') || url.startsWith('/api/finance') ||
     url.startsWith('/apps/') || ['/', '/login', '/login.html', '/index.html',
     '/dashboard','/applications','/employment','/employees','/employees/onboarding','/admin','/admin/onboarding','/admin/finance','/admin/finance/journal','/accept-invite','/dashboard.html','/applications.html','/admin.html'].includes(url)) {
    res.set('Cache-Control','no-store');
@@ -62,6 +70,7 @@ app.use('/api/projects',require('./routes/projects').router);
 app.get(['/projects','/projects/:id'],portalSession,(req,res)=>{res.set('Cache-Control','no-store');res.sendFile(path.join(__dirname,'views','projects.html'))});
 app.use('/api/apps',require('./routes/apps'));
 app.use('/api/sso',musicSso.router);
+app.use('/api/outreach-sso',outreachSso.router);
 app.use('/api/workspaces',require('./routes/workspaces'));
 app.use('/api/organizations',require('./routes/organizations').router);
 // Internal VSPH employees, separate from customer organizations and products.
@@ -77,6 +86,11 @@ app.get('/admin/finance',portalSession,requireAdmin,(req,res)=>{res.set('Cache-C
 app.get(['/employees','/employees/','/employees/onboarding','/employees/onboarding/'],portalSession,require('./routes/employees').employeePage);
 app.get('/organizations',portalSession,(req,res)=>{res.set('Cache-Control','no-store');res.sendFile(path.join(__dirname,'views','organizations.html'))});
 app.use('/api/admin-management/product-registry',portalSession,requireAdmin,require('./routes/products').router);
+app.use('/api/admin-management/outreach-access',outreachSso.accessRouter);
+app.get('/admin/outreach-access',portalSession,requireAdmin,(req,res)=>{
+  res.set('Cache-Control','no-store');
+  res.sendFile(path.join(__dirname,'views','outreach-access.html'));
+});
 app.get('/admin/products',portalSession,requireAdmin,(req,res)=>{res.set('Cache-Control','no-store');res.sendFile(path.join(__dirname,'views','products.html'))});
 app.use('/api/admin-management/customers',portalSession,requireAdmin,require('./routes/customers').router);
 app.get('/admin/customers',portalSession,requireAdmin,(req,res)=>{res.set('Cache-Control','no-store');res.sendFile(path.join(__dirname,'views','customers.html'))});
@@ -93,6 +107,13 @@ app.get('/apps/:app/launch',portalSession,async(req,res,next)=>{
   try{
     const application=await getApp(req.params.app);
     if(!application || application.status!=='active')return res.status(404).send('Application unavailable.');
+    if(application.code==='OUTREACH'){
+      const role=await outreachSso.access(req);
+      if(!role)return res.status(403).send('Outreach employee access denied.');
+      const configured=outreachConfig();
+      if(!configured)return res.status(503).send('Outreach launch is not configured.');
+      return res.redirect(303,configured.startUrl);
+    }
     const contexts=await getContexts(req.user,application);
     if(!contexts.length)return res.status(403).send('No access to this application.');
     // Preserve existing second-stage sign-in unless a trusted Music receiver
@@ -105,6 +126,10 @@ app.get('/apps/:app/launch',portalSession,async(req,res,next)=>{
 app.get('/apps/:app/login',portalSession,async(req,res,next)=>{
  try{const application=await getApp(req.params.app);
  if(!application||application.status!=='active')return res.status(404).send('Application unavailable.');
+ if(application.code==='OUTREACH'){
+   // No second password form. The confidential launch verifies current grants.
+   return res.redirect(302,'/apps/outreach/launch');
+ }
  const contexts=await getContexts(req.user,application);
  if(!contexts.length)return res.status(403).send('No access to this application.');
  res.sendFile(authViews[application.code] || sharedAuthView);

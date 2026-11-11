@@ -2,13 +2,18 @@ const express=require('express');
 const {db,check}=require('../db');
 const {portalSession,getApp,getContexts,requireApp}=require('../security');
 const {canCreateRecord,adapter,diagnostics,payload:recordPayload}=require('../products/adapters');
+const outreachSso=require('./outreach-sso');
 const router=express.Router();
 router.use(portalSession);
 router.get('/',async(req,res,next)=>{
  try{
   const apps=check(await db().from('applications').select('id,code,name,login_path,status').eq('status','active').eq('visibility','listed').order('name'));
   const permitted=[];
-  for(const app of apps){if(req.user.platform_role==='super_admin'||(await getContexts(req.user,app)).length)permitted.push(app)}
+  for(const app of apps){
+    if(app.code==='OUTREACH'){
+      if(await outreachSso.access(req))permitted.push(app);
+    }else if(req.user.platform_role==='super_admin'||(await getContexts(req.user,app)).length)permitted.push(app);
+  }
   res.json({applications:permitted});
  }catch(err){next(err)}
 });
@@ -16,6 +21,11 @@ router.get('/:app/contexts',async(req,res,next)=>{
  try{
   const app=await getApp(req.params.app);
   if(!app||app.status!=='active')return res.status(404).json({message:'Application unavailable.'});
+  if(app.code==='OUTREACH'){
+    const role=await outreachSso.access(req);
+    if(!role)return res.status(403).json({message:'Outreach employee access denied.'});
+    return res.json({application:app,organizations:[],internal:{role,label:'VSPH Internal'},email:req.user.email});
+  }
   res.json({application:app,organizations:await getContexts(req.user,app),email:req.user.email});
  }catch(err){next(err)}
 });
