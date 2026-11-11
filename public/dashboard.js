@@ -9,6 +9,11 @@
       description: 'Customer contacts and relationship management.',
       icon: 'icon-crm'
     },
+    OUTREACH: {
+      category: 'INTERNAL OUTREACH',
+      description: 'Campaign approvals and governed email workflows.',
+      icon: 'icon-generic'
+    },
     MUSIC: {
       category: 'VENUE OPERATIONS',
       description: 'Music requests and guest-facing experiences.',
@@ -104,18 +109,22 @@
     for (const app of matches) grid.append(appCard(app));
   }
 
-  function accessRow(app, contexts, failed = false) {
+  function accessRow(app, contexts, failed = false, internalRole = null) {
     const code = String(app.code).toUpperCase();
     const item = element('article', 'access-row');
     const identity = element('div', 'access-row-product');
     const name = element('strong', '', app.name || code);
     const status = element('span', 'access-row-caption',
       failed ? 'Unable to retrieve product access' :
+      internalRole ? 'Internal employee workspace' :
       (contexts.length === 1 ? '1 customer workspace' : contexts.length + ' customer workspaces'));
     identity.append(name, status);
 
     const detail = element('div', 'access-row-details');
-    if (!failed && contexts.length) {
+    if (!failed && internalRole) {
+      detail.append(element('strong', 'access-role-label', internalRole.replaceAll('_',' ')));
+      detail.append(element('span', 'access-org-label', 'VSPH Internal'));
+    } else if (!failed && contexts.length) {
       const roles = [...new Set(contexts.map(org => String(org.role || 'user').replaceAll('_',' ')))];
       detail.append(element('strong', 'access-role-label', roles.join(', ')));
       const names = contexts.slice(0, 3).map(org => String(org.name || 'Customer')).join(' · ');
@@ -125,7 +134,7 @@
         failed ? 'Product access details are temporarily unavailable.' : 'No active customer assignments'));
     }
 
-    if (!failed && contexts.length) {
+    if (!failed && (contexts.length || internalRole)) {
       const open = element('a', 'access-open', 'Open');
       open.href = '/apps/' + code.toLowerCase() + '/launch';
       open.setAttribute('aria-label', 'Open ' + (app.name || code));
@@ -141,7 +150,7 @@
       try {
         const result = await responseJson('/api/apps/' + encodeURIComponent(app.code) + '/contexts');
         if (!result) return {app, contexts:[], failed:true};
-        return {app, contexts:Array.isArray(result.organizations) ? result.organizations : [], failed:false};
+        return {app, contexts:Array.isArray(result.organizations) ? result.organizations : [], internalRole:result.internal?.role||null, failed:false};
       } catch {
         return {app, contexts:[], failed:true};
       }
@@ -153,7 +162,7 @@
       accessGrid.append(element('p','access-empty','No products are currently assigned to your account.'));
       return;
     }
-    for (const item of results) accessGrid.append(accessRow(item.app,item.contexts,item.failed));
+    for (const item of results) accessGrid.append(accessRow(item.app,item.contexts,item.failed,item.internalRole));
   }
 
   function addSpotlight(surface) {
